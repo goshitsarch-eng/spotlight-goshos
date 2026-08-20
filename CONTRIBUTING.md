@@ -308,6 +308,7 @@ Manual testing on GNOME Shell 50 Wayland:
 106. Open the launcher on Pop!_OS (windows first) with several windows, then close one of those windows without typing — the closed window must leave the list. Install or remove an app while the popup is open — the app list must update without retyping.
 107. Open the launcher, then press Print Screen — the launcher must close so the screenshot UI can grab the keyboard. A polkit or network password dialog that appears while the popup is open must also dismiss it.
 108. Open the launcher while a window is closing — the popup must still appear. A vanished Meta.Window during the first live-search scan must not abort open() after the backdrop is already in chrome.
+109. On a tablet, swipe the result list — it must scroll. A tap that stays inside the slop must still activate that row. A mouse click must still activate.
 
 ## Submitting Changes
 

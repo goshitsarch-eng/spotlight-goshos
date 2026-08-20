@@ -34,3 +34,39 @@ export function rowTouchPhase(kind) {
         return 'hold';
     return null;
 }
+
+// claiming touch-update stops st.scrollview from panning the list
+export const TOUCH_TAP_SLOP = 16;
+
+export function eventCoordY(coords) {
+    if (!Array.isArray(coords))
+        return null;
+    if (typeof coords[2] === 'number')
+        return coords[2];
+    if (typeof coords[1] === 'number')
+        return coords[1];
+    return null;
+}
+
+export function touchMovedPastSlop(startY, y, slop) {
+    if (typeof startY !== 'number' || typeof y !== 'number')
+        return false;
+    const limit = slop === undefined ? TOUCH_TAP_SLOP : slop;
+    return Math.abs(y - startY) > limit;
+}
+
+export function shouldIgnorePointerForTouch(isTouchscreen) {
+    return Boolean(isTouchscreen);
+}
+
+export function rowTouchGestureAction(kind, pressed, dragged) {
+    if (kind === 'touch-begin')
+        return {pressed: true, dragged: false, action: 'propagate'};
+    if (kind === 'touch-cancel')
+        return {pressed: false, dragged: false, action: 'propagate'};
+    if (kind === 'touch-update')
+        return {pressed, dragged, action: 'propagate'};
+    if (kind === 'touch-end' && pressed && !dragged)
+        return {pressed: false, dragged: false, action: 'activate'};
+    return {pressed: false, dragged: false, action: 'propagate'};
+}

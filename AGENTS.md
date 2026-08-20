@@ -155,7 +155,7 @@ gosh-is-launcher@nin/
     popupPosition.js          work-area origin (pure)
     popupChrome.js            addtopchrome versus addchrome (pure)
     unredirect.js             hold compositor unredirect while open (pure)
-    resultPointer.js          result row press/release (pure)
+    resultPointer.js          result row press/release and touch tap versus swipe (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
     focusLoss.js              close vs refocus the entry (pure)
     backdropBox.js            multi-monitor click-outside box (pure)

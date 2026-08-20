@@ -18,7 +18,7 @@ import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentF
 import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, pathMatchesQuery, idMatchesQuery, labelMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {appId, appName, appGenericName, appKeywords, appDescription, appActionIds, appActionName, describeInstalledApp, collectInstalledAppMatches, collectUsableApps} from '../appInfo.js';
-import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON, shouldApplyHoverSelection} from '../resultPointer.js';
+import {rowPointerAction, rowTouchPhase, rowTouchGestureAction, eventCoordY, touchMovedPastSlop, shouldIgnorePointerForTouch, PRIMARY_BUTTON, TOUCH_TAP_SLOP, shouldApplyHoverSelection} from '../resultPointer.js';
 import {resultIconSource, appIconOrFallback, windowIconOrFallback} from '../resultIcon.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
@@ -403,8 +403,21 @@ assertEq(rowTouchPhase('touch-begin'), 'press', 'touch begin is press');
 assertEq(rowTouchPhase('touch-end'), 'release', 'touch end is release');
 assertEq(rowTouchPhase('touch-cancel'), 'leave', 'touch cancel is leave');
 assertEq(rowTouchPhase('touch-update'), 'hold', 'touch move holds');
-assertEq(rowPointerAction('hold', PRIMARY_BUTTON, true).action, 'stop', 'held touch stays claimed');
-assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', 'touch end after begin activates');
+assertEq(rowPointerAction('hold', PRIMARY_BUTTON, true).action, 'stop', 'mouse hold stays claimed');
+assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', 'mouse release after press activates');
+assertEq(rowTouchGestureAction('touch-begin', false, false).action, 'propagate', 'touch begin reaches the scrollview');
+assertEq(rowTouchGestureAction('touch-update', true, false).action, 'propagate', 'touch move reaches the scrollview');
+assertEq(rowTouchGestureAction('touch-end', true, false).action, 'activate', 'tap without a swipe activates');
+assertEq(rowTouchGestureAction('touch-end', true, true).action, 'propagate', 'swipe does not activate');
+assertEq(rowTouchGestureAction('touch-cancel', true, false).action, 'propagate', 'cancelled touch does not activate');
+assertEq(eventCoordY([12, 40]), 40, 'clutter coords are x y');
+assertEq(eventCoordY([true, 12, 40]), 40, 'gjs out-param coords are ok x y');
+assertEq(eventCoordY(null), null, 'missing coords');
+assert(touchMovedPastSlop(10, 10 + TOUCH_TAP_SLOP + 1), 'swipe past slop');
+assert(!touchMovedPastSlop(10, 10 + TOUCH_TAP_SLOP), 'tap stays inside slop');
+assert(!touchMovedPastSlop(null, 40), 'unknown start is not a swipe');
+assert(shouldIgnorePointerForTouch(true), 'emulated click is ignored');
+assert(!shouldIgnorePointerForTouch(false), 'mouse click is kept');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();
