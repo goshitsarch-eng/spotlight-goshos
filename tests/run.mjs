@@ -3,7 +3,7 @@ import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUn
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
-import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
+import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
@@ -268,6 +268,9 @@ assert(!canOpenPopup(false, true, false, false), 'visible blocks');
 assert(!canOpenPopup(false, false, true, false), 'lock screen blocks');
 assert(!canOpenPopup(false, false, false, true), 'greeter blocks');
 assert(!canOpenPopup(false, false, false, false, true), 'screen-time limit blocks');
+assertEq(nextOpenErrorAction(true, false), 'close', 'throw after _isOpen must teardown');
+assertEq(nextOpenErrorAction(false, true), 'close', 'throw after show must teardown');
+assertEq(nextOpenErrorAction(false, false), 'keep', 'throw before open flag stays idle');
 assert(sessionLimitsReached(TIME_LIMITS_REACHED), 'gnome 50 limit reached');
 assert(!sessionLimitsReached(0), 'disabled time limits');
 assertEq(timeLimitsState(null), 0, 'missing manager is disabled');

@@ -313,6 +313,7 @@ Manual testing on GNOME Shell 50 Wayland:
 111. Open the launcher, then open the on-screen keyboard — tapping a key must type into the entry and must not close the launcher. The keys sit in keyboardBox which is addTopChrome at shell init; the launcher is added later and must raise that box above the backdrop while the keyboard is visible.
 112. Use the on-screen keyboard and long-press a letter so an accent popover is created, dismiss the launcher, then open it again and long-press the same letter — the accents must appear above the backdrop and tapping one must type into the entry instead of closing the launcher. GNOME 50 keeps those popovers in addTopChrome after first use.
 113. With an IME (Chinese, Japanese, Korean, or typing-booster), type in the launcher until the candidate popup appears — the lookup table must sit above the launcher, not under the backdrop. Enter, arrows, and number keys must commit or move IME candidates, not activate a result. Clicking a candidate must type that character and must not close the launcher.
+114. If opening fails after the unredirect hold or chrome add (for example the primary monitor vanishes mid-open), the next shortcut press must open the launcher. It must not stay stuck treating the popup as already open, and it must not leave a leftover unredirect hold.
 
 ## Submitting Changes
 

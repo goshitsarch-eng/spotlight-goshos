@@ -21,7 +21,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from './popupGate.js';
 import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
@@ -662,56 +662,67 @@ class LauncherPopup extends St.BoxLayout {
             return;
 
         this._isOpen = true;
-        this._setUnredirectHeld(true);
+        try {
+            this._setUnredirectHeld(true);
 
-        // create and show backdrop first then popup - later addition to
-        // chrome means higher in the stacking order so popup naturally
-        // sits above the backdrop
-        this._backdrop = new PopupBackdrop(() => this.closeSoon());
-        this._backdrop.show();
-        this._listenMonitors();
-        this._listenKeyboard();
-        this._listenInputChrome();
-        this._liveSearch.start();
+            // create and show backdrop first then popup - later addition to
+            // chrome means higher in the stacking order so popup naturally
+            // sits above the backdrop
+            this._backdrop = new PopupBackdrop(() => this.closeSoon());
+            this._backdrop.show();
+            this._listenMonitors();
+            this._listenKeyboard();
+            this._listenInputChrome();
+            this._liveSearch.start();
 
-        // always re-add popup to chrome to guarantee correct stacking order
-        // if popup was left in chrome from a previous close remove it first
-        if (this.get_parent())
-            removePopupChrome(Main.layoutManager, this);
-        addPopupChrome(Main.layoutManager, this);
-        this._raiseOnScreenKeyboard();
+            // always re-add popup to chrome to guarantee correct stacking order
+            // if popup was left in chrome from a previous close remove it first
+            if (this.get_parent())
+                removePopupChrome(Main.layoutManager, this);
+            addPopupChrome(Main.layoutManager, this);
+            this._raiseOnScreenKeyboard();
 
-        // queue a layout pass then position before showing
-        // ensures get_preferred_height returns correct values
-        // otherwise css may not be applied and height is wrong
-        this.set_width(this._fittedWidth());
-        this._applyChrome();
-        this.queue_relayout();
-        this._positionIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            this._positionIdleId = 0;
-            if (!this._isOpen)
+            // queue a layout pass then position before showing
+            // ensures get_preferred_height returns correct values
+            // otherwise css may not be applied and height is wrong
+            this.set_width(this._fittedWidth());
+            this._applyChrome();
+            this.queue_relayout();
+            this._clearIdle('_positionIdleId');
+            this._positionIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                this._positionIdleId = 0;
+                if (!this._isOpen)
+                    return GLib.SOURCE_REMOVE;
+                try {
+                    this._reposition();
+                    this.show();
+                    // grab focus only after the popup is visible
+                    // grabbing focus on a hidden actor fails silently
+                    this._entry.grab_key_focus();
+                    // capture key events at the stage level during capture phase
+                    // this guarantees we see enter/esc/arrows before st entry can
+                    // consume them which was the root cause of keyboard not working
+                    this._stageKeyId = global.stage.connect('captured-event',
+                        (_, event) => this._keyHandler.handleEvent(event));
+                    this._focusWatcher.start();
+                    this._renderer.onTextChanged(this._entry.get_text());
+                } catch (e) {
+                    this.closeSoon();
+                }
                 return GLib.SOURCE_REMOVE;
-            this._reposition();
-            this.show();
-            // grab focus only after the popup is visible
-            // grabbing focus on a hidden actor fails silently
-            this._entry.grab_key_focus();
-            // capture key events at the stage level during capture phase
-            // this guarantees we see enter/esc/arrows before st entry can
-            // consume them which was the root cause of keyboard not working
-            this._stageKeyId = global.stage.connect('captured-event',
-                (_, event) => this._keyHandler.handleEvent(event));
-            this._focusWatcher.start();
-            this._renderer.onTextChanged(this._entry.get_text());
-            return GLib.SOURCE_REMOVE;
-        });
+            });
 
-        invalidateRecentFiles();
-        invalidatePathLookup();
-        invalidateCommandLookup();
-        invalidateBookmarks();
-        this._entry.set_text('');
-        this._renderer.reset();
+            invalidateRecentFiles();
+            invalidatePathLookup();
+            invalidateCommandLookup();
+            invalidateBookmarks();
+            this._entry.set_text('');
+            this._renderer.reset();
+        } catch (e) {
+            // a throw after _isOpen would leave the shortcut stuck on close
+            if (nextOpenErrorAction(this._isOpen, this.visible) === 'close')
+                this.close();
+        }
     }
 
     // clutter 18 aborts if the actor tree changes inside an input handler

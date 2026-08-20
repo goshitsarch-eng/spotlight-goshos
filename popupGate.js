@@ -19,6 +19,13 @@ export function canOpenPopup(isOpen, visible, locked, greeter, limitsReached) {
     return !isOpen && !visible && !locked && !greeter && !limitsReached;
 }
 
+// a throw after _isOpen would leave the shortcut stuck on close
+export function nextOpenErrorAction(isOpen, visible) {
+    if (isOpen || visible)
+        return 'close';
+    return 'keep';
+}
+
 // an already-open popup must die when the session locks
 export function shouldCloseOnSession(locked, greeter, limitsReached) {
     return locked || greeter || Boolean(limitsReached);
