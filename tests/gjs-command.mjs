@@ -1,6 +1,6 @@
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
-import {commandIsReady, firstCommandArg, commandUsesPathLookup} from '../commandReady.js';
+import {commandIsReady, commandFileIsReady, firstCommandArg, commandUsesPathLookup} from '../commandReady.js';
 import {expandHomePath} from '../homePath.js';
 
 if (firstCommandArg(['true', '-h']) !== 'true')
@@ -27,5 +27,9 @@ const trueDir = GLib.path_get_dirname(absTrue);
 const homeRelative = expandHomePath('./true', trueDir);
 if (!commandIsReady(homeRelative, () => null, path => Gio.File.new_for_path(path).query_exists(null)))
     throw new Error('home-relative true should exist');
+if (commandFileIsReady(true, true))
+    throw new Error('directory must not be a command');
+if (!commandFileIsReady(false, true))
+    throw new Error('executable file should be ready');
 
 print('gjs command helpers ok');

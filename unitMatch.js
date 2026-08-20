@@ -27,6 +27,9 @@ const ALIASES = {
     qt: 'qt', quart: 'qt', quarts: 'qt',
     pt: 'pt', pint: 'pt', pints: 'pt',
     cup: 'cup', cups: 'cup',
+    tbsp: 'tbsp', tablespoon: 'tbsp', tablespoons: 'tbsp',
+    tsp: 'tsp', teaspoon: 'tsp', teaspoons: 'tsp',
+    floz: 'floz', fluidounce: 'floz', fluidounces: 'floz',
     b: 'b', byte: 'b', bytes: 'b',
     kb: 'kb', kilobyte: 'kb', kilobytes: 'kb',
     mb: 'mb', megabyte: 'mb', megabytes: 'mb',
@@ -91,6 +94,9 @@ const UNITS = {
     ml: {dim: 'volume', toBase: 0.001},
     l: {dim: 'volume', toBase: 1},
     cup: {dim: 'volume', toBase: 0.2365882365},
+    tbsp: {dim: 'volume', toBase: 0.01478676478125},
+    tsp: {dim: 'volume', toBase: 0.00492892159375},
+    floz: {dim: 'volume', toBase: 0.0295735295625},
     pt: {dim: 'volume', toBase: 0.473176473},
     qt: {dim: 'volume', toBase: 0.946352946},
     gal: {dim: 'volume', toBase: 3.785411784},
@@ -162,6 +168,8 @@ export function normalizeUnitQuery(query) {
         .replace(/km\s*\/\s*h(?:r)?/gi, 'kph')
         .replace(/mi\s*\/\s*h/gi, 'mph')
         .replace(/(^|[^a-z])m\s*\/\s*s\b/gi, '$1mps')
+        .replace(/\bfluid\s+ounces?\b/gi, 'floz')
+        .replace(/\bfl(?:uid)?\s*ozs?\b/gi, 'floz')
         .replace(/\s*degrees?\s+(f|c|k|fahrenheit|celsius|kelvin|centigrade)\b/gi, ' $1')
         .replace(/°/g, ' ');
     // pasted values often use thousands commas the way the calculator does

@@ -25,6 +25,8 @@ const FILE_EXTS = new Set([
     'mp3', 'mp4', 'wav', 'exe', 'deb', 'rpm', 'so', 'dll', 'vue', 'sql',
     'db', 'lock', 'map', 'wasm', 'dart', 'swift', 'lua', 'zig', 'desktop',
     'service', 'timer', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'bat', 'env',
+    'mjs', 'cjs', 'mts', 'cts', 'scss', 'sass', 'csv', 'tsv', 'rst', 'tex',
+    'hs', 'avif', 'heic', 'webm', 'mkv', 'mov', 'iso', 'apk',
 ]);
 
 // scheme-less hostnames need a real site tld so node.js and readme.md

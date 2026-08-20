@@ -26,6 +26,11 @@ export function commandIsReady(exe, findInPath, pathExists) {
     return Boolean(pathExists(exe));
 }
 
+// a directory with the search bit set is executable to glib but not a command
+export function commandFileIsReady(isDirectory, isExecutable) {
+    return !isDirectory && Boolean(isExecutable);
+}
+
 export function commandRowMeta(query, ready, checking = false) {
     if (checking) {
         return {

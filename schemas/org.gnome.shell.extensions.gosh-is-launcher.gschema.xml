@@ -148,13 +148,13 @@
     <key name="enable-calculator" type="b">
       <default>true</default>
       <summary>Enable calculator</summary>
-      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, round, 5!, 2π, and 5².</description>
+      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, sin 90, round, 5!, 2π, and 5².</description>
     </key>
 
     <key name="enable-unit-convert" type="b">
       <default>true</default>
       <summary>Enable unit conversion</summary>
-      <description>Convert length, mass, temperature, volume, data, duration, area, speed, pressure, energy, power, and angle such as 10 km to mi, 200 kcal to kj, 1 hp to kw, or 180 deg to rad.</description>
+      <description>Convert length, mass, temperature, volume, data, duration, area, speed, pressure, energy, power, and angle such as 10 km to mi, 1 cup to tbsp, 200 kcal to kj, 1 hp to kw, or 180 deg to rad.</description>
     </key>
 
     <key name="enable-color-hex" type="b">

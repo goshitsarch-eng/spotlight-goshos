@@ -3,7 +3,7 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {firstCommandArg, commandIsReady, commandUsesPathLookup, commandRowMeta} from './commandReady.js';
+import {firstCommandArg, commandIsReady, commandFileIsReady, commandUsesPathLookup, commandRowMeta} from './commandReady.js';
 import {resolveCommandArgv} from './homePath.js';
 import {spawnArgv, findInUserPath} from './gioLaunch.js';
 
@@ -90,8 +90,11 @@ function _start(query, resolved) {
         (src, res) => {
             let ready = false;
             try {
-                src.query_info_finish(res);
-                ready = true;
+                const info = src.query_info_finish(res);
+                ready = commandFileIsReady(
+                    info.get_file_type() === Gio.FileType.DIRECTORY,
+                    GLib.file_test(exe, GLib.FileTest.IS_EXECUTABLE),
+                );
             } catch (e) {
                 ready = false;
             }

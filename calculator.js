@@ -254,13 +254,18 @@ export function evaluateArithmetic(input, allowBare) {
             const name = tok.toLowerCase();
             consume();
             if (FUNCS[name]) {
-                if (peek() !== '(')
+                if (peek() === '(') {
+                    consume();
+                    const v = parseExpression();
+                    if (v === null || peek() !== ')')
+                        return null;
+                    consume();
+                    return finishValue(applyFunc(FUNCS[name], v));
+                }
+                // sin 90 and sqrt 16 are what people type
+                const v = parseUnary();
+                if (v === null)
                     return null;
-                consume();
-                const v = parseExpression();
-                if (v === null || peek() !== ')')
-                    return null;
-                consume();
                 return finishValue(applyFunc(FUNCS[name], v));
             }
             if (CONSTS[name] !== undefined)
