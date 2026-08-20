@@ -6,6 +6,18 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {windowMatches, windowClassText, shouldListWindow} from './windowMatch.js';
 
+function _metaWindows() {
+    // list_all_windows is the display list actors can lag behind closed windows
+    if (typeof global.display.list_all_windows === 'function')
+        return global.display.list_all_windows();
+    const windows = [];
+    for (const actor of global.get_window_actors()) {
+        if (actor.meta_window)
+            windows.push(actor.meta_window);
+    }
+    return windows;
+}
+
 function _windowIcon(win) {
     const tracker = Shell.WindowTracker.get_default();
     const app = tracker.get_window_app(win);
@@ -17,10 +29,9 @@ function _windowIcon(win) {
 export function searchWindows(query, maxResults) {
     const q = query.toLowerCase();
     const results = [];
-    const actors = global.get_window_actors();
+    const windows = _metaWindows();
 
-    for (const actor of actors) {
-        const win = actor.meta_window;
+    for (const win of windows) {
         if (!win)
             continue;
 

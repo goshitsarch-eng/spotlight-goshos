@@ -29,6 +29,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Albert** | [Albert](https://albertlauncher.github.io) | Breeze-dark card with a `#1d99f3` selected row and section headers. |
 | **Wofi** | [Wofi](https://hg.sr.ht/~scoopta/wofi) | Compact Wayland dmenu list, `#1d1f21` with `#285577` selection. |
 | **Fuzzel** | [Fuzzel](https://codeberg.org/dnkl/fuzzel) | Default Solarized light frame (`#fdf6e3`, `#eee8d5` selection, 10px radius). |
+| **Anyrun** | [Anyrun](https://github.com/anyrun-org/anyrun) | Catppuccin mocha panel (`#1e1e2e`, `#89b4fa` accent), no section headers. |
 | **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
@@ -110,7 +111,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Light)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Light)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -172,6 +173,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
 - Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher.
+- Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

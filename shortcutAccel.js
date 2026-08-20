@@ -1,6 +1,28 @@
 // gosh is launcher - build a mutter accelerator string
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+const MODIFIER_KEY_NAMES = {
+    Control_L: true,
+    Control_R: true,
+    Shift_L: true,
+    Shift_R: true,
+    Alt_L: true,
+    Alt_R: true,
+    Super_L: true,
+    Super_R: true,
+    Meta_L: true,
+    Meta_R: true,
+    Hyper_L: true,
+    Hyper_R: true,
+    Caps_Lock: true,
+    ISO_Level3_Shift: true,
+    ISO_Level5_Shift: true,
+};
+
+export function isModifierKeyName(keyName) {
+    return Boolean(MODIFIER_KEY_NAMES[keyName]);
+}
+
 export function normalizeAccelKey(keyName) {
     if (!keyName)
         return '';

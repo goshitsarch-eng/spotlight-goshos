@@ -21,6 +21,7 @@ export function searchCalculator(query, allowBare) {
             // declared in metadata.json description
             const clipboard = St.Clipboard.get_default();
             clipboard.set_text(St.ClipboardType.CLIPBOARD, formatted);
+            clipboard.set_text(St.ClipboardType.PRIMARY, formatted);
         },
     }];
 }

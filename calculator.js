@@ -7,6 +7,7 @@
 // pasted expressions often use unicode operators and thousands commas
 export function normalizeMath(input) {
     let text = input
+        .replace(/[\r\n]+/g, '')
         .replace(/×/g, '*')
         .replace(/÷/g, '/')
         .replace(/[−–—]/g, '-')

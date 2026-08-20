@@ -161,6 +161,20 @@ export const THEMES = [
         },
     },
     {
+        id: 'anyrun',
+        title: 'Anyrun',
+        description: 'Catppuccin mocha panel used with the Anyrun Wayland launcher',
+        hint: 'Search',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 28,
+        },
+    },
+    {
         id: 'light',
         title: 'Light',
         description: 'Adwaita light card for a light GNOME session',

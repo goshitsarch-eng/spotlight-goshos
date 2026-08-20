@@ -17,7 +17,7 @@ import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../sc
 import {parseRecentXbel, basenameFromUri, iconForBasename} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
@@ -170,6 +170,7 @@ assert(themeIds.includes('raycast'), 'raycast theme');
 assert(themeIds.includes('albert'), 'albert theme');
 assert(themeIds.includes('wofi'), 'wofi theme');
 assert(themeIds.includes('fuzzel'), 'fuzzel theme');
+assert(themeIds.includes('anyrun'), 'anyrun theme');
 assert(themeIds.includes('light'), 'light theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
@@ -227,6 +228,7 @@ assertEq(evaluateArithmetic('0x10'), null, 'hex prefix is not multiply');
 assertEq(evaluateArithmetic('1e3+2'), 1002, 'scientific notation');
 assertEq(evaluateArithmetic('1e-3*1000'), 1, 'scientific negative exponent');
 assertEq(evaluateArithmetic('2·3'), 6, 'middle-dot multiply');
+assertEq(evaluateArithmetic('2+2\n'), 4, 'pasted newline is ignored');
 assertEq(formatNumber(1.2300000000001), '1.23', 'trim float noise');
 
 // word prefix
@@ -252,6 +254,8 @@ assert(matchSettingsPanels('display', 5).some(p => p.id === 'display'), 'display
 assert(matchSettingsPanels('appearance', 5).some(p => p.id === 'background'), 'appearance is background on gnome 50');
 assert(matchSettingsPanels('wallpaper', 5).some(p => p.id === 'background'), 'wallpaper is background');
 assert(matchSettingsPanels('dark', 5).some(p => p.id === 'background'), 'dark style is background');
+assert(matchSettingsPanels('ssh', 5).some(p => p.id === 'system'), 'ssh is system on gnome 50');
+assert(matchSettingsPanels('remote desktop', 5).some(p => p.id === 'system'), 'remote desktop is system');
 assert(matchSettingsPanels('wellbeing', 5).some(p => p.id === 'wellbeing'), 'wellbeing');
 assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyword');
 assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
@@ -430,6 +434,16 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+}, getTheme('anyrun'));
+assertEq(stored['show-section-headers'], false, 'anyrun hides headers');
+assertEq(stored['popup-position'], 'center', 'anyrun is centered');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('light'));
 assertEq(stored['popup-position'], 'center', 'light is centered');
 assertEq(stored['show-section-headers'], true, 'light keeps headers');
@@ -474,10 +488,12 @@ assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
 assert(
     css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
-        css.lastIndexOf('.gosh-theme-fuzzel .gosh-result {'),
+        css.lastIndexOf('.gosh-theme-anyrun .gosh-result {'),
     'compact rules come after theme padding',
 );
 assert(css.includes('background-color: #fdf6e3'), 'fuzzel solarized card');
+assert(css.includes('background-color: #1e1e2e'), 'anyrun mocha card');
+assert(css.includes('border-left: 3px solid #89b4fa'), 'anyrun selected edge');
 assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
 assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');
@@ -594,6 +610,9 @@ assertEq(formatShortcutList([]), '', 'empty shortcut list');
 assertEq(formatShortcutList(['<Alt>space']), 'Alt+space', 'format list');
 const mods = modifiersFromMask(0b101, {super: 1, control: 4, shift: 2, alt: 8, meta: 16});
 assert(mods.super && mods.control && !mods.shift, 'mask bits');
+assert(isModifierKeyName('Meta_L'), 'meta is a modifier');
+assert(isModifierKeyName('ISO_Level3_Shift'), 'altgr is a modifier');
+assert(!isModifierKeyName('space'), 'space is not a modifier');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 

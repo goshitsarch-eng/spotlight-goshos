@@ -72,9 +72,9 @@ export class SelectionManager {
         const adjustment = getVerticalAdjustment(this._resultsScroll);
         if (!adjustment)
             return;
-        const box = row.get_allocation_box();
-        const rowY = box.y1;
-        const rowHeight = box.get_height();
+        // allocation_box is only reliable inside paint use the laid-out actor box
+        const rowY = row.get_y();
+        const rowHeight = row.get_height();
         if (rowY < adjustment.value)
             adjustment.value = rowY;
         else if (rowY + rowHeight > adjustment.value + adjustment.page_size)

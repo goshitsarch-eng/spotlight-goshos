@@ -689,6 +689,70 @@
   color: #586e75;
 }
 
+/* anyrun look - catppuccin mocha rounded panel */
+.gosh-theme-anyrun {
+  background-color: #1e1e2e;
+  border-radius: 16px;
+  border: 1px solid #313244;
+  padding: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+.gosh-theme-anyrun .gosh-entry-box,
+.gosh-theme-anyrun .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-anyrun .gosh-entry {
+  color: #cdd6f4;
+  caret-color: #89b4fa;
+  selection-background-color: #89b4fa;
+  font-size: 16px;
+  padding: 10px 12px 12px 0;
+}
+
+.gosh-theme-anyrun .gosh-entry StLabel.hint-text {
+  color: #6c7086;
+}
+
+.gosh-theme-anyrun .gosh-search-icon {
+  color: #89b4fa;
+}
+
+.gosh-theme-anyrun .gosh-result {
+  color: #cdd6f4;
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.gosh-theme-anyrun .gosh-result:hover,
+.gosh-theme-anyrun .gosh-result:focus,
+.gosh-theme-anyrun .gosh-result.gosh-selected {
+  background-color: #313244;
+  color: #cdd6f4;
+}
+
+.gosh-theme-anyrun .gosh-result.gosh-selected {
+  border-left: 3px solid #89b4fa;
+}
+
+.gosh-theme-anyrun .gosh-result-description,
+.gosh-theme-anyrun .gosh-result-index {
+  color: #6c7086;
+}
+
+.gosh-theme-anyrun .gosh-section-header {
+  color: #6c7086;
+}
+
+.gosh-theme-anyrun .gosh-no-results-title {
+  color: #cdd6f4;
+}
+
 /* light look - adwaita light card */
 .gosh-theme-light {
   background-color: #f6f5f4;

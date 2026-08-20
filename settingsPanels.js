@@ -28,7 +28,7 @@ export const SETTINGS_PANELS = [
     {id: 'region', title: 'Region & Language', keywords: ['locale', 'timezone']},
     {id: 'datetime', title: 'Date & Time', keywords: ['clock']},
     {id: 'about', title: 'About', keywords: ['hardware', 'version', 'info-overview']},
-    {id: 'system', title: 'System', keywords: ['software update']},
+    {id: 'system', title: 'System', keywords: ['software update', 'remote desktop', 'ssh', 'secure shell']},
 ];
 
 export function matchSettingsPanels(query, maxResults) {

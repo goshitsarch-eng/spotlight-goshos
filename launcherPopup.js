@@ -90,7 +90,7 @@ class LauncherPopup extends St.BoxLayout {
         this._applyChrome();
 
         this._settings.connectObject(
-            'changed::launcher-theme', () => this._applyChrome(),
+            'changed::launcher-theme', () => this._onChromeChanged(),
             'changed::popup-width', () => this.set_width(this._fittedWidth()),
             'changed::show-search-icon', () => {
                 this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
@@ -99,7 +99,14 @@ class LauncherPopup extends St.BoxLayout {
                 this._resultsScroll.style =
                     `max-height: ${this._settings.get_int('results-max-height')}px;`;
             },
-            'changed::row-density', () => this._applyChrome(),
+            'changed::row-density', () => this._onChromeChanged(),
+            'changed::show-section-headers', () => this._repaintIfOpen(),
+            'changed::show-result-icons', () => this._repaintIfOpen(),
+            'changed::show-descriptions', () => this._repaintIfOpen(),
+            'changed::show-result-numbers', () => this._repaintIfOpen(),
+            'changed::result-order', () => this._repaintIfOpen(),
+            'changed::max-results', () => this._repaintIfOpen(),
+            'changed::show-empty-suggestions', () => this._repaintIfOpen(),
             this,
         );
 
@@ -124,6 +131,17 @@ class LauncherPopup extends St.BoxLayout {
 
         this.add_style_class_name(`gosh-theme-${theme.id}`);
         this.add_style_class_name(`gosh-density-${this._settings.get_string('row-density')}`);
+    }
+
+    _onChromeChanged() {
+        this._applyChrome();
+        this._repaintIfOpen();
+    }
+
+    _repaintIfOpen() {
+        if (!this._isOpen)
+            return;
+        this._renderer.onTextChanged(this._entry.get_text());
     }
 
     // position the popup on the primary monitor

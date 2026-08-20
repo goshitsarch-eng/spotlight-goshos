@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
-import {buildAccelerator, modifiersFromMask, formatShortcutList} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -44,16 +44,8 @@ export function buildShortcutPage(settings) {
             return true;
         }
 
-        if (keyval === Gdk.KEY_Control_L || keyval === Gdk.KEY_Control_R ||
-            keyval === Gdk.KEY_Shift_L || keyval === Gdk.KEY_Shift_R ||
-            keyval === Gdk.KEY_Alt_L || keyval === Gdk.KEY_Alt_R ||
-            keyval === Gdk.KEY_Super_L || keyval === Gdk.KEY_Super_R ||
-            keyval === Gdk.KEY_Caps_Lock) {
-            return true;
-        }
-
         const keyName = Gdk.keyval_name(keyval);
-        if (!keyName)
+        if (!keyName || isModifierKeyName(keyName))
             return true;
 
         const accelerator = buildAccelerator(keyName, modifiersFromMask(state, {

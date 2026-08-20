@@ -31,7 +31,7 @@ If applicable, add screenshots showing the issue.
 - **GNOME Shell version:** (e.g., 46, 47, 48, 49, 50)
 - **Linux distribution:** (e.g., Fedora 41, Ubuntu 24.04, Arch)
 - **Gosh Is Launcher version:** (check `gnome-extensions info gosh-is-launcher@nin` or look in preferences)
-- **Launcher look:** (Spotlight / Omarchy / Pop!_OS / Ulauncher / KRunner / GNOME / Rofi / Raycast / Albert / Wofi / Fuzzel / Light)
+- **Launcher look:** (Spotlight / Omarchy / Pop!_OS / Ulauncher / KRunner / GNOME / Rofi / Raycast / Albert / Wofi / Fuzzel / Anyrun / Light)
 - **Display server:** Wayland (X11 is not supported)
 
 ## Logs
