@@ -11,6 +11,7 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
             title: trimmed,
             description: 'Path not found',
             icon: 'dialog-warning-symbolic',
+            id: resolved || trimmed,
             activatable: false,
         };
     }
@@ -20,6 +21,7 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
             title: collapseHomePath(resolved, home || ''),
             description: 'Checking path',
             icon: 'folder-symbolic',
+            id: resolved || trimmed,
             activatable: false,
         };
     }
@@ -32,5 +34,6 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
         title: collapseHomePath(resolved, home || ''),
         description: 'Open path',
         icon,
+        id: resolved || trimmed,
     };
 }

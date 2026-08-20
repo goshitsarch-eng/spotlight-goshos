@@ -15,6 +15,7 @@ export function searchWeb(query, engineName) {
         title: `Search ${engine.label} for "${query}"`,
         description: `Open ${engine.label} in your browser`,
         icon: 'web-browser-symbolic',
+        id: `web:${engine.id}`,
         activate: () => {
             openUri(engine.url + encodeURIComponent(query));
         },

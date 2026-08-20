@@ -126,6 +126,7 @@ export function searchSystemActions(query, maxResults) {
             type: 'system-action',
             title,
             description: 'System',
+            id: action.id,
             icon,
             activate: () => action.activate(),
         });

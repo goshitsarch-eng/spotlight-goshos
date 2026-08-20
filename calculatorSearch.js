@@ -16,6 +16,7 @@ export function searchCalculator(query, allowBare) {
         title: formatted,
         description: calculatorDescription(result),
         icon: 'accessories-calculator-symbolic',
+        id: 'calculator',
         activate: () => {
             // clipboard write only - triggered by explicit user action on the calculator result
             // declared in metadata.json description

@@ -102,6 +102,7 @@ export function settingsResultMeta(panel, argv) {
         title: panel.title,
         description: 'GNOME Settings',
         icon: panel.icon || 'preferences-system-symbolic',
+        id: panel.id,
         activatable: argv !== null,
     };
 }

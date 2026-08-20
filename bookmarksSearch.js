@@ -112,6 +112,7 @@ export function searchBookmarks(query, maxResults) {
         title: row.title,
         description: row.description,
         icon: bookmarkIcon(row.uri),
+        id: row.uri,
         activate: () => {
             openUri(row.uri);
         },

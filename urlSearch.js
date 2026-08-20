@@ -16,6 +16,7 @@ export function searchUrl(query) {
         title: url,
         description: urlRowDescription(url),
         icon: urlRowIcon(url),
+        id: url,
         activate: () => {
             openUri(url);
         },

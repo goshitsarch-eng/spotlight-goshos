@@ -25,6 +25,7 @@ export function searchTime(query) {
         title,
         description: `${description} · press Enter to copy`,
         icon: kind === 'time' ? 'preferences-system-time-symbolic' : 'x-office-calendar-symbolic',
+        id: kind,
         activate: () => {
             // clipboard write only after the user activates the clock row
             // declared in metadata.json description

@@ -38,6 +38,7 @@ export function commandRowMeta(query, ready, checking = false) {
             title: query,
             description: 'Checking command',
             icon: 'utilities-terminal-symbolic',
+            id: `command:${query}`,
             activatable: false,
         };
     }
@@ -47,6 +48,7 @@ export function commandRowMeta(query, ready, checking = false) {
             title: query,
             description: 'Command not found',
             icon: 'dialog-warning-symbolic',
+            id: `command:${query}`,
             activatable: false,
         };
     }
@@ -55,5 +57,6 @@ export function commandRowMeta(query, ready, checking = false) {
         title: query,
         description: 'Run command',
         icon: 'utilities-terminal-symbolic',
+        id: `command:${query}`,
     };
 }

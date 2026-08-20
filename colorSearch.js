@@ -14,6 +14,7 @@ export function searchColor(query) {
         title: hex,
         description: 'Press Enter to copy color',
         icon: 'color-select-symbolic',
+        id: hex,
         activate: () => {
             // clipboard write only after the user activates a color
             // declared in metadata.json description

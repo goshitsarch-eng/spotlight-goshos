@@ -49,5 +49,6 @@ export function terminalRowMeta(directory, home, type) {
         title: 'Open in Terminal',
         description: collapseHomePath(directory, home || ''),
         icon: 'utilities-terminal-symbolic',
+        id: `terminal:${directory}`,
     };
 }

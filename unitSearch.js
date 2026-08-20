@@ -14,6 +14,7 @@ export function searchUnits(query) {
         title: converted.title,
         description: `${converted.description} · press Enter to copy`,
         icon: 'accessories-calculator-symbolic',
+        id: 'unit',
         activate: () => {
             // clipboard write only after the user activates a conversion
             // declared in metadata.json description

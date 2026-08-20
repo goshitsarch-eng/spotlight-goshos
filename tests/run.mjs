@@ -86,6 +86,10 @@ assertEq(evaluateArithmetic('twenty plus two'), 22, 'twenty plus two');
 assertEq(evaluateArithmetic('forty-five + 1'), 46, 'forty-five');
 assertEq(evaluateArithmetic('twenty one + 1'), 22, 'twenty one');
 assertEq(evaluateArithmetic('one hundred + 1'), 101, 'one hundred');
+assertEq(evaluateArithmetic('a hundred + 1'), 101, 'a hundred');
+assertEq(evaluateArithmetic('a thousand + 1'), 1001, 'a thousand');
+assertEq(evaluateArithmetic('one hundred and twenty + 1'), 121, 'one hundred and twenty');
+assertEq(evaluateArithmetic('one hundred and twenty-one + 1'), 122, 'one hundred and twenty-one');
 assertEq(evaluateArithmetic('twenty thousand + 1'), 20001, 'twenty thousand');
 assertEq(evaluateArithmetic('2 add 3'), 5, 'spoken add');
 assertEq(evaluateArithmetic('8 subtract 3'), 5, 'spoken subtract');
@@ -467,6 +471,8 @@ assertEq(Math.round(convertQuery('thirteen km to mi').title.split(' ')[0] * 1000
 assertEq(convertQuery('1/2 cup to ml').description, '0.5 cup', 'half cup fraction');
 assertEq(parseUnitQuery('three thousand km to mi').value, 3000, 'three thousand km');
 assertEq(parseUnitQuery('twenty km to mi').value, 20, 'twenty km');
+assertEq(parseUnitQuery('a hundred km to mi').value, 100, 'a hundred km');
+assertEq(parseUnitQuery('one hundred and twenty km to mi').value, 120, 'one hundred and twenty km');
 assertEq(parseUnitQuery('forty five km to mi').value, 45, 'forty five km');
 assertEq(Math.round(convertQuery('10 kms to mi').title.split(' ')[0] * 1000) / 1000, 6.214, 'kms alias');
 assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
@@ -646,6 +652,8 @@ assertEq(settingsArgv('wifi', name => name === 'gio')[2], 'gnome-wifi-panel.desk
 assertEq(settingsArgv('wifi', name => name === 'gapplication')[0], 'gapplication', 'fallback launch settings');
 assertEq(settingsArgv('wifi', () => null), null, 'no settings binary');
 assertEq(settingsResultMeta({title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, null).activatable, false, 'no launcher stays closed');
+assertEq(settingsResultMeta({id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, ['gnome-control-center', 'wifi']).id, 'wifi', 'settings row id');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').id, '/home/u/docs', 'path row id');
 assertEq(settingsResultMeta({title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, ['gnome-control-center', 'wifi']).activatable, true, 'settings launch is activatable');
 assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('actionsRow.sensitive'), 'actions switch follows apps');
 

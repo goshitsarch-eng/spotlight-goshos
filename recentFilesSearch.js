@@ -166,6 +166,7 @@ export function searchRecentFiles(query, maxResults) {
             title: name,
             description: folder,
             icon: iconForBasename(name),
+            id: uri,
             activate: () => {
                 openUri(uri);
             },

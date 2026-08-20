@@ -37,6 +37,7 @@ export function searchPlaces(query, maxResults) {
         title: place.title,
         description: collapseHomePath(path, home),
         icon: place.icon,
+        id: place.id,
         activate: () => {
             openUri(fileUriFromAbsolute(path));
         },
