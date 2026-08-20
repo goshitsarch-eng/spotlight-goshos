@@ -1,12 +1,16 @@
 // gosh is launcher - work-area origin for the popup
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {themeScale, stagePx, cssPx} from './uiScale.js';
+
 // use the work area so a top look sits below the panel and a center look
 // is centered in the usable desktop not under chrome
-export function popupWidthForWorkArea(requested, workWidth) {
-    if (workWidth > 0 && requested > workWidth)
+// requested is the settings css px workWidth is stage pixels
+export function popupWidthForWorkArea(requested, workWidth, scale) {
+    const width = stagePx(requested, scale);
+    if (workWidth > 0 && width > workWidth)
         return workWidth;
-    return requested;
+    return width;
 }
 
 // top looks grow down from a high origin so the list must shrink
@@ -41,17 +45,20 @@ export function liftOriginForResults(origin, workArea, emptyHeight, minResults) 
     return {x: origin.x, y};
 }
 
-export function placePopup(workArea, popupWidth, emptyHeight, position, requestedResults, minResults) {
-    const floor = minResults === undefined ? MIN_RESULTS_HEIGHT : minResults;
+export function placePopup(workArea, popupWidth, emptyHeight, position, requestedResults, minResults, scale) {
+    const factor = themeScale(scale);
+    const floorLogical = minResults === undefined ? MIN_RESULTS_HEIGHT : minResults;
+    const floor = stagePx(floorLogical, factor);
+    const requested = stagePx(requestedResults, factor);
     let origin = popupOrigin(workArea, popupWidth, emptyHeight, position);
-    origin = liftOriginForResults(origin, workArea, emptyHeight, Math.min(requestedResults, floor));
+    origin = liftOriginForResults(origin, workArea, emptyHeight, Math.min(requested, floor));
     return {
         x: origin.x,
         y: origin.y,
-        resultsMax: resultsMaxHeightForWorkArea(
-            requestedResults,
+        resultsMax: cssPx(resultsMaxHeightForWorkArea(
+            requested,
             spaceBelowOrigin(workArea, origin.y, emptyHeight),
-        ),
+        ), factor),
     };
 }
 

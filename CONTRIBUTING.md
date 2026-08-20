@@ -117,7 +117,8 @@ Pure functions with no side effects:
 - **`prefsCombo.js`** — Keep Appearance and Web Search combo rows in sync when gsettings writes a look or engine.
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
 - **`searchLive.js`** — Whether window and app listeners should start or stop when the popup opens or closes.
-- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list.
+- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list. Width settings are CSS pixels and must be scaled to stage pixels on HiDPI.
+- **`uiScale.js`** — Convert between St CSS pixels and Clutter allocation pixels.
 - **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher. Raise a visible on-screen keyboard, reused accent popovers, and the IBus candidate popup above the backdrop.
 - **`unredirect.js`** — Hold compositor unredirect while the popup is open so a fullscreen window cannot hide it.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
@@ -314,6 +315,7 @@ Manual testing on GNOME Shell 50 Wayland:
 112. Use the on-screen keyboard and long-press a letter so an accent popover is created, dismiss the launcher, then open it again and long-press the same letter — the accents must appear above the backdrop and tapping one must type into the entry instead of closing the launcher. GNOME 50 keeps those popovers in addTopChrome after first use.
 113. With an IME (Chinese, Japanese, Korean, or typing-booster), type in the launcher until the candidate popup appears — the lookup table must sit above the launcher, not under the backdrop. Enter, arrows, and number keys must commit or move IME candidates, not activate a result. Clicking a candidate must type that character and must not close the launcher.
 114. If opening fails after the unredirect hold or chrome add (for example the primary monitor vanishes mid-open), the next shortcut press must open the launcher. It must not stay stuck treating the popup as already open, and it must not leave a leftover unredirect hold.
+115. On a 200% scale session, a 600px width must look like 600 CSS pixels (not half-width). Results max height 400 must stay inside the work area — St scales stylesheet `px` but `set_width` is stage pixels. Changing scale while the popup is open must refit.
 
 ## Submitting Changes
 

@@ -153,6 +153,7 @@ gosh-is-launcher@nin/
     searchLive.js             when to watch windows and apps (pure)
     liveSearchWatcher.js      refresh rows when a window or app changes
     popupPosition.js          work-area origin (pure)
+    uiScale.js                st css px versus clutter stage pixels (pure)
     popupChrome.js            addtopchrome versus addchrome and osk/ime raise (pure)
     unredirect.js             hold compositor unredirect while open (pure)
     resultPointer.js          result row press/release and touch tap versus swipe (pure)
@@ -213,7 +214,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition popupChrome backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition uiScale popupChrome backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -266,7 +267,7 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.layoutManager.connect('system-modal-opened') in launcherPopup.js so screenshot and polkit close an open popup disconnected manually in destroy()
 - layoutManager.uiGroup.connect('child-added') in launcherPopup.js so a later accent popover or ibus candidate is raised above the backdrop disconnected manually in close()
 
-parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers the sliding osk keys are the first child of keyboardbox and their translation-y is disconnected the same way liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers start() and stop() isolate a vanished window or display so open() cannot abort after the backdrop is in chrome
+parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() ThemeContext scale-factor uses connectObject the same way so a hidpi change refits width keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers the sliding osk keys are the first child of keyboardbox and their translation-y is disconnected the same way liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers start() and stop() isolate a vanished window or display so open() cannot abort after the backdrop is in chrome
 
 each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode or Main.timeLimitsManager follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 
@@ -276,7 +277,7 @@ the popup and backdrop use addtopchrome not addchrome addchrome stacks below top
 
 an unredirected fullscreen window bypasses composition so even top chrome is invisible open() holds unredirect via Meta.Compositor.disable_unredirect on 48-50 or Meta.disable_unredirect_for_display on 45-47 close() and destroy() release that hold once disable/enable are a matched pair do not enable without a hold https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 
-the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear the on-screen keyboard is not a strut keyboardbox stays parked at the monitor bottom and the keys slide with the child translation-y workAreaAvoidingKeyboard subtracts that child slide and keyboardbox notify::visible allocation plus the child translation-y schedule a layout while the popup is open
+the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear st multiplies stylesheet px by ThemeContext.scale_factor but set_width is stage pixels so _fittedWidth and placePopup must scale the width setting and convert results max-height back to css px or a 200% session gets a half-width popup and a list that overflows listen for notify::scale-factor and refit while open the on-screen keyboard is not a strut keyboardbox stays parked at the monitor bottom and the keys slide with the child translation-y workAreaAvoidingKeyboard subtracts that child slide and keyboardbox notify::visible allocation plus the child translation-y schedule a layout while the popup is open
 
 center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the work area height so popos and krunner looks sit high without covering the panel
 

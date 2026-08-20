@@ -165,6 +165,7 @@ required = [
     'searchLive.js',
     'liveSearchWatcher.js',
     'popupPosition.js',
+    'uiScale.js',
     'popupChrome.js',
     'unredirect.js',
     'backdropBox.js',

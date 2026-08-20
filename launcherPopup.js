@@ -26,6 +26,7 @@ import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
+import {themeScale, stagePx} from './uiScale.js';
 import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -82,6 +83,7 @@ class LauncherPopup extends St.BoxLayout {
         this._parentalGiveUpId = 0;
         this._parental = null;
         this._unredirectHeld = false;
+        this._scaleContext = null;
         this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
         this._liveSearch = new LiveSearchWatcher(() => this._repaintIfOpen());
@@ -90,6 +92,7 @@ class LauncherPopup extends St.BoxLayout {
         this._listenSystemModal();
         this._listenTimeLimits();
         this._listenParental();
+        this._listenScale();
 
         const {entryBox, entry, searchIcon} = buildSearchEntry(this._settings);
         this._entryBox = entryBox;
@@ -558,6 +561,30 @@ class LauncherPopup extends St.BoxLayout {
         this._parental = null;
     }
 
+    _uiScale() {
+        return themeScale(St.ThemeContext.get_for_stage(global.stage).scale_factor);
+    }
+
+    _listenScale() {
+        if (this._scaleContext)
+            return;
+        const ctx = St.ThemeContext.get_for_stage(global.stage);
+        if (!ctx)
+            return;
+        ctx.connectObject('notify::scale-factor', () => {
+            if (this._isOpen)
+                this._refitForMonitors();
+        }, this);
+        this._scaleContext = ctx;
+    }
+
+    _unlistenScale() {
+        if (!this._scaleContext)
+            return;
+        this._scaleContext.disconnectObject(this);
+        this._scaleContext = null;
+    }
+
     _refitForMonitors() {
         if (!Main.layoutManager.primaryMonitor) {
             this.closeSoon();
@@ -576,10 +603,11 @@ class LauncherPopup extends St.BoxLayout {
     _fittedWidth() {
         const monitor = Main.layoutManager.primaryMonitor;
         const requested = this._settings.get_int('popup-width');
+        const scale = this._uiScale();
         if (!monitor)
-            return requested;
+            return stagePx(requested, scale);
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
-        return popupWidthForWorkArea(requested, workArea.width);
+        return popupWidthForWorkArea(requested, workArea.width, scale);
     }
 
     // entry only so a width change does not recast the origin from the
@@ -609,6 +637,8 @@ class LauncherPopup extends St.BoxLayout {
             this._emptyPopupHeight(popupWidth),
             this._settings.get_string('popup-position'),
             this._settings.get_int('results-max-height'),
+            undefined,
+            this._uiScale(),
         );
         this.set_position(placed.x, placed.y);
         this._resultsScroll.style = `max-height: ${placed.resultsMax}px;`;
@@ -840,6 +870,7 @@ class LauncherPopup extends St.BoxLayout {
         this._unlistenSystemModal();
         this._unlistenTimeLimits();
         this._unlistenParental();
+        this._unlistenScale();
         this._liveSearch.stop();
         this.close();
         this._setUnredirectHeld(false);

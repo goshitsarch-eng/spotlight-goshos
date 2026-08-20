@@ -6,6 +6,7 @@ import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQ
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
+import {themeScale, stagePx, cssPx} from '../uiScale.js';
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
@@ -324,9 +325,16 @@ const tiny = {x: 0, y: 0, width: 400, height: 300};
 assertEq(popupOrigin(tiny, 600, 80, 'center').x, 0, 'wide popup pins to work left');
 assertEq(popupOrigin(tiny, 200, 400, 'center').y, 0, 'tall popup pins to work top');
 assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center').x, 50, 'pin keeps work origin');
+assertEq(themeScale(2), 2, 'hidpi scale is kept');
+assertEq(themeScale(0), 1, 'zero scale is 1x');
+assertEq(themeScale(-1), 1, 'negative scale is 1x');
+assertEq(stagePx(600, 2), 1200, 'css width becomes stage pixels');
+assertEq(cssPx(800, 2), 400, 'stage height becomes css px');
 assertEq(popupWidthForWorkArea(600, 1920), 600, 'wide work keeps request');
 assertEq(popupWidthForWorkArea(1200, 800), 800, 'narrow work shrinks popup');
 assertEq(popupWidthForWorkArea(600, 0), 600, 'unknown work keeps request');
+assertEq(popupWidthForWorkArea(600, 1920, 2), 1200, 'hidpi width uses stage pixels');
+assertEq(popupWidthForWorkArea(1200, 800, 2), 800, 'hidpi width still clamps to the work area');
 assertEq(resultsMaxHeightForWorkArea(400, 900), 400, 'tall work keeps request');
 assertEq(resultsMaxHeightForWorkArea(800, 220), 220, 'short work shrinks results');
 assertEq(resultsMaxHeightForWorkArea(400, 0), 0, 'no space below hides overflow');
@@ -342,6 +350,13 @@ assertEq(placedTall.y, popupOrigin(work, 600, 80, 'center').y, 'tall work keeps 
 assertEq(placedTall.resultsMax, 400, 'tall work keeps requested results height');
 const packed = {x: 0, y: 0, width: 400, height: 80};
 assertEq(placePopup(packed, 200, 80, 'center', 400).resultsMax, 0, 'entry-sized work still hides overflow');
+const hidpiWork = {x: 0, y: 0, width: 3840, height: 2160};
+const placedHi = placePopup(hidpiWork, 1200, 112, 'center', 400, undefined, 2);
+assertEq(placedHi.resultsMax, 400, 'hidpi css max-height stays logical');
+const hidpiShort = {x: 0, y: 0, width: 1920, height: 400};
+const placedHiShort = placePopup(hidpiShort, 1200, 112, 'top', 800, undefined, 2);
+assert(placedHiShort.resultsMax <= 120, 'hidpi css max-height cannot overflow the work area');
+assertEq(placePopup(hidpiShort, 600, 112, 'top', 800).resultsMax, 240, '1x short top still reports stage-sized css on 1x');
 assertEq(chromeAddMethod(true), 'addTopChrome', 'gnome 45-50 expose addtopchrome');
 assertEq(chromeAddMethod(false), 'addChrome', 'hosts without addtopchrome stay on addchrome');
 const uiGroup = {
