@@ -35,6 +35,11 @@ glib-compile-schemas schemas/
 echo "unit tests"
 node tests/run.mjs
 
+if command -v gjs >/dev/null; then
+  echo "gjs scrollview helpers"
+  gjs -m tests/gjs-scrollview.mjs
+fi
+
 echo "uuid leftovers"
 if grep -r "spotlight@ninx" --include='*.js' --include='*.md' --include='*.json' --include='*.xml' --include='*.css' .; then
   echo "found spotlight@ninx"
