@@ -10,7 +10,7 @@ import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
-import {appMatchTier} from '../appMatch.js';
+import {appMatchTier, appBaseName} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -172,6 +172,7 @@ assert(themeIds.includes('albert'), 'albert theme');
 assert(themeIds.includes('wofi'), 'wofi theme');
 assert(themeIds.includes('fuzzel'), 'fuzzel theme');
 assert(themeIds.includes('anyrun'), 'anyrun theme');
+assert(themeIds.includes('tofi'), 'tofi theme');
 assert(themeIds.includes('light'), 'light theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
@@ -240,6 +241,9 @@ assertEq(appMatchTier('Firefox', '', 'org.mozilla.firefox.desktop', [], 'mozilla
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['Internet', 'Browser'], 'browser'), 5, 'keyword');
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], ''), -1, 'empty query no app');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss');
+assertEq(appBaseName('Firefox ESR'), 'firefox', 'esr suffix');
+assertEq(appBaseName('GNOME-Builder'), 'gnome-builder', 'hyphenated name stays');
+assertEq(appBaseName('Chromium'), 'chromium', 'plain name');
 
 assert(wordPrefixMatch('google chrome', 'chro'), 'chro matches chrome word');
 assert(!wordPrefixMatch('google chrome', 'ogle'), 'mid-word is not prefix');
@@ -445,6 +449,17 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+}, getTheme('tofi'));
+assertEq(stored['row-density'], 'compact', 'tofi is compact');
+assertEq(stored['popup-position'], 'top', 'tofi sits at top');
+assertEq(stored['show-section-headers'], false, 'tofi hides headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('light'));
 assertEq(stored['popup-position'], 'center', 'light is centered');
 assertEq(stored['show-section-headers'], true, 'light keeps headers');
@@ -489,9 +504,10 @@ assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
 assert(
     css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
-        css.lastIndexOf('.gosh-theme-anyrun .gosh-result {'),
+        css.lastIndexOf('.gosh-theme-tofi .gosh-result {'),
     'compact rules come after theme padding',
 );
+assert(css.includes('background-color: #000000'), 'tofi black bar');
 assert(css.includes('background-color: #fdf6e3'), 'fuzzel solarized card');
 assert(css.includes('background-color: #1e1e2e'), 'anyrun mocha card');
 assert(css.includes('border-left: 3px solid #89b4fa'), 'anyrun selected edge');

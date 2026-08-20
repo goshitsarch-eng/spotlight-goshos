@@ -22,6 +22,7 @@
         <choice value="wofi"/>
         <choice value="fuzzel"/>
         <choice value="anyrun"/>
+        <choice value="tofi"/>
         <choice value="light"/>
       </choices>
       <default>'spotlight'</default>

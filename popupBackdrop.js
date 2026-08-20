@@ -36,6 +36,12 @@ export class PopupBackdrop {
         this._actor.show();
     }
 
+    relayout() {
+        const box = backdropBox(Main.layoutManager.monitors);
+        this._actor.set_size(box.width, box.height);
+        this._actor.set_position(box.x, box.y);
+    }
+
     destroy() {
         this._actor.disconnectObject(this._actor);
         if (this._actor.get_parent())

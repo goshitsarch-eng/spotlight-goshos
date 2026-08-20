@@ -169,7 +169,7 @@ Manual testing on GNOME Shell 50 Wayland:
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName or Keywords.
 2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3`, `2**3`, `2 x 3`, `1e3+2`, or `1,000+2` — all should evaluate.
 3. Type `=2^8` — calculator prefix should show `256`.
-4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, and Light. Change a look while the popup is open — rows should restyle.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, and Light. Change a look while the popup is open — rows should restyle.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home and End in a long result list — selection should jump to the first and last rows. Keypad arrows with Num Lock off should move the selection too.
@@ -183,6 +183,8 @@ Manual testing on GNOME Shell 50 Wayland:
 15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
 16. With an IME composing a character, Enter and arrows must stay with the compose, not activate a result.
 17. Change width or position in preferences while the popup is open — it should move or resize without a reopen.
+18. With the command runner on, `! pwd` should print the home directory, not `/`.
+19. Change resolution or unplug a monitor while the popup is open — it should move into the new work area, and click-outside should still cover every screen.
 
 ## Submitting Changes
 

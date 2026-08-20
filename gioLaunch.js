@@ -14,7 +14,14 @@ export function spawnArgv(argv) {
     ))
         return;
 
-    const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE);
+    const launcher = new Gio.SubprocessLauncher({
+        flags: Gio.SubprocessFlags.NONE,
+    });
+    // gnome-shell cwd is often / so run the command from the user home
+    const home = GLib.get_home_dir();
+    if (home)
+        launcher.set_cwd(home);
+    const proc = launcher.spawnv(argv);
     // wait_async holds the subprocess until exit so gc cannot SIGTERM it
     proc.wait_async(null, (p, res) => {
         try {

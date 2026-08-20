@@ -8,7 +8,7 @@ if you are an ai agent read the whole file do not skim
 
 gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi fuzzel anyrun and light and can enable or disable every provider from preferences
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi fuzzel anyrun tofi and light and can enable or disable every provider from preferences
 
 ## design philosophy
 
@@ -29,6 +29,7 @@ the other looks follow real launchers researched for this project
 - wofi is a compact wayland dmenu list with a steel-blue selected row
 - fuzzel is the default solarized light wayland launcher #fdf6e3 card #eee8d5 selection 10px radius
 - anyrun is a catppuccin mocha panel #1e1e2e with a #89b4fa selected edge
+- tofi is a stark black dmenu bar with a white selected row
 - light is adwaita light
 
 do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
@@ -211,7 +212,7 @@ center mode uses the empty-state height so the pill stays visually centered top 
 
 do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side
 
-if the monitor geometry changes while the popup is open for example the user changes resolution the popup will be repositioned on next open not live this is acceptable
+if the monitor geometry changes while the popup is open listen for layoutmanager monitors-changed then resize the backdrop and reposition in the new work area do not wait for the next open or the popup can sit off-screen with a stale click-outside box
 
 ### input capture and click outside to close
 

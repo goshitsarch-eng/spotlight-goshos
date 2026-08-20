@@ -753,6 +753,72 @@
   color: #cdd6f4;
 }
 
+/* tofi look - stark black bar white selection */
+.gosh-theme-tofi {
+  background-color: #000000;
+  border-radius: 0;
+  padding: 4px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
+}
+
+.gosh-theme-tofi .gosh-entry-box,
+.gosh-theme-tofi .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-tofi .gosh-entry {
+  color: #ffffff;
+  caret-color: #ffffff;
+  selection-background-color: #ffffff;
+  font-size: 14px;
+  padding: 6px 8px 6px 0;
+  border-radius: 0;
+}
+
+.gosh-theme-tofi .gosh-entry StLabel.hint-text {
+  color: #888888;
+}
+
+.gosh-theme-tofi .gosh-search-icon {
+  color: #ffffff;
+  padding: 0 8px 0 4px;
+}
+
+.gosh-theme-tofi .gosh-result {
+  color: #ffffff;
+  border-radius: 0;
+  padding: 4px 8px;
+}
+
+.gosh-theme-tofi .gosh-result:hover,
+.gosh-theme-tofi .gosh-result:focus,
+.gosh-theme-tofi .gosh-result.gosh-selected {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.gosh-theme-tofi .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-tofi .gosh-result:hover .gosh-result-description {
+  color: #333333;
+}
+
+.gosh-theme-tofi .gosh-section-header {
+  color: #888888;
+  padding: 4px 8px 2px 8px;
+}
+
+.gosh-theme-tofi .gosh-no-results {
+  color: #888888;
+}
+
+.gosh-theme-tofi .gosh-no-results-title {
+  color: #ffffff;
+}
+
 /* light look - adwaita light card */
 .gosh-theme-light {
   background-color: #f6f5f4;

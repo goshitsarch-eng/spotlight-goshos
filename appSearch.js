@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
-import {appMatchTier} from './appMatch.js';
+import {appMatchTier, appBaseName} from './appMatch.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -43,13 +43,7 @@ export function searchApps(query, maxResults) {
         if (tier < 0)
             continue;
 
-        // strip a known trailing variant suffix (e.g. "Firefox ESR" -> "firefox")
-        // rather than splitting on any hyphen, which would also wrongly
-        // truncate apps whose real name contains one, like "GNOME-Builder"
-        const nameLower = name.toLowerCase();
-        const baseName = nameLower
-            .replace(/[\s-]+(esr|beta|nightly|dev|canary|stable|preview)$/, '')
-            .trim();
+        const baseName = appBaseName(name);
 
         if (seenNames.has(baseName))
             continue;
@@ -88,6 +82,7 @@ export function searchFrequentApps(maxResults) {
     const appUsage = Shell.AppUsage.get_default();
     const pcm = _parentalControls();
     const usable = [];
+    const seenNames = new Set();
 
     for (const app of allApps) {
         if (!_shouldShowApp(pcm, app))
@@ -95,6 +90,10 @@ export function searchFrequentApps(maxResults) {
         const id = app.get_id();
         if (!id)
             continue;
+        const baseName = appBaseName(app.get_name() || id);
+        if (seenNames.has(baseName))
+            continue;
+        seenNames.add(baseName);
         usable.push(app);
     }
 

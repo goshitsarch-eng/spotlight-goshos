@@ -52,6 +52,7 @@ class LauncherPopup extends St.BoxLayout {
         this._positionIdleId = 0;
         this._closeIdleId = 0;
         this._stageKeyId = 0;
+        this._monitorsId = 0;
         this._backdrop = null;
         this._focusWatcher = new FocusLossWatcher(this);
 
@@ -156,6 +157,33 @@ class LauncherPopup extends St.BoxLayout {
             this._reposition();
     }
 
+    _listenMonitors() {
+        if (this._monitorsId)
+            return;
+        this._monitorsId = Main.layoutManager.connect('monitors-changed', () => {
+            if (this._isOpen)
+                this._refitForMonitors();
+        });
+    }
+
+    _unlistenMonitors() {
+        if (!this._monitorsId)
+            return;
+        Main.layoutManager.disconnect(this._monitorsId);
+        this._monitorsId = 0;
+    }
+
+    _refitForMonitors() {
+        if (!Main.layoutManager.primaryMonitor) {
+            this.closeSoon();
+            return;
+        }
+        if (this._backdrop)
+            this._backdrop.relayout();
+        this.set_width(this._fittedWidth());
+        this._reposition();
+    }
+
     // position the popup on the primary monitor
     // called once when the popup opens based on the empty-state height
     // the popup then grows downward from this fixed position as results appear
@@ -204,6 +232,7 @@ class LauncherPopup extends St.BoxLayout {
         // sits above the backdrop
         this._backdrop = new PopupBackdrop(() => this.closeSoon());
         this._backdrop.show();
+        this._listenMonitors();
 
         // always re-add popup to chrome to guarantee correct stacking order
         // if popup was left in chrome from a previous close remove it first
@@ -270,6 +299,7 @@ class LauncherPopup extends St.BoxLayout {
             this._stageKeyId = 0;
         }
         this._focusWatcher.stop();
+        this._unlistenMonitors();
         this._clearIdle('_positionIdleId');
         this._clearIdle('_closeIdleId');
         this._renderer.destroy();

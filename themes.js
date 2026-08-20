@@ -175,6 +175,20 @@ export const THEMES = [
         },
     },
     {
+        id: 'tofi',
+        title: 'Tofi',
+        description: 'Stark dmenu-style bar used by the Tofi Wayland launcher',
+        hint: 'Run',
+        look: {
+            position: 'top',
+            density: 'compact',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 20,
+        },
+    },
+    {
         id: 'light',
         title: 'Light',
         description: 'Adwaita light card for a light GNOME session',
