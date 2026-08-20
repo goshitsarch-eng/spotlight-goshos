@@ -189,7 +189,7 @@
   color: #c0caf5;
 }
 
-/* walker marks the current row with a tokyo-night blue leading edge */
+/* selected row uses a blue leading edge on this look */
 .gosh-theme-omarchy .gosh-result.gosh-selected {
   border-left: 3px solid #7aa2f7;
 }
