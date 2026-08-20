@@ -1,4 +1,4 @@
-// gosh is launcher - hex color copy
+// gosh is launcher - color copy
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import St from 'gi://St';

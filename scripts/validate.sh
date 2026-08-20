@@ -144,6 +144,7 @@ required = [
     'bookmarkParse.js',
     'timeMatch.js',
     'colorMatch.js',
+    'paintSelection.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

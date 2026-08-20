@@ -232,6 +232,7 @@ Manual testing on GNOME Shell 50 Wayland:
 42. With results visible, `Ctrl+j` and `Ctrl+n` should move down, `Ctrl+k` and `Ctrl+p` should move up. Typing `j` without Control must still insert the letter. Type `1 stone to kg` — a Units row should appear. If parental controls are still initialising, blocked apps must not flash in the list.
 43. Type `~/` plus an existing folder — after the exists check, Open in Terminal should appear under Open Path. Type `docs` — Documents should appear, and Open in Terminal should follow if a terminal is installed.
 44. Open Appearance, change icon size, close prefs, reopen Appearance without changing the look — the custom icon size must still be there. Switch to Onagre — selected rows should be amber with dark descriptions. The About page must list Onagre.
+45. Type `hwb(0 0% 0%)` or `hwb(0deg, 0%, 0%)` — a Color row should copy `#ff0000`. Arrow to a later result, then wait for recent files or a path exists-check to finish — the same row should stay selected and stay in view. Change icon size or a provider toggle while a result is selected — that row should stay selected.
 
 ## Submitting Changes
 

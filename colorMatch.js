@@ -1,4 +1,4 @@
-// gosh is launcher - hex and rgb color queries
+// gosh is launcher - hex rgb hsl and hwb color queries
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 function hexByte(n) {
@@ -55,25 +55,40 @@ function hueToRgb(p, q, t) {
     return p;
 }
 
-function hslToHex(h, s, l) {
+function hslComponents(h, s, l) {
     const sat = s / 100;
     const light = l / 100;
     const hue = ((h % 360) + 360) % 360 / 360;
-    let r;
-    let g;
-    let b;
-    if (sat === 0) {
-        r = light;
-        g = light;
-        b = light;
-    } else {
-        const q = light < 0.5 ? light * (1 + sat) : light + sat - light * sat;
-        const p = 2 * light - q;
-        r = hueToRgb(p, q, hue + 1 / 3);
-        g = hueToRgb(p, q, hue);
-        b = hueToRgb(p, q, hue - 1 / 3);
-    }
+    if (sat === 0)
+        return [light, light, light];
+    const q = light < 0.5 ? light * (1 + sat) : light + sat - light * sat;
+    const p = 2 * light - q;
+    return [
+        hueToRgb(p, q, hue + 1 / 3),
+        hueToRgb(p, q, hue),
+        hueToRgb(p, q, hue - 1 / 3),
+    ];
+}
+
+function rgbBytesToHex(r, g, b) {
     return `#${hexByte(Math.round(r * 255))}${hexByte(Math.round(g * 255))}${hexByte(Math.round(b * 255))}`;
+}
+
+function hslToHex(h, s, l) {
+    const [r, g, b] = hslComponents(h, s, l);
+    return rgbBytesToHex(r, g, b);
+}
+
+function hwbToHex(h, w, bl) {
+    const white = w / 100;
+    const black = bl / 100;
+    if (white + black >= 1) {
+        const gray = white / (white + black);
+        return rgbBytesToHex(gray, gray, gray);
+    }
+    const [hr, hg, hb] = hslComponents(h, 100, 50);
+    const factor = 1 - white - black;
+    return rgbBytesToHex(hr * factor + white, hg * factor + white, hb * factor + white);
 }
 
 export function normalizeHslColor(query) {
@@ -92,6 +107,25 @@ export function normalizeHslColor(query) {
     return hslToHex(Number(match[1]), s, l);
 }
 
+export function normalizeHwbColor(query) {
+    const text = query.trim();
+    const match = text.match(
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*[\d.]+\s*)?\)$/i
+    ) || text.match(
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)%\s+([\d.]+)%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+    );
+    if (!match)
+        return null;
+    const w = Number(match[2]);
+    const b = Number(match[3]);
+    if (w > 100 || b > 100)
+        return null;
+    return hwbToHex(Number(match[1]), w, b);
+}
+
 export function normalizeColor(query) {
-    return normalizeHexColor(query) || normalizeRgbColor(query) || normalizeHslColor(query);
+    return normalizeHexColor(query) ||
+        normalizeRgbColor(query) ||
+        normalizeHslColor(query) ||
+        normalizeHwbColor(query);
 }

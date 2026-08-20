@@ -163,7 +163,7 @@ class LauncherPopup extends St.BoxLayout {
     _repaintIfOpen() {
         if (!this._isOpen)
             return;
-        this._renderer.onTextChanged(this._entry.get_text());
+        this._renderer.repaintKeepingSelection();
     }
 
     _onWidthChanged() {

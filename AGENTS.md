@@ -8,7 +8,7 @@ if you are an ai agent read the whole file do not skim
 
 gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi fuzzel anyrun tofi and light and can enable or disable every provider from preferences
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi fuzzel anyrun tofi light powertoys synapse and onagre and can enable or disable every provider from preferences
 
 ## design philosophy
 
@@ -31,6 +31,9 @@ the other looks follow real launchers researched for this project
 - anyrun is a catppuccin mocha panel #1e1e2e with a #89b4fa selected edge
 - tofi is a stark black dmenu bar with a white selected row
 - light is adwaita light
+- powertoys is a fluent dark card with a #0078d4 selected row
+- synapse is a large-icon dark panel with an ubuntu-orange caret
+- onagre is a stone-dark card with an amber selected row and dark selected text
 
 do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
 
@@ -122,8 +125,8 @@ gosh-is-launcher@nin/
     bookmarkParse.js          gtk bookmark parse (pure)
     timeSearch.js             local time and date
     timeMatch.js              time and date query (pure)
-    colorSearch.js            hex color copy
-    colorMatch.js             hex color normalize (pure)
+    colorSearch.js            color copy
+    colorMatch.js             hex rgb hsl hwb normalize (pure)
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider
     webSearch.js              web search fallback
@@ -157,6 +160,7 @@ gosh-is-launcher@nin/
     scrollView.js             45-50 scrollview attach policy adjustment
     selectionManager.js       selected row and scroll-into-view
     resultsRenderer.js        debounce search and paint rows
+    paintSelection.js         keep selected row across a refresh (pure)
     popupKeyHandler.js        stage-level key capture
     entryPreedit.js           ime preedit (pure)
     popupBackdrop.js          click-outside closer
@@ -181,7 +185,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch bookmarkParse timeMatch colorMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -195,7 +199,7 @@ never import a shell-only library in a prefs file or vice versa ego review rejec
 
 ### search priority
 
-results are combined in this order urls first then filesystem paths then xdg folders then gtk bookmarks then apps then calculator then units then hex colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
+results are combined in this order urls first then filesystem paths then xdg folders then gtk bookmarks then apps then calculator then units then colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
 the priority is set in searchController.js do not change it without reason
 
@@ -318,7 +322,7 @@ see the keybinding.js file for the implementation
 
 ## clipboard access
 
-gosh is launcher writes to the clipboard only when the user explicitly selects a calculator unit conversion hex color or time date result by pressing enter it does not read the clipboard ever it does not share clipboard data with any third party
+gosh is launcher writes to the clipboard only when the user explicitly selects a calculator unit conversion color or time date result by pressing enter it does not read the clipboard ever it does not share clipboard data with any third party
 
 this is declared in metadata.json description under the CLIPBOARD ACCESS section ego review requires this declaration for any extension that touches the clipboard
 

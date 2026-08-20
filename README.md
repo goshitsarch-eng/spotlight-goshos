@@ -49,7 +49,7 @@ Results are aggregated in the following order. Each category is rendered under i
 5. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
 6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, `!` (factorial), parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), postfix percent (`50%` is `0.5`; `10%3` stays modulo), `50% of 80`, constants (`pi`, and `e` in an expression such as `2*e`), functions (`sqrt`, `cbrt`, `abs`, `log`, `ln`, `sin`, `cos`, `tan` in degrees), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Bare `e` stays an app search. Integer results show the hex form in the description.
 7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, `32°f to c`, `1 stone to kg`, `1 nmi to km`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
-8. **Color** — A hash hex such as `#f00`, `#ff0000`, `#f00f`, or `#ff000080`, or `rgb(255, 0, 0)` / `rgb(255 0 0)` / `hsl(0, 100%, 50%)` / `hsl(0deg 100% 50%)`, copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
+8. **Color** — A hash hex such as `#f00`, `#ff0000`, `#f00f`, or `#ff000080`, or `rgb(255, 0, 0)` / `rgb(255 0 0)` / `hsl(0, 100%, 50%)` / `hsl(0deg 100% 50%)` / `hwb(0 0% 0%)` / `hwb(0deg, 0%, 0%)`, copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
 9. **Clock** — Type `time`, `now`, `date`, `today`, `tomorrow`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
 10. **Windows** — Switch to an open window by title, window class, or workspace number (`2`, `workspace 2`, or `ws 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows. The shared `Workspace N` label is not a free-text match, so `workspace` or `spa` does not list every window. Type `workspace 2` to switch to that workspace. Type `close firefox` or `quit firefox` to ask matching windows to close. Type `kill firefox` to force-quit them.
 11. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, lock screen rotation (tablets), and take a screenshot, only when GNOME says the action is available.
@@ -87,7 +87,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Open a bookmark | Type part of a GTK bookmark label, then `Enter` |
 | Copy the time | Type `time` or `now`, then `Enter` |
 | Copy tomorrow | Type `tomorrow`, then `Enter` |
-| Copy a color | Type `#ff0000` or `rgb(255, 0, 0)`, then `Enter` |
+| Copy a color | Type `#ff0000`, `rgb(255, 0, 0)`, or `hwb(0 0% 0%)`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
@@ -137,7 +137,7 @@ Configurable options:
 - Result icon size (16–64 px, default 28; each look sets this)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider, plus application actions, unit conversion, hex colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open)
+- Enable or disable every search provider, plus application actions, unit conversion, colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open and keep the selected row)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -177,7 +177,8 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `bookmarkParse.js` | GTK 3/4 bookmark file parsing |
 | `bookmarksSearch.js` | GTK bookmark provider |
 | `timeMatch.js` | Time and date query matching |
-| `colorMatch.js` | Hex color normalization |
+| `colorMatch.js` | Hex, rgb, hsl, and hwb color normalization |
+| `paintSelection.js` | Keep the selected row across an async or prefs refresh |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
 | `prefs/featuresPage.js` | Provider toggles |
@@ -193,7 +194,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 
 ## Clipboard Access
 
-This extension writes to the clipboard **only** when the user explicitly activates a calculator, unit-conversion, hex-color, or time/date result by pressing `Enter`. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
+This extension writes to the clipboard **only** when the user explicitly activates a calculator, unit-conversion, color, or time/date result by pressing `Enter`. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
 
 ## GNOME 45–50
 
@@ -214,7 +215,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
 - Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
-- Provider and web-engine preference changes repaint an open popup without a reopen.
+- Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
+- Async recent-file, path, bookmark, and command refreshes keep the selected row instead of jumping to the first result.
 - Calculator and web prefix queries do not refresh `recently-used.xbel`.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.

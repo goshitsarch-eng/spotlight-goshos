@@ -25,7 +25,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 32 f to c, 1 stone to kg, 1 gb to mib');
     addSwitch(providers, settings, 'enable-color-hex',
-        'Hex colors', 'Type #f00, rgb(255, 0, 0), or hsl(0deg 100% 50%) and press Enter to copy');
+        'Hex colors', 'Type #f00, rgb(255, 0, 0), hsl(0deg 100% 50%), or hwb(0 0% 0%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, or workspace 2. Type close firefox or kill firefox');
     addSwitch(providers, settings, 'enable-system-actions',

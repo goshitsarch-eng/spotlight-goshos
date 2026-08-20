@@ -13,6 +13,7 @@ import {ensureRecentFiles} from './recentFilesSearch.js';
 import {ensurePath} from './pathSearch.js';
 import {ensureCommand} from './commandSearch.js';
 import {ensureBookmarks} from './bookmarksSearch.js';
+import {paintSelectionIndex} from './paintSelection.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -26,6 +27,7 @@ export class ResultsRenderer {
         this._onActivate = onActivate;
         this._onHover = onHover;
         this._searchIdleId = 0;
+        this._scrollIdleId = 0;
         this._generation = 0;
         this._lastQuery = '';
     }
@@ -34,6 +36,13 @@ export class ResultsRenderer {
         if (this._searchIdleId) {
             GLib.source_remove(this._searchIdleId);
             this._searchIdleId = 0;
+        }
+    }
+
+    _clearScrollIdle() {
+        if (this._scrollIdleId) {
+            GLib.source_remove(this._scrollIdleId);
+            this._scrollIdleId = 0;
         }
     }
 
@@ -53,35 +62,45 @@ export class ResultsRenderer {
         this._clearSearchIdle();
 
         if (text.trim().length === 0) {
-            this._showEmptyState();
+            this._showEmptyState(false);
             return;
         }
 
         this._searchIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._searchIdleId = 0;
-            this._runSearch();
+            this._runSearch(false);
             return GLib.SOURCE_REMOVE;
         });
     }
 
-    _showEmptyState() {
+    // prefs chrome and feature flags should not jump the highlight to row 0
+    repaintKeepingSelection() {
+        this._clearSearchIdle();
+        if (this._lastQuery.trim().length === 0) {
+            this._showEmptyState(true);
+            return;
+        }
+        this._runSearch(true);
+    }
+
+    _showEmptyState(keepSelection) {
         this._generation += 1;
         const suggestions = runEmptySuggestions(this._settings);
         if (suggestions.length === 0) {
             this.reset();
             return;
         }
-        this._paint(suggestions, '');
+        this._paint(suggestions, '', keepSelection);
     }
 
-    _runSearch() {
+    _runSearch(keepSelection) {
         this._generation += 1;
         const query = this._lastQuery;
         if (!isActiveSearchQuery(query)) {
-            this._showEmptyState();
+            this._showEmptyState(keepSelection);
             return;
         }
-        this._paint(runSearch(query, this._settings), query.trim());
+        this._paint(runSearch(query, this._settings), query.trim(), keepSelection);
         const plan = planSearch(query, flagsFromSettings(this._settings));
         const gen = this._generation;
         const refresh = () => {
@@ -90,7 +109,7 @@ export class ResultsRenderer {
             const latest = this._lastQuery;
             if (!isActiveSearchQuery(latest))
                 return;
-            this._paint(runSearch(latest, this._settings), latest.trim());
+            this._paint(runSearch(latest, this._settings), latest.trim(), true);
         };
         if (shouldRefreshRecentFiles(this._settings.get_boolean('enable-recent-files'), plan))
             ensureRecentFiles(refresh);
@@ -102,7 +121,34 @@ export class ResultsRenderer {
             ensureBookmarks(refresh);
     }
 
-    _paint(results, query) {
+    _selectedKey() {
+        const index = this._selection.selectedIndex;
+        const result = this._selection.results[index];
+        if (!result)
+            return null;
+        return {
+            type: result.type,
+            title: result.title,
+            description: result.description || '',
+            index,
+        };
+    }
+
+    // allocation is empty until this paint returns so scroll on the next idle
+    _queueScrollSelected() {
+        this._clearScrollIdle();
+        this._scrollIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._scrollIdleId = 0;
+            const index = this._selection.selectedIndex;
+            if (index > 0)
+                this._selection.applySelection(index);
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _paint(results, query, keepSelection) {
+        this._clearScrollIdle();
+        const previous = keepSelection ? this._selectedKey() : null;
         this._selection.setResults(results);
         this._resultsBox.destroy_all_children();
 
@@ -110,7 +156,10 @@ export class ResultsRenderer {
             this._resultsBox.add_child(buildNoResults(query));
         } else {
             this._renderResults();
-            this._selection.applySelection(0, true);
+            const index = paintSelectionIndex(previous, results);
+            this._selection.applySelection(index, true);
+            if (keepSelection && index > 0)
+                this._queueScrollSelected();
         }
 
         this._resultsScroll.show();
@@ -135,7 +184,9 @@ export class ResultsRenderer {
 
     reset() {
         this._clearSearchIdle();
+        this._clearScrollIdle();
         this._generation += 1;
+        this._lastQuery = '';
         this._selection.setResults([]);
         this._resultsBox.destroy_all_children();
         this._resultsScroll.hide();
@@ -143,6 +194,7 @@ export class ResultsRenderer {
 
     destroy() {
         this._clearSearchIdle();
+        this._clearScrollIdle();
         this._generation += 1;
     }
 }

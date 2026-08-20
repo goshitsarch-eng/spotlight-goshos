@@ -29,7 +29,8 @@ import {terminalSpec, terminalCommand, terminalRowMeta} from '../terminalLaunch.
 import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../placeMatch.js';
 import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescription, bookmarkMatches, matchBookmarks, bookmarkIcon, hostFromUri} from '../bookmarkParse.js';
 import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
-import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeColor} from '../colorMatch.js';
+import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor} from '../colorMatch.js';
+import {paintSelectionIndex} from '../paintSelection.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches} from '../windowMatch.js';
@@ -408,6 +409,9 @@ assert(matchSettingsPanels('zoom', 5).some(p => p.id === 'universal-access'), 'z
 assert(matchSettingsPanels('fractional scaling', 5).some(p => p.id === 'display'), 'fractional scaling is displays');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('PowerToys'), 'about lists powertoys');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Synapse'), 'about lists synapse');
+assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Onagre'), 'about lists onagre');
+assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('hwb(0 0% 0%)'), 'features mention hwb');
+assert(metadata.description.includes('hwb(0 0% 0%)'), 'metadata mentions hwb');
 assert(matchSettingsPanels('o', 20).some(p => p.id === 'online-accounts'), 'o prefixes online accounts');
 assert(!matchSettingsPanels('o', 20).some(p => p.id === 'wifi'), 'o is not wifi');
 assertEq(SETTINGS_PANELS.find(p => p.id === 'privacy').title, 'Privacy & Security', 'gnome 50 privacy title');
@@ -1036,7 +1040,28 @@ assertEq(normalizeHslColor('hsl(0deg, 100%, 50%)'), '#ff0000', 'comma hsl deg');
 assertEq(normalizeHslColor('hsl(0 100% 50% / 0.4)'), '#ff0000', 'modern hsl slash alpha');
 assertEq(normalizeColor('hsla(120, 100%, 50%, 0.4)'), '#00ff00', 'hsla green');
 assertEq(normalizeHslColor('hsl(0, 200%, 50%)'), null, 'hsl sat range');
+assertEq(normalizeHwbColor('hwb(0 0% 0%)'), '#ff0000', 'hwb red');
+assertEq(normalizeHwbColor('hwb(0deg, 0%, 0%)'), '#ff0000', 'comma hwb deg');
+assertEq(normalizeHwbColor('hwb(0deg 0% 0%)'), '#ff0000', 'modern hwb deg');
+assertEq(normalizeHwbColor('hwb(120 0% 0%)'), '#00ff00', 'hwb green');
+assertEq(normalizeHwbColor('hwb(0 100% 0%)'), '#ffffff', 'hwb white');
+assertEq(normalizeHwbColor('hwb(0 0% 100%)'), '#000000', 'hwb black');
+assertEq(normalizeHwbColor('hwb(0 50% 50%)'), '#808080', 'hwb gray');
+assertEq(normalizeHwbColor('hwb(0 20% 20%)'), '#cc3333', 'hwb tint shade');
+assertEq(normalizeHwbColor('hwb(0 0% 0% / 0.4)'), '#ff0000', 'hwb slash alpha');
+assertEq(normalizeColor('hwba(240, 0%, 0%, 0.4)'), '#0000ff', 'hwba blue');
+assertEq(normalizeHwbColor('hwb(0 200% 0%)'), null, 'hwb white range');
 assert(planSearch('#ff0000', allOn).providers.includes('color'), 'color planned');
+const keepRows = [
+    {type: 'app', title: 'Firefox', description: 'Web Browser'},
+    {type: 'window', title: 'Firefox', description: 'Workspace 2'},
+    {type: 'file', title: 'notes.txt', description: '~/Documents'},
+];
+assertEq(paintSelectionIndex(null, keepRows), 0, 'first paint selects top');
+assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Workspace 2', index: 1}, keepRows), 1, 'same title keeps type');
+assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', description: '~', index: 2}, keepRows), 2, 'missing row clamps index');
+assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', index: 9}, keepRows), 0, 'stale index falls back');
+assertEq(paintSelectionIndex({type: 'app', title: 'Firefox'}, []), -1, 'empty list has no selection');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
