@@ -88,7 +88,7 @@ export function evaluateArithmetic(input, allowBare) {
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z][a-zA-Z0-9]*|[+\-*/%()^!])/g;
+    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+\-]?[0-9]+)?|[a-zA-Z][a-zA-Z0-9]*|[+\-*/%()^!])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
@@ -208,6 +208,9 @@ export function evaluateArithmetic(input, allowBare) {
         const afterPostfix = postfixPercent(postfixFact(value));
         const next = peek();
         if (next === '(' || isIdent(next)) {
+            // 1e is incomplete scientific not 1 times euler
+            if (isIdent(next) && next.toLowerCase() === 'e')
+                return null;
             const right = parsePrimary();
             if (right === null)
                 return null;

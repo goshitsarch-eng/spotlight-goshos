@@ -2,7 +2,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {basenameFromUri, pathFromFileUri} from './recentXbel.js';
+import {fileUriFromAbsolute} from './homePath.js';
 import {wordPrefixMatch} from './wordMatch.js';
+
+export function normalizeBookmarkUri(uri) {
+    if (!uri)
+        return '';
+    if (uri.startsWith('/'))
+        return fileUriFromAbsolute(uri);
+    return uri;
+}
 
 export function hostFromUri(uri) {
     const match = uri.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/(?:[^/@]+@)?([^/:?#]+)/);
@@ -43,7 +52,8 @@ export function parseGtkBookmarks(text) {
         if (!line || line.startsWith('#'))
             continue;
         const space = line.indexOf(' ');
-        const uri = space === -1 ? line : line.slice(0, space);
+        const rawUri = space === -1 ? line : line.slice(0, space);
+        const uri = normalizeBookmarkUri(rawUri);
         const label = space === -1 ? '' : line.slice(space + 1).trim();
         if (!uri || seen.has(uri))
             continue;

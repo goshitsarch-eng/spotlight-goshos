@@ -242,6 +242,7 @@ Manual testing on GNOME Shell 50 Wayland:
 51. Open the launcher, then lock the screen — the popup must be gone after unlock. Type `e+1` or `=e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `what time is it` — a Clock row should appear. On a short display with a top look, results must stay visible (not a zero-height list).
 52. With the command runner on, `!` plus a script under your home such as `scripts/true` (no `./`) should run after the exists check. A tool installed only in `~/.local/bin` should be found. On GNOME 45–47, `wellbeing` must not appear under Settings. Disable and re-enable the extension — blocked apps must stay hidden until parental controls finish again.
 53. Type `-2^2` — the result should be `-4`. Type `tan(90)` or `0x` or `2foo` — those must not be calculator rows. Turn off Show web search fallback, then type `@ cats` — a web row should still appear. On Raycast and Anyrun, arrow to a later row — the selected row must be obviously different from its neighbors. In Shortcut prefs, click the shortcut row then Tab away — the label must restore the current shortcut.
+54. Type `2 hours to min` — the title should be `120 min`. Type `1 acre to m2` — an area row should appear. Type `.5+1` — the calculator result should be 1.5. Type `1e` — it must stay an app search. Type `2*e` — Euler’s number should evaluate. A GTK bookmark line that is a bare `/home/…` path should open that folder.
 
 ## Submitting Changes
 

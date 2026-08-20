@@ -1,4 +1,4 @@
-// gosh is launcher - length mass temp volume and data conversions
+// gosh is launcher - length mass temp volume data duration and area conversions
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 const ALIASES = {
@@ -33,6 +33,16 @@ const ALIASES = {
     gb: 'gb', gigabyte: 'gb', gigabytes: 'gb',
     tb: 'tb', terabyte: 'tb', terabytes: 'tb',
     kib: 'kib', mib: 'mib', gib: 'gib', tib: 'tib',
+    s: 's', sec: 's', second: 's', seconds: 's',
+    min: 'min', mins: 'min', minute: 'min', minutes: 'min',
+    h: 'h', hr: 'h', hour: 'h', hours: 'h',
+    d: 'd', day: 'd', days: 'd',
+    m2: 'm2', sqm: 'm2', sqmeter: 'm2', sqmetre: 'm2',
+    km2: 'km2',
+    ha: 'ha', hectare: 'ha', hectares: 'ha',
+    acre: 'acre', acres: 'acre',
+    ft2: 'ft2', sqft: 'ft2',
+    mi2: 'mi2', sqmi: 'mi2',
 };
 
 const UNITS = {
@@ -70,9 +80,19 @@ const UNITS = {
     c: {dim: 'temp'},
     f: {dim: 'temp'},
     k: {dim: 'temp'},
+    s: {dim: 'duration', toBase: 1},
+    min: {dim: 'duration', toBase: 60},
+    h: {dim: 'duration', toBase: 3600},
+    d: {dim: 'duration', toBase: 86400},
+    m2: {dim: 'area', toBase: 1},
+    km2: {dim: 'area', toBase: 1e6},
+    ha: {dim: 'area', toBase: 10000},
+    acre: {dim: 'area', toBase: 4046.8564224},
+    ft2: {dim: 'area', toBase: 0.09290304},
+    mi2: {dim: 'area', toBase: 2589988.110336},
 };
 
-const QUERY_RE = /^(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)\s*([a-z]+)\s+(?:to|in)\s+([a-z]+)$/i;
+const QUERY_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+\-]?\d+)?)\s*([a-z][a-z0-9]*)\s+(?:to|in)\s+([a-z][a-z0-9]*)$/i;
 
 export function resolveUnit(name) {
     const id = ALIASES[name.toLowerCase()];

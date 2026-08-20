@@ -9,6 +9,8 @@ export function searchUrl(query) {
         return [];
 
     const url = normalizeUrl(query);
+    if (!url)
+        return [];
     return [{
         type: 'url',
         title: url,

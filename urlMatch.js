@@ -3,7 +3,7 @@
 
 const SCHEME_RE = /^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|www\.|file:\/\/)\S+$/i;
 const MAILTO_RE = /^mailto:[^\s@]+@[^\s]+$/i;
-const MAGNET_RE = /^magnet:\?\S+$/i;
+const MAGNET_RE = /^magnet:\S+$/i;
 const LABEL = '[a-z0-9](?:[a-z0-9-]*[a-z0-9])?';
 const DOMAIN_RE = new RegExp(
     `^${LABEL}(?:\\.${LABEL})+(:\\d{1,5})?([/?#]\\S*)?$`,
@@ -58,6 +58,8 @@ export function isUrlQuery(query) {
     const trimmed = query.trim();
     if (trimmed.length === 0 || /\s/.test(trimmed))
         return false;
+    if (/^(javascript|data|vbscript):/i.test(trimmed))
+        return false;
     if (SCHEME_RE.test(trimmed) ||
         MAILTO_RE.test(trimmed) ||
         MAGNET_RE.test(trimmed) ||
@@ -99,7 +101,9 @@ export function schemeForHost(host) {
 
 export function normalizeUrl(query) {
     const trimmed = query.trim();
-    if (/^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:\?)/i.test(trimmed))
+    if (/^(javascript|data|vbscript):/i.test(trimmed))
+        return null;
+    if (/^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:)/i.test(trimmed))
         return trimmed;
     if (/^www\./i.test(trimmed))
         return `https://${trimmed}`;
