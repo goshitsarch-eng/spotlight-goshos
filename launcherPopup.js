@@ -514,6 +514,11 @@ class LauncherPopup extends St.BoxLayout {
         this._focusWatcher.stop();
         this._unlistenMonitors();
         this._clearPopupIdles();
+        // bump load ids before destroy so in-flight gio cannot repaint
+        invalidateRecentFiles();
+        invalidatePathLookup();
+        invalidateCommandLookup();
+        invalidateBookmarks();
         this._renderer.destroy();
 
         if (this._backdrop) {

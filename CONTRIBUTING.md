@@ -98,7 +98,7 @@ Pure functions with no side effects:
 - **`calculator.js`** — Recursive-descent arithmetic parser.
 - **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
 - **`paintSelection.js`** — Keep the selected row across an async repaint.
-- **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint.
+- **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint. A closed popup must not accept one.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
 - **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
@@ -280,6 +280,7 @@ Manual testing on GNOME Shell 50 Wayland:
 85. Rest the pointer over the results list, then type another character or wait for a path exists-check to finish — the shell must stay up. The highlight should stay on the kept row, not jump to whichever row the pointer happens to be over during the rebuild.
 86. Set Max results to 2, switch to Pop!_OS, and open the launcher with several windows and frequent apps — the empty list must show 2 rows, not windows plus apps. Switch result order to apps first with the same cap — still 2 rows.
 87. Add a GTK bookmark whose `file://` line has a space in the folder name, or open a recent file under such a folder — Enter must open it. A `javascript:` bookmark must still be ignored.
+88. Close the launcher while a `~/` path, `!` slash-path, recent-file load, or GTK bookmark read is still in flight — the shell must stay up. Reopen and type the same query — the exists check must run again, not reuse a row from the closed session.
 
 ## Submitting Changes
 

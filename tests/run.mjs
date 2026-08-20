@@ -1608,10 +1608,12 @@ const keepRows = [
     {type: 'window', title: 'Firefox', description: 'Workspace 2'},
     {type: 'file', title: 'notes.txt', description: '~/Documents'},
 ];
-assert(shouldScheduleAsyncPaint(false), 'first gio finish may schedule');
-assert(!shouldScheduleAsyncPaint(true), 'later gio finishes share the idle');
-assert(shouldRunAsyncPaint(true), 'active query paints after gio');
-assert(!shouldRunAsyncPaint(false), 'empty query does not paint after gio');
+assert(shouldScheduleAsyncPaint(false, true), 'first gio finish may schedule');
+assert(!shouldScheduleAsyncPaint(true, true), 'later gio finishes share the idle');
+assert(!shouldScheduleAsyncPaint(false, false), 'closed popup ignores gio');
+assert(shouldRunAsyncPaint(true, true), 'active query paints after gio');
+assert(!shouldRunAsyncPaint(false, true), 'empty query does not paint after gio');
+assert(!shouldRunAsyncPaint(true, false), 'closed popup does not paint after gio');
 assertEq(paintSelectionIndex(null, keepRows), 0, 'first paint selects top');
 assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Workspace 2', index: 1}, keepRows), 1, 'same title keeps type');
 assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', description: '~', index: 2}, keepRows), 2, 'missing row clamps index');

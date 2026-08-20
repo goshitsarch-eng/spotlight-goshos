@@ -32,6 +32,7 @@ export class ResultsRenderer {
         this._refreshIdleId = 0;
         this._lastQuery = '';
         this._painting = false;
+        this._acceptAsyncPaint = false;
     }
 
     get isPainting() {
@@ -61,11 +62,11 @@ export class ResultsRenderer {
 
     // path command recent and bookmark finishes share one idle
     _scheduleAsyncPaint() {
-        if (!shouldScheduleAsyncPaint(Boolean(this._refreshIdleId)))
+        if (!shouldScheduleAsyncPaint(Boolean(this._refreshIdleId), this._acceptAsyncPaint))
             return;
         this._refreshIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._refreshIdleId = 0;
-            if (!shouldRunAsyncPaint(isActiveSearchQuery(this._lastQuery)))
+            if (!shouldRunAsyncPaint(isActiveSearchQuery(this._lastQuery), this._acceptAsyncPaint))
                 return GLib.SOURCE_REMOVE;
             this._paint(runSearch(this._lastQuery, this._settings), this._lastQuery.trim(), true);
             return GLib.SOURCE_REMOVE;
@@ -84,6 +85,7 @@ export class ResultsRenderer {
     }
 
     onTextChanged(text) {
+        this._acceptAsyncPaint = true;
         this._lastQuery = text;
         this._clearSearchIdle();
         this._clearRefreshIdle();
@@ -100,6 +102,7 @@ export class ResultsRenderer {
 
     // prefs chrome and feature flags should not jump the highlight to row 0
     repaintKeepingSelection() {
+        this._acceptAsyncPaint = true;
         this._clearSearchIdle();
         this._clearRefreshIdle();
         if (this._lastQuery.trim().length === 0) {
@@ -214,6 +217,7 @@ export class ResultsRenderer {
     }
 
     destroy() {
+        this._acceptAsyncPaint = false;
         this._clearSearchIdle();
         this._clearScrollIdle();
         this._clearRefreshIdle();
