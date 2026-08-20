@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
-import {buildAccelerator, modifiersFromMask, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName} from '../shortcutAccel.js';
 
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -18,7 +18,7 @@ export function buildShortcutPage(settings) {
     });
 
     const shortcutLabel = new Gtk.Label({
-        label: formatShortcut(settings.get_strv('toggle-shortcut')),
+        label: shortcutDisplayLabel(settings.get_strv('toggle-shortcut')),
         halign: Gtk.Align.END,
         valign: Gtk.Align.CENTER,
     });
@@ -27,6 +27,14 @@ export function buildShortcutPage(settings) {
 
     const eventController = new Gtk.EventControllerKey();
     let capturing = false;
+
+    const refreshLabel = () => {
+        const next = shortcutLabelAfterChange(settings.get_strv('toggle-shortcut'), capturing);
+        if (next !== null)
+            shortcutLabel.label = next;
+    };
+
+    settings.connect('changed::toggle-shortcut', refreshLabel);
 
     shortcutRow.connect('activated', () => {
         capturing = true;
@@ -38,7 +46,7 @@ export function buildShortcutPage(settings) {
         if (shortcutRow.has_focus || !capturing)
             return;
         capturing = false;
-        shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
+        refreshLabel();
     });
 
     eventController.connect('key-pressed', (controller, keyval, keycode, state) => {
@@ -47,7 +55,7 @@ export function buildShortcutPage(settings) {
 
         if (keyval === Gdk.KEY_Escape) {
             capturing = false;
-            shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
+            refreshLabel();
             return true;
         }
 
@@ -65,9 +73,9 @@ export function buildShortcutPage(settings) {
         if (!accelerator)
             return true;
 
-        settings.set_strv('toggle-shortcut', [accelerator]);
-        shortcutLabel.label = formatShortcut([accelerator]);
         capturing = false;
+        settings.set_strv('toggle-shortcut', [accelerator]);
+        refreshLabel();
         return true;
     });
 
@@ -83,18 +91,12 @@ export function buildShortcutPage(settings) {
         valign: Gtk.Align.CENTER,
     });
     resetButton.connect('clicked', () => {
+        capturing = false;
         settings.set_strv('toggle-shortcut', ['<Control>space']);
-        shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
+        refreshLabel();
     });
     resetRow.add_suffix(resetButton);
     group.add(resetRow);
 
     return group;
-}
-
-function formatShortcut(shortcutArray) {
-    const text = formatShortcutList(shortcutArray);
-    if (!text)
-        return 'Not set (will default to Ctrl+Space)';
-    return text;
 }

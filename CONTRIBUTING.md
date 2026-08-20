@@ -108,7 +108,7 @@ Pure functions with no side effects:
 - **`recentXbel.js`** — Parse `recently-used.xbel`.
 - **`keyAction.js`** — Key press to popup action.
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
-- **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
+- **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers, and the prefs label after a failed grab writes the working bind back.
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display would hide the list.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
@@ -236,7 +236,7 @@ Manual testing on GNOME Shell 50 Wayland:
 43. Type `~/` plus an existing folder — after the exists check, Open in Terminal should appear under Open Path. Type `docs` — Documents should appear, and Open in Terminal should follow if a terminal is installed.
 44. Open Appearance, change icon size, close prefs, reopen Appearance without changing the look — the custom icon size must still be there. Switch to Onagre — selected rows should be amber with dark descriptions. The About page must list Onagre.
 45. Type `hwb(0 0% 0%)` or `hwb(0deg, 0%, 0%)` — a Color row should copy `#ff0000`. Arrow to a later result, then wait for recent files or a path exists-check to finish — the same row should stay selected and stay in view. Change icon size or a provider toggle while a result is selected — that row should stay selected.
-46. Type `~/` plus a path — the first row must say Checking path and Enter must do nothing until the exists check finishes. A missing path must stay Path not found. Change the look with `gsettings set … launcher-theme popos` while the popup is open — it should move to the top, show number hints, and list windows first. Set a shortcut that is already taken — the previous working shortcut must keep working, and Preferences must show that working shortcut rather than a silent Ctrl+Space fallback.
+46. Type `~/` plus a path — the first row must say Checking path and Enter must do nothing until the exists check finishes. A missing path must stay Path not found. Change the look with `gsettings set … launcher-theme popos` while the popup is open — it should move to the top, show number hints, and list windows first. Set a shortcut that is already taken — the previous working shortcut must keep working, and the Shortcut page label must snap back to that working bind immediately, not keep the taken key.
 47. Type `1,000 km to mi` — a Units row should appear. Type `1024 bytes to kib` — the title should be `1 kib`. Type `asin(1)` — the calculator result should be 90. Type `log2(8)` — the result should be 3. Type `round(1.5)` — the result should be 2.
 48. Type `yesterday` — the date should be yesterday. Type `1e3 km to mi` — a Units row should appear. Type `yesterdays` — it must not be a clock row.
 49. Open a file on an `sftp` or `smb` share, then search for its name — it should appear under Recent files with the host as the description. An `https` bookmark in `recently-used.xbel` must not appear. Type `screenshot` with Overview closed — the screenshot UI must still open.

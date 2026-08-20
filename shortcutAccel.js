@@ -79,6 +79,17 @@ export function formatShortcutList(shortcutArray) {
     return formatAccelerator(shortcutArray[0]);
 }
 
+export function shortcutDisplayLabel(shortcutArray) {
+    return formatShortcutList(shortcutArray) || 'Not set (will default to Ctrl+Space)';
+}
+
+// a failed grab writes the working accel back capture must not freeze the old key
+export function shortcutLabelAfterChange(shortcutArray, capturing) {
+    if (capturing)
+        return null;
+    return shortcutDisplayLabel(shortcutArray);
+}
+
 export function shortcutAttempts(requested, fallback = '<Control>space') {
     const extras = [fallback, '<Super>space', '<Alt>space'];
     const out = [];

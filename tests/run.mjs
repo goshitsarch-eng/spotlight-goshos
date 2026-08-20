@@ -32,7 +32,7 @@ import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescriptio
 import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
@@ -1621,6 +1621,10 @@ assertEq(shortcutRetryList('<Super>space', '<Alt>space').join(','), '', 'working
 assertEq(shortcutRetryList('<Super>space', '').join(','), '<Control>space,<Alt>space', 'first bind may fall back');
 assertEq(shortcutToPersist('<Super>space', '<Control>space'), '<Control>space', 'persist the grab that won');
 assertEq(shortcutToPersist('<Control>space', '<Control>space'), null, 'same shortcut needs no write');
+assertEq(shortcutDisplayLabel([]), 'Not set (will default to Ctrl+Space)', 'empty shortcut label');
+assertEq(shortcutDisplayLabel(['<Alt>space']), 'Alt+space', 'shortcut display');
+assertEq(shortcutLabelAfterChange(['<Control>space'], true), null, 'capture keeps the prompt');
+assertEq(shortcutLabelAfterChange(['<Control>space'], false), 'Ctrl+space', 'write-back updates the label');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 
