@@ -72,7 +72,7 @@ const UNITS = {
     k: {dim: 'temp'},
 };
 
-const QUERY_RE = /^(-?\d+(?:\.\d+)?)\s*([a-z]+)\s+(?:to|in)\s+([a-z]+)$/i;
+const QUERY_RE = /^(-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)\s*([a-z]+)\s+(?:to|in)\s+([a-z]+)$/i;
 
 export function resolveUnit(name) {
     const id = ALIASES[name.toLowerCase()];

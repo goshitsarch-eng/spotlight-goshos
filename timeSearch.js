@@ -3,7 +3,7 @@
 
 import GLib from 'gi://GLib';
 import St from 'gi://St';
-import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from './timeMatch.js';
+import {timeQueryKind, dateOffsetDays, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from './timeMatch.js';
 
 export function searchTime(query) {
     const kind = timeQueryKind(query);
@@ -11,7 +11,7 @@ export function searchTime(query) {
         return [];
 
     const now = GLib.DateTime.new_now_local();
-    const when = kind === 'tomorrow' ? now.add_days(1) : now;
+    const when = now.add_days(dateOffsetDays(kind));
     const weekday = weekdayName(when.get_day_of_week());
     const title = kind === 'time'
         ? formatClock(when.get_hour(), when.get_minute(), when.get_second())

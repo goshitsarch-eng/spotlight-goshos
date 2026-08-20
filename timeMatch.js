@@ -9,7 +9,17 @@ export function timeQueryKind(query) {
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';
+    if (q === 'yesterday')
+        return 'yesterday';
     return null;
+}
+
+export function dateOffsetDays(kind) {
+    if (kind === 'tomorrow')
+        return 1;
+    if (kind === 'yesterday')
+        return -1;
+    return 0;
 }
 
 export function formatClock(hours, minutes, seconds) {
