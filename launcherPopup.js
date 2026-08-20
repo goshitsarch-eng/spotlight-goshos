@@ -116,6 +116,7 @@ class LauncherPopup extends St.BoxLayout {
             'changed::enable-settings-search', () => this._repaintIfOpen(),
             'changed::enable-recent-files', () => this._repaintIfOpen(),
             'changed::enable-url-open', () => this._repaintIfOpen(),
+            'changed::enable-path-open', () => this._repaintIfOpen(),
             'changed::enable-command-run', () => this._repaintIfOpen(),
             'changed::enable-prefix-modes', () => this._repaintIfOpen(),
             'changed::show-web-search', () => this._repaintIfOpen(),

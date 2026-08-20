@@ -4,6 +4,7 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {firstCommandArg, commandIsReady} from './commandReady.js';
+import {expandHomeArgv} from './homePath.js';
 import {spawnArgv} from './gioLaunch.js';
 
 function _commandReady(argv) {
@@ -24,7 +25,8 @@ export function searchCommand(query) {
     if (!ok || argv.length === 0)
         return [];
 
-    if (!_commandReady(argv)) {
+    const resolved = expandHomeArgv(argv, GLib.get_home_dir() || '');
+    if (!_commandReady(resolved)) {
         return [{
             type: 'command',
             title: query,
@@ -39,6 +41,6 @@ export function searchCommand(query) {
         title: query,
         description: 'Run command',
         icon: 'utilities-terminal-symbolic',
-        activate: () => spawnArgv(argv),
+        activate: () => spawnArgv(resolved),
     }];
 }

@@ -130,6 +130,8 @@ gosh-is-launcher@nin/
     appMatch.js               app name generic-name keyword tiers (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
+    pathSearch.js             ~/ ./ and absolute path opener
+    homePath.js               expand ~ and ./ against home (pure)
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes
@@ -161,7 +163,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -175,7 +177,7 @@ never import a shell-only library in a prefs file or vice versa ego review rejec
 
 ### search priority
 
-results are combined in this order urls first then apps then calculator then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
+results are combined in this order urls first then filesystem paths then apps then calculator then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
 the priority is set in searchController.js do not change it without reason
 

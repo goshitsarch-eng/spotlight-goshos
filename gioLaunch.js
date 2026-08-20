@@ -4,9 +4,12 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {firstCommandArg, commandIsReady} from './commandReady.js';
+import {expandHomeArgv} from './homePath.js';
 
 export function spawnArgv(argv) {
-    const exe = firstCommandArg(argv);
+    const home = GLib.get_home_dir() || '';
+    const resolved = expandHomeArgv(argv, home);
+    const exe = firstCommandArg(resolved);
     if (!commandIsReady(
         exe,
         name => GLib.find_program_in_path(name),
@@ -18,10 +21,9 @@ export function spawnArgv(argv) {
         flags: Gio.SubprocessFlags.NONE,
     });
     // gnome-shell cwd is often / so run the command from the user home
-    const home = GLib.get_home_dir();
     if (home)
         launcher.set_cwd(home);
-    const proc = launcher.spawnv(argv);
+    const proc = launcher.spawnv(resolved);
     // wait_async holds the subprocess until exit so gc cannot SIGTERM it
     proc.wait_async(null, (p, res) => {
         try {

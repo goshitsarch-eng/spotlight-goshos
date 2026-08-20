@@ -69,6 +69,7 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`windowSearch.js`** — Open window switcher, including modal dialogs.
 - **`recentFilesSearch.js`** — Recently used files.
 - **`urlSearch.js`** — URL / domain opener.
+- **`pathSearch.js`** — `~/` `./` and absolute path opener.
 - **`commandSearch.js`** — Optional `!` command runner.
 
 ### Services
@@ -100,6 +101,7 @@ Pure functions with no side effects:
 - **`windowMatch.js`** — Window title / class matching.
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
+- **`homePath.js`** — Expand `~` and `./` against the user home.
 
 ### Preference Pages
 
@@ -188,6 +190,8 @@ Manual testing on GNOME Shell 50 Wayland:
 20. Toggle a provider or the web engine in preferences while the popup is open — results should update without a reopen.
 21. With both Firefox and Firefox ESR installed, the one you use more should be the only Firefox row.
 22. Open several windows, focus one, then open the launcher — that window should be first in the empty-state list.
+23. Type `~/` then a folder that exists — it should open that path. Type `/no-such-gosh-path` — the row should say Path not found.
+24. With the command runner on, `! ./` plus a script in your home directory should run, and `! ~/bin/true` should resolve if that file exists.
 
 ## Submitting Changes
 

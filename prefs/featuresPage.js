@@ -30,6 +30,8 @@ export function buildFeaturesPage(settings) {
         'Recent files', 'Open recently used files');
     addSwitch(providers, settings, 'enable-url-open',
         'Open URLs', 'Launch typed addresses and domain names');
+    addSwitch(providers, settings, 'enable-path-open',
+        'Open paths', 'Open ~/ ./ and absolute paths in the default handler');
     addSwitch(providers, settings, 'enable-command-run',
         'Command runner', 'Run a command with the ! prefix');
 

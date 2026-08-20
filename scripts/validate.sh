@@ -139,6 +139,8 @@ required = [
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',
+    'homePath.js',
+    'pathSearch.js',
 ]
 missing = [n for n in required if n not in names]
 if missing:

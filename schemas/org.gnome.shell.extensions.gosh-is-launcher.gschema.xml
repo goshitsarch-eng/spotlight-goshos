@@ -165,6 +165,12 @@
       <description>Open typed URLs and domain names in the browser.</description>
     </key>
 
+    <key name="enable-path-open" type="b">
+      <default>true</default>
+      <summary>Enable path opening</summary>
+      <description>Open typed ~/ ./ and absolute filesystem paths.</description>
+    </key>
+
     <key name="enable-command-run" type="b">
       <default>false</default>
       <summary>Enable command runner</summary>

@@ -8,6 +8,7 @@ const SECTION_TITLES = {
     'system-action': 'System Actions',
     settings: 'Settings',
     file: 'Recent Files',
+    path: 'Open Path',
     url: 'Open Link',
     command: 'Run Command',
     web: 'Web Search',

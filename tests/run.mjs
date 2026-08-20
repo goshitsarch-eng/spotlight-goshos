@@ -18,6 +18,7 @@ import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSet
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
+import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriFromAbsolute} from '../homePath.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent} from '../windowMatch.js';
@@ -194,7 +195,7 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'calculator', 'window', 'system-action', 'settings', 'file', 'url', 'command', 'web'])
+for (const type of ['app', 'calculator', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 
@@ -301,7 +302,7 @@ assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
 
 // search plan feature flags
 const allOn = {
-    prefixModes: true, url: true, apps: true, calculator: true,
+    prefixModes: true, url: true, path: true, apps: true, calculator: true,
     windows: true, system: true, settings: true, files: true,
     command: true, web: true,
 };
@@ -322,7 +323,7 @@ assertEq(planSearch('=2+2', noCalc).providers.length, 0, 'disabled calc prefix')
 const noPrefix = Object.assign({}, allOn, {prefixModes: false});
 assertEq(planSearch('=2+2', noPrefix).mode, 'all', 'prefix disabled');
 const appsOnly = {
-    prefixModes: false, url: false, apps: true, calculator: false,
+    prefixModes: false, url: false, path: false, apps: true, calculator: false,
     windows: false, system: false, settings: false, files: false,
     command: false, web: false,
 };
@@ -339,6 +340,9 @@ assert(!shouldRefreshRecentFiles(true, planSearch('@cats', allOn)), 'web prefix 
 assert(shouldRefreshRecentFiles(true, planSearch('notes', allOn)), 'all-mode with files refreshes');
 assert(!shouldRefreshRecentFiles(false, planSearch('notes', allOn)), 'disabled files skip');
 assert(!shouldRefreshRecentFiles(true, planSearch('notes', appsOnly)), 'apps-only skips recent');
+assert(planSearch('~/docs', allOn).providers.includes('path'), 'home path is planned');
+assert(planSearch('/tmp', allOn).providers.includes('path'), 'absolute path is planned');
+assertEq(planSearch('~/docs', appsOnly).providers.join(','), 'apps', 'path off stays apps');
 
 const flagSettings = {
     get_boolean(key) {
@@ -352,6 +356,7 @@ const fromSettings = flagsFromSettings(flagSettings);
 assertEq(fromSettings.command, false, 'flags hide command runner');
 assertEq(fromSettings.resultOrder, 'windows-first', 'flags read result order');
 assert(fromSettings.apps, 'flags keep apps');
+assert(fromSettings.path, 'flags keep path open');
 
 const providers = {
     apps: (query, max) => query === 'x' ? [{title: 'App', n: max}] : [],
@@ -646,6 +651,23 @@ assert(commandIsReady('ls', name => name === 'ls' ? '/bin/ls' : null, () => fals
 assert(!commandIsReady('nope', () => null, () => false), 'missing on PATH');
 assert(commandIsReady('/bin/ls', () => null, path => path === '/bin/ls'), 'absolute exists');
 assert(!commandIsReady('/no/such', () => '/bin/true', () => false), 'absolute missing');
+assert(isPathQuery('~/docs'), 'tilde path');
+assert(isPathQuery('/tmp/foo'), 'absolute path');
+assert(isPathQuery('./run'), 'dot slash path');
+assert(isPathQuery('.'), 'dot alone is home');
+assert(!isPathQuery('.bashrc'), 'dotfile is not a path');
+assert(!isPathQuery('chrome'), 'plain word is not a path');
+assertEq(expandHomePath('~/bin/x', '/home/u'), '/home/u/bin/x', 'expand tilde');
+assertEq(expandHomePath('./run', '/home/u'), '/home/u/run', 'expand dot slash');
+assertEq(expandHomePath('.', '/home/u'), '/home/u', 'dot is home');
+assertEq(expandHomePath('~', '/home/u'), '/home/u', 'tilde is home');
+assertEq(expandHomePath('/usr/bin/ls', '/home/u'), '/usr/bin/ls', 'absolute stays');
+assertEq(expandHomePath('ls', '/home/u'), 'ls', 'bare name stays');
+assertEq(expandHomePath('~/../etc', '/home/u'), '/home/etc', 'tilde parent normalizes');
+assertEq(normalizeAbsolute('/home/u/../x/./y'), '/home/x/y', 'normalize dots');
+assertEq(fileUriFromAbsolute('/home/a b/c'), 'file:///home/a%20b/c', 'file uri encodes');
+assertEq(expandHomeArgv(['./tool', '~/out'], '/home/u').join(','), '/home/u/tool,/home/u/out', 'argv expands');
+assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 
 assertEq(normalizeAccelKey('A'), 'a', 'letter keys lowercased');
 assertEq(normalizeAccelKey('space'), 'space', 'named keys stay');

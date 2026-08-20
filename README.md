@@ -12,7 +12,7 @@ A compact launcher for GNOME Shell 45 through 50. Previously named Spotlight.
 
 ## Overview
 
-Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, GNOME Settings panels, and arithmetic expressions. It can open URLs, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
+Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, GNOME Settings panels, and arithmetic expressions. It can open URLs and filesystem paths, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
 
 The popup can look like several real launchers. Pick a look in preferences:
 
@@ -40,13 +40,14 @@ Picking a look applies its colors and the matching chrome (position, density, he
 Results are aggregated in the following order. Each category is rendered under its own section header unless you hide headers. Web search appears only when every preceding category returned nothing, or immediately when you use the `@` prefix.
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
-2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName and Keywords so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps.
-3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
-4. **Windows** — Switch to an open window by title or window class, including modal dialogs. Results are ordered by last user focus, not compositor stacking.
-5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships.
-7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension.
-8. **Web Search** — Last-resort fallback in the default browser.
+2. **Paths** — `~/…`, `./…`, and absolute paths such as `/tmp/notes.txt`. `~` and `./` resolve against the user home directory. Missing paths show “Path not found”.
+3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName and Keywords so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps.
+4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
+5. **Windows** — Switch to an open window by title or window class, including modal dialogs. Results are ordered by last user focus, not compositor stacking.
+6. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
+7. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships.
+8. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension.
+9. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show open windows and frequently used apps. Turn that off in Features if you want a blank entry.
 
@@ -70,6 +71,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Action | Input |
 |---|---|
 | Open Gosh Is Launcher | `Ctrl + Space` |
+| Open a path | Type `~/Documents` or `/tmp`, then `Enter` |
 | Launch an application | Type its name or abbreviation, then `Enter` |
 | Evaluate an expression | Type the math, then `Enter` (result is copied to clipboard) |
 | Switch window | Type part of the title, then `Enter` |
@@ -146,6 +148,8 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `searchPlan.js` | Feature flags and empty all-mode guard |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
 | `windowSearch.js` | Open window switcher |
+| `pathSearch.js` | Open `~/` `./` and absolute paths |
+| `homePath.js` | Expand home-relative command and path names |
 | `calculator.js` | Recursive-descent arithmetic parser |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
@@ -178,7 +182,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
-- `!` commands run from the user home directory. gnome-shell's own cwd is often `/`.
+- `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home.
+- Typed `~/` `./` and absolute paths open in the default handler.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
 - Provider and web-engine preference changes repaint an open popup without a reopen.

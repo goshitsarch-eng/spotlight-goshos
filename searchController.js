@@ -8,6 +8,7 @@ import {searchSettings} from './settingsSearch.js';
 import {searchWeb} from './webSearch.js';
 import {searchWindows} from './windowSearch.js';
 import {searchUrl} from './urlSearch.js';
+import {searchPath} from './pathSearch.js';
 import {searchCommand} from './commandSearch.js';
 import {searchRecentFiles} from './recentFilesSearch.js';
 import {flagsFromSettings, planSearch} from './searchPlan.js';
@@ -15,6 +16,7 @@ import {collectSearchResults} from './searchRun.js';
 
 const PROVIDERS = {
     url: (query, _max, _settings) => searchUrl(query),
+    path: (query, _max, _settings) => searchPath(query),
     apps: (query, max) => searchApps(query, max),
     calculator: (query, _max, _settings, mode) => searchCalculator(query, mode === 'calculator'),
     windows: (query, max) => searchWindows(query, max),
@@ -26,7 +28,7 @@ const PROVIDERS = {
 };
 
 // orchestrates all search providers and combines results in priority order
-// priority: urls apps calculator windows system settings files then web last
+// priority: urls paths apps calculator windows system settings files then web last
 export function runSearch(text, settings) {
     const maxResults = settings.get_int('max-results');
     const plan = planSearch(text, flagsFromSettings(settings));
