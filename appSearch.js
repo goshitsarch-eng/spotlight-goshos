@@ -35,8 +35,8 @@ export function searchApps(query, maxResults) {
         if (!_shouldShowApp(pcm, app))
             continue;
 
-        const name = app.get_name() || '';
         const id = app.get_id() || '';
+        const name = app.get_name() || id;
         const generic = app.get_generic_name() || '';
         const keywords = app.get_keywords() || [];
         const tier = appMatchTier(name, generic, id, keywords, q);

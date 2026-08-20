@@ -4,19 +4,34 @@
 // recursive descent parser for arithmetic expressions
 // returns null if input is not valid math so the caller knows to treat it as a search query
 // never uses eval() - it tokenizes the input then parses with standard operator precedence
+// pasted expressions often use unicode operators and thousands commas
+export function normalizeMath(input) {
+    let text = input
+        .replace(/×/g, '*')
+        .replace(/÷/g, '/')
+        .replace(/[−–—]/g, '-');
+    let next = text.replace(/(\d),(\d)/g, '$1$2');
+    while (next !== text) {
+        text = next;
+        next = text.replace(/(\d),(\d)/g, '$1$2');
+    }
+    return text;
+}
+
 export function evaluateArithmetic(input, allowBare) {
-    if (!/\d/.test(input))
+    const text = normalizeMath(input);
+    if (!/\d/.test(text))
         return null;
-    if (!allowBare && !/[+\-*/%^]/.test(input))
+    if (!allowBare && !/[+\-*/%^]/.test(text))
         return null;
 
     const tokens = [];
     const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?|[+\-*/%()^])/g;
     let match;
-    while ((match = tokenRegex.exec(input)) !== null)
+    while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
 
-    if (tokens.join('') !== input.replace(/\s+/g, '') || tokens.length === 0)
+    if (tokens.join('') !== text.replace(/\s+/g, '') || tokens.length === 0)
         return null;
 
     let pos = 0;

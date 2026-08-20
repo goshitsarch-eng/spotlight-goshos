@@ -165,7 +165,7 @@ That compiles the schema, parses every JavaScript file, runs `tests/run.mjs`, an
 Manual testing on GNOME Shell 50 Wayland:
 
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName or Keywords.
-2. Type `12*8+3` and Enter — clipboard should contain `99`.
+2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3` or `1,000+2` — both should evaluate.
 3. Type `=2^8` — calculator prefix should show `256`.
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, and Light.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
