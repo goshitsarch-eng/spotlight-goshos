@@ -137,6 +137,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `resultsContainer.js` | Scrollable results area |
 | `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
 | `resultRow.js` | Single result row with icon, title, and optional number hint |
+| `labelEllipsize.js` | One-line ellipsis so long titles do not widen the popup |
 | `searchController.js` | Orchestrates providers and prefix modes |
 | `searchPlan.js` | Feature flags and empty all-mode guard |
 | `appSearch.js` | Application search via `Shell.AppSystem` |

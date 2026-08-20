@@ -100,6 +100,7 @@ gosh-is-launcher@nin/
     searchEntry.js            search input box
     resultsContainer.js       scrollable results area
     resultRow.js              single result row
+    labelEllipsize.js         one-line ellipsis on result labels
     sectionHeader.js          section header label
     sectionTitles.js          result type to title mapping
     noResults.js              empty state widget

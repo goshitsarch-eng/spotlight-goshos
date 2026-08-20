@@ -3,6 +3,7 @@
 
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import {ellipsizeLabel} from './labelEllipsize.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -39,15 +40,19 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         y_align: Clutter.ActorAlign.CENTER,
         x_expand: true,
     });
-    text.add_child(new St.Label({
+    const title = new St.Label({
         style_class: 'gosh-result-title',
         text: result.title,
-    }));
+    });
+    ellipsizeLabel(title);
+    text.add_child(title);
     if (result.description && options.showDescriptions) {
-        text.add_child(new St.Label({
+        const description = new St.Label({
             style_class: 'gosh-result-description',
             text: result.description,
-        }));
+        });
+        ellipsizeLabel(description);
+        text.add_child(description);
     }
 
     hbox.add_child(icon);

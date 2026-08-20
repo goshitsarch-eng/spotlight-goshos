@@ -52,6 +52,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 - **`resultsContainer.js`** — Scrollable results container.
 - **`scrollView.js`** — GNOME 45–50 `St.ScrollView` attach, policy, and adjustment.
 - **`resultRow.js`** — Constructs a single result row with icon, title, and interaction handlers.
+- **`labelEllipsize.js`** — Keeps long titles on one line inside the fixed-width popup.
 - **`sectionHeader.js`** — Section header label for categorizing results.
 - **`sectionTitles.js`** — Maps result type strings to human-readable section titles.
 - **`noResults.js`** — Empty-state widget displayed when a search yields no matches.
