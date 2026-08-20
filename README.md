@@ -54,7 +54,7 @@ Results are aggregated in the following order. Each category is rendered under i
 10. **Windows** — Switch to an open window by title, window class, or workspace number (`2`, `workspace 2`, or `ws 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows. The shared `Workspace N` label is not a free-text match, so `workspace` or `spa` does not list every window. Type `workspace 2` to switch to that workspace. Type `close firefox` or `quit firefox` to ask matching windows to close. Type `kill firefox` to force-quit them.
 11. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, lock screen rotation (tablets), and take a screenshot, only when GNOME says the action is available.
 12. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
-13. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
+13. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Local `file:` paths and remote `sftp` / `smb` / `ftp` / `davs` locations are included. `http(s)` and `javascript:` bookmarks in the same file are ignored. Icons follow the file extension. The description is the parent folder (or the remote host), with the home directory collapsed to `~`. Folder names are searchable too.
 14. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show frequently used apps and open windows. Windows-first looks (Pop!_OS) put windows above apps here too. Turn that off in Features if you want a blank entry.
@@ -206,7 +206,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
-- Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher.
+- Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher. If `Screenshot.showScreenshotUI` is missing, fall back to SystemActions.
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.

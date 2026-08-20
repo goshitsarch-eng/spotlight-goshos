@@ -82,7 +82,12 @@ const SYSTEM_ACTIONS = [
                 Main.overview.hide();
                 return;
             }
-            Screenshot.showScreenshotUI();
+            // showScreenshotUI is the 45-50 path if a later shell drops
+            // the helper fall back to the systemactions entry
+            if (typeof Screenshot.showScreenshotUI === 'function')
+                Screenshot.showScreenshotUI();
+            else
+                SystemActions.getDefault().activateScreenshotUI();
         },
     },
 ];

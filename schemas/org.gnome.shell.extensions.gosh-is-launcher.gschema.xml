@@ -184,7 +184,7 @@
     <key name="enable-recent-files" type="b">
       <default>true</default>
       <summary>Enable recent files</summary>
-      <description>Search recently opened files.</description>
+      <description>Search recently opened local files and sftp/smb locations.</description>
     </key>
 
     <key name="enable-url-open" type="b">

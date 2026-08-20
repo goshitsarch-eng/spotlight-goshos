@@ -33,7 +33,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-settings-search',
         'GNOME Settings', 'Jump to Settings panels including Privacy & Security');
     addSwitch(providers, settings, 'enable-recent-files',
-        'Recent files', 'Open recently used files');
+        'Recent files', 'Open recently used local files and sftp/smb locations');
     addSwitch(providers, settings, 'enable-url-open',
         'Open URLs', 'Launch typed addresses, domains, sftp/smb locations, and mailto links');
     addSwitch(providers, settings, 'enable-path-open',

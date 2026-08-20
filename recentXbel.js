@@ -3,7 +3,8 @@
 
 import {textMatchesQuery} from './wordMatch.js';
 
-const HREF_RE = /href\s*=\s*["'](file:[^"']+)["']/g;
+// skip http https and javascript so only openable locations remain
+const HREF_RE = /href\s*=\s*["']((?:file|sftp|ftp|smb|davs?):[^"']+)["']/gi;
 
 function unescapeXml(text) {
     return text
@@ -14,7 +15,7 @@ function unescapeXml(text) {
         .replace(/&apos;/g, "'");
 }
 
-// xbel is xml so only file: hrefs are launcher results
+// xbel is xml so only file and remote folder schemes are launcher results
 // web bookmarks in the same file are ignored
 export function parseRecentXbel(text) {
     if (text.length === 0)
@@ -85,6 +86,13 @@ export function pathFromFileUri(uri) {
         return '';
     const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
     return decodeURIComponent(safe);
+}
+
+export function remoteHostFromUri(uri) {
+    const match = uri.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/(?:[^/@]+@)?([^/:?#]+)/);
+    if (!match)
+        return '';
+    return match[1];
 }
 
 export function parentPathFromFileUri(uri) {

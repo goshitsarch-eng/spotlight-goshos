@@ -17,7 +17,7 @@ import {rowPointerAction, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
-import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, recentFileMatches} from '../recentXbel.js';
+import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, remoteHostFromUri, recentFileMatches} from '../recentXbel.js';
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
 import {shouldOfferApp} from '../appReady.js';
@@ -881,11 +881,16 @@ const xbel = `
 <xbel>
   <bookmark href="file:///tmp/notes.txt"/>
   <bookmark href="https://example.com"/>
+  <bookmark href="sftp://nas.local/share/notes.txt"/>
+  <bookmark href="javascript:alert(1)"/>
   <bookmark href="file:///tmp/notes.txt"/>
   <bookmark href="file:///home/user/My%20File.pdf"/>
 </xbel>`;
-assertEq(parseRecentXbel(xbel).length, 2, 'xbel file hrefs only and unique');
-assertEq(parseRecentXbel(xbel)[1], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
+assertEq(parseRecentXbel(xbel).length, 3, 'xbel keeps file and sftp skips web');
+assert(parseRecentXbel(xbel).includes('sftp://nas.local/share/notes.txt'), 'xbel sftp');
+assertEq(remoteHostFromUri('sftp://me@nas.local/share'), 'nas.local', 'remote recent host');
+assertEq(remoteHostFromUri('file:///tmp/a'), '', 'file uri has no host');
+assertEq(parseRecentXbel(xbel)[2], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
 assertEq(basenameFromUri('file:///home/user/My%20File.pdf'), 'My File.pdf', 'unescape basename');
 assertEq(basenameFromUri('file:///tmp/a%'), 'a%', 'lone percent stays');
 assertEq(pathFromFileUri('file:///home/user/My%20File.pdf'), '/home/user/My File.pdf', 'file uri path');

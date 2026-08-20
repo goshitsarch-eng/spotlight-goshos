@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {
     parseRecentXbel, basenameFromUri, iconForBasename, parentPathFromFileUri,
-    recentFileMatches, RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
+    remoteHostFromUri, recentFileMatches, RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
 } from './recentXbel.js';
 import {collapseHomePath} from './homePath.js';
 import {openUri} from './gioLaunch.js';
@@ -156,7 +156,9 @@ export function searchRecentFiles(query, maxResults) {
             break;
         const name = basenameFromUri(uri);
         const parent = parentPathFromFileUri(uri);
-        const folder = parent ? collapseHomePath(parent, home) : 'Recent file';
+        const folder = parent
+            ? collapseHomePath(parent, home)
+            : remoteHostFromUri(uri) || 'Recent file';
         if (!recentFileMatches(name, folder, q))
             continue;
         results.push({

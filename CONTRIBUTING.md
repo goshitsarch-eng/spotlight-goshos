@@ -236,6 +236,7 @@ Manual testing on GNOME Shell 50 Wayland:
 46. Type `~/` plus a path — the first row must say Checking path and Enter must do nothing until the exists check finishes. A missing path must stay Path not found. Change the look with `gsettings set … launcher-theme popos` while the popup is open — it should move to the top, show number hints, and list windows first. Set a shortcut that is already taken — the previous shortcut must keep working.
 47. Type `1,000 km to mi` — a Units row should appear. Type `1024 bytes to kib` — the title should be `1 kib`. Type `asin(1)` — the calculator result should be 90. Type `log2(8)` — the result should be 3. Type `round(1.5)` — the result should be 2.
 48. Type `yesterday` — the date should be yesterday. Type `1e3 km to mi` — a Units row should appear. Type `yesterdays` — it must not be a clock row.
+49. Open a file on an `sftp` or `smb` share, then search for its name — it should appear under Recent files with the host as the description. An `https` bookmark in `recently-used.xbel` must not appear. Type `screenshot` with Overview closed — the screenshot UI must still open.
 
 ## Submitting Changes
 
