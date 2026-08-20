@@ -1,6 +1,8 @@
 // gosh is launcher - length mass temp volume data duration area speed pressure energy power and angle conversions
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {replaceNumberWords} from './numberWords.js';
+
 const ALIASES = {
     km: 'km', kilometer: 'km', kilometers: 'km', kilometre: 'km', kilometres: 'km',
     m: 'm', meter: 'm', meters: 'm', metre: 'm', metres: 'm',
@@ -163,7 +165,7 @@ export function resolveUnit(name) {
 }
 
 export function normalizeUnitQuery(query) {
-    let text = query
+    let text = replaceNumberWords(query)
         // 180° to rad is an angle 32°f keeps the temperature letter
         .replace(/(\d)\s*°\s*(to|in|into|as)\b/gi, '$1 deg $2')
         .replace(/²/g, '2')

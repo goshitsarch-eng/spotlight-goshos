@@ -66,5 +66,41 @@ export function appMatchTier(name, genericName, id, keywords, query, description
     }
     if (q.length >= SUBSTRING_MIN && descLower.includes(q))
         return 6;
+
+    const words = q.split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2)
+        return -1;
+
+    // chrome browser is a name plus a generic-name not one phrase
+    let worst = 0;
+    for (const word of words) {
+        const tier = _tokenTier(nameLower, genericLower, idLower, keywords, descLower, word);
+        if (tier < 0)
+            return -1;
+        if (tier > worst)
+            worst = tier;
+    }
+    return 7 + worst;
+}
+
+function _tokenTier(nameLower, genericLower, idLower, keywords, descLower, token) {
+    if (nameLower.startsWith(token))
+        return 0;
+    if (wordPrefixMatch(nameLower, token))
+        return 1;
+    if (token.length >= SUBSTRING_MIN && nameLower.includes(token))
+        return 2;
+    if (genericLower.startsWith(token) || wordPrefixMatch(genericLower, token) ||
+        (token.length >= SUBSTRING_MIN && genericLower.includes(token)))
+        return 3;
+    if (token.length >= SUBSTRING_MIN && idLower.includes(token))
+        return 4;
+    for (const keyword of keywords) {
+        const kw = keyword.toLowerCase();
+        if (kw.startsWith(token) || (token.length >= SUBSTRING_MIN && kw.includes(token)))
+            return 5;
+    }
+    if (token.length >= SUBSTRING_MIN && descLower.includes(token))
+        return 6;
     return -1;
 }

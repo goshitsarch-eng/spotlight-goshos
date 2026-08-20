@@ -261,6 +261,7 @@ Manual testing on GNOME Shell 50 Wayland:
 70. Type `how many miles are 10 km` — a Units row should appear. Type `rebeccapurple` — a Color row should copy `#663399`. On a machine whose only terminal is WezTerm or Tilix, `~/` plus a folder should still offer Open in Terminal.
 71. Type `2 to the power of 8` or `negative 3 plus 5` — calculator rows should appear. With the command runner on, a tool installed only as a Flatpak export or in `~/go/bin` should be found.
 72. Type `find windows firefox` or `search settings wifi` — the app or Wi-Fi panel should appear. Type `open the pictures folder` — Pictures should appear. Type `two plus two` or `2 to the 8th` — calculator rows should appear. Type `tell me what time it is` — a Clock row should appear. Type `how many miles are there in 10 km` — a Units row should appear. Type `close the` plus an open window title plus `application` — a Close row should appear.
+73. Type `chrome browser` or `firefox browser` — the matching browser should appear. Type `ten km to mi` or `how many miles in ten km` — a Units row should appear. Type `2 to the eighth` — a calculator row should appear. Type `lock now` — Lock Screen should appear.
 
 ## Submitting Changes
 

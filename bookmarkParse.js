@@ -4,7 +4,7 @@
 import {basenameFromUri, pathFromFileUri} from './recentXbel.js';
 import {fileUriFromAbsolute, expandHomePath} from './homePath.js';
 import {isUnsafeLaunchUri} from './urlMatch.js';
-import {wordPrefixMatch} from './wordMatch.js';
+import {wordPrefixMatch, textMatchesAllWords} from './wordMatch.js';
 
 export function normalizeBookmarkUri(uri, home) {
     if (!uri)
@@ -90,7 +90,7 @@ export function bookmarkMatches(title, description, query) {
         return true;
     if (q.length >= 3 && (titleLower.includes(q) || descLower.includes(q)))
         return true;
-    return false;
+    return textMatchesAllWords(`${title} ${description}`, query);
 }
 
 export function matchBookmarks(rows, query, maxResults) {

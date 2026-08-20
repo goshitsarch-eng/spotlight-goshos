@@ -16,6 +16,14 @@ export function textMatchesQuery(text, query) {
     return q.length >= SUBSTRING_MIN && t.includes(q);
 }
 
+// chrome browser is two fields not one phrase
+export function textMatchesAllWords(text, query) {
+    const words = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2)
+        return false;
+    return words.every(word => textMatchesQuery(text, word));
+}
+
 export function wordPrefixMatch(nameLower, queryLower) {
     const len = queryLower.length;
     if (len === 0)

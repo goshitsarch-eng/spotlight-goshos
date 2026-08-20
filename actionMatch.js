@@ -5,7 +5,7 @@ import {wordPrefixMatch} from './wordMatch.js';
 
 export function normalizeActionQuery(query) {
     return query.toLowerCase()
-        .replace(/\b(the|a|an|my|please|computer|system|session|machine|pc|of)\b/g, ' ')
+        .replace(/\b(the|a|an|my|please|computer|system|session|machine|pc|of|now)\b/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 }

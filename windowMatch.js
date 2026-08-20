@@ -1,7 +1,7 @@
 // gosh is launcher - whether an open window matches a query
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {textMatchesQuery} from './wordMatch.js';
+import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
 
 export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     if (!hasWorkspace || skipTaskbar)
@@ -34,6 +34,8 @@ export function windowMatches(title, wmClass, query, workspaceLabel) {
     if (query.length === 0)
         return true;
     if (textMatchesQuery(title, query) || textMatchesQuery(wmClass, query))
+        return true;
+    if (textMatchesAllWords(`${title} ${wmClass}`, query))
         return true;
     return workspaceLabelMatches(workspaceLabel, query);
 }
