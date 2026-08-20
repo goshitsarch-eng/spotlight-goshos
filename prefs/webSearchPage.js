@@ -5,6 +5,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import {SEARCH_ENGINES} from '../webEngines.js';
+import {bindSettingsCombo} from '../prefsCombo.js';
 
 export function buildWebSearchPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -29,16 +30,7 @@ export function buildWebSearchPage(settings) {
         model: engineModel,
     });
 
-    const currentEngine = settings.get_string('web-search-engine');
-    const engineIndex = SEARCH_ENGINES.findIndex(e => e.id === currentEngine);
-    if (engineIndex >= 0)
-        engineRow.selected = engineIndex;
-
-    engineRow.connect('notify::selected', () => {
-        const selected = SEARCH_ENGINES[engineRow.selected];
-        if (selected)
-            settings.set_string('web-search-engine', selected.id);
-    });
+    bindSettingsCombo(engineRow, settings, 'web-search-engine', SEARCH_ENGINES);
 
     group.add(engineRow);
     return [group];

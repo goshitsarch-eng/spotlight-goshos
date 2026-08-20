@@ -171,6 +171,7 @@ gosh-is-launcher@nin/
     popupBackdrop.js          click-outside closer
     focusLossWatcher.js       close on alt-tab focus loss
     themes.js                 look catalog (pure data)
+    prefsCombo.js             keep prefs combos in sync with gsettings (pure)
     webEngines.js             search engine catalog (pure data)
     urlMatch.js               url detection (pure)
     actionMatch.js            system action matching (pure)
@@ -195,7 +196,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

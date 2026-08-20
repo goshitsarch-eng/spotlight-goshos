@@ -160,6 +160,7 @@ required = [
     'gioLaunch.js',
     'commandReady.js',
     'shortcutAccel.js',
+    'prefsCombo.js',
     'popupGate.js',
     'popupPosition.js',
     'backdropBox.js',

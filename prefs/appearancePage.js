@@ -5,6 +5,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import {THEMES, getTheme, applyLookSettings, shouldApplyLook} from '../themes.js';
+import {bindSettingsCombo} from '../prefsCombo.js';
 
 const POSITIONS = [
     {id: 'center', label: 'Center'},
@@ -20,25 +21,6 @@ const ORDERS = [
     {id: 'default', label: 'Apps first'},
     {id: 'windows-first', label: 'Windows first'},
 ];
-
-function bindCombo(row, settings, key, items) {
-    const current = settings.get_string(key);
-    const index = items.findIndex(item => item.id === current);
-    if (index >= 0)
-        row.selected = index;
-
-    row.connect('notify::selected', () => {
-        const selected = items[row.selected];
-        if (selected)
-            settings.set_string(key, selected.id);
-    });
-}
-
-function selectId(row, items, id) {
-    const index = items.findIndex(item => item.id === id);
-    if (index >= 0)
-        row.selected = index;
-}
 
 export function buildAppearancePage(settings) {
     const lookGroup = new Adw.PreferencesGroup({
@@ -82,10 +64,15 @@ export function buildAppearancePage(settings) {
         model: orderModel,
     });
 
-    bindCombo(themeRow, settings, 'launcher-theme', THEMES);
-    bindCombo(positionRow, settings, 'popup-position', POSITIONS);
-    bindCombo(densityRow, settings, 'row-density', DENSITIES);
-    bindCombo(orderRow, settings, 'result-order', ORDERS);
+    let lastThemeId = settings.get_string('launcher-theme');
+    settings.connect('changed::launcher-theme', () => {
+        lastThemeId = settings.get_string('launcher-theme');
+        themeRow.subtitle = getTheme(lastThemeId).description;
+    });
+    bindSettingsCombo(themeRow, settings, 'launcher-theme', THEMES);
+    bindSettingsCombo(positionRow, settings, 'popup-position', POSITIONS);
+    bindSettingsCombo(densityRow, settings, 'row-density', DENSITIES);
+    bindSettingsCombo(orderRow, settings, 'result-order', ORDERS);
     lookGroup.add(themeRow);
     lookGroup.add(positionRow);
     lookGroup.add(densityRow);
@@ -187,7 +174,6 @@ export function buildAppearancePage(settings) {
     settings.bind('show-result-numbers', numbersRow, 'active', Gio.SettingsBindFlags.DEFAULT);
     chromeGroup.add(numbersRow);
 
-    let lastThemeId = settings.get_string('launcher-theme');
     themeRow.connect('notify::selected', () => {
         const theme = THEMES[themeRow.selected];
         if (!theme)
@@ -197,11 +183,6 @@ export function buildAppearancePage(settings) {
             return;
         lastThemeId = theme.id;
         applyLookSettings(settings, theme);
-        selectId(positionRow, POSITIONS, theme.look.position);
-        selectId(densityRow, DENSITIES, theme.look.density);
-        selectId(orderRow, ORDERS, theme.look.resultOrder);
-        headersRow.active = theme.look.showHeaders;
-        numbersRow.active = theme.look.showNumbers;
     });
 
     return [lookGroup, sizeGroup, chromeGroup];

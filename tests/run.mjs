@@ -7,6 +7,7 @@ import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsRe
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT} from '../popupPosition.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
+import {comboSelectedIndex} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from '../actionMatch.js';
@@ -1170,6 +1171,9 @@ assertEq(stored['icon-size'], 30, 'onagre look writes icon size');
 assert(shouldApplyLook('spotlight', 'onagre'), 'changing look applies chrome');
 assert(!shouldApplyLook('onagre', 'onagre'), 'same look does not reset chrome');
 assert(!shouldApplyLook('onagre', ''), 'empty look is ignored');
+assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
+assertEq(comboSelectedIndex(THEMES, 'missing'), -1, 'unknown look stays put');
+assertEq(comboSelectedIndex(SEARCH_ENGINES, 'kagi'), SEARCH_ENGINES.findIndex(e => e.id === 'kagi'), 'engine combo index');
 
 // every get_* key in js exists in the schema
 const settingKeys = new Set();
