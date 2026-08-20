@@ -139,7 +139,7 @@ Configurable options:
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
 - Enable or disable every search provider, plus application actions, unit conversion, colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open and keep the selected row)
-- Prefix modes and empty-state suggestions
+- Prefix modes and empty-state suggestions (capped at Maximum results, including Pop!_OS windows-first)
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all (the `@` prefix still searches the web)
 

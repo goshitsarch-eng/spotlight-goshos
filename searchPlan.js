@@ -160,10 +160,24 @@ export function shouldRefreshBookmarks(enableBookmarks, plan) {
     return plan.mode === 'all' && plan.providers.includes('bookmarks');
 }
 
-export function mergeEmptySuggestions(resultOrder, windows, apps) {
-    if (resultOrder === 'windows-first')
-        return windows.concat(apps);
-    return apps.concat(windows);
+// concatenating both lists used to ignore max-results
+export function mergeEmptySuggestions(resultOrder, windows, apps, maxResults) {
+    if (maxResults <= 0)
+        return [];
+    const primary = resultOrder === 'windows-first' ? windows : apps;
+    const secondary = resultOrder === 'windows-first' ? apps : windows;
+    const results = [];
+    for (const row of primary) {
+        if (results.length >= maxResults)
+            break;
+        results.push(row);
+    }
+    for (const row of secondary) {
+        if (results.length >= maxResults)
+            break;
+        results.push(row);
+    }
+    return results;
 }
 
 export function planSearch(text, flags) {

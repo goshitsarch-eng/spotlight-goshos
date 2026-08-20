@@ -57,5 +57,5 @@ export function runEmptySuggestions(settings) {
     const apps = settings.get_boolean('enable-app-search')
         ? searchFrequentApps(maxResults)
         : [];
-    return mergeEmptySuggestions(settings.get_string('result-order'), windows, apps);
+    return mergeEmptySuggestions(settings.get_string('result-order'), windows, apps, maxResults);
 }

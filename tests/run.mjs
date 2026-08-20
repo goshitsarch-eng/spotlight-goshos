@@ -893,8 +893,11 @@ assertEq(planSearch('switch to term', allOn).query, 'term', 'plan strips switch 
 assertEq(planSearch('$ switch to term', allOn).query, 'term', 'windows prefix strips switch to');
 assertEq(planSearch('@ open cats', allOn).query, 'open cats', 'web prefix keeps the words');
 assertEq(planSearch('=open 2', allOn).query, 'open 2', 'calc prefix keeps the words');
-assertEq(mergeEmptySuggestions('default', ['w'], ['a']).join(','), 'a,w', 'empty state apps first');
-assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a']).join(','), 'w,a', 'empty state windows first');
+assertEq(mergeEmptySuggestions('default', ['w'], ['a'], 6).join(','), 'a,w', 'empty state apps first');
+assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a'], 6).join(','), 'w,a', 'empty state windows first');
+assertEq(mergeEmptySuggestions('windows-first', ['w1', 'w2'], ['a1', 'a2'], 2).join(','), 'w1,w2', 'empty state honors max');
+assertEq(mergeEmptySuggestions('default', ['w1'], ['a1', 'a2'], 2).join(','), 'a1,a2', 'apps fill the cap');
+assertEq(mergeEmptySuggestions('default', ['w1'], ['a1'], 0).length, 0, 'zero max empty');
 assert(planSearch('10 km to mi', allOn).providers.includes('units'), 'units planned');
 assert(planSearch('documents', allOn).providers.includes('places'), 'places planned');
 assert(planSearch('time', allOn).providers.includes('time'), 'time planned');

@@ -214,7 +214,7 @@ Manual testing on GNOME Shell 50 Wayland:
 19. Change resolution or unplug a monitor while the popup is open — it should move into the new work area, and click-outside should still cover every screen.
 20. Toggle a provider or the web engine in preferences while the popup is open — results should update without a reopen. Changing several settings at once for example picking a look should paint once after the keys land not once per key.
 21. With both Firefox and Firefox ESR installed, the one you use more should be the only Firefox row.
-22. Open several windows, focus one, then open the launcher with Pop!_OS (windows first) — that window should be first in the empty-state list. Switch result order to apps first — frequent apps should lead.
+22. Open several windows, focus one, then open the launcher with Pop!_OS (windows first) — that window should be first in the empty-state list. The empty list must not exceed Max results. Switch result order to apps first — frequent apps should lead.
 23. Type `~/` then a folder that exists — it should open that path. Type `/no-such-gosh-path` — the row should say Path not found.
 24. With the command runner on, `! ./` plus a script in your home directory should run, and `! ~/bin/true` should resolve if that file exists.
 25. Type `camera`, `location`, or `microphone` — Privacy & Security should appear. Those are GNOME 50 privacy subpages, not separate panel ids.
@@ -278,6 +278,7 @@ Manual testing on GNOME Shell 50 Wayland:
 83. Type a `~/` path that exists, then keep typing while the row still says Checking path — the shell must stay up when that exists check finishes. The same must hold for a `!` slash-path command, a recent-file load, and GTK bookmarks. After the check finishes the resolved row must appear without jumping the highlight if you already moved it.
 84. On Pop!_OS or any look with number hints, type a pending `~/` path that also lists Firefox or Open in Terminal below it — `Alt+1` must stay open and must not launch that later row. `Enter` on the pending row may still activate the ready sibling. `Alt+2` should activate the second row if that row is ready.
 85. Rest the pointer over the results list, then type another character or wait for a path exists-check to finish — the shell must stay up. The highlight should stay on the kept row, not jump to whichever row the pointer happens to be over during the rebuild.
+86. Set Max results to 2, switch to Pop!_OS, and open the launcher with several windows and frequent apps — the empty list must show 2 rows, not windows plus apps. Switch result order to apps first with the same cap — still 2 rows.
 
 ## Submitting Changes
 
