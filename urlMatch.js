@@ -60,6 +60,10 @@ export function isUnsafeLaunchUri(query) {
     return /^(javascript|data|vbscript):/i.test(query.trim());
 }
 
+function stripTrailingDots(text) {
+    return text.replace(/\.+$/, '');
+}
+
 export function isUrlQuery(query) {
     const trimmed = query.trim();
     if (trimmed.length === 0 || /\s/.test(trimmed))
@@ -73,9 +77,10 @@ export function isUrlQuery(query) {
         IPV6_RE.test(trimmed) ||
         BARE_LOOPBACK_V6.test(trimmed))
         return true;
-    if (IPV4_RE.test(trimmed))
-        return isDottedIpv4(hostOfQuery(trimmed));
-    return DOMAIN_RE.test(trimmed) && isPlausibleWebHost(hostOfQuery(trimmed));
+    const hostQuery = stripTrailingDots(trimmed);
+    if (IPV4_RE.test(hostQuery))
+        return isDottedIpv4(hostOfQuery(hostQuery));
+    return DOMAIN_RE.test(hostQuery) && isPlausibleWebHost(hostOfQuery(hostQuery));
 }
 
 export function hostOfQuery(query) {
@@ -109,16 +114,19 @@ export function normalizeUrl(query) {
     const trimmed = query.trim();
     if (isUnsafeLaunchUri(trimmed))
         return null;
-    if (/^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:)/i.test(trimmed))
+    if (/^https?:\/\//i.test(trimmed))
+        return stripTrailingDots(trimmed);
+    if (/^(sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:)/i.test(trimmed))
         return trimmed;
     if (/^www\./i.test(trimmed))
-        return `https://${trimmed}`;
-    const host = hostOfQuery(trimmed);
-    if (host.indexOf(':') !== -1 && trimmed.charAt(0) !== '[') {
-        const rest = trimmed.startsWith(host) ? trimmed.slice(host.length) : '';
+        return `https://${stripTrailingDots(trimmed)}`;
+    const hostQuery = stripTrailingDots(trimmed);
+    const host = hostOfQuery(hostQuery);
+    if (host.indexOf(':') !== -1 && hostQuery.charAt(0) !== '[') {
+        const rest = hostQuery.startsWith(host) ? hostQuery.slice(host.length) : '';
         return `${schemeForHost(host)}://[${host}]${rest}`;
     }
-    return `${schemeForHost(host)}://${trimmed}`;
+    return `${schemeForHost(host)}://${hostQuery}`;
 }
 
 export function urlRowDescription(url) {

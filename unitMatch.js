@@ -172,11 +172,16 @@ export function normalizeUnitQuery(query) {
         .replace(/\bfl(?:uid)?\s*ozs?\b/gi, 'floz')
         .replace(/\s*degrees?\s+(f|c|k|fahrenheit|celsius|kelvin|centigrade)\b/gi, ' $1')
         .replace(/°/g, ' ');
-    // pasted values often use thousands commas the way the calculator does
+    // pasted values often use thousands commas or spaces the way the calculator does
     let next = text.replace(/(\d),(\d)/g, '$1$2');
     while (next !== text) {
         text = next;
         next = text.replace(/(\d),(\d)/g, '$1$2');
+    }
+    next = text.replace(/(\d) (\d{3})\b/g, '$1$2');
+    while (next !== text) {
+        text = next;
+        next = text.replace(/(\d) (\d{3})\b/g, '$1$2');
     }
     return text;
 }
