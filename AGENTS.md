@@ -137,6 +137,7 @@ gosh-is-launcher@nin/
     selectionManager.js       selected row and scroll-into-view
     resultsRenderer.js        debounce search and paint rows
     popupKeyHandler.js        stage-level key capture
+    entryPreedit.js           ime preedit (pure)
     popupBackdrop.js          click-outside closer
     focusLossWatcher.js       close on alt-tab focus loss
     themes.js                 look catalog (pure data)
@@ -159,7 +160,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

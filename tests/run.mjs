@@ -14,7 +14,8 @@ import {appMatchTier} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
-import {parseRecentXbel, basenameFromUri, iconForBasename} from '../recentXbel.js';
+import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS} from '../recentXbel.js';
+import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
@@ -554,6 +555,15 @@ assertEq(iconForBasename('shot.png'), 'image-x-generic-symbolic', 'image icon');
 assertEq(iconForBasename('song.mp3'), 'audio-x-generic-symbolic', 'audio icon');
 assertEq(iconForBasename('README'), 'document-open-recent-symbolic', 'no extension');
 assertEq(iconForBasename('.bashrc'), 'document-open-recent-symbolic', 'dotfile');
+assertEq(RECENT_EXISTS_BUDGET_MS, 800, 'exists budget');
+assert(recentExistsShouldSettle(0, 10, 800), 'all exists checks done');
+assert(!recentExistsShouldSettle(2, 100, 800), 'still waiting');
+assert(recentExistsShouldSettle(2, 800, 800), 'budget elapsed');
+assertEq(readPreedit('あ'), 'あ', 'string preedit');
+assertEq(readPreedit(['漢', null, 1]), '漢', 'tuple preedit');
+assertEq(readPreedit(null), '', 'missing preedit');
+assert(shouldPropagateForPreedit('あ'), 'ime composing');
+assert(!shouldPropagateForPreedit(''), 'no preedit');
 assertEq(parseRecentXbel('').length, 0, 'empty xbel');
 assertEq(
     parseRecentXbel('<bookmark href="file:///tmp/a&amp;b.txt"/>')[0],

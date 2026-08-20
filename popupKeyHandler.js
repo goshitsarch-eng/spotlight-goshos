@@ -4,6 +4,7 @@
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import {resolveKeyAction, isNavAction} from './keyAction.js';
+import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 
 const KEY_NAMES = {
     [Clutter.KEY_Escape]: 'Escape',
@@ -66,6 +67,13 @@ export class PopupKeyHandler {
         const focus = global.stage.get_key_focus();
         if (!focus || !this._popup.contains(focus))
             return Clutter.EVENT_PROPAGATE;
+
+        const clutterText = this._popup._entry.clutter_text;
+        if (typeof clutterText.get_preedit_string === 'function') {
+            const preedit = readPreedit(clutterText.get_preedit_string());
+            if (shouldPropagateForPreedit(preedit))
+                return Clutter.EVENT_PROPAGATE;
+        }
 
         const key = event.get_key_symbol();
         const name = KEY_NAMES[key];

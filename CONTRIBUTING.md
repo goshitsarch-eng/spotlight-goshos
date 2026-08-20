@@ -98,6 +98,7 @@ Pure functions with no side effects:
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
+- **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 
 ### Preference Pages
@@ -180,6 +181,8 @@ Manual testing on GNOME Shell 50 Wayland:
 13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
 14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it.
 15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
+16. With an IME composing a character, Enter and arrows must stay with the compose, not activate a result.
+17. Change width or position in preferences while the popup is open — it should move or resize without a reopen.
 
 ## Submitting Changes
 

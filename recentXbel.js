@@ -67,6 +67,13 @@ export function iconForBasename(name) {
     return EXT_ICONS[ext] || 'document-open-recent-symbolic';
 }
 
+// hung exists checks on network mounts must not block recent files forever
+export const RECENT_EXISTS_BUDGET_MS = 800;
+
+export function recentExistsShouldSettle(pending, elapsedMs, budgetMs) {
+    return pending <= 0 || elapsedMs >= budgetMs;
+}
+
 export function basenameFromUri(uri) {
     const parts = uri.split('/');
     const raw = parts[parts.length - 1] || uri;

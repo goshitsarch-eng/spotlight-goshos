@@ -140,6 +140,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
 | `resultRow.js` | Single result row with icon, title, and optional number hint |
 | `labelEllipsize.js` | One-line ellipsis so long titles do not widen the popup |
+| `entryPreedit.js` | IME preedit so stage capture does not steal compose keys |
 | `searchController.js` | Orchestrates providers and prefix modes |
 | `searchPlan.js` | Feature flags and empty all-mode guard |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
@@ -174,6 +175,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
 - Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher.
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed.
+- Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
+- Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

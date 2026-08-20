@@ -3,7 +3,10 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {parseRecentXbel, basenameFromUri, iconForBasename} from './recentXbel.js';
+import {
+    parseRecentXbel, basenameFromUri, iconForBasename,
+    RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
+} from './recentXbel.js';
 import {openUri} from './gioLaunch.js';
 
 // cache is filled on an async read so search never calls load_contents
@@ -12,12 +15,21 @@ let _uris = null;
 let _loading = false;
 let _onReady = null;
 let _loadId = 0;
+let _timeoutId = 0;
+
+function _clearTimeout() {
+    if (_timeoutId) {
+        GLib.source_remove(_timeoutId);
+        _timeoutId = 0;
+    }
+}
 
 export function invalidateRecentFiles() {
     _uris = null;
     _loading = false;
     _onReady = null;
     _loadId += 1;
+    _clearTimeout();
 }
 
 export function ensureRecentFiles(onReady) {
@@ -80,6 +92,15 @@ function _startLoad() {
     });
 }
 
+function _settleKept(loadId, kept) {
+    if (loadId !== _loadId)
+        return;
+    _clearTimeout();
+    _uris = kept.filter(uri => uri);
+    _loading = false;
+    _flush();
+}
+
 function _keepExisting(loadId, uris) {
     if (uris.length === 0) {
         _uris = [];
@@ -90,6 +111,21 @@ function _keepExisting(loadId, uris) {
 
     const kept = new Array(uris.length);
     let pending = uris.length;
+    let settled = false;
+    const started = GLib.get_monotonic_time();
+    const settle = () => {
+        if (settled)
+            return;
+        settled = true;
+        _settleKept(loadId, kept);
+    };
+
+    _timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RECENT_EXISTS_BUDGET_MS, () => {
+        _timeoutId = 0;
+        settle();
+        return GLib.SOURCE_REMOVE;
+    });
+
     for (let i = 0; i < uris.length; i++) {
         const file = Gio.File.new_for_uri(uris[i]);
         const index = i;
@@ -100,11 +136,9 @@ function _keepExisting(loadId, uris) {
             if (exists)
                 kept[index] = uris[index];
             pending--;
-            if (pending === 0) {
-                _uris = kept.filter(uri => uri);
-                _loading = false;
-                _flush();
-            }
+            const elapsedMs = (GLib.get_monotonic_time() - started) / 1000;
+            if (recentExistsShouldSettle(pending, elapsedMs, RECENT_EXISTS_BUDGET_MS))
+                settle();
         });
     }
 }

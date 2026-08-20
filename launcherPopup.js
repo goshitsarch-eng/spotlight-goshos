@@ -91,7 +91,8 @@ class LauncherPopup extends St.BoxLayout {
 
         this._settings.connectObject(
             'changed::launcher-theme', () => this._onChromeChanged(),
-            'changed::popup-width', () => this.set_width(this._fittedWidth()),
+            'changed::popup-width', () => this._onWidthChanged(),
+            'changed::popup-position', () => this._onPositionChanged(),
             'changed::show-search-icon', () => {
                 this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
             },
@@ -142,6 +143,17 @@ class LauncherPopup extends St.BoxLayout {
         if (!this._isOpen)
             return;
         this._renderer.onTextChanged(this._entry.get_text());
+    }
+
+    _onWidthChanged() {
+        this.set_width(this._fittedWidth());
+        if (this._isOpen)
+            this._reposition();
+    }
+
+    _onPositionChanged() {
+        if (this._isOpen)
+            this._reposition();
     }
 
     // position the popup on the primary monitor
