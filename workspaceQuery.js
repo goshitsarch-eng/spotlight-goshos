@@ -23,6 +23,10 @@ export function workspaceSwitchTitle(number) {
     return `Switch to Workspace ${number}`;
 }
 
+export function workspaceResultId(number) {
+    return `workspace:${number}`;
+}
+
 export function workspaceIndexInRange(index, workspaceCount) {
     return Number.isInteger(index) && index >= 0 && index < workspaceCount;
 }

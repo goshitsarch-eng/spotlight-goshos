@@ -229,7 +229,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, icon size, result order), not only the CSS class.
 - Typed paths and slash-path `!` commands stay non-activatable until the exists check finishes.
-- A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute.
+- A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute. Preferences then show that working shortcut. Fallbacks such as Ctrl+Space are only tried when nothing is grabbed yet.
 - Async recent-file, path, bookmark, and command refreshes keep the selected row instead of jumping to the first result.
 - Calculator and web prefix queries do not refresh `recently-used.xbel`.
 - `@` still searches the web when the fallback toggle is off.

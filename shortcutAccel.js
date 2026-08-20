@@ -93,3 +93,16 @@ export function shortcutAttempts(requested, fallback = '<Control>space') {
         return [fallback];
     return out;
 }
+
+// a working grab must not be replaced by a fallback the user did not pick
+export function shortcutRetryList(requested, currentGrab) {
+    if (currentGrab)
+        return [];
+    return shortcutAttempts(requested).filter(accel => accel !== requested);
+}
+
+export function shortcutToPersist(requested, working) {
+    if (!working || working === requested)
+        return null;
+    return working;
+}

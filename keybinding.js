@@ -72,4 +72,11 @@ export class KeybindingManager {
         }
         this._grabbers = {};
     }
+
+    currentAccelerator() {
+        const keys = Object.keys(this._grabbers);
+        if (keys.length === 0)
+            return '';
+        return this._grabbers[keys[0]].accelerator;
+    }
 }

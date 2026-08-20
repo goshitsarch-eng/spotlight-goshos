@@ -6,7 +6,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
 import {shouldCloseOnToggle} from './popupGate.js';
-import {shortcutAttempts} from './shortcutAccel.js';
+import {shortcutRetryList, shortcutToPersist} from './shortcutAccel.js';
 import {resetParentalGiveUp} from './appReady.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
@@ -45,12 +45,24 @@ export default class GoshIsLauncherExtension extends Extension {
 
     _bindToggle(accelerator) {
         const onToggle = () => this._togglePopup();
-        for (const accel of shortcutAttempts(accelerator)) {
+        if (this._keybindingManager.swapTo(accelerator, onToggle))
+            return;
+
+        const current = this._keybindingManager.currentAccelerator();
+        const persistCurrent = shortcutToPersist(accelerator, current);
+        if (persistCurrent) {
+            this._settings.set_strv('toggle-shortcut', [persistCurrent]);
+            return;
+        }
+        if (current)
+            return;
+
+        for (const accel of shortcutRetryList(accelerator, current)) {
             if (!this._keybindingManager.swapTo(accel, onToggle))
                 continue;
-            // prefs must show the grab that actually won
-            if (accel !== accelerator)
-                this._settings.set_strv('toggle-shortcut', [accel]);
+            const persist = shortcutToPersist(accelerator, accel);
+            if (persist)
+                this._settings.set_strv('toggle-shortcut', [persist]);
             return;
         }
     }

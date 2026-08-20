@@ -341,7 +341,7 @@ the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding(
 
 the popup can be closed in three ways pressing the toggle shortcut again pressing `Escape` or clicking outside the popup bounds
 
-changing the shortcut grabs the new key before dropping the old one so a conflict cannot leave the launcher with no grab
+changing the shortcut grabs the new key before dropping the old one so a conflict cannot leave the launcher with no grab if the new key fails keep the previous grab and write that accelerator back to settings do not walk ctrl/super/alt space fallbacks unless nothing is grabbed yet
 
 see the keybinding.js file for the implementation
 

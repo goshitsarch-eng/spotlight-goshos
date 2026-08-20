@@ -5,7 +5,7 @@ import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
-import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from './workspaceQuery.js';
+import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from './workspaceQuery.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId} from './windowMatch.js';
 
 function _metaWindows() {
@@ -51,6 +51,7 @@ function _switchWorkspaceResult(switchQuery) {
         type: 'workspace',
         title: workspaceSwitchTitle(switchQuery.number),
         description: 'Workspace',
+        id: workspaceResultId(switchQuery.number),
         icon: 'view-app-grid-symbolic',
         activate: () => {
             const current = global.workspace_manager.get_workspace_by_index(switchQuery.index);

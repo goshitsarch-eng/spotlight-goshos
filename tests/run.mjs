@@ -32,11 +32,11 @@ import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescriptio
 import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
-import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from '../workspaceQuery.js';
+import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from '../workspaceQuery.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -961,6 +961,11 @@ assertEq(parseWorkspaceSwitchQuery('switch to workspace 3').index, 2, 'switch to
 assertEq(parseWorkspaceSwitchQuery('ws 1').number, 1, 'ws shorthand');
 assertEq(parseWorkspaceSwitchQuery('workspace'), null, 'workspace needs a number');
 assertEq(workspaceSwitchTitle(2), 'Switch to Workspace 2', 'switch title');
+assertEq(workspaceResultId(2), 'workspace:2', 'workspace row id');
+assertEq(paintSelectionIndex({type: 'workspace', title: 'Switch to Workspace 2', id: 'workspace:2', index: 0}, [
+    {type: 'window', title: 'Switch to Workspace 2', id: 7},
+    {type: 'workspace', title: 'Switch to Workspace 2', id: 'workspace:2'},
+]), 1, 'workspace id keeps the switch row');
 assert(workspaceIndexInRange(1, 3), 'index in range');
 assert(!workspaceIndexInRange(3, 3), 'index at count is out');
 
@@ -1587,6 +1592,10 @@ assert(!isModifierKeyName('space'), 'space is not a modifier');
 assertEq(shortcutAttempts('<Super>space').join(','), '<Super>space,<Control>space,<Alt>space', 'failed grab falls back');
 assertEq(shortcutAttempts('<Control>space').join(','), '<Control>space,<Super>space,<Alt>space', 'default tries other modifiers');
 assertEq(shortcutAttempts('').join(','), '<Control>space,<Super>space,<Alt>space', 'empty requested uses default then fallbacks');
+assertEq(shortcutRetryList('<Super>space', '<Alt>space').join(','), '', 'working grab skips fallbacks');
+assertEq(shortcutRetryList('<Super>space', '').join(','), '<Control>space,<Alt>space', 'first bind may fall back');
+assertEq(shortcutToPersist('<Super>space', '<Control>space'), '<Control>space', 'persist the grab that won');
+assertEq(shortcutToPersist('<Control>space', '<Control>space'), null, 'same shortcut needs no write');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 
