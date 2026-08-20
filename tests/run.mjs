@@ -10,7 +10,7 @@ import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from 
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
-import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, mergeEmptySuggestions} from '../searchPlan.js';
+import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {rowPointerAction, PRIMARY_BUTTON} from '../resultPointer.js';
@@ -24,6 +24,7 @@ import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandRowMeta} 
 import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
 import {pathRowMeta} from '../pathMatch.js';
 import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../placeMatch.js';
+import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescription, bookmarkMatches, matchBookmarks, bookmarkIcon, hostFromUri} from '../bookmarkParse.js';
 import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor} from '../colorMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
@@ -199,6 +200,8 @@ assert(themeIds.includes('fuzzel'), 'fuzzel theme');
 assert(themeIds.includes('anyrun'), 'anyrun theme');
 assert(themeIds.includes('tofi'), 'tofi theme');
 assert(themeIds.includes('light'), 'light theme');
+assert(themeIds.includes('powertoys'), 'powertoys theme');
+assert(themeIds.includes('synapse'), 'synapse theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
 
@@ -212,7 +215,7 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'time', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'bookmark', 'time', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
@@ -221,6 +224,7 @@ assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'a
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), 'action keyword case');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'firefox'), 'action miss');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'clock'), 'clock is not lock');
+assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'o'), 'single letter is not lock');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
 assertEq(metadata.uuid, 'gosh-is-launcher@nin', 'uuid renamed');
@@ -266,6 +270,15 @@ assertEq(calculatorDescription(255), '0xff · press Enter to copy', 'hex descrip
 assertEq(calculatorDescription(0.5), 'Press Enter to copy to clipboard', 'float description');
 assertEq(evaluateArithmetic('50% of 80'), 40, 'percent of');
 assertEq(evaluateArithmetic('25 percent of 200'), 50, 'percent word of');
+assertEq(evaluateArithmetic('sqrt(16)'), 4, 'sqrt');
+assertEq(evaluateArithmetic('√16'), 4, 'unicode sqrt');
+assertEq(evaluateArithmetic('abs(-3)'), 3, 'abs');
+assertEq(evaluateArithmetic('sin(90)'), 1, 'sin uses degrees');
+assertEq(evaluateArithmetic('2pi / 2'), Math.PI, 'implicit 2pi');
+assertEq(evaluateArithmetic('2(3+1)'), 8, 'implicit paren multiply');
+assertEq(evaluateArithmetic('pi'), Math.PI, 'bare pi');
+assertEq(evaluateArithmetic('sqrt'), null, 'function needs parens');
+assertEq(evaluateArithmetic('0xff'), null, 'bare hex still a search');
 assertEq(parseUnitQuery('10 km to mi').from, 'km', 'unit from');
 assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
 assertEq(parseUnitQuery('chrome'), null, 'plain word is not a unit query');
@@ -347,6 +360,9 @@ assert(matchSettingsPanels('firmware', 5).some(p => p.id === 'privacy'), 'firmwa
 assert(matchSettingsPanels('security', 5).some(p => p.id === 'privacy'), 'security is privacy title');
 assert(matchSettingsPanels('winver', 5).some(p => p.id === 'about'), 'winver is about on gnome 50');
 assert(matchSettingsPanels('dnd', 5).some(p => p.id === 'notifications'), 'dnd is notifications');
+assert(matchSettingsPanels('hotspot', 5).some(p => p.id === 'wifi'), 'hotspot is wifi');
+assert(matchSettingsPanels('o', 20).some(p => p.id === 'online-accounts'), 'o prefixes online accounts');
+assert(!matchSettingsPanels('o', 20).some(p => p.id === 'wifi'), 'o is not wifi');
 assertEq(SETTINGS_PANELS.find(p => p.id === 'privacy').title, 'Privacy & Security', 'gnome 50 privacy title');
 assert(SETTINGS_PANELS.every(p => p.icon), 'every settings panel has an icon');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
@@ -366,7 +382,7 @@ assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
 
 // search plan feature flags
 const allOn = {
-    prefixModes: true, url: true, path: true, places: true, apps: true, calculator: true,
+    prefixModes: true, url: true, path: true, places: true, bookmarks: true, apps: true, calculator: true,
     units: true, color: true, time: true, windows: true, system: true, settings: true, files: true,
     command: true, web: true,
 };
@@ -387,7 +403,7 @@ assertEq(planSearch('=2+2', noCalc).providers.length, 0, 'disabled calc prefix')
 const noPrefix = Object.assign({}, allOn, {prefixModes: false});
 assertEq(planSearch('=2+2', noPrefix).mode, 'all', 'prefix disabled');
 const appsOnly = {
-    prefixModes: false, url: false, path: false, places: false, apps: true, calculator: false,
+    prefixModes: false, url: false, path: false, places: false, bookmarks: false, apps: true, calculator: false,
     units: false, color: false, time: false, windows: false, system: false, settings: false, files: false,
     command: false, web: false,
 };
@@ -411,6 +427,11 @@ assert(!shouldRefreshPath(false, planSearch('~/docs', allOn)), 'disabled path sk
 assert(shouldRefreshCommand(true, planSearch('! ls', allOn)), 'command prefix refreshes');
 assert(!shouldRefreshCommand(false, planSearch('! ls', allOn)), 'disabled command skips');
 assert(!shouldRefreshCommand(true, planSearch('ls', allOn)), 'plain words skip command io');
+assert(shouldRefreshBookmarks(true, planSearch('docs', allOn)), 'all-mode bookmarks refresh');
+assert(!shouldRefreshBookmarks(true, planSearch('=2+2', allOn)), 'calc prefix skips bookmarks');
+assert(!shouldRefreshBookmarks(false, planSearch('docs', allOn)), 'disabled bookmarks skip');
+assert(!shouldRefreshBookmarks(true, planSearch('docs', appsOnly)), 'apps-only skips bookmarks');
+assert(planSearch('docs', allOn).providers.includes('bookmarks'), 'bookmarks planned');
 assertEq(mergeEmptySuggestions('default', ['w'], ['a']).join(','), 'a,w', 'empty state apps first');
 assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a']).join(','), 'w,a', 'empty state windows first');
 assert(planSearch('10 km to mi', allOn).providers.includes('units'), 'units planned');
@@ -436,6 +457,7 @@ assert(fromSettings.apps, 'flags keep apps');
 assert(fromSettings.path, 'flags keep path open');
 assert(fromSettings.units, 'flags keep unit convert');
 assert(fromSettings.places, 'flags keep places');
+assert(fromSettings.bookmarks, 'flags keep bookmarks');
 assert(fromSettings.time, 'flags keep time');
 assert(fromSettings.color, 'flags keep color');
 
@@ -584,6 +606,27 @@ applyLookSettings({
 }, getTheme('light'));
 assertEq(stored['popup-position'], 'center', 'light is centered');
 assertEq(stored['show-section-headers'], true, 'light keeps headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('powertoys'));
+assertEq(stored['show-section-headers'], false, 'powertoys hides headers');
+assertEq(stored['popup-position'], 'center', 'powertoys is centered');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('synapse'));
+assertEq(stored['show-section-headers'], false, 'synapse hides headers');
+assertEq(iconSizeForLook(getTheme('synapse').look, 'comfortable') >
+    iconSizeForLook(getTheme('powertoys').look, 'comfortable'), true, 'synapse icons larger than powertoys');
 assertEq(iconSizeForLook(getTheme('raycast').look, 'comfortable') >
     iconSizeForLook(getTheme('albert').look, 'comfortable'), true, 'raycast icons larger than albert');
 
@@ -625,7 +668,7 @@ assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
 assert(
     css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
-        css.lastIndexOf('.gosh-theme-tofi .gosh-result {'),
+        Math.max(...themeIds.map(id => css.lastIndexOf(`.gosh-theme-${id} .gosh-result`))),
     'compact rules come after theme padding',
 );
 assert(css.includes('background-color: #000000'), 'tofi black bar');
@@ -637,8 +680,12 @@ assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');
 assert(css.includes('background-color: #285577'), 'wofi selected row');
 assert(css.includes('background-color: #f6f5f4'), 'light card');
+assert(css.includes('background-color: #2c2c2c'), 'powertoys card');
+assert(css.includes('background-color: #3c3b37'), 'synapse card');
+assert(css.includes('caret-color: #60cdff'), 'powertoys caret');
+assert(css.includes('caret-color: #f07746'), 'synapse caret');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
-for (const id of ['omarchy', 'popos', 'ulauncher', 'gnome', 'raycast', 'fuzzel', 'anyrun']) {
+for (const id of ['omarchy', 'popos', 'ulauncher', 'gnome', 'raycast', 'fuzzel', 'anyrun', 'powertoys', 'synapse']) {
     assert(
         css.includes(`.gosh-theme-${id} .gosh-result.gosh-selected .gosh-result-description`),
         `selected description ${id}`,
@@ -787,10 +834,29 @@ assert(PLACE_CATALOG.length >= 8, 'xdg places');
 assert(placeMatches('Downloads', ['downloads'], 'down'), 'place prefix');
 assert(matchPlaces('docs').some(p => p.id === 'documents'), 'docs is documents');
 assert(matchPlaces('chrome').length === 0, 'place miss');
+assert(matchPlaces('o').length === 0, 'letter o is not every folder');
+assert(matchPlaces('~').some(p => p.id === 'home'), 'tilde is home');
+assert(matchPlaces('d').some(p => p.id === 'desktop'), 'd is a folder prefix');
 const collapsed = takeUniquePlaces(PLACE_CATALOG, id => id === 'home' ? '/home/u' : '/home/u', 9);
 assertEq(collapsed.length, 1, 'duplicate xdg paths collapse');
 assertEq(collapsed[0].place.id, 'home', 'home wins first unique path');
 assert(!placeMatches('Home', ['home'], ''), 'empty query no place');
+assertEq(hostFromUri('sftp://me@nas.local/share'), 'nas.local', 'bookmark host');
+assertEq(bookmarkTitle('file:///home/u/Projects', ''), 'Projects', 'bookmark basename');
+assertEq(bookmarkTitle('file:///home/u/Projects', 'Code'), 'Code', 'bookmark label');
+assertEq(bookmarkDescription('file:///home/u/Projects', '/home/u'), '~/Projects', 'bookmark home collapse');
+assertEq(bookmarkIcon('file:///tmp'), 'folder-symbolic', 'file bookmark icon');
+assertEq(bookmarkIcon('sftp://nas/share'), 'network-server-symbolic', 'remote bookmark icon');
+const parsedMarks = parseGtkBookmarks('file:///home/u/Code Code\nfile:///home/u/Code\nsftp://nas/share NAS\n# comment\n\n');
+assertEq(parsedMarks.length, 2, 'duplicate bookmark uri dropped');
+assertEq(parsedMarks[0].title, 'Code', 'first bookmark keeps label');
+assertEq(parsedMarks[1].title, 'NAS', 'remote bookmark label');
+assertEq(mergeBookmarkFiles(['file:///a A', 'file:///a B\nfile:///b B']).length, 2, 'merge unique uris');
+assert(bookmarkMatches('Code', '~/Projects', 'cod'), 'bookmark title prefix');
+assert(bookmarkMatches('Notes', '~/Documents', 'doc'), 'bookmark folder match');
+assert(!bookmarkMatches('Code', '~/Projects', 'o'), 'letter o is not a bookmark');
+assertEq(matchBookmarks([{title: 'Code', description: '~/x'}, {title: 'Zed', description: '~/z'}], 'z', 2).length, 1, 'bookmark filter');
+assertEq(matchSettingsPanels('', 5).length, 5, 'empty settings query lists panels');
 assertEq(timeQueryKind('time'), 'time', 'time query');
 assertEq(timeQueryKind('NOW'), 'time', 'now query');
 assertEq(timeQueryKind('today'), 'date', 'today query');

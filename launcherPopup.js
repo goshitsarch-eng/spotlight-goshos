@@ -17,6 +17,7 @@ import {getTheme} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
+import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup} from './popupGate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from './popupPosition.js';
 
@@ -120,6 +121,7 @@ class LauncherPopup extends St.BoxLayout {
             'changed::enable-url-open', () => this._repaintIfOpen(),
             'changed::enable-path-open', () => this._repaintIfOpen(),
             'changed::enable-places', () => this._repaintIfOpen(),
+            'changed::enable-bookmarks', () => this._repaintIfOpen(),
             'changed::enable-time-date', () => this._repaintIfOpen(),
             'changed::enable-command-run', () => this._repaintIfOpen(),
             'changed::enable-prefix-modes', () => this._repaintIfOpen(),
@@ -313,6 +315,7 @@ class LauncherPopup extends St.BoxLayout {
         invalidateRecentFiles();
         invalidatePathLookup();
         invalidateCommandLookup();
+        invalidateBookmarks();
         this._entry.set_text('');
         this._renderer.reset();
     }

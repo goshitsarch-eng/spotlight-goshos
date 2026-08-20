@@ -139,6 +139,7 @@ required = [
     'appAction.js',
     'unitMatch.js',
     'placeMatch.js',
+    'bookmarkParse.js',
     'timeMatch.js',
     'colorMatch.js',
     'labelEllipsize.js',

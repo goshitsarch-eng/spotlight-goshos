@@ -12,7 +12,7 @@ A compact launcher for GNOME Shell 45 through 50. Previously named Spotlight.
 
 ## Overview
 
-Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, XDG folders, GNOME Settings panels, arithmetic, unit conversions, and the local clock. It can open URLs and filesystem paths, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
+Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, XDG folders, GTK bookmarks, GNOME Settings panels, arithmetic, unit conversions, and the local clock. It can open URLs and filesystem paths, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
 
 The popup can look like several real launchers. Pick a look in preferences:
 
@@ -32,6 +32,8 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Anyrun** | [Anyrun](https://github.com/anyrun-org/anyrun) | Catppuccin mocha panel (`#1e1e2e`, `#89b4fa` accent), no section headers. |
 | **Tofi** | [Tofi](https://github.com/philj56/tofi) | Stark black dmenu bar, white selected row, top-anchored, compact. |
 | **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
+| **PowerToys** | [PowerToys Run](https://learn.microsoft.com/windows/powertoys/run) | Fluent dark card, `#2c2c2c`, `#0078d4` selected row, no section headers. |
+| **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
@@ -41,17 +43,18 @@ Results are aggregated in the following order. Each category is rendered under i
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
 2. **Paths** — `~/…`, `./…`, and absolute paths such as `/tmp/notes.txt`. `~` and `./` resolve against the user home directory. Existing paths under the home directory show a collapsed `~/` title. Missing paths show “Path not found”.
-3. **Folders** — XDG user folders: Home, Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates. Typing `docs` or `downloads` opens that folder.
-4. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
-5. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), and `50% of 80`. A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
-6. **Units** — Conversions such as `10 km to mi`, `32 f in c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
-7. **Color** — A hash hex such as `#f00` or `#ff0000` copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
-8. **Clock** — Type `time`, `now`, `date`, `today`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
-9. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
-10. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-11. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
-12. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
-13. **Web Search** — Last-resort fallback in the default browser.
+3. **Folders** — XDG user folders: Home, Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates. Typing `docs` or `downloads` opens that folder. A single letter only matches a prefix, so `o` does not list Home.
+4. **Bookmarks** — Folders saved in `~/.config/gtk-3.0/bookmarks` and `~/.config/gtk-4.0/bookmarks`, loaded asynchronously. Remote URIs such as `sftp://` are included.
+5. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
+6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), `50% of 80`, constants (`pi`), functions (`sqrt`, `cbrt`, `abs`, `sin`, `cos`, `tan` in degrees), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
+7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
+8. **Color** — A hash hex such as `#f00` or `#ff0000` copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
+9. **Clock** — Type `time`, `now`, `date`, `today`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
+10. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
+11. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
+12. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
+13. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
+14. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show frequently used apps and open windows. Windows-first looks (Pop!_OS) put windows above apps here too. Turn that off in Features if you want a blank entry.
 
@@ -77,9 +80,10 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Open Gosh Is Launcher | `Ctrl + Space` |
 | Open a path | Type `~/Documents` or `/tmp`, then `Enter` |
 | Launch an application | Type its name or abbreviation, then `Enter` |
-| Evaluate an expression | Type the math, then `Enter` (result is copied to clipboard) |
+| Evaluate an expression | Type `12*8+3`, `sqrt(16)`, or `2pi`, then `Enter` (result is copied to clipboard) |
 | Convert units | Type `10 km to mi` or `32 f to c`, then `Enter` |
 | Open Documents | Type `docs`, then `Enter` |
+| Open a bookmark | Type part of a GTK bookmark label, then `Enter` |
 | Copy the time | Type `time` or `now`, then `Enter` |
 | Copy a color | Type `#ff0000`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
@@ -122,7 +126,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -130,7 +134,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider, plus application actions, unit conversion, hex colors, folders, and the clock (changes apply while the popup is open)
+- Enable or disable every search provider, plus application actions, unit conversion, hex colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -162,6 +166,8 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `calculator.js` | Recursive-descent arithmetic parser |
 | `unitMatch.js` | Length, mass, temperature, volume, and data conversions |
 | `placeMatch.js` | XDG user folder catalog |
+| `bookmarkParse.js` | GTK 3/4 bookmark file parsing |
+| `bookmarksSearch.js` | GTK bookmark provider |
 | `timeMatch.js` | Time and date query matching |
 | `colorMatch.js` | Hex color normalization |
 | `themes.js` | Look catalog |

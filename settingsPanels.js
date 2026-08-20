@@ -1,14 +1,16 @@
 // gosh is launcher - gnome settings panel catalog
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {wordPrefixMatch} from './wordMatch.js';
+
 export const SETTINGS_PANELS = [
-    {id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless-symbolic', keywords: ['wireless', 'wlan']},
+    {id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless-symbolic', keywords: ['wireless', 'wlan', 'hotspot', 'airplane']},
     {id: 'network', title: 'Network', icon: 'network-wired-symbolic', keywords: ['ethernet', 'vpn']},
     {id: 'wwan', title: 'Mobile Network', icon: 'network-cellular-symbolic', keywords: ['cellular', 'lte']},
     {id: 'bluetooth', title: 'Bluetooth', icon: 'bluetooth-symbolic', keywords: ['bt']},
     {id: 'display', title: 'Displays', icon: 'video-display-symbolic', keywords: ['monitor', 'resolution', 'night light', 'scale']},
     {id: 'sound', title: 'Sound', icon: 'audio-speakers-symbolic', keywords: ['audio', 'volume', 'speaker']},
-    {id: 'power', title: 'Power', icon: 'battery-symbolic', keywords: ['battery', 'sleep']},
+    {id: 'power', title: 'Power', icon: 'battery-symbolic', keywords: ['battery', 'sleep', 'battery saver']},
     {id: 'multitasking', title: 'Multitasking', icon: 'view-app-grid-symbolic', keywords: ['workspaces', 'overview']},
     {id: 'background', title: 'Appearance', icon: 'preferences-desktop-wallpaper-symbolic', keywords: ['theme', 'dark', 'style', 'wallpaper', 'background', 'appearance']},
     {id: 'notifications', title: 'Notifications', icon: 'preferences-system-notifications-symbolic', keywords: ['do not disturb', 'dnd']},
@@ -18,7 +20,7 @@ export const SETTINGS_PANELS = [
     {id: 'privacy', title: 'Privacy & Security', icon: 'preferences-system-privacy-symbolic', keywords: ['permissions', 'camera', 'webcam', 'microphone', 'location', 'gps', 'thunderbolt', 'bolt', 'diagnostics', 'crash', 'firmware', 'lock', 'screen lock', 'device security']},
     {id: 'online-accounts', title: 'Online Accounts', icon: 'emblem-web-symbolic', keywords: ['goa', 'google']},
     {id: 'sharing', title: 'Sharing', icon: 'folder-publicshare-symbolic', keywords: ['remote']},
-    {id: 'wellbeing', title: 'Wellbeing', icon: 'face-smile-symbolic', keywords: ['screentime', 'screen time', 'limit']},
+    {id: 'wellbeing', title: 'Wellbeing', icon: 'face-smile-symbolic', keywords: ['screentime', 'screen time', 'limit', 'break']},
     {id: 'keyboard', title: 'Keyboard', icon: 'input-keyboard-symbolic', keywords: ['shortcut', 'input']},
     {id: 'mouse', title: 'Mouse & Touchpad', icon: 'input-mouse-symbolic', keywords: ['trackpad', 'pointer']},
     {id: 'wacom', title: 'Drawing Tablet', icon: 'input-tablet-symbolic', keywords: ['stylus', 'pen', 'wacom']},
@@ -29,22 +31,37 @@ export const SETTINGS_PANELS = [
     {id: 'region', title: 'Region & Language', icon: 'preferences-desktop-locale-symbolic', keywords: ['locale', 'timezone']},
     {id: 'datetime', title: 'Date & Time', icon: 'preferences-system-time-symbolic', keywords: ['clock']},
     {id: 'about', title: 'About', icon: 'dialog-information-symbolic', keywords: ['hardware', 'version', 'info-overview', 'winver']},
-    {id: 'system', title: 'System', icon: 'preferences-system-symbolic', keywords: ['software update', 'remote desktop', 'ssh', 'secure shell', 'firmware', 'device security']},
+    {id: 'system', title: 'System', icon: 'preferences-system-symbolic', keywords: ['software update', 'software updates', 'remote desktop', 'ssh', 'secure shell', 'firmware', 'device security', 'secure boot']},
 ];
 
 export function matchSettingsPanels(query, maxResults) {
     const lowerQuery = query.toLowerCase();
     const normalizedQuery = lowerQuery.replace(/[-_\s]/g, '');
+    if (normalizedQuery.length === 0)
+        return SETTINGS_PANELS.slice(0, maxResults);
 
     const matchingPanels = SETTINGS_PANELS.filter(p => {
-        const normalizedTitle = p.title.toLowerCase().replace(/[-_\s]/g, '');
-        if (normalizedTitle.includes(normalizedQuery) ||
-            p.title.toLowerCase().includes(lowerQuery) ||
-            p.id.replace(/[-_]/g, '').includes(normalizedQuery))
+        const titleLower = p.title.toLowerCase();
+        const normalizedTitle = titleLower.replace(/[-_\s]/g, '');
+        const normalizedId = p.id.replace(/[-_]/g, '');
+        if (normalizedTitle.startsWith(normalizedQuery) || normalizedId.startsWith(normalizedQuery))
+            return true;
+        if (titleLower.startsWith(lowerQuery) || wordPrefixMatch(titleLower, lowerQuery))
+            return true;
+        if (normalizedQuery.length >= 3 && (
+            normalizedTitle.includes(normalizedQuery) ||
+            normalizedId.includes(normalizedQuery) ||
+            titleLower.includes(lowerQuery)
+        ))
             return true;
         for (const keyword of p.keywords) {
-            const normalizedKeyword = keyword.replace(/[-_\s]/g, '');
-            if (keyword.includes(lowerQuery) || normalizedKeyword.includes(normalizedQuery))
+            const kw = keyword.toLowerCase();
+            const normalizedKeyword = kw.replace(/[-_\s]/g, '');
+            if (kw.startsWith(lowerQuery) || normalizedKeyword.startsWith(normalizedQuery))
+                return true;
+            if (normalizedQuery.length >= 3 && (
+                kw.includes(lowerQuery) || normalizedKeyword.includes(normalizedQuery)
+            ))
                 return true;
         }
         return false;

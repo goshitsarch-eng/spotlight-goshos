@@ -1,6 +1,8 @@
 // gosh is launcher - xdg user folder matching
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {wordPrefixMatch} from './wordMatch.js';
+
 export const PLACE_CATALOG = [
     {id: 'home', title: 'Home', keywords: ['home', '~'], icon: 'user-home-symbolic'},
     {id: 'desktop', title: 'Desktop', keywords: ['desktop'], icon: 'user-desktop-symbolic'},
@@ -13,14 +15,21 @@ export const PLACE_CATALOG = [
     {id: 'templates', title: 'Templates', keywords: ['templates'], icon: 'folder-templates-symbolic'},
 ];
 
+// a one letter query must be a prefix so o does not list every folder
+// that happens to contain the letter
 export function placeMatches(title, keywords, query) {
     if (query.length === 0)
         return false;
     const q = query.toLowerCase();
-    if (title.toLowerCase().includes(q))
+    const titleLower = title.toLowerCase();
+    if (titleLower.startsWith(q) || wordPrefixMatch(titleLower, q))
+        return true;
+    if (q.length >= 3 && titleLower.includes(q))
         return true;
     for (const keyword of keywords) {
-        if (keyword.includes(q))
+        if (keyword.startsWith(q) || keyword === q)
+            return true;
+        if (q.length >= 3 && keyword.includes(q))
             return true;
     }
     return false;

@@ -118,6 +118,8 @@ gosh-is-launcher@nin/
     unitMatch.js              unit aliases and conversion (pure)
     placesSearch.js           xdg user folders
     placeMatch.js             folder catalog (pure)
+    bookmarksSearch.js        gtk bookmark provider
+    bookmarkParse.js          gtk bookmark parse (pure)
     timeSearch.js             local time and date
     timeMatch.js              time and date query (pure)
     colorSearch.js            hex color copy
@@ -174,7 +176,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch timeMatch colorMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch bookmarkParse timeMatch colorMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

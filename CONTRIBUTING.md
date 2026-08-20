@@ -68,6 +68,8 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`unitMatch.js`** — Unit aliases and conversion math.
 - **`placesSearch.js`** — XDG user folders.
 - **`placeMatch.js`** — Folder titles and keywords.
+- **`bookmarksSearch.js`** — GTK 3/4 folder bookmarks.
+- **`bookmarkParse.js`** — Bookmark file parsing.
 - **`timeSearch.js`** — Local time and date.
 - **`timeMatch.js`** — Time and date query matching.
 - **`colorSearch.js`** — Hex color copy.
@@ -182,7 +184,7 @@ Manual testing on GNOME Shell 50 Wayland:
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName, Keywords, or the desktop Comment.
 2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3`, `2**3`, `2 x 3`, `1e3+2`, or `1,000+2` — all should evaluate.
 3. Type `=2^8` — calculator prefix should show `256`.
-4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, and Light. Change a look while the popup is open — rows should restyle.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, and Synapse. Change a look while the popup is open — rows should restyle.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home in the middle of a query — the caret should move to the start of the text, not the first result. Press Home again at the start — selection should jump to the first row. End at the end of the query should jump to the last row. Keypad arrows with Num Lock off should move the selection too.
@@ -211,6 +213,9 @@ Manual testing on GNOME Shell 50 Wayland:
 30. Type `10 km to mi` — a Units row should appear. Type `32 f to c` — the title should be `0 c`. Type `clock` — Lock Screen must not appear; a Clock row with the local time should. Type `50% of 80` — the calculator result should be 40.
 31. Type `docs` — Documents should appear under Folders. Type `time` — the local time should copy with Enter. Open `~/Documents` — the path title should start with `~`.
 32. Type `#ff0000` — a Color row should copy `#ff0000`. Type `# wifi` — Settings should still list Wi-Fi. Unset XDG folders that point at Home must not list Documents as a second Home.
+33. Type `o` — Home must not appear just because the word contains o. Type `~` or `docs` — Home / Documents should. Type `sqrt(16)` or `2pi` — the calculator should evaluate.
+34. Add a GTK bookmark under `~/.config/gtk-3.0/bookmarks` — typing part of its label should open that folder. Disable Bookmarks in Features — it should disappear.
+35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
 
 ## Submitting Changes
 

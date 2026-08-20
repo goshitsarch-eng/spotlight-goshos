@@ -40,6 +40,8 @@ export function buildFeaturesPage(settings) {
         'Open paths', 'Open ~/ ./ and absolute paths in the default handler');
     addSwitch(providers, settings, 'enable-places',
         'Folders', 'Home, Documents, Downloads, and the other XDG user folders');
+    addSwitch(providers, settings, 'enable-bookmarks',
+        'Bookmarks', 'Folders saved in the GTK 3 and GTK 4 bookmark files');
     addSwitch(providers, settings, 'enable-time-date',
         'Time and date', 'Type time, now, date, or today to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',

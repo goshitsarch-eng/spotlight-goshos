@@ -202,6 +202,34 @@ export const THEMES = [
             iconSize: 28,
         },
     },
+    {
+        id: 'powertoys',
+        title: 'PowerToys',
+        description: 'Windows-style runner card with a Fluent blue selected row',
+        hint: 'Type here to search',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 32,
+        },
+    },
+    {
+        id: 'synapse',
+        title: 'Synapse',
+        description: 'Large-icon dark panel with an Ubuntu-orange caret',
+        hint: 'Search...',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 48,
+        },
+    },
 ];
 
 export function getTheme(id) {

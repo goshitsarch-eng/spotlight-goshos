@@ -5,6 +5,19 @@
 // returns null if input is not valid math so the caller knows to treat it as a search query
 // never uses eval() - it tokenizes the input then parses with standard operator precedence
 // pasted expressions often use unicode operators and thousands commas
+const CONSTS = {
+    pi: Math.PI,
+};
+
+const FUNCS = {
+    sqrt: Math.sqrt,
+    cbrt: Math.cbrt,
+    abs: Math.abs,
+    sin: n => Math.sin(n * Math.PI / 180),
+    cos: n => Math.cos(n * Math.PI / 180),
+    tan: n => Math.tan(n * Math.PI / 180),
+};
+
 export function normalizeMath(input) {
     let text = input
         .replace(/[\r\n]+/g, '')
@@ -13,10 +26,12 @@ export function normalizeMath(input) {
         .replace(/[−–—]/g, '-')
         .replace(/[⋅·]/g, '*')
         .replace(/\*\*/g, '^')
+        .replace(/√\s*\(/g, 'sqrt(')
+        .replace(/√\s*(\d+(?:\.\d+)?)/g, 'sqrt($1)')
         .replace(/(\d)\s+[xX]\s+(\d)/g, '$1*$2')
         .replace(/([1-9]\d*(?:\.\d+)?)[xX](\d)/g, '$1*$2')
         .replace(/(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)/gi, '($1/100)*$2')
-        .replace(/(\d+(?:\.\d+)?)\s*percent\s+of\s+(\d+(?:\.\d+)?)/gi, '($1/100)*$2');
+        .replace(/(\d+(?:\.\d+)?)\s*percent\s+of\s*(\d+(?:\.\d+)?)/gi, '($1/100)*$2');
     let next = text.replace(/(\d),(\d)/g, '$1$2');
     while (next !== text) {
         text = next;
@@ -25,15 +40,31 @@ export function normalizeMath(input) {
     return text;
 }
 
+function looksLikeMath(text, allowBare) {
+    if (allowBare)
+        return true;
+    if (/[+\-*/%^]/.test(text))
+        return true;
+    const stripped = text
+        .replace(/0x[0-9a-fA-F]+/gi, '0')
+        .replace(/0b[01]+/g, '0')
+        .replace(/\d+(?:\.\d+)?[eE][+\-]?\d+/g, '0');
+    return /[a-zA-Z]/.test(stripped);
+}
+
+function isIdent(tok) {
+    return tok !== undefined && /^[a-zA-Z]+$/.test(tok);
+}
+
 export function evaluateArithmetic(input, allowBare) {
     const text = normalizeMath(input);
-    if (!/\d/.test(text))
+    if (!/\d/.test(text) && !/\bpi\b/i.test(text))
         return null;
-    if (!allowBare && !/[+\-*/%^]/.test(text))
+    if (!looksLikeMath(text, allowBare))
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[+\-*/%()^])/g;
+    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z]+|[+\-*/%()^])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
@@ -96,6 +127,13 @@ export function evaluateArithmetic(input, allowBare) {
         return Math.pow(value, exp);
     }
 
+    function implicitMul(value) {
+        const next = peek();
+        if (next === '(' || isIdent(next))
+            return value * parseFactor();
+        return value;
+    }
+
     function parseFactor() {
         const tok = peek();
         if (tok === undefined)
@@ -115,19 +153,36 @@ export function evaluateArithmetic(input, allowBare) {
             if (v === null || peek() !== ')')
                 return null;
             consume();
-            return v;
+            return implicitMul(v);
+        }
+        if (isIdent(tok)) {
+            const name = tok.toLowerCase();
+            consume();
+            if (FUNCS[name]) {
+                if (peek() !== '(')
+                    return null;
+                consume();
+                const v = parseExpression();
+                if (v === null || peek() !== ')')
+                    return null;
+                consume();
+                return implicitMul(FUNCS[name](v));
+            }
+            if (CONSTS[name] !== undefined)
+                return implicitMul(CONSTS[name]);
+            return null;
         }
         if (/^0x[0-9a-fA-F]+$/i.test(tok)) {
             consume();
-            return parseInt(tok, 16);
+            return implicitMul(parseInt(tok, 16));
         }
         if (/^0b[01]+$/i.test(tok)) {
             consume();
-            return parseInt(tok.slice(2), 2);
+            return implicitMul(parseInt(tok.slice(2), 2));
         }
         if (/^[0-9.]+(?:[eE][+\-]?[0-9]+)?$/.test(tok)) {
             consume();
-            return parseFloat(tok);
+            return implicitMul(parseFloat(tok));
         }
         return null;
     }

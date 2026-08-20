@@ -13,8 +13,8 @@ const PREFIX_TO_FLAG = {
     command: 'command',
 };
 
-const DEFAULT_ORDER = ['url', 'path', 'places', 'apps', 'calculator', 'units', 'color', 'time', 'windows', 'system', 'settings', 'files'];
-const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'windows', 'apps', 'calculator', 'units', 'color', 'time', 'system', 'settings', 'files'];
+const DEFAULT_ORDER = ['url', 'path', 'places', 'bookmarks', 'apps', 'calculator', 'units', 'color', 'time', 'windows', 'system', 'settings', 'files'];
+const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'bookmarks', 'windows', 'apps', 'calculator', 'units', 'color', 'time', 'system', 'settings', 'files'];
 
 export function flagsFromSettings(settings) {
     return {
@@ -22,6 +22,7 @@ export function flagsFromSettings(settings) {
         url: settings.get_boolean('enable-url-open'),
         path: settings.get_boolean('enable-path-open'),
         places: settings.get_boolean('enable-places'),
+        bookmarks: settings.get_boolean('enable-bookmarks'),
         apps: settings.get_boolean('enable-app-search'),
         calculator: settings.get_boolean('enable-calculator'),
         units: settings.get_boolean('enable-unit-convert'),
@@ -63,6 +64,12 @@ export function shouldRefreshCommand(enableCommand, plan) {
     if (!enableCommand)
         return false;
     return plan.mode === 'command' && plan.providers.includes('command');
+}
+
+export function shouldRefreshBookmarks(enableBookmarks, plan) {
+    if (!enableBookmarks)
+        return false;
+    return plan.mode === 'all' && plan.providers.includes('bookmarks');
 }
 
 export function mergeEmptySuggestions(resultOrder, windows, apps) {

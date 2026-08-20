@@ -13,6 +13,7 @@ const SECTION_TITLES = {
     file: 'Recent Files',
     path: 'Open Path',
     place: 'Folders',
+    bookmark: 'Bookmarks',
     time: 'Clock',
     url: 'Open Link',
     command: 'Run Command',
