@@ -20,6 +20,10 @@ export function terminalSpec(findInPath) {
         return {argv: ['alacritty'], workingDirectoryFlag: '--working-directory'};
     if (findInPath('foot'))
         return {argv: ['foot'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('wezterm'))
+        return {argv: ['wezterm', 'start'], workingDirectoryFlag: '--cwd'};
+    if (findInPath('tilix'))
+        return {argv: ['tilix'], workingDirectoryFlag: '--working-directory'};
     if (findInPath('blackbox-terminal'))
         return {argv: ['blackbox-terminal'], workingDirectoryFlag: '--working-directory'};
     if (findInPath('blackbox'))
