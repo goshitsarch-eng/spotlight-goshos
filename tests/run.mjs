@@ -180,6 +180,7 @@ for (const type of ['app', 'calculator', 'window', 'system-action', 'settings', 
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'action prefix');
+assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), 'action keyword case');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'firefox'), 'action miss');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
@@ -229,6 +230,8 @@ assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyw
 assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
 assert(matchSettingsPanels('wacom', 5).some(p => p.id === 'wacom'), 'wacom panel');
 assert(matchSettingsPanels('stylus', 5).some(p => p.id === 'wacom'), 'stylus keyword');
+assert(matchSettingsPanels('user-accounts', 5).some(p => p.id === 'users'), 'user-accounts alias');
+assert(matchSettingsPanels('info-overview', 5).some(p => p.id === 'about'), 'info-overview alias');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
 
 // selection wrap vs page clamp
@@ -487,6 +490,16 @@ assertEq(
     parseRecentXbel('<bookmark href="file:///tmp/a&amp;b.txt"/>')[0],
     'file:///tmp/a&b.txt',
     'xbel unescapes amp',
+);
+assertEq(
+    parseRecentXbel("<bookmark href='file:///tmp/single.txt'/>")[0],
+    'file:///tmp/single.txt',
+    'xbel single-quoted href',
+);
+assertEq(
+    parseRecentXbel('<bookmark href = "file:///tmp/spaced.txt"/>')[0],
+    'file:///tmp/spaced.txt',
+    'xbel href with spaces around equals',
 );
 
 assertEq(resolveKeyAction('Tab', false, false, false).delta, 1, 'tab down');

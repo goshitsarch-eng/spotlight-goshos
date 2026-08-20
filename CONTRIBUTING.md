@@ -65,7 +65,7 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
-- **`windowSearch.js`** — Open window switcher.
+- **`windowSearch.js`** — Open window switcher, including modal dialogs.
 - **`recentFilesSearch.js`** — Recently used files.
 - **`urlSearch.js`** — URL / domain opener.
 - **`commandSearch.js`** — Optional `!` command runner.

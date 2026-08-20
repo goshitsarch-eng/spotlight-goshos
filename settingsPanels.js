@@ -25,10 +25,10 @@ export const SETTINGS_PANELS = [
     {id: 'color', title: 'Color', keywords: ['icc', 'calibration']},
     {id: 'printers', title: 'Printers', keywords: ['cups']},
     {id: 'universal-access', title: 'Accessibility', keywords: ['a11y', 'screen reader']},
-    {id: 'users', title: 'Users', keywords: ['account', 'password']},
+    {id: 'users', title: 'Users', keywords: ['account', 'password', 'user-accounts']},
     {id: 'region', title: 'Region & Language', keywords: ['locale', 'timezone']},
     {id: 'datetime', title: 'Date & Time', keywords: ['clock']},
-    {id: 'about', title: 'About', keywords: ['hardware', 'version']},
+    {id: 'about', title: 'About', keywords: ['hardware', 'version', 'info-overview']},
     {id: 'system', title: 'System', keywords: ['software update']},
 ];
 

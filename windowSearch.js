@@ -25,7 +25,9 @@ export function searchWindows(query, maxResults) {
             continue;
 
         const type = win.get_window_type();
-        if (type !== Meta.WindowType.NORMAL && type !== Meta.WindowType.DIALOG)
+        if (type !== Meta.WindowType.NORMAL &&
+            type !== Meta.WindowType.DIALOG &&
+            type !== Meta.WindowType.MODAL_DIALOG)
             continue;
 
         const sandboxed = typeof win.get_sandboxed_app_id === 'function'

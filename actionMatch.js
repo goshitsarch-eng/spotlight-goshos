@@ -5,5 +5,8 @@ export function actionMatchesQuery(action, query) {
     const lowerQuery = query.toLowerCase();
     if (action.title.toLowerCase().includes(lowerQuery))
         return true;
-    return action.keywords.some(kw => kw.includes(lowerQuery) || lowerQuery.includes(kw));
+    return action.keywords.some(kw => {
+        const k = kw.toLowerCase();
+        return k.includes(lowerQuery) || lowerQuery.includes(k);
+    });
 }

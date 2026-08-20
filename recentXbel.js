@@ -1,7 +1,7 @@
 // gosh is launcher - parse recently-used.xbel text
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-const HREF_RE = /href="(file:[^"]+)"/g;
+const HREF_RE = /href\s*=\s*["'](file:[^"']+)["']/g;
 
 function unescapeXml(text) {
     return text
