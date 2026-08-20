@@ -8,6 +8,8 @@ function _parentalControls() {
 }
 
 function _shouldShowApp(pcm, app) {
+    if (!app.should_show())
+        return false;
     if (!pcm.initialized)
         return true;
     return pcm.shouldShowApp(app);

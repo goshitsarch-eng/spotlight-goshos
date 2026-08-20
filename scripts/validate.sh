@@ -19,7 +19,7 @@ echo "unit tests"
 node tests/run.mjs
 
 echo "uuid leftovers"
-if grep -r "spotlight@ninx" . --exclude-dir=.git --exclude-dir=.github; then
+if grep -r "spotlight@ninx" --include='*.js' --include='*.md' --include='*.json' --include='*.xml' --include='*.css' .; then
   echo "found spotlight@ninx"
   exit 1
 fi

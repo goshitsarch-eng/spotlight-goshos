@@ -57,6 +57,14 @@ const SYSTEM_ACTIONS = [
         can: sa => sa.canSwitchUser,
         activate: () => SystemActions.getDefault().activateSwitchUser(),
     },
+    {
+        id: 'screenshot',
+        title: 'Take a Screenshot',
+        icon: 'screenshooter-symbolic',
+        keywords: ['screenshot', 'snip', 'capture', 'screencast'],
+        can: () => true,
+        activate: () => SystemActions.getDefault().activateScreenshotUI(),
+    },
 ];
 
 // searches system actions by title and keywords
