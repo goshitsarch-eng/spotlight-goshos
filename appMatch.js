@@ -1,7 +1,7 @@
 // gosh is launcher - app name generic-name and keyword match tiers
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {wordPrefixMatch} from './wordMatch.js';
+import {wordPrefixMatch, SUBSTRING_MIN} from './wordMatch.js';
 
 // strip a known trailing variant so firefox and firefox esr collapse
 // do not split on every hyphen or gnome-builder becomes gnome
@@ -52,17 +52,19 @@ export function appMatchTier(name, genericName, id, keywords, query, description
         return 0;
     if (wordPrefixMatch(nameLower, q))
         return 1;
-    if (nameLower.includes(q))
+    if (q.length >= SUBSTRING_MIN && nameLower.includes(q))
         return 2;
-    if (genericLower.startsWith(q) || wordPrefixMatch(genericLower, q) || genericLower.includes(q))
+    if (genericLower.startsWith(q) || wordPrefixMatch(genericLower, q) ||
+        (q.length >= SUBSTRING_MIN && genericLower.includes(q)))
         return 3;
-    if (idLower.includes(q))
+    if (q.length >= SUBSTRING_MIN && idLower.includes(q))
         return 4;
     for (const keyword of keywords) {
-        if (keyword.toLowerCase().includes(q))
+        const kw = keyword.toLowerCase();
+        if (kw.startsWith(q) || (q.length >= SUBSTRING_MIN && kw.includes(q)))
             return 5;
     }
-    if (descLower.includes(q))
+    if (q.length >= SUBSTRING_MIN && descLower.includes(q))
         return 6;
     return -1;
 }

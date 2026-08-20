@@ -216,6 +216,7 @@ Manual testing on GNOME Shell 50 Wayland:
 33. Type `o` — Home must not appear just because the word contains o. Type `~` or `docs` — Home / Documents should. Type `sqrt(16)` or `2pi` — the calculator should evaluate.
 34. Add a GTK bookmark under `~/.config/gtk-3.0/bookmarks` — typing part of its label should open that folder. Disable Bookmarks in Features — it should disappear.
 35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
+36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` — a Color row should copy `#ff0000`.
 
 ## Submitting Changes
 

@@ -46,11 +46,11 @@ Results are aggregated in the following order. Each category is rendered under i
 3. **Folders** — XDG user folders: Home, Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates. Typing `docs` or `downloads` opens that folder. A single letter only matches a prefix, so `o` does not list Home.
 4. **Bookmarks** — Folders saved in `~/.config/gtk-3.0/bookmarks` and `~/.config/gtk-4.0/bookmarks`, loaded asynchronously. Remote URIs such as `sftp://` are included.
 5. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
-6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), `50% of 80`, constants (`pi`), functions (`sqrt`, `cbrt`, `abs`, `sin`, `cos`, `tan` in degrees), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
-7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
-8. **Color** — A hash hex such as `#f00` or `#ff0000` copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
-9. **Clock** — Type `time`, `now`, `date`, `today`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
-10. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
+6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), `50% of 80`, constants (`pi`), functions (`sqrt`, `cbrt`, `abs`, `log`, `ln`, `sin`, `cos`, `tan` in degrees), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
+7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, `32°f to c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
+8. **Color** — A hash hex such as `#f00` or `#ff0000`, or `rgb(255, 0, 0)`, copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
+9. **Clock** — Type `time`, `now`, `date`, `today`, `tomorrow`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
+10. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows. A single letter only matches a prefix, so `o` does not list every window because every workspace label contains that letter.
 11. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 12. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
 13. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
@@ -85,7 +85,8 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Open Documents | Type `docs`, then `Enter` |
 | Open a bookmark | Type part of a GTK bookmark label, then `Enter` |
 | Copy the time | Type `time` or `now`, then `Enter` |
-| Copy a color | Type `#ff0000`, then `Enter` |
+| Copy tomorrow | Type `tomorrow`, then `Enter` |
+| Copy a color | Type `#ff0000` or `rgb(255, 0, 0)`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |

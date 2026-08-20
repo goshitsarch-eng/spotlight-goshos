@@ -1,6 +1,8 @@
 // gosh is launcher - parse recently-used.xbel text
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {textMatchesQuery} from './wordMatch.js';
+
 const HREF_RE = /href\s*=\s*["'](file:[^"']+)["']/g;
 
 function unescapeXml(text) {
@@ -100,8 +102,7 @@ export function parentPathFromFileUri(uri) {
 export function recentFileMatches(name, folder, query) {
     if (query.length === 0)
         return true;
-    const q = query.toLowerCase();
-    return name.toLowerCase().includes(q) || folder.toLowerCase().includes(q);
+    return textMatchesQuery(name, query) || textMatchesQuery(folder, query);
 }
 
 export function basenameFromUri(uri) {

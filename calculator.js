@@ -13,6 +13,8 @@ const FUNCS = {
     sqrt: Math.sqrt,
     cbrt: Math.cbrt,
     abs: Math.abs,
+    log: Math.log10,
+    ln: Math.log,
     sin: n => Math.sin(n * Math.PI / 180),
     cos: n => Math.cos(n * Math.PI / 180),
     tan: n => Math.tan(n * Math.PI / 180),

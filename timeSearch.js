@@ -11,13 +11,14 @@ export function searchTime(query) {
         return [];
 
     const now = GLib.DateTime.new_now_local();
-    const weekday = weekdayName(now.get_day_of_week());
+    const when = kind === 'tomorrow' ? now.add_days(1) : now;
+    const weekday = weekdayName(when.get_day_of_week());
     const title = kind === 'time'
-        ? formatClock(now.get_hour(), now.get_minute(), now.get_second())
-        : formatDateTitle(weekday, now.get_day_of_month(), monthName(now.get_month()), now.get_year());
+        ? formatClock(when.get_hour(), when.get_minute(), when.get_second())
+        : formatDateTitle(weekday, when.get_day_of_month(), monthName(when.get_month()), when.get_year());
     const description = kind === 'time'
         ? weekday
-        : formatIsoDate(now.get_year(), now.get_month(), now.get_day_of_month());
+        : formatIsoDate(when.get_year(), when.get_month(), when.get_day_of_month());
 
     return [{
         type: 'time',

@@ -7,6 +7,8 @@ export function timeQueryKind(query) {
         return 'time';
     if (q === 'date' || q === 'today' || q === 'calendar')
         return 'date';
+    if (q === 'tomorrow')
+        return 'tomorrow';
     return null;
 }
 

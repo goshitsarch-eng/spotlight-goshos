@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import St from 'gi://St';
-import {normalizeHexColor} from './colorMatch.js';
+import {normalizeColor} from './colorMatch.js';
 
 export function searchColor(query) {
-    const hex = normalizeHexColor(query);
+    const hex = normalizeColor(query);
     if (!hex)
         return [];
 

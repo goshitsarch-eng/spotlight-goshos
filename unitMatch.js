@@ -75,8 +75,14 @@ export function resolveUnit(name) {
     return {id, dim: UNITS[id].dim, toBase: UNITS[id].toBase};
 }
 
+export function normalizeUnitQuery(query) {
+    return query
+        .replace(/°/g, ' ')
+        .replace(/\s*degrees?\s*/gi, ' ');
+}
+
 export function parseUnitQuery(query) {
-    const match = query.trim().match(QUERY_RE);
+    const match = normalizeUnitQuery(query).trim().match(QUERY_RE);
     if (!match)
         return null;
     return {

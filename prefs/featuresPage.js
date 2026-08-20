@@ -25,7 +25,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 32 f to c, 1 gb to mib');
     addSwitch(providers, settings, 'enable-color-hex',
-        'Hex colors', 'Type #f00 or #ff0000 and press Enter to copy');
+        'Hex colors', 'Type #f00, #ff0000, or rgb(255, 0, 0) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, or workspace');
     addSwitch(providers, settings, 'enable-system-actions',
@@ -43,7 +43,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-bookmarks',
         'Bookmarks', 'Folders saved in the GTK 3 and GTK 4 bookmark files');
     addSwitch(providers, settings, 'enable-time-date',
-        'Time and date', 'Type time, now, date, or today to copy the local clock');
+        'Time and date', 'Type time, now, date, today, or tomorrow to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',
         'Command runner', 'Run a command with the ! prefix');
 

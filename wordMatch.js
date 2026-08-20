@@ -3,6 +3,19 @@
 
 // word boundaries are space hyphen underscore dot
 // this is what makes chro match Google Chrome via the second word
+// substring needs three letters so o does not hit every workspace label
+export const SUBSTRING_MIN = 3;
+
+export function textMatchesQuery(text, query) {
+    if (query.length === 0)
+        return false;
+    const t = text.toLowerCase();
+    const q = query.toLowerCase();
+    if (t.startsWith(q) || wordPrefixMatch(t, q))
+        return true;
+    return q.length >= SUBSTRING_MIN && t.includes(q);
+}
+
 export function wordPrefixMatch(nameLower, queryLower) {
     const len = queryLower.length;
     if (len === 0)

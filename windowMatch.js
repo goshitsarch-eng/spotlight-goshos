@@ -1,6 +1,8 @@
 // gosh is launcher - whether an open window matches a query
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {textMatchesQuery} from './wordMatch.js';
+
 export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     if (!hasWorkspace || skipTaskbar)
         return false;
@@ -14,10 +16,9 @@ export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
 export function windowMatches(title, wmClass, query, workspaceLabel) {
     if (query.length === 0)
         return true;
-    const q = query.toLowerCase();
-    if (title.toLowerCase().includes(q) || wmClass.toLowerCase().includes(q))
+    if (textMatchesQuery(title, query) || textMatchesQuery(wmClass, query))
         return true;
-    return Boolean(workspaceLabel) && workspaceLabel.toLowerCase().includes(q);
+    return Boolean(workspaceLabel) && textMatchesQuery(workspaceLabel, query);
 }
 
 // mutter workspace.index is 0-based launchers show Workspace 1
