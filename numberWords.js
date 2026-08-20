@@ -28,7 +28,9 @@ const ONES_HUNDRED_RE = /\b(zero|one|two|three|four|five|six|seven|eight|nine|te
 const TENS_ONES_RE = /\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[\s-](one|two|three|four|five|six|seven|eight|nine))?\b/gi;
 
 export function replaceNumberWords(text) {
-    let out = text.replace(/\ba\s+thousand\b/gi, '1000');
+    let out = text.replace(/\ba\s+billion\b/gi, '1000000000');
+    out = out.replace(/\ba\s+million\b/gi, '1000000');
+    out = out.replace(/\ba\s+thousand\b/gi, '1000');
     out = out.replace(/\ba\s+hundred\b/gi, '100');
     out = out.replace(TENS_THOUSAND_RE, (_all, tens) => String(TENS_WORDS[tens.toLowerCase()] * 1000));
     out = out.replace(ONES_THOUSAND_RE, (_all, word) => String(Number(NUMBER_WORDS[word.toLowerCase()]) * 1000));
@@ -42,10 +44,14 @@ export function replaceNumberWords(text) {
     out = out.replace(/\bthousand\b/gi, '1000');
     out = out.replace(/\bhundred\b/gi, '100');
     out = out.replace(NUMBER_WORD_RE, word => NUMBER_WORDS[word.toLowerCase()]);
+    out = out.replace(/\b(\d+)\s+billion\b/gi, (_all, n) => String(Number(n) * 1000000000));
+    out = out.replace(/\b(\d+)\s+million\b/gi, (_all, n) => String(Number(n) * 1000000));
     // one thousand two hundred becomes 1000 200 before this join
     out = out.replace(/\b(\d+000)\s+(?:and\s+)?(\d{1,3})\b/g, (_all, thousands, rest) => String(Number(thousands) + Number(rest)));
     // one hundred twenty becomes 100 20 before this join
-    return out.replace(/\b(\d+00)\s+(?:and\s+)?(\d{1,2})\b/g, (_all, hundreds, rest) => String(Number(hundreds) + Number(rest)));
+    out = out.replace(/\b(\d+00)\s+(?:and\s+)?(\d{1,2})\b/g, (_all, hundreds, rest) => String(Number(hundreds) + Number(rest)));
+    // two million three hundred becomes 2000000 300 before this join
+    return out.replace(/\b(\d{7,})\s+(?:and\s+)?(\d{1,3})\b/g, (_all, big, rest) => String(Number(big) + Number(rest)));
 }
 
 export function replaceOrdinalPower(text) {

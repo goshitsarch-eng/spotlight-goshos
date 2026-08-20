@@ -15,7 +15,7 @@ import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js'
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta} from '../settingsPanels.js';
-import {nextSelectedIndex} from '../selectionMath.js';
+import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
 import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, remoteHostFromUri, recentFileMatches} from '../recentXbel.js';
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
@@ -92,6 +92,10 @@ assertEq(evaluateArithmetic('one hundred and twenty + 1'), 121, 'one hundred and
 assertEq(evaluateArithmetic('one hundred twenty + 1'), 121, 'one hundred twenty');
 assertEq(evaluateArithmetic('one hundred and twenty-one + 1'), 122, 'one hundred and twenty-one');
 assertEq(evaluateArithmetic('one thousand two hundred + 1'), 1201, 'one thousand two hundred');
+assertEq(evaluateArithmetic('two million + 1'), 2000001, 'two million');
+assertEq(evaluateArithmetic('a million + 1'), 1000001, 'a million');
+assertEq(evaluateArithmetic('five hundred million + 1'), 500000001, 'five hundred million');
+assertEq(evaluateArithmetic('two million three hundred + 1'), 2000301, 'two million three hundred');
 assertEq(evaluateArithmetic('twenty thousand + 1'), 20001, 'twenty thousand');
 assertEq(evaluateArithmetic('2 add 3'), 5, 'spoken add');
 assertEq(evaluateArithmetic('8 subtract 3'), 5, 'spoken subtract');
@@ -477,6 +481,8 @@ assertEq(parseUnitQuery('a hundred km to mi').value, 100, 'a hundred km');
 assertEq(parseUnitQuery('one hundred and twenty km to mi').value, 120, 'one hundred and twenty km');
 assertEq(parseUnitQuery('one hundred twenty km to mi').value, 120, 'one hundred twenty km');
 assertEq(parseUnitQuery('one thousand two hundred km to mi').value, 1200, 'one thousand two hundred km');
+assertEq(parseUnitQuery('two million km to mi').value, 2000000, 'two million km');
+assertEq(parseUnitQuery('a million km to mi').value, 1000000, 'a million km');
 assertEq(parseUnitQuery('forty five km to mi').value, 45, 'forty five km');
 assertEq(Math.round(convertQuery('10 kms to mi').title.split(' ')[0] * 1000) / 1000, 6.214, 'kms alias');
 assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
@@ -668,6 +674,16 @@ assertEq(nextSelectedIndex(4, 1, 5), 0, 'arrow wrap down');
 assertEq(nextSelectedIndex(0, 5, 3), 2, 'page down clamps');
 assertEq(nextSelectedIndex(2, -5, 3), 0, 'page up clamps');
 assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
+const pendingRows = [
+    {title: 'checking', activatable: false},
+    {title: 'ready'},
+    {title: 'missing', activatable: false},
+];
+assertEq(nextActivatableIndex(-1, 1, pendingRows), 1, 'arrow skips pending');
+assertEq(nextActivatableIndex(1, 1, pendingRows), 1, 'wrap skips pending');
+assertEq(nextActivatableIndex(1, -1, pendingRows), 1, 'wrap up skips pending');
+assertEq(nextActivatableIndex(1, 5, pendingRows), 1, 'page stays on ready');
+assertEq(nextActivatableIndex(-1, 1, [{activatable: false}]), -1, 'no ready rows');
 
 // search plan feature flags
 const allOn = {
@@ -778,6 +794,11 @@ assertEq(stripLeadingVerb('search for app firefox'), 'firefox', 'search for app 
 assertEq(stripLeadingVerb('windows'), 'windows', 'bare windows stays');
 assertEq(stripLeadingVerb('folder'), 'folder', 'bare folder stays');
 assertEq(stripLeadingVerb('search for open source'), 'open source', 'search for keeps the rest');
+assertEq(stripLeadingVerb('open source'), 'open source', 'open source is a name');
+assertEq(stripLeadingVerb('please open source'), 'open source', 'please open source stays');
+assertEq(stripLeadingVerb('open office'), 'open office', 'open office is a name');
+assertEq(stripLeadingVerb('open vpn'), 'open vpn', 'open vpn is a name');
+assertEq(stripLeadingVerb('open firefox'), 'firefox', 'open firefox still strips');
 assertEq(planSearch('search firefox', allOn).query, 'firefox', 'plan strips search');
 assertEq(stripLeadingVerb('firefox'), 'firefox', 'no verb stays');
 assertEq(stripLeadingVerb('open'), 'open', 'bare open stays');
@@ -1444,9 +1465,12 @@ assertEq(normalizeHexColor('cafe'), null, 'word is not a color');
 assertEq(normalizeRgbColor('rgb(255, 0, 0)'), '#ff0000', 'rgb color');
 assertEq(normalizeRgbColor('rgb 255 0 0'), '#ff0000', 'rgb without parens');
 assertEq(normalizeRgbColor('rgb 255, 0, 0'), '#ff0000', 'rgb commas without parens');
+assertEq(normalizeRgbColor('rgb 100% 0% 0%'), '#ff0000', 'rgb percent without parens');
+assertEq(normalizeRgbColor('rgba 255 0 0 0.5'), '#ff0000', 'rgba alpha without parens');
 assertEq(normalizeRgbColor('rgb'), null, 'bare rgb stays a search');
 assertEq(normalizeHslColor('hsl 0 100% 50%'), '#ff0000', 'hsl without parens');
 assertEq(normalizeHslColor('hsl 0, 100%, 50%'), '#ff0000', 'hsl commas without parens');
+assertEq(normalizeHslColor('hsl(0 100 50)'), '#ff0000', 'hsl without percent signs');
 assertEq(normalizeHwbColor('hwb 0 0% 0%'), '#ff0000', 'hwb without parens');
 assertEq(normalizeHwbColor('hwb 0, 0%, 0%'), '#ff0000', 'hwb commas without parens');
 assertEq(normalizeRgbColor('rgb(255 0 0)'), '#ff0000', 'modern rgb');

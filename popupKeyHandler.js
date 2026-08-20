@@ -149,9 +149,9 @@ export class PopupKeyHandler {
     }
 
     _activateIndex(index) {
-        const {results} = this._selection;
-        if (index >= 0 && index < results.length)
-            this._popup.activateResult(results[index]);
+        const chosen = activatableResult(this._selection.results, index);
+        if (chosen)
+            this._popup.activateResult(chosen);
         return Clutter.EVENT_STOP;
     }
 

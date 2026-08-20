@@ -1,7 +1,7 @@
 // gosh is launcher - tracks which result row is selected and keeps it visible
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {nextSelectedIndex} from './selectionMath.js';
+import {nextActivatableIndex} from './selectionMath.js';
 import {getVerticalAdjustment} from './scrollView.js';
 
 // owns the results array and selected index so launcherPopup.js does not
@@ -57,8 +57,8 @@ export class SelectionManager {
     moveSelection(delta, suppressHoverUntil) {
         if (this._results.length === 0)
             return;
-        const newIndex = nextSelectedIndex(
-            this._selectedIndex, delta, this._results.length);
+        const newIndex = nextActivatableIndex(
+            this._selectedIndex, delta, this._results);
         if (newIndex < 0)
             return;
         // suppress hover selection briefly after keyboard navigation

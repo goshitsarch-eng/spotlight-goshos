@@ -29,6 +29,10 @@ export function normalizeRgbColor(query) {
         /^rgba?\(\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
         /^rgba?\(\s*([\d.]+)\s*%\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+    ) || text.match(
+        /^rgba?\s+([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%(?:\s*,\s*[\d.]+)?\s*$/i
+    ) || text.match(
+        /^rgba?\s+([\d.]+)\s*%\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s+[\d.%]+)?\s*$/i
     );
     if (percent) {
         const r = Number(percent[1]);
@@ -43,9 +47,9 @@ export function normalizeRgbColor(query) {
     ) || text.match(
         /^rgba?\(\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     ) || text.match(
-        /^rgba?\s+(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/i
+        /^rgba?\s+(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?$/i
     ) || text.match(
-        /^rgba?\s+(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s*$/i
+        /^rgba?\s+(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s+[\d.]+)?\s*$/i
     );
     if (!match)
         return null;
@@ -111,13 +115,13 @@ function hwbToHex(h, w, bl) {
 export function normalizeHslColor(query) {
     const text = query.trim();
     const match = text.match(
-        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
+        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%?\s*,\s*([\d.]+)\s*%?\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
-        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%?\s+([\d.]+)\s*%?(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     ) || text.match(
-        /^hsla?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*$/i
+        /^hsla?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%?\s*,\s*([\d.]+)\s*%?\s*$/i
     ) || text.match(
-        /^hsla?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%\s*$/i
+        /^hsla?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%?\s+([\d.]+)\s*%?\s*$/i
     );
     if (!match)
         return null;
@@ -131,13 +135,13 @@ export function normalizeHslColor(query) {
 export function normalizeHwbColor(query) {
     const text = query.trim();
     const match = text.match(
-        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%?\s*,\s*([\d.]+)\s*%?\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
-        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%?\s+([\d.]+)\s*%?(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     ) || text.match(
-        /^hwba?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*$/i
+        /^hwba?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%?\s*,\s*([\d.]+)\s*%?\s*$/i
     ) || text.match(
-        /^hwba?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%\s*$/i
+        /^hwba?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%?\s+([\d.]+)\s*%?\s*$/i
     );
     if (!match)
         return null;
