@@ -256,6 +256,7 @@ Manual testing on GNOME Shell 50 Wayland:
 65. Type `please open firefox` — the app should appear. Type `lock the screen` — Lock Screen should appear. Type `shut down the computer` or `turn off` — Shut Down should appear. Type `sign out` — Log Out should appear.
 66. Type `can you open firefox` or `would you please open firefox` — the app should appear. Type `open my documents` or `my downloads` — the matching folder should appear. Type `show me firefox` — the app should appear. Type `what is 2+2` or `calculate 2+2` — a calculator row should appear. Type `convert 10 km to mi` — a Units row should appear. Type `can you close` or `close the` plus an open window title — a Close row should appear. Type `open` or `can you` alone — those words must stay as the query.
 67. Type `2 plus 2`, `10 minus 3`, `4 times 5`, or `8 divided by 2` — calculator rows should appear. Close the launcher with Escape, then type in another app — keystrokes must reach that app, not a hidden search entry. Alt-tab away from the launcher — the window you switched to must keep keyboard focus.
+68. Type `10 km into mi` or `how many miles in 10 km` — a Units row should appear. Type `5 squared` or `8 over 2` — calculator rows should appear.
 
 ## Submitting Changes
 

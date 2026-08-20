@@ -150,7 +150,10 @@ const UNITS = {
     gon: {dim: 'angle', toBase: 0.9},
 };
 
-const QUERY_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+\-]?\d+)?)\s*([a-z][a-z0-9]*)\s+(?:to|in)\s+([a-z][a-z0-9]*)$/i;
+const NUMBER = '(-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)(?:[eE][+\\-]?\\d+)?)';
+const UNIT = '([a-z][a-z0-9]*)';
+const QUERY_RE = new RegExp(`^${NUMBER}\\s*${UNIT}\\s+(?:to|in|into|as)\\s+${UNIT}$`, 'i');
+const HOW_MANY_RE = new RegExp(`^how\\s+many\\s+${UNIT}\\s+(?:(?:are\\s+)?in|is)\\s+${NUMBER}\\s*${UNIT}$`, 'i');
 
 export function resolveUnit(name) {
     const id = ALIASES[name.toLowerCase()];
@@ -162,7 +165,7 @@ export function resolveUnit(name) {
 export function normalizeUnitQuery(query) {
     let text = query
         // 180° to rad is an angle 32°f keeps the temperature letter
-        .replace(/(\d)\s*°\s*(to|in)\b/gi, '$1 deg $2')
+        .replace(/(\d)\s*°\s*(to|in|into|as)\b/gi, '$1 deg $2')
         .replace(/²/g, '2')
         .replace(/³/g, '3')
         .replace(/km\s*\/\s*h(?:r)?/gi, 'kph')
@@ -187,13 +190,22 @@ export function normalizeUnitQuery(query) {
 }
 
 export function parseUnitQuery(query) {
-    const match = normalizeUnitQuery(query).trim().match(QUERY_RE);
-    if (!match)
+    const text = normalizeUnitQuery(query).trim();
+    const match = text.match(QUERY_RE);
+    if (match) {
+        return {
+            value: Number(match[1]),
+            from: match[2],
+            to: match[3],
+        };
+    }
+    const spoken = text.match(HOW_MANY_RE);
+    if (!spoken)
         return null;
     return {
-        value: Number(match[1]),
-        from: match[2],
-        to: match[3],
+        value: Number(spoken[2]),
+        from: spoken[3],
+        to: spoken[1],
     };
 }
 
