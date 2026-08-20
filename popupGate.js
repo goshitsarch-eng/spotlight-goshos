@@ -1,14 +1,27 @@
 // gosh is launcher - whether a shortcut should open or close
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// lock screen and greeter must not launch apps
-export function canOpenPopup(isOpen, visible, locked, greeter) {
-    return !isOpen && !visible && !locked && !greeter;
+// gnome 50 TimeLimitsState.LIMIT_REACHED
+export const TIME_LIMITS_REACHED = 2;
+
+export function sessionLimitsReached(state) {
+    return state === TIME_LIMITS_REACHED;
+}
+
+export function timeLimitsState(manager) {
+    if (!manager)
+        return 0;
+    return manager.state;
+}
+
+// lock screen greeter and a reached screen-time limit must not launch apps
+export function canOpenPopup(isOpen, visible, locked, greeter, limitsReached) {
+    return !isOpen && !visible && !locked && !greeter && !limitsReached;
 }
 
 // an already-open popup must die when the session locks
-export function shouldCloseOnSession(locked, greeter) {
-    return locked || greeter;
+export function shouldCloseOnSession(locked, greeter, limitsReached) {
+    return locked || greeter || Boolean(limitsReached);
 }
 
 // _isOpen covers the idle gap before visible becomes true

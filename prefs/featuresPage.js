@@ -27,11 +27,11 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-color-hex',
         'Hex colors', 'Type #f00, red, rebeccapurple, rgb(255, 0, 0), rgb(100%, 0%, 0%), hsl(0deg 100% 50%), or hwb(0 0% 0%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
-        'Open windows', 'Switch by title, class, workspace 2, switch to firefox, or find windows firefox. Type close firefox, close the firefox window, close the firefox application, can you close firefox, kill firefox, force quit firefox, or force close firefox');
+        'Open windows', 'Switch by title, class, workspace 2, workspace two, switch to firefox, or find windows firefox. Type close firefox, close the firefox window, close the firefox application, can you close firefox, kill firefox, force quit firefox, or force close firefox');
     addSwitch(providers, settings, 'enable-system-actions',
         'System actions', 'Lock, suspend, restart, shut down, log out, switch user, rotation lock, screenshot. lock the screen, lock now, turn off, and sign out match');
     addSwitch(providers, settings, 'enable-settings-search',
-        'GNOME Settings', 'Jump to Settings panels including Privacy & Security');
+        'GNOME Settings', 'Jump to Settings panels including Privacy & Security. open wifi settings and open display preferences still find the panel');
     addSwitch(providers, settings, 'enable-recent-files',
         'Recent files', 'Open recently used local files and sftp/smb locations');
     addSwitch(providers, settings, 'enable-url-open',
@@ -39,7 +39,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-path-open',
         'Open paths', 'Open ~/ ./ and absolute paths. Directories also offer Open in Terminal including Kitty, Foot, Ghostty, Alacritty, WezTerm, and Tilix');
     addSwitch(providers, settings, 'enable-places',
-        'Folders', 'Home, Documents, Downloads, and the other XDG user folders. open my documents and open the pictures folder still find those folders');
+        'Folders', 'Home, Documents, Downloads, and the other XDG user folders. open my documents, open the pictures folder, and open pictures dir still find those folders');
     addSwitch(providers, settings, 'enable-bookmarks',
         'Bookmarks', 'Folders saved in the GTK 3 and GTK 4 bookmark files');
     addSwitch(providers, settings, 'enable-time-date',

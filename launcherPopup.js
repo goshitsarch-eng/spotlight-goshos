@@ -19,7 +19,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState} from './popupGate.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -61,10 +61,12 @@ class LauncherPopup extends St.BoxLayout {
         this._monitorsId = 0;
         this._backdrop = null;
         this._sessionId = 0;
+        this._timeLimitsId = 0;
         this._parentalGiveUpId = 0;
         this._parental = null;
         this._focusWatcher = new FocusLossWatcher(this);
         this._listenSession();
+        this._listenTimeLimits();
         this._listenParental();
 
         const {entryBox, entry, searchIcon} = buildSearchEntry(this._settings);
@@ -211,7 +213,11 @@ class LauncherPopup extends St.BoxLayout {
             return;
         // super+l can update the session during a key handler
         this._sessionId = Main.sessionMode.connect('updated', () => {
-            if (shouldCloseOnSession(Main.sessionMode.isLocked, Main.sessionMode.isGreeter))
+            if (shouldCloseOnSession(
+                Main.sessionMode.isLocked,
+                Main.sessionMode.isGreeter,
+                this._limitsReached(),
+            ))
                 this.closeSoon();
         });
     }
@@ -221,6 +227,36 @@ class LauncherPopup extends St.BoxLayout {
             return;
         Main.sessionMode.disconnect(this._sessionId);
         this._sessionId = 0;
+    }
+
+    _limitsReached() {
+        return sessionLimitsReached(timeLimitsState(Main.timeLimitsManager));
+    }
+
+    // gnome 50 wellbeing / malcontent shield must not leave the launcher up
+    _listenTimeLimits() {
+        if (this._timeLimitsId)
+            return;
+        const manager = Main.timeLimitsManager;
+        if (!manager)
+            return;
+        this._timeLimitsId = manager.connect('notify::state', () => {
+            if (shouldCloseOnSession(
+                Main.sessionMode.isLocked,
+                Main.sessionMode.isGreeter,
+                sessionLimitsReached(manager.state),
+            ))
+                this.closeSoon();
+        });
+    }
+
+    _unlistenTimeLimits() {
+        if (!this._timeLimitsId)
+            return;
+        const manager = Main.timeLimitsManager;
+        if (manager)
+            manager.disconnect(this._timeLimitsId);
+        this._timeLimitsId = 0;
     }
 
     _listenParental() {
@@ -312,6 +348,7 @@ class LauncherPopup extends St.BoxLayout {
             this.visible,
             Main.sessionMode.isLocked,
             Main.sessionMode.isGreeter,
+            this._limitsReached(),
         ))
             return;
 
@@ -427,6 +464,7 @@ class LauncherPopup extends St.BoxLayout {
         this._clearIdle('_positionIdleId');
         this._clearIdle('_closeIdleId');
         this._unlistenSession();
+        this._unlistenTimeLimits();
         this._unlistenParental();
         this.close();
         this._settings.disconnectObject(this);

@@ -34,7 +34,7 @@ export default class GoshIsLauncherExtension extends Extension {
 
     _togglePopup() {
         if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
-            this._popup.close();
+            this._popup.closeSoon();
         else
             this._popup.open();
     }

@@ -1,8 +1,10 @@
 // gosh is launcher - workspace switch queries
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {replaceNumberWords} from './numberWords.js';
+
 export function parseWorkspaceSwitchQuery(query) {
-    const text = query.trim();
+    const text = replaceNumberWords(query.trim());
     const match = /^(?:(?:go to|switch to|move to)\s+)?(?:workspace|ws)\s+(\d+)$/i.exec(text);
     if (!match)
         return null;

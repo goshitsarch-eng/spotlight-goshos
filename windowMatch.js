@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
+import {replaceNumberWords} from './numberWords.js';
 
 export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     if (!hasWorkspace || skipTaskbar)
@@ -17,7 +18,7 @@ export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
 export function workspaceLabelMatches(label, query) {
     if (!label || !query)
         return false;
-    const q = query.trim().toLowerCase();
+    const q = replaceNumberWords(query.trim().toLowerCase());
     const lower = label.toLowerCase();
     if (lower === 'on all workspaces') {
         if (q === 'sticky' || q === 'all' || q.startsWith('on all') || q.startsWith('all work'))

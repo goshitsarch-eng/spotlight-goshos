@@ -69,9 +69,11 @@ easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want on
 
 parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps listen for app-filter-changed and repaint so a search typed during init is not stuck empty if malcontent dbus fails without setting initialized show desktop apps after five seconds rather than never
 
+Main.timeLimitsManager exists only on 50 check for it before connecting when its state is LIMIT_REACHED (2) refuse to open and closeSoon an already-open popup so a screen-time shield cannot be bypassed by launching apps
+
 gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel datetime users about and region are system subpages gnome-control-center still remaps the old ids so keep launching those names for gnome 45
 
-clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes
+clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon()
 
 ### no x11 support
 
@@ -209,7 +211,7 @@ popos look uses windows-first result order so open windows sit above apps the wa
 
 typing close firefox or quit firefox lists matching windows as close actions kill firefox force-quits them
 
-searchPlan.stripLeadingVerb rewrites spoken queries before providers run it loops please can you could you would you will you tell me then strips one launch verb (open launch run start show find search look switch go focus convert calculate compute what is how much is) then loops leading articles (my the a an me) then strips one category word (windows settings files recent app) and a trailing folder/directory noun so find windows firefox open the pictures folder and search settings wifi still match do not loop verbs or category words search for open source must stay open source prefix modes keep the typed words so @ open cats stays a web query for open cats except the same verb/category strip still runs for $ # and . so $ windows firefox is firefox
+searchPlan.stripLeadingVerb rewrites spoken queries before providers run it loops please can you could you would you will you tell me then strips one launch verb (open launch run start show find search look switch go focus convert calculate compute what is how much is) then loops leading articles (my the a an me) then strips one category word (windows settings files recent app) and a trailing folder/dir/settings/preferences noun so find windows firefox open the pictures folder open wifi settings and search settings wifi still match do not loop verbs or category words search for open source must stay open source prefix modes keep the typed words so @ open cats stays a web query for open cats except the same verb/category strip still runs for $ # and . so $ windows firefox is firefox
 
 prefix modes when enabled jump to a single provider
 
@@ -232,11 +234,12 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - global.stage.connect('notify::key-focus') in focusLossWatcher.js for focus-loss detection disconnected manually in stop()
 - global.stage.connect('captured-event') in launcherPopup.js for stage-level key capture disconnected manually in close()
 - Main.sessionMode.connect('updated') in launcherPopup.js so lock and greeter close an open popup disconnected manually in destroy()
+- Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 
 parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy()
 
-each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
+each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode or Main.timeLimitsManager follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 
 ### popup positioning
 
