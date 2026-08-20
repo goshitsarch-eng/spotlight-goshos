@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import St from 'gi://St';
-import {evaluateArithmetic, formatNumber} from './calculator.js';
+import {evaluateArithmetic, formatNumber, calculatorDescription} from './calculator.js';
 
 // returns a calculator result if the input is valid arithmetic
 export function searchCalculator(query, allowBare) {
@@ -14,7 +14,7 @@ export function searchCalculator(query, allowBare) {
     return [{
         type: 'calculator',
         title: formatted,
-        description: 'Press Enter to copy to clipboard',
+        description: calculatorDescription(result),
         icon: 'accessories-calculator-symbolic',
         activate: () => {
             // clipboard write only - triggered by explicit user action on the calculator result

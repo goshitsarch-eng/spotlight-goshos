@@ -18,6 +18,8 @@ export function buildFeaturesPage(settings) {
 
     addSwitch(providers, settings, 'enable-app-search',
         'Applications', 'Installed apps ranked by match quality and usage');
+    addSwitch(providers, settings, 'enable-app-actions',
+        'Application actions', 'New window and desktop-file actions for the best app match');
     addSwitch(providers, settings, 'enable-calculator',
         'Calculator', 'Evaluate math and copy the result with Enter');
     addSwitch(providers, settings, 'enable-window-search',

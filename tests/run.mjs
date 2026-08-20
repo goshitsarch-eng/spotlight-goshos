@@ -1,4 +1,5 @@
-import {evaluateArithmetic, formatNumber, normalizeMath} from '../calculator.js';
+import {evaluateArithmetic, formatNumber, normalizeMath, formatHex, calculatorDescription} from '../calculator.js';
+import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
@@ -205,9 +206,10 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'calculator', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
+assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
 
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'action prefix');
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), 'action keyword case');
@@ -244,7 +246,24 @@ assertEq(evaluateArithmetic('2^3*2'), 16, 'power before multiply');
 assertEq(evaluateArithmetic('2**8'), 256, 'python power');
 assertEq(evaluateArithmetic('2 x 3'), 6, 'spaced x multiply');
 assertEq(evaluateArithmetic('2x3'), 6, 'tight x multiply');
-assertEq(evaluateArithmetic('0x10'), null, 'hex prefix is not multiply');
+assertEq(evaluateArithmetic('0x10'), null, 'bare hex stays a search');
+assertEq(evaluateArithmetic('0x10', true), 16, 'bare hex allowed when asked');
+assertEq(evaluateArithmetic('0x10+1'), 17, 'hex plus');
+assertEq(evaluateArithmetic('0xff * 2'), 510, 'hex multiply');
+assertEq(evaluateArithmetic('0b1010', true), 10, 'bare binary');
+assertEq(evaluateArithmetic('0b10+0b10'), 4, 'binary plus');
+assertEq(evaluateArithmetic('2x3'), 6, 'tight x still multiply');
+assertEq(formatHex(255), '0xff', 'hex copy hint');
+assertEq(formatHex(-1), '', 'negative has no hex hint');
+assertEq(calculatorDescription(255), '0xff · press Enter to copy', 'hex description');
+assertEq(calculatorDescription(0.5), 'Press Enter to copy to clipboard', 'float description');
+assert(isNewWindowAction('new-window'), 'hyphen new window');
+assert(isNewWindowAction('new_window'), 'underscore new window');
+assert(!isNewWindowAction('new-private-window'), 'private window stays');
+assertEq(newWindowTitle('Firefox'), 'New window — Firefox', 'new window title');
+assertEq(desktopActionTitle('New Private Window', 'Firefox'), 'New Private Window — Firefox', 'desktop action title');
+assertEq(takeAppActions(['a', 'b', 'c'], 2).join(','), 'a,b', 'action cap');
+assertEq(takeAppActions(['a'], 0).length, 0, 'zero actions');
 assertEq(evaluateArithmetic('1e3+2'), 1002, 'scientific notation');
 assertEq(evaluateArithmetic('1e-3*1000'), 1, 'scientific negative exponent');
 assertEq(evaluateArithmetic('2·3'), 6, 'middle-dot multiply');

@@ -136,6 +136,7 @@ required = [
     'searchRun.js',
     'windowMatch.js',
     'appMatch.js',
+    'appAction.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

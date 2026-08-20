@@ -62,6 +62,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 Each search type lives in its own file and exports a function that accepts a query string and returns an array of result objects. Every result object must contain `type`, `title`, `icon`, and `activate` properties.
 
 - **`appSearch.js`** — GNOME-style application search via `Shell.AppSystem`.
+- **`appAction.js`** — New window and desktop-file action labels.
 - **`calculatorSearch.js`** — Arithmetic evaluation and clipboard copy.
 - **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
@@ -198,6 +199,7 @@ Manual testing on GNOME Shell 50 Wayland:
 26. Open windows on two workspaces — window rows should say Workspace 1 / Workspace 2. A sticky window should say On all workspaces. Typing `workspace 2` should list windows on that workspace.
 27. Open a recent file under the home directory — the description should start with `~`.
 28. Select a result on Fuzzel — the description must stay dark on the light selected row. On Omarchy, Raycast, and Anyrun the selected description must stay readable on the tinted row.
+29. Type `firefox` while Firefox is open — a New window action should appear under Actions. Type `=0xff` — the result should be 255 with a `0xff` description. `2x3` must still evaluate to 6.
 
 ## Submitting Changes
 

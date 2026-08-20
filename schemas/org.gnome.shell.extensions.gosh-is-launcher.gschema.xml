@@ -129,6 +129,12 @@
       <description>Search installed applications.</description>
     </key>
 
+    <key name="enable-app-actions" type="b">
+      <default>true</default>
+      <summary>Enable application actions</summary>
+      <description>Show New Window and desktop-file actions for the best app match.</description>
+    </key>
+
     <key name="enable-calculator" type="b">
       <default>true</default>
       <summary>Enable calculator</summary>

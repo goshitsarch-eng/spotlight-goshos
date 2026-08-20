@@ -17,7 +17,8 @@ import {collectSearchResults} from './searchRun.js';
 const PROVIDERS = {
     url: (query, _max, _settings) => searchUrl(query),
     path: (query, _max, _settings) => searchPath(query),
-    apps: (query, max) => searchApps(query, max),
+    apps: (query, max, settings) => searchApps(
+        query, max, settings && settings.get_boolean('enable-app-actions')),
     calculator: (query, _max, _settings, mode) => searchCalculator(query, mode === 'calculator'),
     windows: (query, max) => searchWindows(query, max),
     system: (query, max) => searchSystemActions(query, max),

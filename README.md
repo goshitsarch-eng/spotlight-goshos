@@ -41,8 +41,8 @@ Results are aggregated in the following order. Each category is rendered under i
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
 2. **Paths** — `~/…`, `./…`, and absolute paths such as `/tmp/notes.txt`. `~` and `./` resolve against the user home directory. Missing paths show “Path not found”.
-3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”.
-4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
+3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
+4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, thousands commas (`1,000+2`), hex (`0xff+1`), and binary (`0b1010`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
 5. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
 6. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 7. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
@@ -122,7 +122,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider (changes apply while the popup is open)
+- Enable or disable every search provider, plus application actions (changes apply while the popup is open)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -147,6 +147,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `searchController.js` | Orchestrates providers and prefix modes |
 | `searchPlan.js` | Feature flags and empty all-mode guard |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
+| `appAction.js` | New window and desktop-file action labels |
 | `windowSearch.js` | Open window switcher |
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
 | `homePath.js` | Expand home-relative command and path names |

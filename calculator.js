@@ -31,7 +31,7 @@ export function evaluateArithmetic(input, allowBare) {
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[+\-*/%()^])/g;
+    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[+\-*/%()^])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
@@ -115,6 +115,14 @@ export function evaluateArithmetic(input, allowBare) {
             consume();
             return v;
         }
+        if (/^0x[0-9a-fA-F]+$/i.test(tok)) {
+            consume();
+            return parseInt(tok, 16);
+        }
+        if (/^0b[01]+$/i.test(tok)) {
+            consume();
+            return parseInt(tok.slice(2), 2);
+        }
         if (/^[0-9.]+(?:[eE][+\-]?[0-9]+)?$/.test(tok)) {
             consume();
             return parseFloat(tok);
@@ -128,6 +136,19 @@ export function evaluateArithmetic(input, allowBare) {
     if (!isFinite(result) || isNaN(result))
         return null;
     return result;
+}
+
+export function formatHex(n) {
+    if (!Number.isInteger(n) || n < 0)
+        return '';
+    return `0x${n.toString(16)}`;
+}
+
+export function calculatorDescription(n) {
+    const hex = formatHex(n);
+    if (hex)
+        return `${hex} · press Enter to copy`;
+    return 'Press Enter to copy to clipboard';
 }
 
 export function formatNumber(n) {

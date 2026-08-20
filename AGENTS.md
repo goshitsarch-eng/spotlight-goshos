@@ -112,6 +112,7 @@ gosh-is-launcher@nin/
     sectionTitles.js          result type to title mapping
     noResults.js              empty state widget
     appSearch.js              app search provider
+    appAction.js              desktop action labels (pure)
     calculatorSearch.js       calculator provider
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider

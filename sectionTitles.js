@@ -3,6 +3,7 @@
 
 const SECTION_TITLES = {
     app: 'Applications',
+    'app-action': 'Actions',
     calculator: 'Calculator',
     window: 'Windows',
     'system-action': 'System Actions',
