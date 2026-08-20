@@ -3,7 +3,7 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {parseRecentXbel, basenameFromUri} from './recentXbel.js';
+import {parseRecentXbel, basenameFromUri, iconForBasename} from './recentXbel.js';
 import {openUri} from './gioLaunch.js';
 
 // cache is filled on an async read so search never calls load_contents
@@ -125,7 +125,7 @@ export function searchRecentFiles(query, maxResults) {
             type: 'file',
             title: name,
             description: 'Recent file',
-            icon: 'document-open-recent-symbolic',
+            icon: iconForBasename(name),
             activate: () => {
                 openUri(uri);
             },

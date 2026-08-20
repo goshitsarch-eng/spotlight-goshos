@@ -14,7 +14,7 @@ import {appMatchTier} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
-import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
+import {parseRecentXbel, basenameFromUri, iconForBasename} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList} from '../shortcutAccel.js';
@@ -500,6 +500,11 @@ assertEq(parseRecentXbel(xbel).length, 2, 'xbel file hrefs only and unique');
 assertEq(parseRecentXbel(xbel)[1], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
 assertEq(basenameFromUri('file:///home/user/My%20File.pdf'), 'My File.pdf', 'unescape basename');
 assertEq(basenameFromUri('file:///tmp/a%'), 'a%', 'lone percent stays');
+assertEq(iconForBasename('notes.pdf'), 'x-office-document-symbolic', 'pdf icon');
+assertEq(iconForBasename('shot.png'), 'image-x-generic-symbolic', 'image icon');
+assertEq(iconForBasename('song.mp3'), 'audio-x-generic-symbolic', 'audio icon');
+assertEq(iconForBasename('README'), 'document-open-recent-symbolic', 'no extension');
+assertEq(iconForBasename('.bashrc'), 'document-open-recent-symbolic', 'dotfile');
 assertEq(parseRecentXbel('').length, 0, 'empty xbel');
 assertEq(
     parseRecentXbel('<bookmark href="file:///tmp/a&amp;b.txt"/>')[0],

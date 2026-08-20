@@ -48,7 +48,11 @@ export function searchWindows(query, maxResults) {
             title,
             description: 'Switch to window',
             icon,
-            activate: () => Main.activateWindow(win),
+            activate: () => {
+                if (!win.get_workspace())
+                    return;
+                Main.activateWindow(win);
+            },
         });
 
         if (results.length >= maxResults)

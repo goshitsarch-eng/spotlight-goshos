@@ -33,6 +33,40 @@ export function parseRecentXbel(text) {
     return uris;
 }
 
+const EXT_ICONS = {
+    pdf: 'x-office-document-symbolic',
+    doc: 'x-office-document-symbolic',
+    docx: 'x-office-document-symbolic',
+    odt: 'x-office-document-symbolic',
+    txt: 'text-x-generic-symbolic',
+    md: 'text-x-generic-symbolic',
+    png: 'image-x-generic-symbolic',
+    jpg: 'image-x-generic-symbolic',
+    jpeg: 'image-x-generic-symbolic',
+    gif: 'image-x-generic-symbolic',
+    svg: 'image-x-generic-symbolic',
+    webp: 'image-x-generic-symbolic',
+    mp3: 'audio-x-generic-symbolic',
+    wav: 'audio-x-generic-symbolic',
+    flac: 'audio-x-generic-symbolic',
+    mp4: 'video-x-generic-symbolic',
+    mkv: 'video-x-generic-symbolic',
+    webm: 'video-x-generic-symbolic',
+    zip: 'package-x-generic-symbolic',
+    tar: 'package-x-generic-symbolic',
+    gz: 'package-x-generic-symbolic',
+    html: 'text-html-symbolic',
+    htm: 'text-html-symbolic',
+};
+
+export function iconForBasename(name) {
+    const dot = name.lastIndexOf('.');
+    if (dot < 1 || dot === name.length - 1)
+        return 'document-open-recent-symbolic';
+    const ext = name.slice(dot + 1).toLowerCase();
+    return EXT_ICONS[ext] || 'document-open-recent-symbolic';
+}
+
 export function basenameFromUri(uri) {
     const parts = uri.split('/');
     const raw = parts[parts.length - 1] || uri;
