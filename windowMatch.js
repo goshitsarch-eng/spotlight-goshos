@@ -4,6 +4,12 @@
 import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
 import {replaceNumberWords} from './numberWords.js';
 
+export function windowResultId(windowId, title, wmClass, description) {
+    if (windowId !== undefined && windowId !== null && windowId !== '')
+        return windowId;
+    return `${title}\0${wmClass}\0${description}`;
+}
+
 export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     if (!hasWorkspace || skipTaskbar)
         return false;

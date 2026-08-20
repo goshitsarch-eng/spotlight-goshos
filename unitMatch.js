@@ -173,6 +173,13 @@ export function normalizeUnitQuery(query) {
         .replace(/km\s*\/\s*h(?:r)?/gi, 'kph')
         .replace(/mi\s*\/\s*h/gi, 'mph')
         .replace(/(^|[^a-z])m\s*\/\s*s\b/gi, '$1mps')
+        // 1/2 cup is a cooking amount km/h already became kph
+        .replace(/\b(\d+)\s*\/\s*(\d+)(?=\s)/g, (_all, num, den) => {
+            const divisor = Number(den);
+            if (!divisor)
+                return `${num}/${den}`;
+            return String(Number(num) / divisor);
+        })
         .replace(/\bfluid\s+ounces?\b/gi, 'floz')
         .replace(/\bfl(?:uid)?\s*ozs?\b/gi, 'floz')
         .replace(/\s*degrees?\s+(f|c|k|fahrenheit|celsius|kelvin|centigrade)\b/gi, ' $1')

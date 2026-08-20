@@ -19,7 +19,12 @@ const NUMBER_WORD_RE = /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten
 const ORDINAL_POWER_RE = /\bto the\s+(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)(?:\s+power)?\b/gi;
 
 export function replaceNumberWords(text) {
-    return text.replace(NUMBER_WORD_RE, word => NUMBER_WORDS[word.toLowerCase()]);
+    let out = text.replace(
+        /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\s+thousand\b/gi,
+        (_all, word) => String(Number(NUMBER_WORDS[word.toLowerCase()]) * 1000),
+    );
+    out = out.replace(/\bthousand\b/gi, '1000');
+    return out.replace(NUMBER_WORD_RE, word => NUMBER_WORDS[word.toLowerCase()]);
 }
 
 export function replaceOrdinalPower(text) {

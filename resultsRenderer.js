@@ -13,7 +13,7 @@ import {ensureRecentFiles} from './recentFilesSearch.js';
 import {ensurePath} from './pathSearch.js';
 import {ensureCommand} from './commandSearch.js';
 import {ensureBookmarks} from './bookmarksSearch.js';
-import {paintSelectionIndex} from './paintSelection.js';
+import {paintSelectionIndex, resultSelectionKey} from './paintSelection.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -126,12 +126,7 @@ export class ResultsRenderer {
         const result = this._selection.results[index];
         if (!result)
             return null;
-        return {
-            type: result.type,
-            title: result.title,
-            description: result.description || '',
-            index,
-        };
+        return resultSelectionKey(result, index);
     }
 
     // allocation is empty until this paint returns so scroll on the next idle

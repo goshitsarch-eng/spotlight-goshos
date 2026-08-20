@@ -24,6 +24,7 @@ function _appActionRows(app, shellApp, maxResults) {
             type: 'app-action',
             title: newWindowTitle(name),
             description: 'Application action',
+            id: `new-window:${app.get_id() || name}`,
             icon: app.get_icon(),
             activate: () => shellApp.open_new_window(-1),
         });
@@ -36,6 +37,7 @@ function _appActionRows(app, shellApp, maxResults) {
             type: 'app-action',
             title: desktopActionTitle(label, name),
             description: 'Application action',
+            id: `action:${app.get_id() || name}:${actionId}`,
             icon: app.get_icon(),
             activate: () => {
                 try {
@@ -101,6 +103,7 @@ export function searchApps(query, maxResults, offerActions) {
         type: 'app',
         title: item.title,
         app: item.app,
+        id: item.appId,
         description: appRowDescription(item.windowCount),
         icon: item.app.get_icon(),
         activate: () => {
@@ -144,6 +147,7 @@ export function searchFrequentApps(maxResults) {
             type: 'app',
             title: app.get_name() || app.get_id(),
             app,
+            id: app.get_id(),
             description: appRowDescription(shellApp ? shellApp.get_n_windows() : 0),
             icon: app.get_icon(),
             activate: () => {

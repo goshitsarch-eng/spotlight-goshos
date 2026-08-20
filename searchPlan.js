@@ -86,9 +86,18 @@ export function stripLeadingVerb(query) {
     }
 
     text = stripLeadingArticles(text);
+    text = stripAnswerTo(text);
     // find windows firefox and open wifi settings keep the noun
     text = stripOnePrefix(text, CATEGORY_PREFIX);
     return stripTrailingNoun(text);
+}
+
+function stripAnswerTo(query) {
+    const match = /^(?:the\s+)?answer\s+to\s+(.+)$/i.exec(query);
+    if (!match)
+        return query;
+    const rest = match[1].trim();
+    return rest.length > 0 ? rest : query;
 }
 
 export function flagsFromSettings(settings) {

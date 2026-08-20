@@ -4,6 +4,7 @@
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
+import {activatableResult} from './resultActivate.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 
 const KEY_NAMES = {
@@ -155,10 +156,8 @@ export class PopupKeyHandler {
     }
 
     _activateSelected() {
-        const {results, selectedIndex} = this._selection;
-        if (selectedIndex >= 0 && selectedIndex < results.length)
-            this._popup.activateResult(results[selectedIndex]);
-        else if (results.length > 0)
-            this._popup.activateResult(results[0]);
+        const chosen = activatableResult(this._selection.results, this._selection.selectedIndex);
+        if (chosen)
+            this._popup.activateResult(chosen);
     }
 }

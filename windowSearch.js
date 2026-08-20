@@ -6,7 +6,7 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from './workspaceQuery.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId} from './windowMatch.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -109,10 +109,12 @@ export function searchWindows(query, maxResults) {
         if (!windowMatches(title, wmClass, q, description))
             continue;
 
+        const windowId = typeof win.get_id === 'function' ? win.get_id() : '';
         results.push({
             type: closeQuery ? 'window-close' : 'window',
             title: closeQuery ? windowCloseTitle(closeQuery.intent, title) : title,
             description,
+            id: windowResultId(windowId, title, wmClass, description),
             icon: _windowIcon(win),
             activate: () => {
                 if (!win.get_workspace())

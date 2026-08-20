@@ -21,7 +21,7 @@ import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSet
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
 import {shouldOfferApp, hasParentalGiveUp, markParentalGiveUp, resetParentalGiveUp, PARENTAL_GIVE_UP_MS} from '../appReady.js';
-import {activateResultSafe, resultCanActivate} from '../resultActivate.js';
+import {activateResultSafe, resultCanActivate, activatableResult} from '../resultActivate.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandFileIsReady, commandRowMeta} from '../commandReady.js';
 import {extraPathDirs, findUserProgram, joinPathDirs} from '../userPath.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, resolveSpawnPath, resolveCommandArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
@@ -31,10 +31,10 @@ import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../pla
 import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescription, bookmarkMatches, matchBookmarks, bookmarkIcon, hostFromUri, normalizeBookmarkUri} from '../bookmarkParse.js';
 import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
-import {paintSelectionIndex} from '../paintSelection.js';
+import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from '../workspaceQuery.js';
 import {readdirSync, readFileSync} from 'node:fs';
@@ -81,6 +81,7 @@ assertEq(evaluateArithmetic('sin90'), null, 'sin90 stays one ident');
 assertEq(evaluateArithmetic('2 plus 2'), 4, 'spoken plus');
 assertEq(evaluateArithmetic('half of 80'), 40, 'half of');
 assertEq(evaluateArithmetic('square root of 16'), 4, 'square root of');
+assertEq(evaluateArithmetic('three thousand + 1'), 3001, 'three thousand');
 assertEq(evaluateArithmetic('2 add 3'), 5, 'spoken add');
 assertEq(evaluateArithmetic('8 subtract 3'), 5, 'spoken subtract');
 assertEq(evaluateArithmetic('address'), null, 'address is not add');
@@ -458,6 +459,8 @@ assertEq(parseUnitQuery('ten km to mi').value, 10, 'spoken ten km');
 assertEq(parseUnitQuery('how many miles in ten km').value, 10, 'how many ten km');
 assertEq(Math.round(convertQuery('ten km to mi').title.split(' ')[0] * 1000) / 1000, 6.214, 'ten km converts');
 assertEq(Math.round(convertQuery('thirteen km to mi').title.split(' ')[0] * 1000) / 1000, 8.078, 'thirteen km converts');
+assertEq(convertQuery('1/2 cup to ml').description, '0.5 cup', 'half cup fraction');
+assertEq(parseUnitQuery('three thousand km to mi').value, 3000, 'three thousand km');
 assertEq(Math.round(convertQuery('10 kms to mi').title.split(' ')[0] * 1000) / 1000, 6.214, 'kms alias');
 assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
 assertEq(parseUnitQuery('10 km into mi').to, 'mi', 'into synonym');
@@ -776,6 +779,8 @@ assertEq(evaluateArithmetic(planSearch('what is 2 plus 2', allOn).query), 4, 'sp
 assertEq(evaluateArithmetic(planSearch('what is two plus two', allOn).query), 4, 'spoken what is number words');
 assertEq(timeQueryKind(planSearch('tell me what time it is', allOn).query), 'time', 'inverted time after tell me');
 assertEq(timeQueryKind(planSearch("what's the time right now", allOn).query), 'time', 'time right now after strip');
+assertEq(planSearch('what is the answer to 2+2', allOn).query, '2+2', 'answer to math');
+assertEq(evaluateArithmetic(planSearch('what is the answer to 2+2', allOn).query), 4, 'answer to evaluates');
 assertEq(timeQueryKind(planSearch('what time is it right now', allOn).query), 'time', 'what time is it right now');
 assertEq(normalizeTimeQuery('time right now'), 'time', 'normalize time right now');
 assertEq(normalizeTimeQuery('now'), 'now', 'bare now stays now');
@@ -1460,6 +1465,25 @@ assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Wo
 assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', description: '~', index: 2}, keepRows), 2, 'missing row clamps index');
 assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', index: 9}, keepRows), 0, 'stale index falls back');
 assertEq(paintSelectionIndex({type: 'app', title: 'Firefox'}, []), -1, 'empty list has no selection');
+assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Workspace 1', id: 42, index: 0}, [
+    {type: 'window', title: 'Firefox', description: 'Workspace 1', id: 7},
+    {type: 'window', title: 'Firefox', description: 'Workspace 2', id: 42},
+]), 1, 'window id keeps the same window');
+assertEq(windowResultId(42, 'Firefox', 'Navigator', 'Workspace 1'), 42, 'mutter window id');
+assertEq(windowResultId('', 'Firefox', 'Navigator', 'Workspace 1'), 'Firefox\0Navigator\0Workspace 1', 'fallback window id');
+assertEq(firstSelectableIndex([
+    {type: 'path', title: '~/docs', activatable: false},
+    {type: 'path', title: 'Open in Terminal'},
+]), 1, 'skip pending path on first paint');
+assertEq(resultSelectionKey({type: 'window', title: 'Firefox', id: 42}, 1).id, 42, 'selection key keeps id');
+const pendingThenReady = [
+    {type: 'path', title: '~/docs', activatable: false, activate: () => {}},
+    {type: 'path', title: 'Open in Terminal', activate: () => {}},
+];
+assertEq(activatableResult(pendingThenReady, 0).title, 'Open in Terminal', 'enter skips checking path');
+assertEq(activatableResult([
+    {type: 'path', title: '~/docs', activatable: false, activate: () => {}},
+], 0), null, 'only pending stays closed');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
