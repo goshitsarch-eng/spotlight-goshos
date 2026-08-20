@@ -310,6 +310,7 @@ Manual testing on GNOME Shell 50 Wayland:
 108. Open the launcher while a window is closing — the popup must still appear. A vanished Meta.Window during the first live-search scan must not abort open() after the backdrop is already in chrome.
 109. On a tablet, swipe the result list — it must scroll. A tap that stays inside the slop must still activate that row. A mouse click must still activate.
 110. Open the launcher, then open the on-screen keyboard — the list must lift or shrink as the keys slide up. The parked keyboardBox at the monitor bottom must not be treated as already covering the work area. A keyboard on another monitor must leave the primary popup alone.
+111. Open the launcher, then open the on-screen keyboard — tapping a key must type into the entry and must not close the launcher. The keys sit in keyboardBox which is addTopChrome at shell init; the launcher is added later and must raise that box above the backdrop while the keyboard is visible.
 
 ## Submitting Changes
 

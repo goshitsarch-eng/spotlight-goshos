@@ -6,7 +6,7 @@ import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQ
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
-import {chromeAddMethod} from '../popupChrome.js';
+import {chromeAddMethod, shouldRaiseChromeAbove} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -341,6 +341,16 @@ const packed = {x: 0, y: 0, width: 400, height: 80};
 assertEq(placePopup(packed, 200, 80, 'center', 400).resultsMax, 0, 'entry-sized work still hides overflow');
 assertEq(chromeAddMethod(true), 'addTopChrome', 'gnome 45-50 expose addtopchrome');
 assertEq(chromeAddMethod(false), 'addChrome', 'hosts without addtopchrome stay on addchrome');
+const uiGroup = {
+    set_child_above_sibling() {},
+};
+const osk = {visible: true, get_parent: () => uiGroup};
+const popup = {visible: true, get_parent: () => uiGroup};
+assert(shouldRaiseChromeAbove(uiGroup, osk, popup), 'visible osk stacks above the popup');
+assert(!shouldRaiseChromeAbove(uiGroup, {visible: false, get_parent: () => uiGroup}, popup), 'hidden osk stays parked');
+assert(!shouldRaiseChromeAbove(uiGroup, osk, osk), 'same actor is not raised');
+assert(!shouldRaiseChromeAbove(null, osk, popup), 'missing uigroup');
+assert(!shouldRaiseChromeAbove({ }, osk, popup), 'hosts without set_child_above_sibling');
 assertEq(unredirectApi(true, true), 'compositor', 'gnome 48-50 use compositor unredirect');
 assertEq(unredirectApi(false, true), 'display', 'gnome 45-47 use display unredirect');
 assertEq(unredirectApi(false, false), '', 'hosts without unredirect helpers');

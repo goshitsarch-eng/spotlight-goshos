@@ -18,3 +18,30 @@ export function addPopupChrome(layoutManager, actor) {
 export function removePopupChrome(layoutManager, actor) {
     layoutManager.removeChrome(actor);
 }
+
+// addtopchrome after shell init sits above the parked keyboardbox
+// raise the keys while they are visible so taps do not hit our backdrop
+export function shouldRaiseChromeAbove(uiGroup, actor, sibling) {
+    if (!uiGroup || !actor || !sibling)
+        return false;
+    if (typeof uiGroup.set_child_above_sibling !== 'function')
+        return false;
+    if (actor === sibling)
+        return false;
+    if (!actor.visible)
+        return false;
+    if (actor.get_parent() !== uiGroup || sibling.get_parent() !== uiGroup)
+        return false;
+    return true;
+}
+
+export function raiseChromeAbove(uiGroup, actor, sibling) {
+    if (!shouldRaiseChromeAbove(uiGroup, actor, sibling))
+        return false;
+    try {
+        uiGroup.set_child_above_sibling(actor, sibling);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}

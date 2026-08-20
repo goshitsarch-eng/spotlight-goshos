@@ -26,7 +26,7 @@ import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
-import {addPopupChrome, removePopupChrome} from './popupChrome.js';
+import {addPopupChrome, removePopupChrome, raiseChromeAbove} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -325,9 +325,15 @@ class LauncherPopup extends St.BoxLayout {
         this._keyboardBox = null;
     }
 
+    _raiseOnScreenKeyboard() {
+        raiseChromeAbove(Main.layoutManager.uiGroup, Main.layoutManager.keyboardBox, this);
+    }
+
     _onKeyboardChanged() {
-        if (this._isOpen)
-            this._scheduleLayout();
+        if (!this._isOpen)
+            return;
+        this._raiseOnScreenKeyboard();
+        this._scheduleLayout();
     }
 
     _unredirectApi() {
@@ -613,6 +619,7 @@ class LauncherPopup extends St.BoxLayout {
         if (this.get_parent())
             removePopupChrome(Main.layoutManager, this);
         addPopupChrome(Main.layoutManager, this);
+        this._raiseOnScreenKeyboard();
 
         // queue a layout pass then position before showing
         // ensures get_preferred_height returns correct values

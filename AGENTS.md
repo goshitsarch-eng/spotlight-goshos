@@ -271,7 +271,7 @@ each of these tracks its own handler id in an instance field and disconnects it 
 
 ### popup positioning
 
-the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the on-screen keyboard hosts without addtopchrome fall back to addchrome
+the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the parked keyboardbox hosts without addtopchrome fall back to addchrome a visible osk is raised above the popup so taps hit the keys instead of the backdrop
 
 an unredirected fullscreen window bypasses composition so even top chrome is invisible open() holds unredirect via Meta.Compositor.disable_unredirect on 48-50 or Meta.disable_unredirect_for_display on 45-47 close() and destroy() release that hold once disable/enable are a matched pair do not enable without a hold https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 
