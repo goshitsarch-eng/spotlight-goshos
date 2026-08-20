@@ -171,20 +171,23 @@ export class ResultsRenderer {
         const previous = keepSelection ? this._selectedKey() : null;
         this._selection.setResults(results);
         this._painting = true;
-        this._resultsBox.destroy_all_children();
+        try {
+            this._resultsBox.destroy_all_children();
 
-        if (this._selection.results.length === 0) {
-            this._resultsBox.add_child(buildNoResults(query));
-        } else {
-            this._renderResults();
-            const index = paintSelectionIndex(previous, results);
-            this._selection.applySelection(index, true);
-            if (keepSelection && index > 0)
-                this._queueScrollSelected();
+            if (this._selection.results.length === 0) {
+                this._resultsBox.add_child(buildNoResults(query));
+            } else {
+                this._renderResults();
+                const index = paintSelectionIndex(previous, results);
+                this._selection.applySelection(index, true);
+                if (keepSelection && index > 0)
+                    this._queueScrollSelected();
+            }
+
+            this._resultsScroll.show();
+        } finally {
+            this._painting = false;
         }
-
-        this._resultsScroll.show();
-        this._painting = false;
     }
 
     _renderResults() {
@@ -197,9 +200,13 @@ export class ResultsRenderer {
                 lastType = result.type;
                 this._resultsBox.add_child(buildSectionHeader(getSectionTitle(result.type)));
             }
-            this._resultsBox.add_child(
-                buildResultRow(result, rowIndex, this._onActivate, this._onHover, options)
-            );
+            try {
+                this._resultsBox.add_child(
+                    buildResultRow(result, rowIndex, this._onActivate, this._onHover, options)
+                );
+            } catch (e) {
+                // a bad icon must not leave the list empty
+            }
             rowIndex++;
         }
     }
@@ -211,9 +218,12 @@ export class ResultsRenderer {
         this._lastQuery = '';
         this._selection.setResults([]);
         this._painting = true;
-        this._resultsBox.destroy_all_children();
-        this._resultsScroll.hide();
-        this._painting = false;
+        try {
+            this._resultsBox.destroy_all_children();
+            this._resultsScroll.hide();
+        } finally {
+            this._painting = false;
+        }
     }
 
     destroy() {

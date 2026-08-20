@@ -143,6 +143,7 @@ gosh-is-launcher@nin/
     popupGate.js              open versus toggle-close (pure)
     popupPosition.js          work-area origin (pure)
     resultPointer.js          result row press/release (pure)
+    resultIcon.js             skip a null app gicon so st.icon can construct (pure)
     focusLoss.js              close vs refocus the entry (pure)
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers and isolate a throw including empty-state (pure)
@@ -198,7 +199,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

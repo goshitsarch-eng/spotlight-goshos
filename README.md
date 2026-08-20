@@ -189,6 +189,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `recentFilesSearch.js` | Recently used files from `recently-used.xbel` |
 | `paintSelection.js` | Keep the selected row across an async or prefs refresh |
 | `asyncPaint.js` | Whether a Gio finish may schedule a result repaint |
+| `resultIcon.js` | Skip a null app `gicon` so `St.Icon` can construct |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
 | `prefs/featuresPage.js` | Provider toggles |
@@ -240,6 +241,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - GTK bookmark lines that are bare filesystem paths or `~/…` become `file://` URIs. Existing `file://` and `sftp://` lines with spaces are re-encoded before launch, including network `file://host/share`. `javascript:` bookmarks are ignored.
 - Gio finishes after close are dropped so a late exists check cannot repaint a hidden popup. Clicking a result row or the scrollbar returns focus to the search entry so later letters still type. Alt-tab still closes.
 - A provider that throws (a window that closed mid-search, or a recent-file URI with latin-1 percent bytes) leaves the other categories on screen. The empty-state list isolates windows from frequent apps the same way, and one vanished window is skipped instead of dropping the whole window list.
+- A missing app icon no longer becomes `gicon: null`. A throw while building rows clears the painting flag so hover selection is not stuck off.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

@@ -6,6 +6,7 @@ import Clutter from 'gi://Clutter';
 import {ellipsizeLabel} from './labelEllipsize.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from './resultPointer.js';
 import {resultRowShouldFocus} from './focusLoss.js';
+import {resultIconSource} from './resultIcon.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -22,16 +23,8 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         fallback_icon_name: 'application-x-executable',
         style_class: 'gosh-result-icon',
         icon_size: options.iconSize,
+        ...resultIconSource(result),
     };
-
-    if (result.app)
-        iconParams.gicon = result.app.get_icon();
-    else if (typeof result.icon === 'string')
-        iconParams.icon_name = result.icon;
-    else if (result.icon)
-        iconParams.gicon = result.icon;
-    else
-        iconParams.icon_name = 'application-x-executable-symbolic';
 
     const icon = new St.Icon(iconParams);
     icon.visible = options.showIcons;

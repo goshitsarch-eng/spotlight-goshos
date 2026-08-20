@@ -186,6 +186,7 @@ required = [
     'pathSearch.js',
     'pathMatch.js',
     'resultPointer.js',
+    'resultIcon.js',
     'resultActivate.js',
     'appReady.js',
     'terminalLaunch.js',
