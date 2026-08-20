@@ -284,6 +284,7 @@ Manual testing on GNOME Shell 50 Wayland:
 87. Add a GTK bookmark whose `file://` line has a space in the folder name, or open a recent file under such a folder — Enter must open it. A `javascript:` bookmark must still be ignored.
 88. Close the launcher while a `~/` path, `!` slash-path, recent-file load, or GTK bookmark read is still in flight — the shell must stay up. Reopen and type the same query — the exists check must run again, not reuse a row from the closed session.
 89. Click a pending Checking path row, then type another character — the letter must appear in the search entry. Click the scrollbar or a section header, then type — same. Alt-tab must still close the popup.
+90. Paste `file:///home/…/My Documents` (a space in the path) — a URL row should appear and Enter must open it. `javascript:` must still be ignored.
 
 ## Submitting Changes
 

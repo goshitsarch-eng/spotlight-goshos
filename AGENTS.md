@@ -175,7 +175,7 @@ gosh-is-launcher@nin/
     themes.js                 look catalog (pure data)
     prefsCombo.js             keep prefs combos in sync with gsettings (pure)
     webEngines.js             search engine catalog (pure data)
-    urlMatch.js               url detection (pure)
+    urlMatch.js               url detection including spaced file:// pastes (pure)
     actionMatch.js            system action matching (pure)
     wordMatch.js              gnome-style word prefix (pure)
     settingsPanels.js         settings catalog (pure)

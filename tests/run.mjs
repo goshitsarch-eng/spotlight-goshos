@@ -2,7 +2,7 @@ import {evaluateArithmetic, formatNumber, normalizeMath, formatHex, calculatorDe
 import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUnitQuery} from '../unitMatch.js';
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
-import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
+import {isUrlQuery, isFileUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction} from '../popupGate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT} from '../popupPosition.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
@@ -170,6 +170,13 @@ assert(!isPrefixToken('.bashrc', '.'), 'dotfile is not a token');
 // urls
 assert(isUrlQuery('file:///tmp/notes.txt'), 'file url');
 assertEq(normalizeUrl('file:///tmp/notes.txt'), 'file:///tmp/notes.txt', 'keep file scheme');
+assert(isUrlQuery('file:///home/u/My Documents'), 'pasted file uri with space');
+assert(isFileUrlQuery('file:///home/u/My Documents'), 'file helper accepts space');
+assertEq(normalizeUrl('file:///home/u/My Documents'), 'file:///home/u/My%20Documents', 'encode pasted file uri');
+assert(isUrlQuery('file://nas/share'), 'network file uri');
+assertEq(normalizeUrl('file://nas/share'), 'file://nas/share', 'keep network file uri');
+assert(!isUrlQuery('file:'), 'bare file scheme is not a url');
+assert(!isUrlQuery('https://example.com/foo bar'), 'https with space is not a url');
 assert(isUrlQuery('https://example.com'), 'https url');
 assert(isUrlQuery('www.example.com'), 'www url');
 assert(isUrlQuery('example.com'), 'bare domain');

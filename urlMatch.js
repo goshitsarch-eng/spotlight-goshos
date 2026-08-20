@@ -1,6 +1,8 @@
 // gosh is launcher - url detection
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {canonicalizeFileUri, pathFromFileUri} from './homePath.js';
+
 const SCHEME_RE = /^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|www\.|file:\/\/)\S+$/i;
 const MAILTO_RE = /^mailto:[^\s@]+@[^\s]+$/i;
 const MAGNET_RE = /^magnet:\S+$/i;
@@ -64,11 +66,25 @@ function stripTrailingDots(text) {
     return text.replace(/\.+$/, '');
 }
 
+export function isFileUrlQuery(query) {
+    if (!query || !/^file:/i.test(query))
+        return false;
+    if (pathFromFileUri(query))
+        return true;
+    // file://host/share has no local path but is still a location
+    return !/\s/.test(query) && /^file:\/\/\S+$/i.test(query);
+}
+
 export function isUrlQuery(query) {
     const trimmed = query.trim();
-    if (trimmed.length === 0 || /\s/.test(trimmed))
+    if (trimmed.length === 0)
         return false;
     if (isUnsafeLaunchUri(trimmed))
+        return false;
+    // gtk and browsers leave spaces in file:// those are still openable
+    if (/^file:/i.test(trimmed))
+        return isFileUrlQuery(trimmed);
+    if (/\s/.test(trimmed))
         return false;
     if (SCHEME_RE.test(trimmed) ||
         MAILTO_RE.test(trimmed) ||
@@ -116,7 +132,9 @@ export function normalizeUrl(query) {
         return null;
     if (/^https?:\/\//i.test(trimmed))
         return stripTrailingDots(trimmed);
-    if (/^(sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:)/i.test(trimmed))
+    if (/^file:/i.test(trimmed))
+        return isFileUrlQuery(trimmed) ? canonicalizeFileUri(trimmed) : null;
+    if (/^(sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|mailto:|magnet:)/i.test(trimmed))
         return trimmed;
     if (/^www\./i.test(trimmed))
         return `https://${stripTrailingDots(trimmed)}`;
