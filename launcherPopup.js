@@ -27,7 +27,7 @@ import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
 import {themeScale, stagePx} from './uiScale.js';
-import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, uiGroupChildren} from './popupChrome.js';
+import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -68,6 +68,7 @@ class LauncherPopup extends St.BoxLayout {
         this._layoutIdleId = 0;
         this._closeIdleId = 0;
         this._refocusIdleId = 0;
+        this._raiseIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
         this._keyboardBox = null;
@@ -389,6 +390,20 @@ class LauncherPopup extends St.BoxLayout {
 
     _raiseOnScreenKeyboard() {
         raiseInputChrome(Main.layoutManager.uiGroup, Main.layoutManager.keyboardBox, this);
+        this._raiseOnScreenKeyboardSoon();
+    }
+
+    // ibus sets visible then raises above keyboardbox under this addtopchrome
+    _raiseOnScreenKeyboardSoon() {
+        if (!shouldScheduleInputChromeRaise(Boolean(this._raiseIdleId), this._isOpen))
+            return;
+        this._raiseIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._raiseIdleId = 0;
+            if (!this._isOpen)
+                return GLib.SOURCE_REMOVE;
+            raiseInputChrome(Main.layoutManager.uiGroup, Main.layoutManager.keyboardBox, this);
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     _onKeyboardChanged() {
@@ -857,6 +872,7 @@ class LauncherPopup extends St.BoxLayout {
         this._clearIdle('_repaintIdleId');
         this._clearIdle('_layoutIdleId');
         this._clearIdle('_refocusIdleId');
+        this._clearIdle('_raiseIdleId');
     }
 
     // overridden so that disable() -> destroy() tears down everything cleanly:

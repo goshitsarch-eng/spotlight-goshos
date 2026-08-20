@@ -137,6 +137,12 @@ export function raiseChromeAbove(uiGroup, actor, sibling) {
     }
 }
 
+// candidate open() then raises above keyboardbox which sits under us
+// an idle raise runs after that sibling move
+export function shouldScheduleInputChromeRaise(hasPendingIdle, isOpen) {
+    return Boolean(isOpen) && !hasPendingIdle;
+}
+
 // raise keys then accents then ibus candidates so later addtopchrome
 // cannot bury input chrome under the backdrop
 export function raiseInputChrome(uiGroup, keyboardBox, popup) {

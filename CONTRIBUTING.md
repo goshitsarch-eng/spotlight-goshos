@@ -316,6 +316,7 @@ Manual testing on GNOME Shell 50 Wayland:
 113. With an IME (Chinese, Japanese, Korean, or typing-booster), type in the launcher until the candidate popup appears — the lookup table must sit above the launcher, not under the backdrop. Enter, arrows, and number keys must commit or move IME candidates, not activate a result. Clicking a candidate must type that character and must not close the launcher.
 114. If opening fails after the unredirect hold or chrome add (for example the primary monitor vanishes mid-open), the next shortcut press must open the launcher. It must not stay stuck treating the popup as already open, and it must not leave a leftover unredirect hold.
 115. On a 200% scale session, a 600px width must look like 600 CSS pixels (not half-width). Results max height 400 must stay inside the work area — St scales stylesheet `px` but `set_width` is stage pixels. Changing scale while the popup is open must refit.
+116. With an IME, type until the candidate popup appears — the lookup must stay above the launcher after GNOME 50 raises it above `keyboardBox`. Enter, arrows, and number keys must still stay with IBus. Clicking a candidate must not close the launcher.
 
 ## Submitting Changes
 

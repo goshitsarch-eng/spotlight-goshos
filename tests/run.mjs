@@ -7,7 +7,7 @@ import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsRe
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {themeScale, stagePx, cssPx} from '../uiScale.js';
-import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
+import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -445,6 +445,9 @@ const imeCandidate = {tag: 'ime', visible: true, style_class: IME_CANDIDATE_STYL
 imeGroup.get_children = () => [imeCandidate, imeAccent, imeKb, imePopup];
 assert(raiseInputChrome(imeGroup, imeKb, imePopup), 'visible ibus chrome is raised');
 assertEq(imeRaise.join(','), 'kb>popup,accent>kb,ime>accent', 'candidates sit above accents');
+assert(shouldScheduleInputChromeRaise(false, true), 'open popup schedules a raise after the sibling move');
+assert(!shouldScheduleInputChromeRaise(true, true), 'a pending raise idle is not stacked');
+assert(!shouldScheduleInputChromeRaise(false, false), 'closed popup does not raise on idle');
 const imeLabel = {style_class: 'candidate-label', get_parent: () => imeCandidate};
 assert(actorOrAncestorHasStyleClass(imeLabel, IME_CANDIDATE_STYLE), 'candidate label walks to the boxpointer');
 assertEq(unredirectApi(true, true), 'compositor', 'gnome 48-50 use compositor unredirect');
