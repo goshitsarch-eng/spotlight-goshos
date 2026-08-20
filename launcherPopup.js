@@ -20,7 +20,7 @@ import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup, shouldCloseOnSession} from './popupGate.js';
-import {activateResultSafe} from './resultActivate.js';
+import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -377,6 +377,8 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     activateResult(result) {
+        if (!resultCanActivate(result))
+            return;
         this.closeSoon();
         activateResultSafe(result);
     }

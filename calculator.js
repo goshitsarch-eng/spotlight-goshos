@@ -114,11 +114,29 @@ export function evaluateArithmetic(input, allowBare) {
         return value;
     }
 
+    // 2pi^2 is 2 times pi squared not (2pi) squared
+    function isImplicitFactor() {
+        const next = peek();
+        if (next === '(')
+            return true;
+        if (!isIdent(next))
+            return false;
+        // 1e is incomplete scientific not 1 times euler
+        return next.toLowerCase() !== 'e';
+    }
+
     function parseTerm() {
         let value = parseUnary();
         if (value === null)
             return null;
-        while (peek() === '*' || peek() === '/' || peek() === '%') {
+        while (peek() === '*' || peek() === '/' || peek() === '%' || isImplicitFactor()) {
+            if (isImplicitFactor()) {
+                const right = parseUnary();
+                if (right === null)
+                    return null;
+                value = value * right;
+                continue;
+            }
             const op = consume();
             const right = parseUnary();
             if (right === null)
@@ -205,18 +223,7 @@ export function evaluateArithmetic(input, allowBare) {
     function finishValue(value) {
         if (value === null)
             return null;
-        const afterPostfix = postfixPercent(postfixFact(value));
-        const next = peek();
-        if (next === '(' || isIdent(next)) {
-            // 1e is incomplete scientific not 1 times euler
-            if (isIdent(next) && next.toLowerCase() === 'e')
-                return null;
-            const right = parsePrimary();
-            if (right === null)
-                return null;
-            return finishValue(afterPostfix * right);
-        }
-        return afterPostfix;
+        return postfixPercent(postfixFact(value));
     }
 
     function applyFunc(fn, v) {

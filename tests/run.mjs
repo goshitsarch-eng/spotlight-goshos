@@ -21,7 +21,7 @@ import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSet
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
 import {shouldOfferApp, hasParentalGiveUp, markParentalGiveUp, resetParentalGiveUp, PARENTAL_GIVE_UP_MS} from '../appReady.js';
-import {activateResultSafe} from '../resultActivate.js';
+import {activateResultSafe, resultCanActivate} from '../resultActivate.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandRowMeta} from '../commandReady.js';
 import {extraPathDirs, findUserProgram, joinPathDirs} from '../userPath.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, resolveSpawnPath, resolveCommandArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
@@ -300,6 +300,9 @@ assertEq(evaluateArithmetic('1,000+2'), 1002, 'thousands comma evaluates');
 assertEq(evaluateArithmetic('5−1'), 4, 'unicode minus evaluates');
 assertEq(evaluateArithmetic('-(2+3)'), -5, 'unary minus on group');
 assertEq(evaluateArithmetic('2^3*2'), 16, 'power before multiply');
+assertEq(evaluateArithmetic('2pi^2'), 2 * Math.PI * Math.PI, 'implicit multiply is a term');
+assertEq(evaluateArithmetic('2^3pi'), 8 * Math.PI, 'power then implicit multiply');
+assertEq(evaluateArithmetic('2(3)^2'), 18, 'implicit paren then power');
 assertEq(evaluateArithmetic('2**8'), 256, 'python power');
 assertEq(evaluateArithmetic('2 x 3'), 6, 'spaced x multiply');
 assertEq(evaluateArithmetic('2x3'), 6, 'tight x multiply');
@@ -1074,6 +1077,12 @@ assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').title, '~
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').description, 'Checking path', 'pending path');
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').title, '~/docs', 'pending title collapses home');
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').icon, 'folder-symbolic', 'pending path icon');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').activatable, false, 'pending path not activatable');
+assertEq(pathRowMeta('~/nope', '/home/u/nope', 'missing').activatable, false, 'missing path not activatable');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory').activatable, undefined, 'ready path stays activatable');
+assert(!resultCanActivate(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u')), 'pending path cannot activate');
+assert(resultCanActivate({activate: () => {}}), 'normal result can activate');
+assert(!resultCanActivate({activate: () => {}, activatable: false}), 'flag blocks activate');
 assertEq(terminalSpec(name => name === 'xdg-terminal-exec').argv[0], 'xdg-terminal-exec', 'prefer xdg-terminal-exec');
 assert(terminalCommand(name => name === 'ptyxis', '/tmp/docs').argv.includes('--working-directory=/tmp/docs'), 'ptyxis working dir');
 assertEq(terminalCommand(name => name === 'xdg-terminal-exec', '/tmp/docs').cwd, '/tmp/docs', 'xdg-terminal-exec uses cwd');
@@ -1180,6 +1189,9 @@ assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path =
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
 assertEq(commandRowMeta('~/bin/true', false, true).description, 'Checking command', 'pending command copy');
+assertEq(commandRowMeta('~/bin/true', false, true).activatable, false, 'pending command not activatable');
+assertEq(commandRowMeta('missing', false).activatable, false, 'missing command not activatable');
+assert(!resultCanActivate(commandRowMeta('ls', false, true)), 'pending command cannot activate');
 
 assertEq(normalizeAccelKey('A'), 'a', 'letter keys lowercased');
 assertEq(normalizeAccelKey('space'), 'space', 'named keys stay');

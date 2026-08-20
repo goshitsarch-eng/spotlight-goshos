@@ -11,6 +11,7 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
             title: trimmed,
             description: 'Path not found',
             icon: 'dialog-warning-symbolic',
+            activatable: false,
         };
     }
     if (kind === 'pending') {
@@ -19,6 +20,7 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
             title: collapseHomePath(resolved, home || ''),
             description: 'Checking path',
             icon: 'folder-symbolic',
+            activatable: false,
         };
     }
 

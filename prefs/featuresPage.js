@@ -21,7 +21,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-app-actions',
         'Application actions', 'New window and desktop-file actions for the best app match. Applications must stay enabled');
     addSwitch(providers, settings, 'enable-calculator',
-        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, round, 5!, e+1, and =e and copy the result with Enter');
+        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, round, 5!, e+1, =e, and 2pi^2 and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 2 hours to min, 100 kph to mph, 100 km/h to mph, 1 acre to m2, 1 m3 to l, 32 f to c, 1024 bytes to kib');
     addSwitch(providers, settings, 'enable-color-hex',
