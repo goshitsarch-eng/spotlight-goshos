@@ -1,7 +1,7 @@
 // gosh is launcher - gnome settings panel catalog
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {wordPrefixMatch} from './wordMatch.js';
+import {wordPrefixMatch, keywordMatchesQuery} from './wordMatch.js';
 
 export const SETTINGS_PANELS = [
     {id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless-symbolic', keywords: ['wireless', 'wlan', 'hotspot', 'airplane']},
@@ -68,13 +68,7 @@ export function matchSettingsPanels(query, maxResults, isAvailable) {
         ))
             return true;
         for (const keyword of p.keywords) {
-            const kw = keyword.toLowerCase();
-            const normalizedKeyword = kw.replace(/[-_\s]/g, '');
-            if (kw.startsWith(lowerQuery) || normalizedKeyword.startsWith(normalizedQuery))
-                return true;
-            if (normalizedQuery.length >= 3 && (
-                kw.includes(lowerQuery) || normalizedKeyword.includes(normalizedQuery)
-            ))
+            if (keywordMatchesQuery(keyword, lowerQuery))
                 return true;
         }
         return false;

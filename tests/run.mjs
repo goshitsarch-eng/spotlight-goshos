@@ -12,7 +12,7 @@ import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
-import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
+import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta} from '../settingsPanels.js';
@@ -360,6 +360,10 @@ assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'a
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), 'action keyword case');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'firefox'), 'action miss');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'clock'), 'clock is not lock');
+assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock screen']}, 'een'), 'een is not lock screen');
+assert(actionMatchesQuery({title: 'Shut Down', keywords: ['turn off']}, 'off'), 'off is a word in turn off');
+assert(keywordMatchesQuery('hotspot', 'hot'), 'keyword prefix');
+assert(!keywordMatchesQuery('browser', 'row'), 'keyword is not a haystack');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'o'), 'single letter is not lock');
 assertEq(normalizeActionQuery('lock the screen'), 'lock screen', 'drop filler words');
 assertEq(normalizeActionQuery('lock now'), 'lock', 'drop now');
@@ -598,6 +602,7 @@ assertEq(appMatchTier('Google Chrome', '', 'google-chrome.desktop', [], 'chro'),
 assertEq(appMatchTier('Firefox', 'Web Browser', 'org.mozilla.firefox.desktop', [], 'browser'), 3, 'generic name');
 assertEq(appMatchTier('Firefox', '', 'org.mozilla.firefox.desktop', [], 'mozilla'), 4, 'desktop id');
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['Internet', 'Browser'], 'browser'), 5, 'keyword');
+assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], 'row'), -1, 'row is not browser');
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], ''), -1, 'empty query no app');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'write', 'Write notes and lists'), 6, 'desktop comment');
@@ -661,6 +666,8 @@ assert(matchSettingsPanels('security', 5).some(p => p.id === 'privacy'), 'securi
 assert(matchSettingsPanels('winver', 5).some(p => p.id === 'about'), 'winver is about on gnome 50');
 assert(matchSettingsPanels('dnd', 5).some(p => p.id === 'notifications'), 'dnd is notifications');
 assert(matchSettingsPanels('hotspot', 5).some(p => p.id === 'wifi'), 'hotspot is wifi');
+assert(matchSettingsPanels('hot', 5).some(p => p.id === 'wifi'), 'hot is hotspot prefix');
+assert(!matchSettingsPanels('pot', 5).some(p => p.id === 'wifi'), 'pot is not hotspot');
 assert(matchSettingsPanels('zoom', 5).some(p => p.id === 'universal-access'), 'zoom is accessibility');
 assert(matchSettingsPanels('fractional scaling', 5).some(p => p.id === 'display'), 'fractional scaling is displays');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('PowerToys'), 'about lists powertoys');
@@ -1434,6 +1441,7 @@ assertEq(terminalRowMeta('/home/u/docs', '/home/u', 'place').description, '~/doc
 assertEq(terminalRowMeta('/tmp/docs', '', 'path').title, 'Open in Terminal', 'terminal title');
 assert(PLACE_CATALOG.length >= 8, 'xdg places');
 assert(placeMatches('Downloads', ['downloads'], 'down'), 'place prefix');
+assert(!placeMatches('Pictures', ['photos', 'images'], 'hot'), 'hot is not photos');
 assert(matchPlaces('docs').some(p => p.id === 'documents'), 'docs is documents');
 assert(matchPlaces('chrome').length === 0, 'place miss');
 assert(matchPlaces('o').length === 0, 'letter o is not every folder');

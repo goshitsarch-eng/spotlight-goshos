@@ -1,7 +1,7 @@
 // gosh is launcher - xdg user folder matching
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {wordPrefixMatch} from './wordMatch.js';
+import {wordPrefixMatch, keywordMatchesQuery} from './wordMatch.js';
 
 export const PLACE_CATALOG = [
     {id: 'home', title: 'Home', keywords: ['home', '~'], icon: 'user-home-symbolic'},
@@ -27,9 +27,7 @@ export function placeMatches(title, keywords, query) {
     if (q.length >= 3 && titleLower.includes(q))
         return true;
     for (const keyword of keywords) {
-        if (keyword.startsWith(q) || keyword === q)
-            return true;
-        if (q.length >= 3 && keyword.includes(q))
+        if (keywordMatchesQuery(keyword, q))
             return true;
     }
     return false;

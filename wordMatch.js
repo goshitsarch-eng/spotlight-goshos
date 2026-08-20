@@ -24,6 +24,19 @@ export function textMatchesAllWords(text, query) {
     return words.every(word => textMatchesQuery(text, word));
 }
 
+// keywords are labels not haystacks so row must not hit browser
+export function keywordMatchesQuery(keyword, query) {
+    if (!keyword || !query)
+        return false;
+    const kw = keyword.toLowerCase();
+    const q = query.toLowerCase();
+    if (kw.startsWith(q) || kw === q || wordPrefixMatch(kw, q))
+        return true;
+    const nkw = kw.replace(/[-_\s]/g, '');
+    const nq = q.replace(/[-_\s]/g, '');
+    return nq.length > 0 && nkw.startsWith(nq);
+}
+
 export function wordPrefixMatch(nameLower, queryLower) {
     const len = queryLower.length;
     if (len === 0)
