@@ -9,6 +9,7 @@ const SECTION_TITLES = {
     color: 'Color',
     window: 'Windows',
     'window-close': 'Close Window',
+    workspace: 'Workspaces',
     'system-action': 'System Actions',
     settings: 'Settings',
     file: 'Recent Files',

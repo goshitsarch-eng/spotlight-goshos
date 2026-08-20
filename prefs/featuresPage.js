@@ -27,7 +27,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-color-hex',
         'Hex colors', 'Type #f00, rgb(255, 0, 0), or hsl(0deg 100% 50%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
-        'Open windows', 'Switch by title, class, or workspace. Type close firefox or kill firefox');
+        'Open windows', 'Switch by title, class, or workspace 2. Type close firefox or kill firefox');
     addSwitch(providers, settings, 'enable-system-actions',
         'System actions', 'Lock, suspend, hibernate, restart, shut down, log out, switch user, screenshot');
     addSwitch(providers, settings, 'enable-settings-search',

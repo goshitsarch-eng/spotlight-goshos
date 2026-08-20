@@ -29,8 +29,9 @@ import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, for
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeColor} from '../colorMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
+import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from '../workspaceQuery.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -226,10 +227,11 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'window-close', 'system-action', 'settings', 'file', 'path', 'place', 'bookmark', 'time', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'window-close', 'workspace', 'system-action', 'settings', 'file', 'path', 'place', 'bookmark', 'time', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 assertEq(getSectionTitle('window-close'), 'Close Window', 'close window title');
+assertEq(getSectionTitle('workspace'), 'Workspaces', 'workspace title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
 
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'action prefix');
@@ -555,6 +557,18 @@ assertEq(windowCloseTitle('quit', 'Notes'), 'Quit Notes', 'quit title text');
 assert(shouldForceQuitWindow('kill'), 'kill force quits');
 assert(!shouldForceQuitWindow('close'), 'close is polite');
 assert(!shouldForceQuitWindow('quit'), 'quit is polite');
+assert(!windowMatches('Firefox', 'Navigator', 'workspace', 'Workspace 1'), 'workspace alone is not every window');
+assert(!windowMatches('Firefox', 'Navigator', 'spa', 'Workspace 1'), 'spa is not every window');
+assert(!windowMatches('Firefox', 'Navigator', 'work', 'Workspace 1'), 'work is not every window');
+assert(workspaceLabelMatches('Workspace 2', '2'), 'digit is workspace number');
+assert(!workspaceLabelMatches('Workspace 2', 'workspace'), 'bare workspace is not a number');
+assertEq(parseWorkspaceSwitchQuery('workspace 2').number, 2, 'switch workspace 2');
+assertEq(parseWorkspaceSwitchQuery('switch to workspace 3').index, 2, 'switch to workspace');
+assertEq(parseWorkspaceSwitchQuery('ws 1').number, 1, 'ws shorthand');
+assertEq(parseWorkspaceSwitchQuery('workspace'), null, 'workspace needs a number');
+assertEq(workspaceSwitchTitle(2), 'Switch to Workspace 2', 'switch title');
+assert(workspaceIndexInRange(1, 3), 'index in range');
+assert(!workspaceIndexInRange(3, 3), 'index at count is out');
 
 const stored = {};
 applyLookSettings({

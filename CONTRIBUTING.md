@@ -221,6 +221,7 @@ Manual testing on GNOME Shell 50 Wayland:
 38. On a short display, set results max height to 800 and a top look — the list must not grow off the work area even if the empty popup was already clamped to the bottom. Change icon size in Appearance while the popup is open — row icons should resize. Type `2*e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `hsl(0, 100%, 50%)` — a Color row should copy `#ff0000`.
 39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
 40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. Type `hibernate` on a machine that can — Hibernate should appear.
+41. Type `workspace` — open windows must not all appear. Type `workspace 2` — a Switch to Workspace 2 row should appear if that workspace exists, plus windows on that workspace.
 
 ## Submitting Changes
 

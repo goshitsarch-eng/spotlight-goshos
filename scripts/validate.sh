@@ -136,6 +136,7 @@ required = [
     'searchRun.js',
     'windowMatch.js',
     'windowClose.js',
+    'workspaceQuery.js',
     'appMatch.js',
     'appAction.js',
     'unitMatch.js',

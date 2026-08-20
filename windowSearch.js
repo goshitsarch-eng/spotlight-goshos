@@ -5,6 +5,7 @@ import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
+import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from './workspaceQuery.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from './windowMatch.js';
 
 function _metaWindows() {
@@ -27,10 +28,37 @@ function _windowIcon(win) {
     return 'focus-windows-symbolic';
 }
 
+function _switchWorkspaceResult(switchQuery) {
+    const manager = global.workspace_manager;
+    if (!workspaceIndexInRange(switchQuery.index, manager.get_n_workspaces()))
+        return null;
+    const workspace = manager.get_workspace_by_index(switchQuery.index);
+    if (!workspace)
+        return null;
+    return {
+        type: 'workspace',
+        title: workspaceSwitchTitle(switchQuery.number),
+        description: 'Workspace',
+        icon: 'view-app-grid-symbolic',
+        activate: () => {
+            const current = global.workspace_manager.get_workspace_by_index(switchQuery.index);
+            if (!current)
+                return;
+            current.activate(global.get_current_time());
+        },
+    };
+}
+
 export function searchWindows(query, maxResults) {
     const closeQuery = parseWindowCloseQuery(query);
+    const switchQuery = closeQuery ? null : parseWorkspaceSwitchQuery(query);
     const q = (closeQuery ? closeQuery.title : query).toLowerCase();
     const results = [];
+    if (switchQuery) {
+        const row = _switchWorkspaceResult(switchQuery);
+        if (row)
+            results.push(row);
+    }
     const windows = sortWindowsMostRecent(_metaWindows(), win => win.get_user_time());
 
     for (const win of windows) {

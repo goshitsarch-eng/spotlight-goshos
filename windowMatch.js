@@ -13,12 +13,29 @@ export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     return false;
 }
 
+// every window shares workspace n so only number queries match the label
+export function workspaceLabelMatches(label, query) {
+    if (!label || !query)
+        return false;
+    const q = query.trim().toLowerCase();
+    const lower = label.toLowerCase();
+    if (lower === 'on all workspaces') {
+        if (q === 'sticky' || q === 'all' || q.startsWith('on all') || q.startsWith('all work'))
+            return true;
+        return false;
+    }
+    const numbered = /^workspace (\d+)$/.exec(lower);
+    if (!numbered)
+        return false;
+    return q === numbered[1] || q === `workspace ${numbered[1]}` || q === `ws ${numbered[1]}`;
+}
+
 export function windowMatches(title, wmClass, query, workspaceLabel) {
     if (query.length === 0)
         return true;
     if (textMatchesQuery(title, query) || textMatchesQuery(wmClass, query))
         return true;
-    return Boolean(workspaceLabel) && textMatchesQuery(workspaceLabel, query);
+    return workspaceLabelMatches(workspaceLabel, query);
 }
 
 // mutter workspace.index is 0-based launchers show Workspace 1
