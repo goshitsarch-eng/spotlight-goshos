@@ -916,6 +916,7 @@ class LauncherPopup extends St.BoxLayout {
 
         runIsolatedTeardown([
             () => {
+                // mapped chrome must be gone before composition resumes
                 if (!this._backdrop)
                     return;
                 const backdrop = this._backdrop;
