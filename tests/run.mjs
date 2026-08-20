@@ -1004,6 +1004,8 @@ assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Synapse'), 'about li
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Onagre'), 'about lists onagre');
 assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('Walker'), 'appearance search finds walker');
 assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('COSMIC'), 'appearance search finds cosmic');
+assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('Reset look'), 'appearance can reset chrome');
+assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('applyLookSettings(settings, getTheme'), 'reset writes the current look');
 assert(readFileSync('prefs/webSearchPage.js', 'utf8').includes('enginePrefsSearchText'), 'web search lists engines');
 assert(enginePrefsSearchText().includes('DuckDuckGo'), 'engine search text has duckduckgo');
 assert(enginePrefsSearchText().includes('Kagi'), 'engine search text has kagi');

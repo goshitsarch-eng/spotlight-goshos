@@ -80,6 +80,21 @@ export function buildAppearancePage(settings) {
     lookGroup.add(densityRow);
     lookGroup.add(orderRow);
 
+    const resetRow = new Adw.ActionRow({
+        title: 'Reset look',
+        subtitle: 'Restore this look\'s position, density, headers, icons, descriptions, number hints, icon size, and result order',
+    });
+    const resetButton = new Gtk.Button({
+        label: 'Reset',
+        valign: Gtk.Align.CENTER,
+    });
+    // the combo skips apply when the id did not change
+    resetButton.connect('clicked', () => {
+        applyLookSettings(settings, getTheme(settings.get_string('launcher-theme')));
+    });
+    resetRow.add_suffix(resetButton);
+    lookGroup.add(resetRow);
+
     const sizeGroup = new Adw.PreferencesGroup({
         title: 'Size',
     });

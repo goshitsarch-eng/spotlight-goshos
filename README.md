@@ -36,7 +36,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
 | **Onagre** | [Onagre](https://github.com/oknozor/onagre) | Centered stone-dark panel, amber selected row with dark text. |
 
-Picking a look applies its colors and the matching chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, and whether open windows list first). Changing `launcher-theme` at runtime (preferences or `gsettings`) writes that profile too. A look change written while the extension is disabled still applies on the next enable. You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
+Picking a look applies its colors and the matching chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, and whether open windows list first). Changing `launcher-theme` at runtime (preferences or `gsettings`) writes that profile too. A look change written while the extension is disabled still applies on the next enable. You can still override those after. Reset look on the Appearance page restores the current look's chrome; picking the same look in the combo does not, so a custom icon size survives a prefs reopen. Width is not part of a look. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
 ## Search Priority
 
@@ -129,7 +129,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, Onagre). Preferences search finds Walker, COSMIC, and the other look names on the Appearance page. The GNOME look is the dark Adwaita card; Light is the light one.
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, Onagre). Preferences search finds Walker, COSMIC, and the other look names on the Appearance page. The GNOME look is the dark Adwaita card; Light is the light one. Reset look restores that look's chrome after you change icon size, position, or the other overrides. Picking the same look in the combo does not.
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -236,7 +236,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom. A short work area lifts the origin so the list is not `max-height: 0`.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes. A tap on a result row activates it the same way a click does.
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
-- Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable of the default Spotlight look only stamps that key so a custom icon size is not reset. A non-default look written before the first enable still applies its chrome.
+- Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable of the default Spotlight look only stamps that key so a custom icon size is not reset. A non-default look written before the first enable still applies its chrome. Reset look on the Appearance page writes that profile again for the current look. The combo does not, because `shouldApplyLook` skips a same-id pick.
 - Hiding the search icon (Rofi, Wofi, Tofi, Fuzzel, Anyrun, or the Search icon switch) adds `gosh-no-search-icon` so the query stays inset. The default entry left padding is 0 because the magnifier is the inset; compact density's `padding` shorthand would otherwise reset that to 0 again.
 - Rofi, Wofi, and Tofi do not construct a hidden result icon. A `visible: false` child can still take St.BoxLayout spacing, which left an empty icon column on those dmenu looks.
 - Preferences search uses group descriptions, not combo items. Appearance names Walker, COSMIC, and the other looks; Web Search names the engines. The GNOME look description says Dark Adwaita so it is not confused with Light.
