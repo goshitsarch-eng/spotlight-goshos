@@ -116,7 +116,7 @@ gosh-is-launcher@nin/
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider
     webSearch.js              web search fallback
-    windowSearch.js           open window provider
+    windowSearch.js           open window provider with workspace labels
     recentFilesSearch.js      recent files provider
     recentXbel.js             parse recently-used.xbel (pure)
     keyAction.js              key press to popup action (pure)
