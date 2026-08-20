@@ -265,7 +265,7 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 - Main.layoutManager.connect('system-modal-opened') in launcherPopup.js so screenshot and polkit close an open popup disconnected manually in destroy()
 
-parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers
+parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers start() and stop() isolate a vanished window or display so open() cannot abort after the backdrop is in chrome
 
 each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode or Main.timeLimitsManager follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 

@@ -4,7 +4,7 @@ import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, a
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
-import {nextLiveSearchAction} from '../searchLive.js';
+import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {chromeAddMethod} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
@@ -300,6 +300,18 @@ assertEq(nextLiveSearchAction(false, true), 'start', 'open starts live search');
 assertEq(nextLiveSearchAction(true, false), 'stop', 'close stops live search');
 assertEq(nextLiveSearchAction(true, true), 'keep', 'already listening');
 assertEq(nextLiveSearchAction(false, false), 'keep', 'stays idle');
+const trackedWin = {id: 1};
+assert(!shouldTrackLiveWindow(null, []), 'null window is not tracked');
+assert(!shouldTrackLiveWindow(trackedWin, [trackedWin]), 'already tracked window is skipped');
+assert(shouldTrackLiveWindow(trackedWin, []), 'new window is tracked');
+assertEq(windowsForLiveTrack(() => {
+    throw new Error('vanished');
+}).length, 0, 'listing throw yields no windows');
+assertEq(windowsForLiveTrack(() => 'nope').length, 0, 'non-array listing yields no windows');
+const laterWin = {id: 2};
+const kept = windowsForLiveTrack(() => [trackedWin, null, laterWin]);
+assertEq(kept.length, 2, 'null windows are dropped from the live list');
+assert(kept[0] === trackedWin && kept[1] === laterWin, 'later windows survive a hole in the list');
 
 const work = {x: 100, y: 40, width: 1800, height: 1000};
 assertEq(popupOrigin(work, 600, 80, 'center').x, 700, 'center x in work area');

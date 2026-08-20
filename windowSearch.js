@@ -11,14 +11,31 @@ import {appIconOrFallback, windowIconOrFallback} from './resultIcon.js';
 
 export function listMetaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
-    if (typeof global.display.list_all_windows === 'function')
-        return global.display.list_all_windows();
+    if (typeof global.display.list_all_windows === 'function') {
+        try {
+            const listed = global.display.list_all_windows();
+            if (Array.isArray(listed))
+                return listed;
+        } catch (e) {
+            // mutter can drop a window mid-list
+        }
+    }
     const windows = [];
     if (typeof global.get_window_actors !== 'function')
         return windows;
-    for (const actor of global.get_window_actors()) {
-        if (actor.meta_window)
-            windows.push(actor.meta_window);
+    let actors;
+    try {
+        actors = global.get_window_actors();
+    } catch (e) {
+        return windows;
+    }
+    for (const actor of actors) {
+        try {
+            if (actor.meta_window)
+                windows.push(actor.meta_window);
+        } catch (e) {
+            // actor can vanish between list and read
+        }
     }
     return windows;
 }

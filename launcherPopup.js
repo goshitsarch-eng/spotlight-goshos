@@ -257,19 +257,28 @@ class LauncherPopup extends St.BoxLayout {
         const box = Main.layoutManager.keyboardBox;
         if (!box)
             return;
-        this._keyboardBox = box;
-        box.connectObject(
-            'notify::visible', () => this._onKeyboardChanged(),
-            'notify::allocation', () => this._onKeyboardChanged(),
-            'notify::translation-y', () => this._onKeyboardChanged(),
-            this,
-        );
+        // keyboardbox can vanish while the osk is rebuilding
+        try {
+            box.connectObject(
+                'notify::visible', () => this._onKeyboardChanged(),
+                'notify::allocation', () => this._onKeyboardChanged(),
+                'notify::translation-y', () => this._onKeyboardChanged(),
+                this,
+            );
+            this._keyboardBox = box;
+        } catch (e) {
+            this._keyboardBox = null;
+        }
     }
 
     _unlistenKeyboard() {
         if (!this._keyboardBox)
             return;
-        this._keyboardBox.disconnectObject(this);
+        try {
+            this._keyboardBox.disconnectObject(this);
+        } catch (e) {
+            // keyboardbox can vanish while the osk is rebuilding
+        }
         this._keyboardBox = null;
     }
 

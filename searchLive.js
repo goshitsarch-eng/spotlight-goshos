@@ -9,3 +9,21 @@ export function nextLiveSearchAction(wasListening, wantListening) {
         return 'stop';
     return 'keep';
 }
+
+export function shouldTrackLiveWindow(win, tracked) {
+    if (!win)
+        return false;
+    return !tracked.includes(win);
+}
+
+// mutter can drop a window between list and connect
+export function windowsForLiveTrack(listFn) {
+    try {
+        const windows = listFn();
+        if (!Array.isArray(windows))
+            return [];
+        return windows.filter(win => win);
+    } catch (e) {
+        return [];
+    }
+}
