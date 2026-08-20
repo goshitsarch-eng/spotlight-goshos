@@ -73,6 +73,13 @@
       <description>default keeps apps before windows. windows-first matches the Pop!_OS launcher.</description>
     </key>
 
+    <key name="icon-size" type="i">
+      <default>28</default>
+      <range min="16" max="64"/>
+      <summary>Result icon size</summary>
+      <description>Icon size for result rows in pixels. Compact density still shrinks this by 20%.</description>
+    </key>
+
     <key name="row-density" type="s">
       <choices>
         <choice value="comfortable"/>

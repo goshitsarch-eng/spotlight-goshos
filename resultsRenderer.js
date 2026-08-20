@@ -8,7 +8,7 @@ import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
 import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks} from './searchPlan.js';
-import {getTheme, iconSizeForLook} from './themes.js';
+import {iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
 import {ensurePath} from './pathSearch.js';
 import {ensureCommand} from './commandSearch.js';
@@ -39,10 +39,9 @@ export class ResultsRenderer {
 
     _rowOptions() {
         const density = this._settings.get_string('row-density');
-        const theme = getTheme(this._settings.get_string('launcher-theme'));
         return {
             density,
-            iconSize: iconSizeForLook(theme.look, density),
+            iconSize: iconSizeForLook({iconSize: this._settings.get_int('icon-size')}, density),
             showIcons: this._settings.get_boolean('show-result-icons'),
             showDescriptions: this._settings.get_boolean('show-descriptions'),
             showNumbers: this._settings.get_boolean('show-result-numbers'),

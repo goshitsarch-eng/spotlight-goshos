@@ -136,6 +136,20 @@ export function buildAppearancePage(settings) {
     settings.bind('max-results', maxResultsRow, 'value', Gio.SettingsBindFlags.DEFAULT);
     sizeGroup.add(maxResultsRow);
 
+    const iconSizeRow = new Adw.SpinRow({
+        title: 'Result icon size',
+        subtitle: 'Pixels. Compact density still shrinks this',
+        adjustment: new Gtk.Adjustment({
+            lower: 16,
+            upper: 64,
+            step_increment: 2,
+            page_increment: 8,
+            value: settings.get_int('icon-size'),
+        }),
+    });
+    settings.bind('icon-size', iconSizeRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+    sizeGroup.add(iconSizeRow);
+
     const chromeGroup = new Adw.PreferencesGroup({
         title: 'Chrome',
     });

@@ -37,6 +37,55 @@ export function normalizeRgbColor(query) {
     return `#${hexByte(r)}${hexByte(g)}${hexByte(b)}`;
 }
 
+function hueToRgb(p, q, t) {
+    let h = t;
+    if (h < 0)
+        h += 1;
+    if (h > 1)
+        h -= 1;
+    if (h < 1 / 6)
+        return p + (q - p) * 6 * h;
+    if (h < 1 / 2)
+        return q;
+    if (h < 2 / 3)
+        return p + (q - p) * (2 / 3 - h) * 6;
+    return p;
+}
+
+function hslToHex(h, s, l) {
+    const sat = s / 100;
+    const light = l / 100;
+    const hue = ((h % 360) + 360) % 360 / 360;
+    let r;
+    let g;
+    let b;
+    if (sat === 0) {
+        r = light;
+        g = light;
+        b = light;
+    } else {
+        const q = light < 0.5 ? light * (1 + sat) : light + sat - light * sat;
+        const p = 2 * light - q;
+        r = hueToRgb(p, q, hue + 1 / 3);
+        g = hueToRgb(p, q, hue);
+        b = hueToRgb(p, q, hue - 1 / 3);
+    }
+    return `#${hexByte(Math.round(r * 255))}${hexByte(Math.round(g * 255))}${hexByte(Math.round(b * 255))}`;
+}
+
+export function normalizeHslColor(query) {
+    const match = query.trim().match(
+        /^hsla?\(\s*(-?[\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*[\d.]+\s*)?\)$/i
+    );
+    if (!match)
+        return null;
+    const s = Number(match[2]);
+    const l = Number(match[3]);
+    if (s > 100 || l > 100)
+        return null;
+    return hslToHex(Number(match[1]), s, l);
+}
+
 export function normalizeColor(query) {
-    return normalizeHexColor(query) || normalizeRgbColor(query);
+    return normalizeHexColor(query) || normalizeRgbColor(query) || normalizeHslColor(query);
 }

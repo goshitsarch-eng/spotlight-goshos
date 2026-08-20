@@ -26,7 +26,7 @@ import {pathRowMeta} from '../pathMatch.js';
 import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../placeMatch.js';
 import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescription, bookmarkMatches, matchBookmarks, bookmarkIcon, hostFromUri} from '../bookmarkParse.js';
 import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
-import {normalizeHexColor, normalizeRgbColor, normalizeColor} from '../colorMatch.js';
+import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeColor} from '../colorMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
@@ -160,7 +160,8 @@ assertEq(popupWidthForWorkArea(1200, 800), 800, 'narrow work shrinks popup');
 assertEq(popupWidthForWorkArea(600, 0), 600, 'unknown work keeps request');
 assertEq(resultsMaxHeightForWorkArea(400, 900), 400, 'tall work keeps request');
 assertEq(resultsMaxHeightForWorkArea(800, 220), 220, 'short work shrinks results');
-assertEq(resultsMaxHeightForWorkArea(400, 0), 400, 'unknown space keeps request');
+assertEq(resultsMaxHeightForWorkArea(400, 0), 0, 'no space below hides overflow');
+assertEq(resultsMaxHeightForWorkArea(400, -20), 0, 'negative space hides overflow');
 
 const span = backdropBox([
     {x: 0, y: 0, width: 1920, height: 1080},
@@ -277,6 +278,8 @@ assertEq(evaluateArithmetic('sin(90)'), 1, 'sin uses degrees');
 assertEq(evaluateArithmetic('2pi / 2'), Math.PI, 'implicit 2pi');
 assertEq(evaluateArithmetic('2(3+1)'), 8, 'implicit paren multiply');
 assertEq(evaluateArithmetic('pi'), Math.PI, 'bare pi');
+assertEq(evaluateArithmetic('2*e'), 2 * Math.E, 'euler e');
+assertEq(evaluateArithmetic('e'), null, 'bare e stays a search');
 assertEq(evaluateArithmetic('sqrt'), null, 'function needs parens');
 assertEq(evaluateArithmetic('0xff'), null, 'bare hex still a search');
 assertEq(evaluateArithmetic('log(100)'), 2, 'log10');
@@ -534,6 +537,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('popos'));
 assertEq(stored['popup-position'], 'top', 'popos sits at top');
 assertEq(stored['show-result-numbers'], true, 'popos has number hints');
@@ -543,6 +549,9 @@ applyLookSettings({
         stored[key] = value;
     },
     set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
         stored[key] = value;
     },
 }, getTheme('krunner'));
@@ -555,6 +564,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('rofi'));
 assertEq(stored['row-density'], 'compact', 'rofi is compact');
 assertEq(stored['show-section-headers'], false, 'rofi hides headers');
@@ -563,6 +575,9 @@ applyLookSettings({
         stored[key] = value;
     },
     set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
         stored[key] = value;
     },
 }, getTheme('raycast'));
@@ -575,6 +590,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('albert'));
 assertEq(stored['show-section-headers'], true, 'albert keeps headers');
 applyLookSettings({
@@ -582,6 +600,9 @@ applyLookSettings({
         stored[key] = value;
     },
     set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
         stored[key] = value;
     },
 }, getTheme('wofi'));
@@ -594,6 +615,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('fuzzel'));
 assertEq(stored['row-density'], 'compact', 'fuzzel is compact');
 assertEq(stored['show-section-headers'], false, 'fuzzel hides headers');
@@ -604,6 +628,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('anyrun'));
 assertEq(stored['show-section-headers'], false, 'anyrun hides headers');
 assertEq(stored['popup-position'], 'center', 'anyrun is centered');
@@ -612,6 +639,9 @@ applyLookSettings({
         stored[key] = value;
     },
     set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
         stored[key] = value;
     },
 }, getTheme('tofi'));
@@ -625,6 +655,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('light'));
 assertEq(stored['popup-position'], 'center', 'light is centered');
 assertEq(stored['show-section-headers'], true, 'light keeps headers');
@@ -635,6 +668,9 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+    set_int(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('powertoys'));
 assertEq(stored['show-section-headers'], false, 'powertoys hides headers');
 assertEq(stored['popup-position'], 'center', 'powertoys is centered');
@@ -643,6 +679,9 @@ applyLookSettings({
         stored[key] = value;
     },
     set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
         stored[key] = value;
     },
 }, getTheme('synapse'));
@@ -659,6 +698,7 @@ assert(iconSizeForLook(getTheme('popos').look, 'comfortable') > iconSizeForLook(
 assert(iconSizeForLook(getTheme('popos').look, 'compact') > iconSizeForLook(getTheme('krunner').look, 'compact'), 'compact still keeps look icon scale');
 assertEq(iconSizeForLook({iconSize: 40}, 'compact'), 32, 'compact is 80 percent');
 assertEq(iconSizeForLook({iconSize: 28}, 'comfortable'), 28, 'comfortable keeps size');
+assertEq(stored['icon-size'], 48, 'synapse look writes icon size');
 
 // every get_* key in js exists in the schema
 const settingKeys = new Set();
@@ -903,6 +943,9 @@ assertEq(normalizeRgbColor('rgba(0,128,255,0.5)'), '#0080ff', 'rgba ignores alph
 assertEq(normalizeRgbColor('rgb(256, 0, 0)'), null, 'rgb out of range');
 assertEq(normalizeColor('#f00'), '#ff0000', 'color helper hex');
 assertEq(normalizeColor('rgb(1, 2, 3)'), '#010203', 'color helper rgb');
+assertEq(normalizeHslColor('hsl(0, 100%, 50%)'), '#ff0000', 'hsl red');
+assertEq(normalizeColor('hsla(120, 100%, 50%, 0.4)'), '#00ff00', 'hsla green');
+assertEq(normalizeHslColor('hsl(0, 200%, 50%)'), null, 'hsl sat range');
 assert(planSearch('#ff0000', allOn).providers.includes('color'), 'color planned');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');

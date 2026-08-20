@@ -7,6 +7,7 @@
 // pasted expressions often use unicode operators and thousands commas
 const CONSTS = {
     pi: Math.PI,
+    e: Math.E,
 };
 
 const FUNCS = {

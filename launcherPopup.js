@@ -102,6 +102,7 @@ class LauncherPopup extends St.BoxLayout {
             },
             'changed::results-max-height', () => this._fitResultsHeight(),
             'changed::row-density', () => this._onChromeChanged(),
+            'changed::icon-size', () => this._repaintIfOpen(),
             'changed::show-section-headers', () => this._repaintIfOpen(),
             'changed::show-result-icons', () => this._repaintIfOpen(),
             'changed::show-descriptions', () => this._repaintIfOpen(),

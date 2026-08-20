@@ -218,6 +218,7 @@ Manual testing on GNOME Shell 50 Wayland:
 35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
 36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` — a Color row should copy `#ff0000`.
 37. Type `firefox` with six other apps matching and Firefox as the best match — New window must still appear under Actions. Type `5!` — the result should be 120. Type `#f00f` — a Color row should copy `#ff0000`. Type `zoom` — Accessibility should appear. The About page must list PowerToys and Synapse.
+38. On a short display, set results max height to 800 and a top look — the list must not grow off the work area even if the empty popup was already clamped to the bottom. Change icon size in Appearance while the popup is open — row icons should resize. Type `2*e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `hsl(0, 100%, 50%)` — a Color row should copy `#ff0000`.
 
 ## Submitting Changes
 

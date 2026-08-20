@@ -12,8 +12,9 @@ export function popupWidthForWorkArea(requested, workWidth) {
 // top looks grow down from a high origin so the list must shrink
 // instead of covering the dock or running off the work area
 export function resultsMaxHeightForWorkArea(requested, spaceBelow) {
+    // 0 is a real bottom-clamped popup not an unknown work area
     if (spaceBelow <= 0)
-        return requested;
+        return 0;
     return Math.min(requested, spaceBelow);
 }
 

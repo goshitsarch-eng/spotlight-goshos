@@ -251,6 +251,7 @@ export function applyLookSettings(settings, theme) {
     settings.set_boolean('show-result-numbers', look.showNumbers);
     settings.set_boolean('show-section-headers', look.showHeaders);
     settings.set_string('result-order', look.resultOrder);
+    settings.set_int('icon-size', look.iconSize);
 }
 
 // compact density shrinks the look's own icon size so popos stays larger
