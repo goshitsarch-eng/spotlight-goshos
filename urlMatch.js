@@ -9,6 +9,7 @@ const DOMAIN_RE = new RegExp(
 );
 const LOCAL_RE = /^(localhost|127\.0\.0\.1)(:\d{1,5})?([/?#]\S*)?$/i;
 const IPV4_RE = /^(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?([/?#]\S*)?$/;
+const IPV6_RE = /^\[([0-9a-f:.]+)\](:\d{1,5})?([/?#]\S*)?$/i;
 
 // scheme-less hostnames need a dot so plain words stay app searches
 // localhost and dotted ipv4 are the exception because they are typed as sites
@@ -19,18 +20,29 @@ export function isUrlQuery(query) {
     return SCHEME_RE.test(trimmed) ||
            DOMAIN_RE.test(trimmed) ||
            LOCAL_RE.test(trimmed) ||
-           IPV4_RE.test(trimmed);
+           IPV4_RE.test(trimmed) ||
+           IPV6_RE.test(trimmed);
 }
 
 export function hostOfQuery(query) {
     const trimmed = query.trim();
     const withoutScheme = trimmed.replace(/^(https?:\/\/|file:\/\/)/i, '');
     const hostPort = withoutScheme.split(/[/?#]/)[0];
+    if (hostPort.charAt(0) === '[') {
+        const end = hostPort.indexOf(']');
+        if (end > 1)
+            return hostPort.substring(1, end);
+        return '';
+    }
     return hostPort.split(':')[0];
 }
 
 export function schemeForHost(host) {
-    if (/^localhost$/i.test(host) || /^(?:\d{1,3}\.){3}\d{1,3}$/.test(host))
+    if (/^localhost$/i.test(host))
+        return 'http';
+    if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host))
+        return 'http';
+    if (host.indexOf(':') !== -1)
         return 'http';
     return 'https';
 }

@@ -115,6 +115,8 @@ gosh-is-launcher@nin/
     commandReady.js           whether a command argv can be spawned (pure)
     shortcutAccel.js          mutter accelerator string (pure)
     popupGate.js              open versus toggle-close (pure)
+    searchRun.js              run a plan against providers (pure)
+    windowMatch.js            window title and class match (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     commandSearch.js          command runner
@@ -147,7 +149,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate searchRun windowMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

@@ -4,14 +4,7 @@
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-
-function _windowMatches(win, query) {
-    if (query.length === 0)
-        return true;
-    const title = (win.get_title() || '').toLowerCase();
-    const wmClass = (win.get_wm_class() || '').toLowerCase();
-    return title.includes(query) || wmClass.includes(query);
-}
+import {windowMatches, windowClassText} from './windowMatch.js';
 
 function _windowIcon(win) {
     const tracker = Shell.WindowTracker.get_default();
@@ -35,7 +28,15 @@ export function searchWindows(query, maxResults) {
         if (type !== Meta.WindowType.NORMAL && type !== Meta.WindowType.DIALOG)
             continue;
 
-        if (!_windowMatches(win, q))
+        const sandboxed = typeof win.get_sandboxed_app_id === 'function'
+            ? win.get_sandboxed_app_id()
+            : '';
+        const wmClass = windowClassText(
+            win.get_wm_class(),
+            win.get_wm_class_instance(),
+            sandboxed,
+        );
+        if (!windowMatches(win.get_title() || '', wmClass, q))
             continue;
 
         const title = win.get_title() || 'Untitled';

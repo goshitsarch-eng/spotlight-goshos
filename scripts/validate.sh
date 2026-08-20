@@ -131,6 +131,8 @@ required = [
     'commandReady.js',
     'shortcutAccel.js',
     'popupGate.js',
+    'searchRun.js',
+    'windowMatch.js',
     'scrollView.js',
 ]
 missing = [n for n in required if n not in names]

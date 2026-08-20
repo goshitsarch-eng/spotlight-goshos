@@ -93,6 +93,8 @@ Pure functions with no side effects:
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
 - **`popupGate.js`** — Whether a shortcut should open or close, including lock screen.
+- **`searchRun.js`** — Run a search plan against provider functions.
+- **`windowMatch.js`** — Window title / class matching.
 
 ### Preference Pages
 

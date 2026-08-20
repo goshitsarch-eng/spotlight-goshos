@@ -11,6 +11,7 @@ import {searchUrl} from './urlSearch.js';
 import {searchCommand} from './commandSearch.js';
 import {searchRecentFiles} from './recentFilesSearch.js';
 import {flagsFromSettings, planSearch} from './searchPlan.js';
+import {collectSearchResults} from './searchRun.js';
 
 const PROVIDERS = {
     url: (query, _max, _settings) => searchUrl(query),
@@ -29,17 +30,7 @@ const PROVIDERS = {
 export function runSearch(text, settings) {
     const maxResults = settings.get_int('max-results');
     const plan = planSearch(text, flagsFromSettings(settings));
-    const results = [];
-
-    for (const name of plan.providers) {
-        const run = PROVIDERS[name];
-        results.push(...run(plan.query, maxResults, settings));
-    }
-
-    if (results.length === 0 && plan.webFallback)
-        results.push(...PROVIDERS.web(plan.query, maxResults, settings));
-
-    return results;
+    return collectSearchResults(plan, maxResults, PROVIDERS, settings);
 }
 
 export function runEmptySuggestions(settings) {

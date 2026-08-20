@@ -28,6 +28,8 @@ export function searchApps(query, maxResults) {
     const seenNames = new Set();
     const scored = [];
     const q = query.toLowerCase();
+    if (q.length === 0)
+        return [];
 
     for (const app of allApps) {
         if (!_shouldShowApp(pcm, app))

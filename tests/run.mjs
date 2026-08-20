@@ -15,6 +15,8 @@ import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey} from '../shortcutAccel.js';
+import {collectSearchResults} from '../searchRun.js';
+import {windowMatches, windowClassText} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -84,6 +86,11 @@ assertEq(normalizeUrl('example.com:3000'), 'https://example.com:3000', 'public k
 assertEq(hostOfQuery('https://a.test:80/x'), 'a.test', 'host strips scheme port path');
 assertEq(schemeForHost('localhost'), 'http', 'localhost scheme');
 assertEq(schemeForHost('example.com'), 'https', 'public scheme');
+assert(isUrlQuery('[::1]:8080'), 'ipv6 loopback port');
+assert(isUrlQuery('http://[fe80::1]/'), 'ipv6 scheme');
+assertEq(hostOfQuery('[::1]:8080'), '::1', 'ipv6 host');
+assertEq(normalizeUrl('[::1]:3000'), 'http://[::1]:3000', 'ipv6 uses http');
+assertEq(schemeForHost('::1'), 'http', 'ipv6 scheme http');
 
 assert(canOpenPopup(false, false, false, false), 'idle can open');
 assert(!canOpenPopup(true, false, false, false), 'open flag blocks');
@@ -211,6 +218,23 @@ const fromSettings = flagsFromSettings(flagSettings);
 assertEq(fromSettings.command, false, 'flags hide command runner');
 assertEq(fromSettings.resultOrder, 'windows-first', 'flags read result order');
 assert(fromSettings.apps, 'flags keep apps');
+
+const providers = {
+    apps: (query, max) => query === 'x' ? [{title: 'App', n: max}] : [],
+    web: query => [{title: `web:${query}`}],
+};
+const planned = {providers: ['apps'], query: 'x', webFallback: true};
+assertEq(collectSearchResults(planned, 4, providers, null)[0].title, 'App', 'provider hit');
+assertEq(collectSearchResults(planned, 4, providers, null)[0].n, 4, 'max passed through');
+assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: true}, 3, providers, null)[0].title, 'web:z', 'web fallback');
+assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: false}, 3, providers, null).length, 0, 'web off');
+assertEq(collectSearchResults({providers: ['missing'], query: 'x', webFallback: false}, 3, providers, null).length, 0, 'skip unknown provider');
+
+assert(windowMatches('Firefox', 'Navigator', 'fire'), 'title match');
+assert(windowMatches('Notes', 'org.gnome.TextEditor', 'texted'), 'class match');
+assert(windowMatches('Any', 'x', ''), 'empty query matches windows');
+assert(!windowMatches('Firefox', 'Navigator', 'chrome'), 'window miss');
+assertEq(windowClassText('Firefox', 'Navigator', 'org.mozilla.firefox'), 'Firefox Navigator org.mozilla.firefox', 'class text');
 
 const stored = {};
 applyLookSettings({
