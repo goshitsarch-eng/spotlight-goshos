@@ -253,6 +253,7 @@ Manual testing on GNOME Shell 50 Wayland:
 62. Type `1+2=` — the calculator result should be 3. Type `1 000 + 2` — the result should be 1002. Type `1 000 km to mi` — a Units row should appear. Type `example.com.` — a URL row should open `https://example.com`. Type `readme.md.` — it must not be a URL.
 63. Type `open firefox` — Firefox (or your browser) should appear as an app, not only a web search. Type `switch to` plus an open window title — that window should appear. Type `red` or `blue` — a Color row should copy the hex. Type `1+2=3` — the calculator result should be 3. Type `force close` plus an open window title — the row should say Kill … and Enter should force-quit.
 64. Type `find firefox` or `search for firefox` — the app should appear. On a touchscreen, tap a result — it should activate. A finger that slides off the row must not activate.
+65. Type `please open firefox` — the app should appear. Type `lock the screen` — Lock Screen should appear. Type `shut down the computer` or `turn off` — Shut Down should appear. Type `sign out` — Log Out should appear.
 
 ## Submitting Changes
 

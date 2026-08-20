@@ -3,8 +3,15 @@
 
 import {wordPrefixMatch} from './wordMatch.js';
 
+export function normalizeActionQuery(query) {
+    return query.toLowerCase()
+        .replace(/\b(the|a|an|my|please|computer|system|session|machine|pc|of)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 export function actionMatchesQuery(action, query) {
-    const lowerQuery = query.toLowerCase();
+    const lowerQuery = normalizeActionQuery(query);
     if (lowerQuery.length === 0)
         return false;
     const title = action.title.toLowerCase();

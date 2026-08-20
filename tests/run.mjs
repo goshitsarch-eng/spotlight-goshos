@@ -9,7 +9,7 @@ import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
-import {actionMatchesQuery} from '../actionMatch.js';
+import {actionMatchesQuery, normalizeActionQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
@@ -304,6 +304,11 @@ assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), '
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'firefox'), 'action miss');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'clock'), 'clock is not lock');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'o'), 'single letter is not lock');
+assertEq(normalizeActionQuery('lock the screen'), 'lock screen', 'drop filler words');
+assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'lock the screen'), 'spoken lock');
+assert(actionMatchesQuery({title: 'Shut Down', keywords: ['shutdown', 'turn off']}, 'shut down the computer'), 'spoken shutdown');
+assert(actionMatchesQuery({title: 'Shut Down', keywords: ['turn off']}, 'turn off'), 'turn off');
+assert(actionMatchesQuery({title: 'Log Out', keywords: ['sign out']}, 'sign out'), 'sign out');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
 assertEq(metadata.uuid, 'gosh-is-launcher@nin', 'uuid renamed');
@@ -609,6 +614,8 @@ assert(!shouldRefreshBookmarks(true, planSearch('=2+2', allOn)), 'calc prefix sk
 assert(!shouldRefreshBookmarks(false, planSearch('docs', allOn)), 'disabled bookmarks skip');
 assert(!shouldRefreshBookmarks(true, planSearch('docs', appsOnly)), 'apps-only skips bookmarks');
 assert(planSearch('docs', allOn).providers.includes('bookmarks'), 'bookmarks planned');
+assertEq(stripLeadingVerb('please open firefox'), 'firefox', 'please open');
+assertEq(stripLeadingVerb('please lock'), 'lock', 'please lock');
 assertEq(stripLeadingVerb('open firefox'), 'firefox', 'open verb');
 assertEq(stripLeadingVerb('switch to term'), 'term', 'switch to verb');
 assertEq(stripLeadingVerb('launch code'), 'code', 'launch verb');
