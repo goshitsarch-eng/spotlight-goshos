@@ -189,7 +189,9 @@
 }
 
 .gosh-theme-omarchy .gosh-result.gosh-selected .gosh-result-description,
-.gosh-theme-omarchy .gosh-result:hover .gosh-result-description {
+.gosh-theme-omarchy .gosh-result:hover .gosh-result-description,
+.gosh-theme-omarchy .gosh-result.gosh-selected .gosh-result-index,
+.gosh-theme-omarchy .gosh-result:hover .gosh-result-index {
   color: #a9b1d6;
 }
 
@@ -527,7 +529,9 @@
 }
 
 .gosh-theme-raycast .gosh-result.gosh-selected .gosh-result-description,
-.gosh-theme-raycast .gosh-result:hover .gosh-result-description {
+.gosh-theme-raycast .gosh-result:hover .gosh-result-description,
+.gosh-theme-raycast .gosh-result.gosh-selected .gosh-result-index,
+.gosh-theme-raycast .gosh-result:hover .gosh-result-index {
   color: #c2c6d2;
 }
 
@@ -702,7 +706,9 @@
 }
 
 .gosh-theme-fuzzel .gosh-result.gosh-selected .gosh-result-description,
-.gosh-theme-fuzzel .gosh-result:hover .gosh-result-description {
+.gosh-theme-fuzzel .gosh-result:hover .gosh-result-description,
+.gosh-theme-fuzzel .gosh-result.gosh-selected .gosh-result-index,
+.gosh-theme-fuzzel .gosh-result:hover .gosh-result-index {
   color: #586e75;
 }
 
@@ -776,7 +782,9 @@
 }
 
 .gosh-theme-anyrun .gosh-result.gosh-selected .gosh-result-description,
-.gosh-theme-anyrun .gosh-result:hover .gosh-result-description {
+.gosh-theme-anyrun .gosh-result:hover .gosh-result-description,
+.gosh-theme-anyrun .gosh-result.gosh-selected .gosh-result-index,
+.gosh-theme-anyrun .gosh-result:hover .gosh-result-index {
   color: #a6adc8;
 }
 

@@ -21,8 +21,8 @@ export function invalidatePathLookup() {
     _loadId += 1;
 }
 
-export function pathRow(trimmed, resolved, kind) {
-    const row = pathRowMeta(trimmed, resolved, kind);
+export function pathRow(trimmed, resolved, kind, home) {
+    const row = pathRowMeta(trimmed, resolved, kind, home);
     row.activate = kind === 'missing'
         ? () => {}
         : () => {
@@ -44,7 +44,7 @@ export function searchPath(query) {
     if (_query === trimmed && _resolved && _row)
         return [_row];
 
-    return [pathRow(trimmed, resolved, 'file')];
+    return [pathRow(trimmed, resolved, 'file', home)];
 }
 
 export function ensurePath(query, onReady) {
@@ -87,7 +87,7 @@ function _start(trimmed) {
             }
             if (loadId !== _loadId)
                 return;
-            _row = pathRow(trimmed, resolved, kind);
+            _row = pathRow(trimmed, resolved, kind, home);
             _resolved = true;
             const cb = _onReady;
             _onReady = null;

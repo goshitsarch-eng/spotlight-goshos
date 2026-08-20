@@ -66,6 +66,10 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`calculatorSearch.js`** — Arithmetic evaluation and clipboard copy.
 - **`unitSearch.js`** — Length, mass, temperature, volume, and data conversion.
 - **`unitMatch.js`** — Unit aliases and conversion math.
+- **`placesSearch.js`** — XDG user folders.
+- **`placeMatch.js`** — Folder titles and keywords.
+- **`timeSearch.js`** — Local time and date.
+- **`timeMatch.js`** — Time and date query matching.
 - **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
@@ -202,7 +206,8 @@ Manual testing on GNOME Shell 50 Wayland:
 27. Open a recent file under the home directory — the description should start with `~`.
 28. Select a result on Fuzzel — the description must stay dark on the light selected row. On Omarchy, Raycast, and Anyrun the selected description must stay readable on the tinted row.
 29. Type `firefox` while Firefox is open — a New window action should appear under Actions. Type `=0xff` — the result should be 255 with a `0xff` description. `2x3` must still evaluate to 6.
-30. Type `10 km to mi` — a Units row should appear. Type `32 f to c` — the title should be `0 c`. Type `clock` — Lock Screen must not appear. Type `50% of 80` — the calculator result should be 40.
+30. Type `10 km to mi` — a Units row should appear. Type `32 f to c` — the title should be `0 c`. Type `clock` — Lock Screen must not appear; a Clock row with the local time should. Type `50% of 80` — the calculator result should be 40.
+31. Type `docs` — Documents should appear under Folders. Type `time` — the local time should copy with Enter. Open `~/Documents` — the path title should start with `~`.
 
 ## Submitting Changes
 

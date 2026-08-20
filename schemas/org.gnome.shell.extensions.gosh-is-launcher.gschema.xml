@@ -177,6 +177,18 @@
       <description>Open typed URLs and domain names in the browser.</description>
     </key>
 
+    <key name="enable-places" type="b">
+      <default>true</default>
+      <summary>Enable folder places</summary>
+      <description>Search XDG user folders such as Documents and Downloads.</description>
+    </key>
+
+    <key name="enable-time-date" type="b">
+      <default>true</default>
+      <summary>Enable time and date</summary>
+      <description>Show the local time or date when the query is time, date, now, or today.</description>
+    </key>
+
     <key name="enable-path-open" type="b">
       <default>true</default>
       <summary>Enable path opening</summary>

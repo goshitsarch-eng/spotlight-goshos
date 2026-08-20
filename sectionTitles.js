@@ -11,6 +11,8 @@ const SECTION_TITLES = {
     settings: 'Settings',
     file: 'Recent Files',
     path: 'Open Path',
+    place: 'Folders',
+    time: 'Clock',
     url: 'Open Link',
     command: 'Run Command',
     web: 'Web Search',

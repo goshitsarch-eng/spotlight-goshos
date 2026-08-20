@@ -138,6 +138,8 @@ required = [
     'appMatch.js',
     'appAction.js',
     'unitMatch.js',
+    'placeMatch.js',
+    'timeMatch.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

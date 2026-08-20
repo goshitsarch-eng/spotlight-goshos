@@ -36,6 +36,10 @@ export function buildFeaturesPage(settings) {
         'Open URLs', 'Launch typed addresses and domain names');
     addSwitch(providers, settings, 'enable-path-open',
         'Open paths', 'Open ~/ ./ and absolute paths in the default handler');
+    addSwitch(providers, settings, 'enable-places',
+        'Folders', 'Home, Documents, Downloads, and the other XDG user folders');
+    addSwitch(providers, settings, 'enable-time-date',
+        'Time and date', 'Type time, now, date, or today to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',
         'Command runner', 'Run a command with the ! prefix');
 

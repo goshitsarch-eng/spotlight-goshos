@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {basenameFromUri, iconForBasename} from './recentXbel.js';
+import {collapseHomePath} from './homePath.js';
 
-export function pathRowMeta(trimmed, resolved, kind) {
+export function pathRowMeta(trimmed, resolved, kind, home) {
     if (kind === 'missing') {
         return {
             type: 'path',
@@ -18,7 +19,7 @@ export function pathRowMeta(trimmed, resolved, kind) {
         : iconForBasename(basenameFromUri(resolved));
     return {
         type: 'path',
-        title: resolved,
+        title: collapseHomePath(resolved, home || ''),
         description: 'Open path',
         icon,
     };

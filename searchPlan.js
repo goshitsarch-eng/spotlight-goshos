@@ -13,17 +13,19 @@ const PREFIX_TO_FLAG = {
     command: 'command',
 };
 
-const DEFAULT_ORDER = ['url', 'path', 'apps', 'calculator', 'units', 'windows', 'system', 'settings', 'files'];
-const WINDOWS_FIRST_ORDER = ['url', 'path', 'windows', 'apps', 'calculator', 'units', 'system', 'settings', 'files'];
+const DEFAULT_ORDER = ['url', 'path', 'places', 'apps', 'calculator', 'units', 'time', 'windows', 'system', 'settings', 'files'];
+const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'windows', 'apps', 'calculator', 'units', 'time', 'system', 'settings', 'files'];
 
 export function flagsFromSettings(settings) {
     return {
         prefixModes: settings.get_boolean('enable-prefix-modes'),
         url: settings.get_boolean('enable-url-open'),
         path: settings.get_boolean('enable-path-open'),
+        places: settings.get_boolean('enable-places'),
         apps: settings.get_boolean('enable-app-search'),
         calculator: settings.get_boolean('enable-calculator'),
         units: settings.get_boolean('enable-unit-convert'),
+        time: settings.get_boolean('enable-time-date'),
         windows: settings.get_boolean('enable-window-search'),
         system: settings.get_boolean('enable-system-actions'),
         settings: settings.get_boolean('enable-settings-search'),

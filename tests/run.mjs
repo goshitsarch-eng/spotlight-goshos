@@ -23,6 +23,8 @@ import {resolveKeyAction, resolveHomeEndAction, isNavAction} from '../keyAction.
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandRowMeta} from '../commandReady.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
 import {pathRowMeta} from '../pathMatch.js';
+import {placeMatches, matchPlaces, PLACE_CATALOG} from '../placeMatch.js';
+import {timeQueryKind, formatClock, formatDateTitle} from '../timeMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
@@ -207,7 +209,7 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'unit', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'time', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
@@ -361,8 +363,8 @@ assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
 
 // search plan feature flags
 const allOn = {
-    prefixModes: true, url: true, path: true, apps: true, calculator: true,
-    units: true, windows: true, system: true, settings: true, files: true,
+    prefixModes: true, url: true, path: true, places: true, apps: true, calculator: true,
+    units: true, time: true, windows: true, system: true, settings: true, files: true,
     command: true, web: true,
 };
 assertEq(planSearch('=2+2', allOn).mode, 'calculator', 'plan calc prefix');
@@ -382,8 +384,8 @@ assertEq(planSearch('=2+2', noCalc).providers.length, 0, 'disabled calc prefix')
 const noPrefix = Object.assign({}, allOn, {prefixModes: false});
 assertEq(planSearch('=2+2', noPrefix).mode, 'all', 'prefix disabled');
 const appsOnly = {
-    prefixModes: false, url: false, path: false, apps: true, calculator: false,
-    units: false, windows: false, system: false, settings: false, files: false,
+    prefixModes: false, url: false, path: false, places: false, apps: true, calculator: false,
+    units: false, time: false, windows: false, system: false, settings: false, files: false,
     command: false, web: false,
 };
 assertEq(planSearch('x', appsOnly).providers.join(','), 'apps', 'apps only');
@@ -409,6 +411,8 @@ assert(!shouldRefreshCommand(true, planSearch('ls', allOn)), 'plain words skip c
 assertEq(mergeEmptySuggestions('default', ['w'], ['a']).join(','), 'a,w', 'empty state apps first');
 assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a']).join(','), 'w,a', 'empty state windows first');
 assert(planSearch('10 km to mi', allOn).providers.includes('units'), 'units planned');
+assert(planSearch('documents', allOn).providers.includes('places'), 'places planned');
+assert(planSearch('time', allOn).providers.includes('time'), 'time planned');
 assert(!planSearch('10 km to mi', appsOnly).providers.includes('units'), 'units off');
 assert(planSearch('~/docs', allOn).providers.includes('path'), 'home path is planned');
 assert(planSearch('/tmp', allOn).providers.includes('path'), 'absolute path is planned');
@@ -428,6 +432,8 @@ assertEq(fromSettings.resultOrder, 'windows-first', 'flags read result order');
 assert(fromSettings.apps, 'flags keep apps');
 assert(fromSettings.path, 'flags keep path open');
 assert(fromSettings.units, 'flags keep unit convert');
+assert(fromSettings.places, 'flags keep places');
+assert(fromSettings.time, 'flags keep time');
 
 const providers = {
     apps: (query, max) => query === 'x' ? [{title: 'App', n: max}] : [],
@@ -772,6 +778,19 @@ assertEq(expandHomeArgv(['./tool', '~/out'], '/home/u').join(','), '/home/u/tool
 assertEq(pathRowMeta('~/nope', '/home/u/nope', 'missing').description, 'Path not found', 'missing path');
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory').icon, 'folder-symbolic', 'dir icon');
 assertEq(pathRowMeta('/tmp/a.pdf', '/tmp/a.pdf', 'file').icon, 'x-office-document-symbolic', 'file icon');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').title, '~/docs', 'path title collapses home');
+assert(PLACE_CATALOG.length >= 8, 'xdg places');
+assert(placeMatches('Downloads', ['downloads'], 'down'), 'place prefix');
+assert(matchPlaces('docs', 5).some(p => p.id === 'documents'), 'docs is documents');
+assert(matchPlaces('chrome', 5).length === 0, 'place miss');
+assert(!placeMatches('Home', ['home'], ''), 'empty query no place');
+assertEq(timeQueryKind('time'), 'time', 'time query');
+assertEq(timeQueryKind('NOW'), 'time', 'now query');
+assertEq(timeQueryKind('today'), 'date', 'today query');
+assertEq(timeQueryKind('clock'), 'time', 'clock query is time');
+assertEq(timeQueryKind('timeout'), null, 'timeout is not time');
+assertEq(formatClock(9, 5, 3), '09:05:03', 'clock pad');
+assertEq(formatDateTitle('Monday', 3, 'August', 2026), 'Monday, 3 August 2026', 'date title');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
