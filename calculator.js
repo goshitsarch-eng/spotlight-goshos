@@ -52,6 +52,8 @@ export function normalizeMath(input) {
         .replace(/\*\*/g, '^')
         .replace(/\bplus\b/gi, '+')
         .replace(/\bminus\b/gi, '-')
+        .replace(/\badd\b/gi, '+')
+        .replace(/\bsubtract\b/gi, '-')
         .replace(/\b(?:times|multiplied\s+by)\b/gi, '*')
         .replace(/\bdivided\s+by\b/gi, '/')
         .replace(/\bover\b/gi, '/')

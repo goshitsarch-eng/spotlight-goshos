@@ -21,7 +21,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-app-actions',
         'Application actions', 'New window and desktop-file actions for the best app match. Applications must stay enabled');
     addSwitch(providers, settings, 'enable-calculator',
-        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, sin 90, 1+2=, 1+2=3, 1 000 + 2, 5!, e+1, =e, 2pi^2, 5 squared, 2 to the power of 8, 2 to the 8th, 2 to the eighth, 2 plus 2, two plus two, and 8 over 2 and copy the result with Enter');
+        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, sin 90, 1+2=, 1+2=3, 1 000 + 2, 5!, e+1, =e, 2pi^2, 5 squared, 2 to the power of 8, 2 to the 8th, 2 to the eighth, 2 plus 2, two plus two, 2 add 3, 8 subtract 3, and 8 over 2 and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, ten km to mi, 10 km into mi, convert 10 km to mi, how many miles in 10 km, how many miles in ten km, 1 000 km to mi, 1 cup to tbsp, 1 fl oz to ml, 2 hours to min, 100 kph to mph, 32 psi to bar, 200 kcal to kj, 1 hp to kw, 180 deg to rad, 32 f to c');
     addSwitch(providers, settings, 'enable-color-hex',

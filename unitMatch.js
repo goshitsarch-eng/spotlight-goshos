@@ -4,7 +4,7 @@
 import {replaceNumberWords} from './numberWords.js';
 
 const ALIASES = {
-    km: 'km', kilometer: 'km', kilometers: 'km', kilometre: 'km', kilometres: 'km',
+    km: 'km', kms: 'km', kilometer: 'km', kilometers: 'km', kilometre: 'km', kilometres: 'km',
     m: 'm', meter: 'm', meters: 'm', metre: 'm', metres: 'm',
     cm: 'cm', centimeter: 'cm', centimeters: 'cm', centimetre: 'cm', centimetres: 'cm',
     mm: 'mm', millimeter: 'mm', millimeters: 'mm',
