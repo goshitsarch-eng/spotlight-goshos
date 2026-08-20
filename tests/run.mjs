@@ -498,6 +498,14 @@ assertEq(parseUnitQuery('how many miles are 10 km').to, 'miles', 'how many are t
 assertEq(parseUnitQuery('how many miles are there in 10 km').from, 'km', 'how many are there in');
 assertEq(parseUnitQuery('how many miles are there in 10 km').to, 'miles', 'how many are there in to');
 assertEq(Math.round(convertQuery('how many miles in 10 km').title.split(' ')[0] * 1000) / 1000, 6.214, 'how many converts');
+assertEq(parseUnitQuery('how many km in a mile').value, 1, 'how many km in a mile');
+assertEq(parseUnitQuery('how many km in a mile').from, 'mile', 'how many a mile from');
+assertEq(parseUnitQuery('how many km are in a mile').value, 1, 'how many are in a mile');
+assertEq(parseUnitQuery('a mile to km').value, 1, 'a mile to km');
+assertEq(parseUnitQuery('an inch to cm').value, 1, 'an inch to cm');
+assertEq(parseUnitQuery('a cup to ml').value, 1, 'a cup to ml');
+assertEq(parseUnitQuery('10 km to a mile').from, 'km', 'to a mile drops the article');
+assertEq(parseUnitQuery('10 km to a mile').to, 'mile', 'to a mile keeps the unit');
 assertEq(parseUnitQuery('180° into rad').from, 'deg', 'degree into');
 assertEq(parseUnitQuery('32°f to c').from, 'f', 'degree symbol');
 assertEq(parseUnitQuery('32 degrees f to c').from, 'f', 'degrees word');
@@ -799,6 +807,12 @@ assertEq(stripLeadingVerb('please open source'), 'open source', 'please open sou
 assertEq(stripLeadingVerb('open office'), 'open office', 'open office is a name');
 assertEq(stripLeadingVerb('open vpn'), 'open vpn', 'open vpn is a name');
 assertEq(stripLeadingVerb('open firefox'), 'firefox', 'open firefox still strips');
+assertEq(stripLeadingVerb('open up terminal'), 'terminal', 'open up');
+assertEq(stripLeadingVerb('start up firefox'), 'firefox', 'start up');
+assertEq(stripLeadingVerb('fire up steam'), 'steam', 'fire up');
+assertEq(stripLeadingVerb('execute vscode'), 'vscode', 'execute');
+assertEq(stripLeadingVerb('run steam'), 'steam', 'run verb');
+assertEq(stripLeadingVerb('launch up code'), 'code', 'launch up leftover');
 assertEq(planSearch('search firefox', allOn).query, 'firefox', 'plan strips search');
 assertEq(stripLeadingVerb('firefox'), 'firefox', 'no verb stays');
 assertEq(stripLeadingVerb('open'), 'open', 'bare open stays');
@@ -1463,6 +1477,7 @@ assertEq(normalizeHexColor('#ff000080'), '#ff0000', 'eight digit hex drops alpha
 assertEq(normalizeHexColor('ff0000'), null, 'hash required');
 assertEq(normalizeHexColor('cafe'), null, 'word is not a color');
 assertEq(normalizeRgbColor('rgb(255, 0, 0)'), '#ff0000', 'rgb color');
+assertEq(normalizeRgbColor('rgb(255,0,0)'), '#ff0000', 'rgb no spaces');
 assertEq(normalizeRgbColor('rgb 255 0 0'), '#ff0000', 'rgb without parens');
 assertEq(normalizeRgbColor('rgb 255, 0, 0'), '#ff0000', 'rgb commas without parens');
 assertEq(normalizeRgbColor('rgb 100% 0% 0%'), '#ff0000', 'rgb percent without parens');

@@ -195,7 +195,14 @@ export function normalizeUnitQuery(query) {
         text = next;
         next = text.replace(/(\d) (\d{3})\b/g, '$1$2');
     }
-    return text;
+    // to a mile is the unit not a quantity
+    text = text.replace(/\b(to|into|as)\s+an?\s+/gi, '$1 ');
+    // a mile to km and how many km in a mile
+    return text.replace(/\ban?\s+([a-z][a-z0-9]*)\b/gi, (all, word) => {
+        if (ALIASES[word.toLowerCase()])
+            return `1 ${word}`;
+        return all;
+    });
 }
 
 export function parseUnitQuery(query) {
