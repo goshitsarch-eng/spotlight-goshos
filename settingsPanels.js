@@ -46,6 +46,22 @@ export function settingsPanelAvailable(panelId, hasDesktop) {
     return Boolean(hasDesktop(settingsPanelDesktop(panelId)));
 }
 
+// gnome 50 moved the type to giounix keep gio as the 45-48 ctor
+// a missing ctor must not hide wellbeing on hosts that still ship the panel
+export function firstDesktopAppInfoCtor(candidates) {
+    for (const ctor of candidates) {
+        if (ctor && typeof ctor.new === 'function')
+            return ctor;
+    }
+    return null;
+}
+
+export function settingsDesktopExists(desktopId, ctor) {
+    if (!ctor || typeof ctor.new !== 'function')
+        return true;
+    return Boolean(ctor.new(desktopId));
+}
+
 export function matchSettingsPanels(query, maxResults, isAvailable) {
     const catalog = SETTINGS_PANELS.filter(p => !isAvailable || isAvailable(p.id));
     const lowerQuery = query.toLowerCase();

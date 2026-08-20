@@ -169,6 +169,7 @@ required = [
     'windowClose.js',
     'workspaceQuery.js',
     'appMatch.js',
+    'appInfo.js',
     'appAction.js',
     'unitMatch.js',
     'placeMatch.js',

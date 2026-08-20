@@ -2,13 +2,28 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Gio from 'gi://Gio';
-import {matchSettingsPanels, settingsArgv, settingsPanelAvailable, settingsResultMeta} from './settingsPanels.js';
+import {matchSettingsPanels, settingsArgv, settingsPanelAvailable, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from './settingsPanels.js';
 import {spawnArgv, findInUserPath} from './gioLaunch.js';
 
+function _gioUnixDesktopAppInfo() {
+    try {
+        const GioUnix = imports.gi.GioUnix;
+        return GioUnix ? GioUnix.DesktopAppInfo : null;
+    } catch (e) {
+        // gio unix typelib is not on every 45 host
+        return null;
+    }
+}
+
+function _desktopCtor() {
+    const unix = _gioUnixDesktopAppInfo();
+    if (unix && typeof unix.new === 'function')
+        return firstDesktopAppInfoCtor([unix]);
+    return firstDesktopAppInfoCtor([Gio.DesktopAppInfo]);
+}
+
 function _hasDesktop(desktopId) {
-    if (!Gio.DesktopAppInfo || typeof Gio.DesktopAppInfo.new !== 'function')
-        return true;
-    return Boolean(Gio.DesktopAppInfo.new(desktopId));
+    return settingsDesktopExists(desktopId, _desktopCtor());
 }
 
 // searches gnome settings panels by title

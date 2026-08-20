@@ -290,6 +290,7 @@ Manual testing on GNOME Shell 50 Wayland:
 93. Add a recent-file or bookmark whose URI contains a latin-1 percent sequence such as `caf%E9` — the launcher must still list apps and other results. Enter on that row must not crash the shell.
 94. Open the launcher with several frequent apps and a window that closes as the popup appears — frequent apps must still show. Close one of several matching windows while typing its title — the other windows must stay listed.
 95. Search for an app whose icon is missing — the row must still appear with a fallback icon, and hovering later rows must still move the highlight.
+96. Install a broken `.desktop` file or a non-desktop `GAppInfo` — other apps must still appear. Type `browser` — Firefox (or another browser) must still match from Keywords on hosts that expose `get_keywords`. On GNOME 50, Wellbeing must hide when `gnome-wellbeing-panel.desktop` is missing and must not warn about `Gio.DesktopAppInfo`.
 
 ## Submitting Changes
 

@@ -69,6 +69,10 @@ easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want on
 
 parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps listen for app-filter-changed and repaint so a search typed during init is not stuck empty if malcontent dbus fails without setting initialized show desktop apps after five seconds rather than never
 
+get_installed returns gappinfo get_keywords get_generic_name and list_actions live on desktopappinfo gnome 50 can type some installed entries as the interface so those methods are missing not null feature-detect them and skip a desktop whose get_id throws the same way appDisplay._loadApps does one bad encoding must not hide every app
+
+gio.desktopappinfo moved to giounix.desktopappinfo on 49/50 do not import giounix at module scope it is missing on 45 settings wellbeing checks must try giounix first then gio and must not touch gio.desktopappinfo when the unix ctor exists that access warns on 49
+
 Main.timeLimitsManager exists on 48 49 and 50 not on 45-47 check for it before connecting when its state is LIMIT_REACHED (2) refuse to open and closeSoon an already-open popup so a screen-time shield cannot be bypassed by launching apps
 
 gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel datetime users about and region are system subpages gnome-control-center still remaps the old ids so keep launching those names for gnome 45 wifi applications background and wellbeing are still launchable panel ids
@@ -119,6 +123,7 @@ gosh-is-launcher@nin/
     sectionTitles.js          result type to title mapping
     noResults.js              empty state widget
     appSearch.js              app search provider
+    appInfo.js                desktop-only app info methods (pure)
     appAction.js              desktop action labels (pure)
     calculatorSearch.js       calculator provider
     unitSearch.js             unit conversion provider
@@ -199,7 +204,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

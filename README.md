@@ -166,6 +166,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `prefixParser.js` | `=` `@` `#` `$` `.` `!` prefix tokens |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
 | `appAction.js` | New window and desktop-file action labels |
+| `appInfo.js` | Skip missing desktop-only `GAppInfo` methods so one bad app cannot hide the rest |
 | `windowSearch.js` | Open window switcher |
 | `windowClose.js` | `close` / `quit` / `kill` window queries |
 | `workspaceQuery.js` | `workspace 2` switch-to-workspace queries |
@@ -214,7 +215,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Skip removed X11 restart APIs (`RunDialog._restart`, `holdKeyboard` / `releaseKeyboard`).
 - Keep `GLib.idle_add` instead of the 50-only `idle_add_once`.
 - Honor parental-control app filtering. Repaint when `app-filter-changed` fires. If malcontent never finishes, show unfiltered desktop apps after five seconds rather than an empty launcher. Disable resets that give-up flag.
-- Hide the Wellbeing settings row when `gnome-wellbeing-panel.desktop` is missing (GNOME 45–47).
+- Feature-detect `get_keywords`, `get_generic_name`, and `list_actions`. GNOME 50 can type `AppSystem.get_installed()` entries as `GAppInfo`, and those desktop-only methods are then missing. Skip a desktop file whose `get_id()` throws (invalid encoding) so one bad app cannot hide the rest.
+- Hide the Wellbeing settings row when `gnome-wellbeing-panel.desktop` is missing. Probe `GioUnix.DesktopAppInfo` first (GNOME 49–50), then `Gio.DesktopAppInfo` (45–48). Do not import `GioUnix` at module scope.
 - Close an open popup when the session locks, the greeter starts, or GNOME 48–50 screen-time limits reach `LIMIT_REACHED`. The toggle shortcut also closes via an idle source so Clutter 18 does not abort mid-key.
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.

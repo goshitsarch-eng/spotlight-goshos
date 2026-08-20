@@ -14,9 +14,10 @@ import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveA
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, pathMatchesQuery, idMatchesQuery, labelMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
+import {appId, appName, appGenericName, appKeywords, appDescription, appActionIds, appActionName, describeInstalledApp, collectInstalledAppMatches, collectUsableApps} from '../appInfo.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON, shouldApplyHoverSelection} from '../resultPointer.js';
 import {resultIconSource} from '../resultIcon.js';
-import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta} from '../settingsPanels.js';
+import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
 import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, remoteHostFromUri, recentFileMatches} from '../recentXbel.js';
@@ -646,6 +647,56 @@ assertEq(appMatchTier('Firefox', '', 'firefox.desktop', [], 'f'), 0, 'single let
 assert(appMatchTier('Google Chrome', 'Web Browser', 'google-chrome.desktop', ['browser'], 'chrome browser') >= 0, 'name plus generic');
 assert(appMatchTier('Firefox', 'Web Browser', 'firefox.desktop', ['browser'], 'firefox browser') >= 0, 'firefox browser');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome browser'), -1, 'unrelated two words miss');
+
+const desktopApp = {
+    get_id: () => 'firefox.desktop',
+    get_name: () => 'Firefox',
+    get_generic_name: () => 'Web Browser',
+    get_keywords: () => ['browser'],
+    get_description: () => 'Browse the web',
+    list_actions: () => ['new-window', 'private'],
+    get_action_name: id => id === 'private' ? 'Private' : id,
+};
+const interfaceApp = {
+    get_id: () => 'notes.desktop',
+    get_name: () => 'Notes',
+    get_description: () => 'Write notes',
+};
+const badEncodingApp = {
+    get_id: () => {
+        throw new Error('invalid desktop encoding');
+    },
+};
+assertEq(appId(interfaceApp), 'notes.desktop', 'gappinfo id');
+assertEq(appName(interfaceApp), 'Notes', 'gappinfo name');
+assertEq(appGenericName(interfaceApp), '', 'missing generic-name');
+assertEq(appKeywords(interfaceApp).join(','), '', 'missing keywords');
+assertEq(appDescription(interfaceApp), 'Write notes', 'gappinfo comment');
+assertEq(appActionIds(interfaceApp).join(','), '', 'missing list_actions');
+assertEq(appActionName(interfaceApp, 'private'), 'private', 'missing action name');
+assertEq(appKeywords(desktopApp).join(','), 'browser', 'desktop keywords');
+assertEq(appActionIds(desktopApp).join(','), 'new-window,private', 'desktop actions');
+assertEq(appActionName(desktopApp, 'private'), 'Private', 'desktop action name');
+assertEq(appKeywords({get_keywords: () => null}).length, 0, 'null keywords');
+assertEq(describeInstalledApp(interfaceApp).generic, '', 'describe skips missing desktop fields');
+assertEq(describeInstalledApp({get_id: () => ''}), null, 'empty id is skipped');
+const mixedApps = collectInstalledAppMatches(
+    [badEncodingApp, interfaceApp, desktopApp],
+    'notes',
+    () => true,
+);
+assertEq(mixedApps.length, 1, 'bad desktop encoding does not hide other apps');
+assertEq(mixedApps[0].title, 'Notes', 'name match still works without keywords');
+const browserHits = collectInstalledAppMatches(
+    [interfaceApp, desktopApp],
+    'browser',
+    () => true,
+);
+assertEq(browserHits.length, 1, 'keyword match needs get_keywords');
+assertEq(browserHits[0].title, 'Firefox', 'desktop keywords still match');
+assertEq(collectInstalledAppMatches([desktopApp], 'fire', app => app.get_name() === 'hidden').length, 0, 'parental hide');
+assertEq(collectUsableApps([badEncodingApp, interfaceApp], () => true).length, 1, 'frequent apps skip bad encoding');
+assertEq(collectInstalledAppMatches([interfaceApp], '', () => true).length, 0, 'empty query has no apps');
 assertEq(appRowDescription(0), 'Application', 'closed app copy');
 assertEq(appRowDescription(2), 'Switch to application', 'running app copy');
 assertEq(appBaseName('Firefox ESR'), 'firefox', 'esr suffix');
@@ -701,6 +752,15 @@ assert(settingsPanelAvailable('wifi', () => false), 'wifi stays without a deskto
 assert(!settingsPanelAvailable('wellbeing', () => false), 'missing wellbeing desktop hides the row');
 assert(settingsPanelAvailable('wellbeing', id => id === 'gnome-wellbeing-panel.desktop'), 'present wellbeing desktop keeps the row');
 assert(!matchSettingsPanels('wellbeing', 5, id => settingsPanelAvailable(id, () => false)).some(p => p.id === 'wellbeing'), 'gated wellbeing is omitted');
+const unixDesktop = {new: id => id === 'gnome-wellbeing-panel.desktop'};
+const gioDesktop = {new: () => {
+    throw new Error('gio desktop must not run when unix exists');
+}};
+assertEq(firstDesktopAppInfoCtor([unixDesktop, gioDesktop]), unixDesktop, 'unix desktop ctor wins');
+assertEq(firstDesktopAppInfoCtor([null, undefined, {new: 1}]), null, 'missing new is skipped');
+assert(settingsDesktopExists('gnome-wellbeing-panel.desktop', unixDesktop), 'unix desktop finds wellbeing');
+assert(!settingsDesktopExists('gnome-missing-panel.desktop', unixDesktop), 'unix desktop hides a missing panel');
+assert(settingsDesktopExists('gnome-wellbeing-panel.desktop', null), 'no ctor keeps wellbeing');
 assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyword');
 assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
 assert(matchSettingsPanels('wacom', 5).some(p => p.id === 'wacom'), 'wacom panel');
