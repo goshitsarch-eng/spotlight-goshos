@@ -164,6 +164,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
+- Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

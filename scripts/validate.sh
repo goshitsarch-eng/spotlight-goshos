@@ -38,6 +38,8 @@ node tests/run.mjs
 if command -v gjs >/dev/null; then
   echo "gjs scrollview helpers"
   gjs -m tests/gjs-scrollview.mjs
+  echo "gjs command helpers"
+  gjs -m tests/gjs-command.mjs
 fi
 
 echo "uuid leftovers"
@@ -127,6 +129,7 @@ required = [
     'schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.xml',
     'gioLaunch.js',
     'commandReady.js',
+    'shortcutAccel.js',
     'scrollView.js',
 ]
 missing = [n for n in required if n not in names]

@@ -4,6 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
+import {buildAccelerator, modifiersFromMask} from '../shortcutAccel.js';
 
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -55,18 +56,15 @@ export function buildShortcutPage(settings) {
         if (!keyName)
             return true;
 
-        let accelerator = '';
-        if (state & Gdk.ModifierType.SUPER_MASK)
-            accelerator += '<Super>';
-        if (state & Gdk.ModifierType.CONTROL_MASK)
-            accelerator += '<Control>';
-        if (state & Gdk.ModifierType.SHIFT_MASK)
-            accelerator += '<Shift>';
-        if (state & Gdk.ModifierType.ALT_MASK)
-            accelerator += '<Alt>';
-        if (state & Gdk.ModifierType.META_MASK)
-            accelerator += '<Meta>';
-        accelerator += keyName;
+        const accelerator = buildAccelerator(keyName, modifiersFromMask(state, {
+            super: Gdk.ModifierType.SUPER_MASK,
+            control: Gdk.ModifierType.CONTROL_MASK,
+            shift: Gdk.ModifierType.SHIFT_MASK,
+            alt: Gdk.ModifierType.ALT_MASK,
+            meta: Gdk.ModifierType.META_MASK,
+        }));
+        if (!accelerator)
+            return true;
 
         settings.set_strv('toggle-shortcut', [accelerator]);
         shortcutLabel.label = formatShortcut([accelerator]);

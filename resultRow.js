@@ -64,7 +64,9 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
     hbox._resultIndex = resultIndex;
 
     hbox.connectObject(
-        'button-release-event', () => {
+        'button-release-event', (_actor, event) => {
+            if (event.get_button() !== Clutter.BUTTON_PRIMARY)
+                return Clutter.EVENT_PROPAGATE;
             onActivate(result);
             return Clutter.EVENT_STOP;
         },

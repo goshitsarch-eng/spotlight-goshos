@@ -70,6 +70,8 @@ export class SelectionManager {
 
     _scrollRowIntoView(row) {
         const adjustment = getVerticalAdjustment(this._resultsScroll);
+        if (!adjustment)
+            return;
         const box = row.get_allocation_box();
         const rowY = box.y1;
         const rowHeight = box.get_height();

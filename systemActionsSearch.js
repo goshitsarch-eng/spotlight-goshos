@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
+import * as Screenshot from 'resource:///org/gnome/shell/ui/screenshot.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {actionMatchesQuery} from './actionMatch.js';
 
 // system actions using gnome shell's built-in systemactions module
@@ -63,7 +65,16 @@ const SYSTEM_ACTIONS = [
         icon: 'screenshooter-symbolic',
         keywords: ['screenshot', 'snip', 'capture', 'screencast'],
         can: () => true,
-        activate: () => SystemActions.getDefault().activateScreenshotUI(),
+        // systemactions waits for overview hidden and never opens if
+        // overview is already closed which is how the launcher is used
+        activate: () => {
+            if (Main.overview.visible) {
+                SystemActions.getDefault().activateScreenshotUI();
+                Main.overview.hide();
+                return;
+            }
+            Screenshot.showScreenshotUI();
+        },
     },
 ];
 

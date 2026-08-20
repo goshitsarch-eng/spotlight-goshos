@@ -28,7 +28,13 @@ export function applyScrollPolicy(scrollView, hPolicy, vPolicy) {
 
 export function getVerticalAdjustment(scrollView) {
     // 48 removed get_vscroll_bar and exposes the adjustment directly
+    // both paths can be null before the first allocate
     if (typeof scrollView.get_vadjustment === 'function')
         return scrollView.get_vadjustment();
-    return scrollView.get_vscroll_bar().get_adjustment();
+    if (typeof scrollView.get_vscroll_bar !== 'function')
+        return null;
+    const bar = scrollView.get_vscroll_bar();
+    if (!bar)
+        return null;
+    return bar.get_adjustment();
 }

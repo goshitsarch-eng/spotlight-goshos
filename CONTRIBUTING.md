@@ -91,6 +91,7 @@ Pure functions with no side effects:
 - **`recentXbel.js`** — Parse `recently-used.xbel`.
 - **`keyAction.js`** — Key press to popup action.
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
+- **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
 
 ### Preference Pages
 
@@ -167,6 +168,7 @@ Manual testing on GNOME Shell 50 Wayland:
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18).
 10. Type `!no-such-command` with the command runner on and press Enter — the popup must close and the shell must stay up.
+11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 
 ## Submitting Changes
 

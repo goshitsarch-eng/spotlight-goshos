@@ -33,4 +33,21 @@ applyScrollPolicy(legacy, 2, 3);
 if (legacy.child !== 'box' || legacy.vscrollbar_policy !== 3 || getVerticalAdjustment(legacy).ok !== 2)
     throw new Error('legacy path failed');
 
+const unrealized = {
+    get_vscroll_bar() {
+        return null;
+    },
+};
+if (getVerticalAdjustment(unrealized) !== null)
+    throw new Error('null scrollbar must not throw');
+
+const emptyModern = {
+    get_vadjustment() {
+        return null;
+    },
+};
+if (getVerticalAdjustment(emptyModern) !== null)
+    throw new Error('null vadjustment must not throw');
+
 print('gjs scrollView helpers ok');
+

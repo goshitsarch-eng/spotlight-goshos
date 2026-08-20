@@ -13,6 +13,7 @@ import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../sc
 import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey} from '../shortcutAccel.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -356,6 +357,20 @@ assert(commandIsReady('ls', name => name === 'ls' ? '/bin/ls' : null, () => fals
 assert(!commandIsReady('nope', () => null, () => false), 'missing on PATH');
 assert(commandIsReady('/bin/ls', () => null, path => path === '/bin/ls'), 'absolute exists');
 assert(!commandIsReady('/no/such', () => '/bin/true', () => false), 'absolute missing');
+
+assertEq(normalizeAccelKey('A'), 'a', 'letter keys lowercased');
+assertEq(normalizeAccelKey('space'), 'space', 'named keys stay');
+assertEq(buildAccelerator('space', {
+    super: false, control: true, shift: false, alt: false, meta: false,
+}), '<Control>space', 'ctrl space');
+assertEq(buildAccelerator('space', {
+    super: true, control: false, shift: false, alt: false, meta: true,
+}), '<Super>space', 'super does not also write meta');
+assertEq(buildAccelerator('A', {
+    super: false, control: true, shift: true, alt: false, meta: false,
+}), '<Control><Shift>a', 'ctrl shift letter');
+const mods = modifiersFromMask(0b101, {super: 1, control: 4, shift: 2, alt: 8, meta: 16});
+assert(mods.super && mods.control && !mods.shift, 'mask bits');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 
