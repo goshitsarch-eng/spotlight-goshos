@@ -254,6 +254,7 @@ Manual testing on GNOME Shell 50 Wayland:
 63. Type `open firefox` — Firefox (or your browser) should appear as an app, not only a web search. Type `switch to` plus an open window title — that window should appear. Type `red` or `blue` — a Color row should copy the hex. Type `1+2=3` — the calculator result should be 3. Type `force close` plus an open window title — the row should say Kill … and Enter should force-quit.
 64. Type `find firefox` or `search for firefox` — the app should appear. On a touchscreen, tap a result — it should activate. A finger that slides off the row must not activate.
 65. Type `please open firefox` — the app should appear. Type `lock the screen` — Lock Screen should appear. Type `shut down the computer` or `turn off` — Shut Down should appear. Type `sign out` — Log Out should appear.
+66. Type `can you open firefox` or `would you please open firefox` — the app should appear. Type `open my documents` or `my downloads` — the matching folder should appear. Type `show me firefox` — the app should appear. Type `what is 2+2` or `calculate 2+2` — a calculator row should appear. Type `convert 10 km to mi` — a Units row should appear. Type `can you close` or `close the` plus an open window title — a Close row should appear. Type `open` or `can you` alone — those words must stay as the query.
 
 ## Submitting Changes
 

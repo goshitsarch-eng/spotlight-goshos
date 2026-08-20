@@ -22,14 +22,40 @@ const STRIP_VERB_MODES = {
     files: true,
 };
 
-// open firefox and switch to term are how people talk to a launcher
-export function stripLeadingVerb(query) {
-    const text = query.trim().replace(/^please\s+/i, '');
-    const match = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus)\s+(.+)$/i.exec(text);
+const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you)\s+/i;
+const LAUNCH_VERB = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus|convert|calculate|compute|what(?:['’]s|s|\s+is)|how\s+much\s+is)\s+(.+)$/i;
+const LEADING_ARTICLE = /^(?:my|the|an?|me)\s+(.+)$/i;
+
+function stripPolitePrefixes(query) {
+    let text = query;
+    let next = text.replace(POLITE_PREFIX, '');
+    while (next !== text) {
+        text = next.trim();
+        next = text.replace(POLITE_PREFIX, '');
+    }
+    return text;
+}
+
+function stripLeadingArticle(query) {
+    const match = LEADING_ARTICLE.exec(query);
     if (!match)
-        return text;
-    const rest = match[2].trim();
-    return rest.length > 0 ? rest : text;
+        return query;
+
+    const rest = match[1].trim();
+    return rest.length > 0 ? rest : query;
+}
+
+// open firefox and can you open firefox are how people talk to a launcher
+export function stripLeadingVerb(query) {
+    let text = stripPolitePrefixes(query.trim());
+    const match = LAUNCH_VERB.exec(text);
+    if (match) {
+        const rest = match[2].trim();
+        if (rest.length > 0)
+            text = rest;
+    }
+
+    return stripLeadingArticle(text);
 }
 
 export function flagsFromSettings(settings) {
