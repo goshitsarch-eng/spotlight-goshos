@@ -4,7 +4,7 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import {ellipsizeLabel} from './labelEllipsize.js';
-import {rowPointerAction} from './resultPointer.js';
+import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from './resultPointer.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -95,6 +95,26 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         'enter-event', () => {
             onHover(resultIndex);
             return Clutter.EVENT_PROPAGATE;
+        },
+        'touch-event', (_actor, event) => {
+            const type = event.type();
+            let kind = 'other';
+            if (type === Clutter.EventType.TOUCH_BEGIN)
+                kind = 'touch-begin';
+            else if (type === Clutter.EventType.TOUCH_END)
+                kind = 'touch-end';
+            else if (type === Clutter.EventType.TOUCH_CANCEL)
+                kind = 'touch-cancel';
+            else if (type === Clutter.EventType.TOUCH_UPDATE)
+                kind = 'touch-update';
+            const phase = rowTouchPhase(kind);
+            if (!phase)
+                return Clutter.EVENT_PROPAGATE;
+            const next = rowPointerAction(phase, PRIMARY_BUTTON, pressed);
+            pressed = next.pressed;
+            if (next.action === 'activate')
+                onActivate(result);
+            return next.action === 'propagate' ? Clutter.EVENT_PROPAGATE : Clutter.EVENT_STOP;
         },
         hbox,
     );

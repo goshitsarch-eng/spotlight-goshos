@@ -17,7 +17,7 @@ export function buildFeaturesPage(settings) {
     });
 
     addSwitch(providers, settings, 'enable-app-search',
-        'Applications', 'Installed apps ranked by match quality and usage. open firefox and launch firefox still find the app');
+        'Applications', 'Installed apps ranked by match quality and usage. open firefox, find firefox, and search for firefox still find the app');
     addSwitch(providers, settings, 'enable-app-actions',
         'Application actions', 'New window and desktop-file actions for the best app match. Applications must stay enabled');
     addSwitch(providers, settings, 'enable-calculator',

@@ -25,7 +25,7 @@ const STRIP_VERB_MODES = {
 // open firefox and switch to term are how people talk to a launcher
 export function stripLeadingVerb(query) {
     const text = query.trim();
-    const match = /^(open|launch|run|start|show|switch\s+to|go\s+to|focus)\s+(.+)$/i.exec(text);
+    const match = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus)\s+(.+)$/i.exec(text);
     if (!match)
         return text;
     const rest = match[2].trim();

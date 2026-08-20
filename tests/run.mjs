@@ -13,7 +13,7 @@ import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
-import {rowPointerAction, PRIMARY_BUTTON} from '../resultPointer.js';
+import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -254,6 +254,12 @@ assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', '
 assertEq(rowPointerAction('release', PRIMARY_BUTTON, false).action, 'propagate', 'release without press');
 assertEq(rowPointerAction('leave', PRIMARY_BUTTON, true).pressed, false, 'leave cancels press');
 assertEq(rowPointerAction('press', 3, false).action, 'propagate', 'right click ignored');
+assertEq(rowTouchPhase('touch-begin'), 'press', 'touch begin is press');
+assertEq(rowTouchPhase('touch-end'), 'release', 'touch end is release');
+assertEq(rowTouchPhase('touch-cancel'), 'leave', 'touch cancel is leave');
+assertEq(rowTouchPhase('touch-update'), 'hold', 'touch move holds');
+assertEq(rowPointerAction('hold', PRIMARY_BUTTON, true).action, 'stop', 'held touch stays claimed');
+assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', 'touch end after begin activates');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();
@@ -607,6 +613,10 @@ assertEq(stripLeadingVerb('open firefox'), 'firefox', 'open verb');
 assertEq(stripLeadingVerb('switch to term'), 'term', 'switch to verb');
 assertEq(stripLeadingVerb('launch code'), 'code', 'launch verb');
 assertEq(stripLeadingVerb('go to downloads'), 'downloads', 'go to verb');
+assertEq(stripLeadingVerb('find firefox'), 'firefox', 'find verb');
+assertEq(stripLeadingVerb('search for wifi'), 'wifi', 'search for verb');
+assertEq(stripLeadingVerb('look up hex'), 'hex', 'look up verb');
+assertEq(planSearch('search firefox', allOn).query, 'firefox', 'plan strips search');
 assertEq(stripLeadingVerb('firefox'), 'firefox', 'no verb stays');
 assertEq(stripLeadingVerb('open'), 'open', 'bare open stays');
 assertEq(planSearch('open firefox', allOn).query, 'firefox', 'plan strips open');
