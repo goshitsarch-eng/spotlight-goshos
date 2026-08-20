@@ -1,9 +1,8 @@
 // gosh is launcher - gnome-style word prefix matching
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// word boundaries are space hyphen underscore dot
-// this is what makes chro match Google Chrome via the second word
-// substring needs three letters so o does not hit every workspace label
+// word boundaries are space hyphen underscore dot and slash
+// slash so doc matches ~/Documents without ome matching /home
 export const SUBSTRING_MIN = 3;
 
 export function textMatchesQuery(text, query) {
@@ -37,6 +36,15 @@ export function keywordMatchesQuery(keyword, query) {
     return nq.length > 0 && nkw.startsWith(nq);
 }
 
+// ~/Documents matches doc after the slash not ome inside home
+export function pathMatchesQuery(path, query) {
+    if (!path || !query)
+        return false;
+    const p = path.toLowerCase();
+    const q = query.toLowerCase();
+    return p.startsWith(q) || wordPrefixMatch(p, q);
+}
+
 export function wordPrefixMatch(nameLower, queryLower) {
     const len = queryLower.length;
     if (len === 0)
@@ -44,7 +52,7 @@ export function wordPrefixMatch(nameLower, queryLower) {
 
     for (let i = 0; i < nameLower.length - len; i++) {
         const c = nameLower[i];
-        if (c === ' ' || c === '-' || c === '_' || c === '.') {
+        if (c === ' ' || c === '-' || c === '_' || c === '.' || c === '/') {
             if (nameLower.substring(i + 1, i + 1 + len) === queryLower)
                 return true;
         }

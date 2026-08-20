@@ -214,7 +214,7 @@ results are combined in this order urls first then filesystem paths then xdg fol
 
 the priority is set in searchController.js do not change it without reason
 
-keywords match as prefixes or word-prefixes not mid-string so row does not hit browser and een does not hit lock screen titles can still substring-match at three letters
+keywords match as prefixes or word-prefixes not mid-string so row does not hit browser and een does not hit lock screen titles can still substring-match at three letters path segments use slash as a word boundary so doc matches ~/Documents and ome does not match /home
 
 popos look uses windows-first result order so open windows sit above apps the way the cosmic launcher does other looks keep apps first empty-state suggestions use the same order
 

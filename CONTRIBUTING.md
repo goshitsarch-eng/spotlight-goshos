@@ -272,6 +272,7 @@ Manual testing on GNOME Shell 50 Wayland:
 78. Disable the extension, open Appearance, switch to Pop!_OS, then enable the extension — the popup must sit at the top with number hints and windows first. Reopen Appearance without changing the look — a custom icon size must still survive.
 79. Type `row` — Firefox must not appear just because the keyword browser contains those letters. Type `hot` — Pictures must not appear from photos; Wi-Fi may appear from hotspot. Type `een` — Lock Screen must not appear. Type `off` — Power Off should still appear.
 80. Type `ifi` — Wi-Fi must not appear just because the title contains those letters. Type `security` — Privacy & Security should still appear. Change width or position in preferences while typing in the popup — the shell must stay up and the popup must move after the key lands.
+81. Type `doc` with a recent file or bookmark under Documents — it should still appear. Type `ome` — files under `/home` must not appear just because the path contains those letters.
 
 ## Submitting Changes
 

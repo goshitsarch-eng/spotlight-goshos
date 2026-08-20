@@ -1,7 +1,7 @@
 // gosh is launcher - parse recently-used.xbel text
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
+import {textMatchesQuery, pathMatchesQuery} from './wordMatch.js';
 
 // skip http https and javascript so only openable locations remain
 const HREF_RE = /href\s*=\s*["']((?:file|sftp|ftp|smb|davs?):[^"']+)["']/gi;
@@ -110,9 +110,12 @@ export function parentPathFromFileUri(uri) {
 export function recentFileMatches(name, folder, query) {
     if (query.length === 0)
         return true;
-    if (textMatchesQuery(name, query) || textMatchesQuery(folder, query))
+    if (textMatchesQuery(name, query) || pathMatchesQuery(folder, query))
         return true;
-    return textMatchesAllWords(`${name} ${folder}`, query);
+    const words = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2)
+        return false;
+    return words.every(word => textMatchesQuery(name, word) || pathMatchesQuery(folder, word));
 }
 
 export function basenameFromUri(uri) {

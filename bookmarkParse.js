@@ -4,7 +4,7 @@
 import {basenameFromUri, pathFromFileUri} from './recentXbel.js';
 import {fileUriFromAbsolute, expandHomePath} from './homePath.js';
 import {isUnsafeLaunchUri} from './urlMatch.js';
-import {wordPrefixMatch, textMatchesAllWords} from './wordMatch.js';
+import {pathMatchesQuery, textMatchesQuery} from './wordMatch.js';
 
 export function normalizeBookmarkUri(uri, home) {
     if (!uri)
@@ -81,16 +81,12 @@ export function mergeBookmarkFiles(texts, home) {
 export function bookmarkMatches(title, description, query) {
     if (query.length === 0)
         return false;
-    const q = query.toLowerCase();
-    const titleLower = title.toLowerCase();
-    const descLower = description.toLowerCase();
-    if (titleLower.startsWith(q) || wordPrefixMatch(titleLower, q))
+    if (textMatchesQuery(title, query) || pathMatchesQuery(description, query))
         return true;
-    if (descLower.startsWith(q) || wordPrefixMatch(descLower, q))
-        return true;
-    if (q.length >= 3 && (titleLower.includes(q) || descLower.includes(q)))
-        return true;
-    return textMatchesAllWords(`${title} ${description}`, query);
+    const words = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2)
+        return false;
+    return words.every(word => textMatchesQuery(title, word) || pathMatchesQuery(description, word));
 }
 
 export function matchBookmarks(rows, query, maxResults) {
