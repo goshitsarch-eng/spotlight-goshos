@@ -174,8 +174,8 @@ prefix modes when enabled jump to a single provider
 - `=` calculator
 - `@` web
 - `#` settings
-- `$` windows
-- `.` recent files
+- `$` windows only when followed by a space or nothing so $HOME stays a normal query
+- `.` recent files only when followed by a space or nothing so .bashrc stays a normal query
 - `!` command
 
 ### signal management
