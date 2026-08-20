@@ -93,6 +93,15 @@ export function planSearch(text, flags) {
     }
 
     if (parsed.mode !== 'all') {
+        // @ is an explicit search turning off fallback must not kill it
+        if (parsed.mode === 'web') {
+            return {
+                mode: 'web',
+                query: parsed.query,
+                providers: ['web'],
+                webFallback: false,
+            };
+        }
         const flag = PREFIX_TO_FLAG[parsed.mode];
         return {
             mode: parsed.mode,

@@ -34,6 +34,13 @@ export function buildShortcutPage(settings) {
         shortcutRow.grab_focus();
     });
 
+    shortcutRow.connect('notify::has-focus', () => {
+        if (shortcutRow.has_focus || !capturing)
+            return;
+        capturing = false;
+        shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
+    });
+
     eventController.connect('key-pressed', (controller, keyval, keycode, state) => {
         if (!capturing)
             return false;

@@ -14,6 +14,7 @@ export function buildWebSearchPage(settings) {
 
     const webSearchRow = new Adw.SwitchRow({
         title: 'Show web search fallback',
+        subtitle: 'When nothing local matches. The @ prefix still searches the web',
     });
     settings.bind('show-web-search', webSearchRow, 'active',
         Gio.SettingsBindFlags.DEFAULT);

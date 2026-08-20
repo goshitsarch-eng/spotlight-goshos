@@ -59,6 +59,12 @@ function assertEq(actual, expected, message) {
 assertEq(evaluateArithmetic('12 * 8 + 3'), 99, '12 * 8 + 3');
 assertEq(evaluateArithmetic('2^8'), 256, 'power');
 assertEq(evaluateArithmetic('2^3^2'), 512, 'power is right-associative');
+assertEq(evaluateArithmetic('-2^2'), -4, 'unary minus is outside power');
+assertEq(evaluateArithmetic('(-2)^2'), 4, 'grouped unary stays in the base');
+assertEq(evaluateArithmetic('2^-2'), 0.25, 'negative exponent');
+assertEq(evaluateArithmetic('tan(90)'), null, 'tan 90 is undefined');
+assertEq(evaluateArithmetic('0x'), null, 'incomplete hex is not math');
+assertEq(evaluateArithmetic('2foo'), null, 'junk ident is not implicit multiply');
 assertEq(evaluateArithmetic('(1+2)*3'), 9, 'parens');
 assertEq(evaluateArithmetic('10 / 4'), 2.5, 'division');
 assertEq(evaluateArithmetic('10 % 3'), 1, 'modulo');
@@ -480,6 +486,9 @@ const allOn = {
 assertEq(planSearch('=2+2', allOn).mode, 'calculator', 'plan calc prefix');
 assertEq(planSearch('=2+2', allOn).providers.join(','), 'calculator', 'plan calc only');
 assertEq(planSearch('@cats', allOn).providers.join(','), 'web', 'plan web prefix');
+const noWebFallback = Object.assign({}, allOn, {web: false});
+assertEq(planSearch('@cats', noWebFallback).providers.join(','), 'web', 'at prefix survives fallback off');
+assert(!planSearch('chrome', noWebFallback).webFallback, 'fallback stays off without at');
 assertEq(planSearch('chrome', allOn).mode, 'all', 'plan all');
 assert(planSearch('chrome', allOn).webFallback, 'web fallback armed');
 assert(planSearch('chrome', allOn).providers.includes('apps'), 'apps in all');

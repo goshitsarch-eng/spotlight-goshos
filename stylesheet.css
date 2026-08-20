@@ -192,7 +192,7 @@
 .gosh-theme-omarchy .gosh-result:hover .gosh-result-description,
 .gosh-theme-omarchy .gosh-result.gosh-selected .gosh-result-index,
 .gosh-theme-omarchy .gosh-result:hover .gosh-result-index {
-  color: #a9b1d6;
+  color: #c0caf5;
 }
 
 .gosh-theme-omarchy .gosh-no-results-title {
@@ -529,7 +529,7 @@
 .gosh-theme-raycast .gosh-result:hover,
 .gosh-theme-raycast .gosh-result:focus,
 .gosh-theme-raycast .gosh-result.gosh-selected {
-  background-color: #2c2c2e;
+  background-color: #3a3a3e;
   color: #ffffff;
 }
 
@@ -782,8 +782,8 @@
 .gosh-theme-anyrun .gosh-result:hover,
 .gosh-theme-anyrun .gosh-result:focus,
 .gosh-theme-anyrun .gosh-result.gosh-selected {
-  background-color: #313244;
-  color: #cdd6f4;
+  background-color: rgba(137, 180, 250, 0.22);
+  color: #ffffff;
 }
 
 .gosh-theme-anyrun .gosh-result.gosh-selected {
@@ -1076,7 +1076,7 @@
 .gosh-theme-synapse .gosh-result:hover .gosh-result-description,
 .gosh-theme-synapse .gosh-result.gosh-selected .gosh-result-index,
 .gosh-theme-synapse .gosh-result:hover .gosh-result-index {
-  color: #f2f1eb;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .gosh-theme-synapse .gosh-section-header {

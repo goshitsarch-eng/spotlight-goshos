@@ -19,7 +19,12 @@ const FUNCS = {
     ln: Math.log,
     sin: n => Math.sin(n * Math.PI / 180),
     cos: n => Math.cos(n * Math.PI / 180),
-    tan: n => Math.tan(n * Math.PI / 180),
+    tan: n => {
+        const rad = n * Math.PI / 180;
+        if (Math.abs(Math.cos(rad)) < 1e-10)
+            return NaN;
+        return Math.tan(rad);
+    },
     asin: n => Math.asin(n) * 180 / Math.PI,
     acos: n => Math.acos(n) * 180 / Math.PI,
     atan: n => Math.atan(n) * 180 / Math.PI,
@@ -110,12 +115,12 @@ export function evaluateArithmetic(input, allowBare) {
     }
 
     function parseTerm() {
-        let value = parsePower();
+        let value = parseUnary();
         if (value === null)
             return null;
         while (peek() === '*' || peek() === '/' || peek() === '%') {
             const op = consume();
-            const right = parsePower();
+            const right = parseUnary();
             if (right === null)
                 return null;
             if (op === '*')
@@ -133,14 +138,28 @@ export function evaluateArithmetic(input, allowBare) {
         return value;
     }
 
+    // unary is outside power so -2^2 is -(2^2)
+    function parseUnary() {
+        if (peek() === '-') {
+            consume();
+            const v = parseUnary();
+            return v === null ? null : -v;
+        }
+        if (peek() === '+') {
+            consume();
+            return parseUnary();
+        }
+        return parsePower();
+    }
+
     function parsePower() {
-        const value = parseFactor();
+        const value = parsePrimary();
         if (value === null)
             return null;
         if (peek() !== '^')
             return value;
         consume();
-        const exp = parsePower();
+        const exp = parseUnary();
         if (exp === null)
             return null;
         return Math.pow(value, exp);
@@ -188,24 +207,26 @@ export function evaluateArithmetic(input, allowBare) {
             return null;
         const afterPostfix = postfixPercent(postfixFact(value));
         const next = peek();
-        if (next === '(' || isIdent(next))
-            return finishValue(afterPostfix * parseFactor());
+        if (next === '(' || isIdent(next)) {
+            const right = parsePrimary();
+            if (right === null)
+                return null;
+            return finishValue(afterPostfix * right);
+        }
         return afterPostfix;
     }
 
-    function parseFactor() {
+    function applyFunc(fn, v) {
+        const out = fn(v);
+        if (!Number.isFinite(out))
+            return null;
+        return out;
+    }
+
+    function parsePrimary() {
         const tok = peek();
         if (tok === undefined)
             return null;
-        if (tok === '-') {
-            consume();
-            const v = parseFactor();
-            return v === null ? null : -v;
-        }
-        if (tok === '+') {
-            consume();
-            return parseFactor();
-        }
         if (tok === '(') {
             consume();
             const v = parseExpression();
@@ -225,7 +246,7 @@ export function evaluateArithmetic(input, allowBare) {
                 if (v === null || peek() !== ')')
                     return null;
                 consume();
-                return finishValue(FUNCS[name](v));
+                return finishValue(applyFunc(FUNCS[name], v));
             }
             if (CONSTS[name] !== undefined)
                 return finishValue(CONSTS[name]);
