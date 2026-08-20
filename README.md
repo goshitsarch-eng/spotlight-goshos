@@ -36,7 +36,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
 | **Onagre** | [Onagre](https://github.com/oknozor/onagre) | Centered stone-dark panel, amber selected row with dark text. |
 
-Picking a look applies its colors and the matching chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, and whether open windows list first). Changing `launcher-theme` at runtime (preferences or `gsettings`) writes that profile too. You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
+Picking a look applies its colors and the matching chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, and whether open windows list first). Changing `launcher-theme` at runtime (preferences or `gsettings`) writes that profile too. A look change written while the extension is disabled still applies on the next enable. You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
 ## Search Priority
 
@@ -236,7 +236,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom. A short work area lifts the origin so the list is not `max-height: 0`.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes. A tap on a result row activates it the same way a click does.
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
-- Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class.
+- Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable only stamps that key so a custom icon size is not reset.
 - Typed paths and slash-path `!` commands stay non-activatable until the exists check finishes.
 - A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute. Preferences then show that working shortcut. Fallbacks such as Ctrl+Space are only tried when nothing is grabbed yet.
 - The shortcut grab uses `Meta.KeyBindingFlags.IGNORE_AUTOREPEAT` so a held key cannot cancel a pending open or flip reopen-after-close.

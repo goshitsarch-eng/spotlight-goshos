@@ -323,6 +323,7 @@ Manual testing on GNOME Shell 50 Wayland:
 120. Change the shortcut, then disable the extension — the old key must not open the launcher. GNOME 50 `removeKeybinding` is the gsettings path and does not clear `allowKeybinding` for `grab_accelerator` names; a throw there would also skip `ungrab_accelerator`.
 121. If enable throws (a missing ThemeContext used to), disable must still release any grab that was taken and destroy any popup that was constructed. GNOME still calls disable after a failed enable.
 122. Close or disable while the session is tearing down — the next enable must not leave a leftover popup or unredirect hold, and the shortcut must open again. `hide()` must run before host disconnects so a throw cannot leave the actor visible (`canOpenPopup` treats visible as already open).
+123. Disable the extension, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size after picking Spotlight in preferences must still survive disable and enable.
 
 ## Submitting Changes
 

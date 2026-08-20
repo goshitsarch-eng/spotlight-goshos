@@ -33,6 +33,12 @@
       <description>Visual style of the launcher popup.</description>
     </key>
 
+    <key name="applied-look" type="s">
+      <default>''</default>
+      <summary>Last applied look</summary>
+      <description>Internal. Last launcher-theme whose chrome profile was written. A look change while the extension is disabled still applies on enable without resetting custom chrome on every enable.</description>
+    </key>
+
     <key name="popup-position" type="s">
       <choices>
         <choice value="center"/>

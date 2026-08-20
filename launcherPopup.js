@@ -16,7 +16,7 @@ import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
 import {LiveSearchWatcher} from './liveSearchWatcher.js';
-import {getTheme, applyLookSettings} from './themes.js';
+import {getTheme, applyLookSettings, syncLookSettings} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
@@ -60,6 +60,8 @@ class LauncherPopup extends St.BoxLayout {
         this.set_vertical(true);
 
         this._settings = extension._settings;
+        // gsettings look writes while disabled never reach changed::launcher-theme
+        syncLookSettings(this._settings);
         this._isOpen = false;
         this._positionIdleId = 0;
         this._openIdleId = 0;
@@ -192,6 +194,8 @@ class LauncherPopup extends St.BoxLayout {
 
         this.add_style_class_name(`gosh-theme-${theme.id}`);
         this.add_style_class_name(`gosh-density-${this._settings.get_string('row-density')}`);
+        if (this._searchIcon)
+            this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
     }
 
     // dconf writes must apply popos chrome not only the css class

@@ -10,7 +10,7 @@ import {themeScale, themeScaleFromContext, stagePx, cssPx} from '../uiScale.js';
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
-import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
+import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings} from '../themes.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
@@ -1352,6 +1352,7 @@ assertEq(stored['result-order'], 'windows-first', 'popos windows first');
 assertEq(stored['show-search-icon'], true, 'popos keeps the search icon');
 assertEq(stored['show-result-icons'], true, 'popos keeps result icons');
 assertEq(stored['show-descriptions'], true, 'popos keeps descriptions');
+assertEq(stored['applied-look'], 'popos', 'applying a look stamps it');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
@@ -1537,6 +1538,50 @@ assert(!shouldApplyLook('onagre', ''), 'empty look is ignored');
 // bindSettingsCombo writes launcher-theme before notify::selected
 // lastThemeId must still be the previous look or prefs never writes chrome
 assert(shouldApplyLook('spotlight', 'popos'), 'prefs applyLook still sees the previous look after the combo write');
+assertEq(lookApplyAction('rofi', 'spotlight'), 'apply', 'disabled gsettings look applies on enable');
+assertEq(lookApplyAction('spotlight', 'spotlight'), 'keep', 'same look keeps custom chrome');
+assertEq(lookApplyAction('spotlight', ''), 'stamp', 'first enable does not wipe custom chrome');
+assertEq(lookApplyAction('', 'spotlight'), 'keep', 'empty theme is ignored');
+{
+    const syncStore = {'launcher-theme': 'rofi', 'applied-look': 'spotlight', 'icon-size': 40};
+    const action = syncLookSettings({
+        get_string(key) {
+            return syncStore[key];
+        },
+        set_string(key, value) {
+            syncStore[key] = value;
+        },
+        set_boolean(key, value) {
+            syncStore[key] = value;
+        },
+        set_int(key, value) {
+            syncStore[key] = value;
+        },
+    });
+    assertEq(action, 'apply', 'stale look writes chrome');
+    assertEq(syncStore['show-search-icon'], false, 'rofi chrome lands on enable');
+    assertEq(syncStore['applied-look'], 'rofi', 'applied look is stamped');
+}
+{
+    const first = {'launcher-theme': 'spotlight', 'applied-look': '', 'icon-size': 40};
+    const action = syncLookSettings({
+        get_string(key) {
+            return first[key];
+        },
+        set_string(key, value) {
+            first[key] = value;
+        },
+        set_boolean(key, value) {
+            first[key] = value;
+        },
+        set_int(key, value) {
+            first[key] = value;
+        },
+    });
+    assertEq(action, 'stamp', 'first enable only stamps');
+    assertEq(first['icon-size'], 40, 'first enable keeps custom icon size');
+    assertEq(first['applied-look'], 'spotlight', 'first enable stamps the current look');
+}
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
 let prefsDisconnected = 0;
 let prefsDestroy = null;

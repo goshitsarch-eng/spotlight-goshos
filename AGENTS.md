@@ -397,6 +397,8 @@ the schema file is `schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.
 
 the `web-search-engine` and `launcher-theme` keys use `<choices>` not `<enum>` because the code reads and writes them as strings with get_string() and set_string() using an enum would require get_enum() and set_enum() instead
 
+the `applied-look` key is a plain string so it can be empty before the first enable stamp do not put it on the appearance page
+
 the `gschemas.compiled` binary is not shipped in the zip gnome shell 44 and later compiles schemas automatically on install shipping the compiled binary is unnecessary
 
 see https://gjs.guide/extensions/development/preferences.html#gsettings
@@ -462,6 +464,9 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 6. launcherPopup applies the look profile when launcher-theme changes so dconf writes get the same chrome as the prefs combo
 7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
 8. changed::launcher-theme must not advance lastThemeId the combo writes that key before notify::selected so lastThemeId has to stay on the previous look or picking popos from prefs never writes top windows-first chrome when the extension is disabled
+9. syncLookSettings on popup construct applies a look written while disabled applied-look tracks the last written profile first enable only stamps that key so a custom icon size is not reset
+
+the applied-look key is a plain string not choices so it can be empty before the first stamp
 
 ## adding a new ui component
 

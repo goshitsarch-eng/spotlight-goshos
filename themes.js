@@ -313,6 +313,18 @@ export function shouldApplyLook(previousId, nextId) {
     return Boolean(nextId) && nextId !== previousId;
 }
 
+// a gsettings look write while disabled never reaches the popup listener
+// stamp on first enable so a custom icon size is not wiped
+export function lookApplyAction(themeId, appliedId) {
+    if (!themeId)
+        return 'keep';
+    if (!appliedId)
+        return 'stamp';
+    if (themeId !== appliedId)
+        return 'apply';
+    return 'keep';
+}
+
 export function applyLookSettings(settings, theme) {
     const look = theme.look;
     settings.set_string('popup-position', look.position);
@@ -324,6 +336,17 @@ export function applyLookSettings(settings, theme) {
     settings.set_boolean('show-descriptions', look.showDescriptions);
     settings.set_string('result-order', look.resultOrder);
     settings.set_int('icon-size', look.iconSize);
+    settings.set_string('applied-look', theme.id);
+}
+
+export function syncLookSettings(settings) {
+    const theme = getTheme(settings.get_string('launcher-theme'));
+    const action = lookApplyAction(theme.id, settings.get_string('applied-look'));
+    if (action === 'apply')
+        applyLookSettings(settings, theme);
+    else if (action === 'stamp')
+        settings.set_string('applied-look', theme.id);
+    return action;
 }
 
 // compact density shrinks the look's own icon size so popos stays larger
