@@ -3,6 +3,12 @@
 
 // use the work area so a top look sits below the panel and a center look
 // is centered in the usable desktop not under chrome
+export function popupWidthForWorkArea(requested, workWidth) {
+    if (workWidth > 0 && requested > workWidth)
+        return workWidth;
+    return requested;
+}
+
 export function popupOrigin(workArea, popupWidth, popupHeight, position) {
     let x = Math.floor(workArea.x + (workArea.width - popupWidth) / 2);
     let y;

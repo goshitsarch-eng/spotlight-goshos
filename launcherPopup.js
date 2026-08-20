@@ -16,7 +16,7 @@ import {FocusLossWatcher} from './focusLossWatcher.js';
 import {getTheme} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {canOpenPopup} from './popupGate.js';
-import {popupOrigin} from './popupPosition.js';
+import {popupOrigin, popupWidthForWorkArea} from './popupPosition.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -91,7 +91,7 @@ class LauncherPopup extends St.BoxLayout {
 
         this._settings.connectObject(
             'changed::launcher-theme', () => this._applyChrome(),
-            'changed::popup-width', () => this.set_width(this._settings.get_int('popup-width')),
+            'changed::popup-width', () => this.set_width(this._fittedWidth()),
             'changed::show-search-icon', () => {
                 this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
             },
@@ -130,12 +130,22 @@ class LauncherPopup extends St.BoxLayout {
     // called once when the popup opens based on the empty-state height
     // the popup then grows downward from this fixed position as results appear
     // this prevents the popup from shifting upward when results grow
+    _fittedWidth() {
+        const monitor = Main.layoutManager.primaryMonitor;
+        const requested = this._settings.get_int('popup-width');
+        if (!monitor)
+            return requested;
+        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
+        return popupWidthForWorkArea(requested, workArea.width);
+    }
+
     _reposition() {
         const monitor = Main.layoutManager.primaryMonitor;
         if (!monitor)
             return;
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
-        const popupWidth = this._settings.get_int('popup-width');
+        const popupWidth = this._fittedWidth();
+        this.set_width(popupWidth);
         const [, naturalHeight] = this.get_preferred_height(popupWidth);
         const origin = popupOrigin(
             workArea,
@@ -174,8 +184,7 @@ class LauncherPopup extends St.BoxLayout {
         // queue a layout pass then position before showing
         // ensures get_preferred_height returns correct values
         // otherwise css may not be applied and height is wrong
-        const popupWidth = this._settings.get_int('popup-width');
-        this.set_width(popupWidth);
+        this.set_width(this._fittedWidth());
         this._applyChrome();
         this.queue_relayout();
         this._positionIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {

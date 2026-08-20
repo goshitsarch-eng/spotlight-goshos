@@ -152,7 +152,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 - **Looks are settings.** One popup, many CSS themes. No forked widget trees.
 - **Dark, not black** on the Spotlight look. Background `#1c1c1e` with text `#f5f5f7`.
 - **No blur, no overlay, no border** on the Spotlight look. Other looks may add a thin theme border.
-- **Fixed anchor.** The popup is positioned once at open time in the primary work area (below the panel) and grows downward from that anchor.
+- **Fixed anchor.** The popup is positioned once at open time in the primary work area (below the panel) and grows downward from that anchor. If the chosen width is wider than the work area, the popup shrinks to fit.
 - **Instant.** No fade-in, no slide animation.
 - **GNOME 50 safe.** No X11-only APIs, no `RunDialog._restart`, no `holdKeyboard` / `releaseKeyboard`.
 

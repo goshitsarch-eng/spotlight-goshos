@@ -2,7 +2,7 @@ import {evaluateArithmetic, formatNumber, normalizeMath} from '../calculator.js'
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
-import {popupOrigin} from '../popupPosition.js';
+import {popupOrigin, popupWidthForWorkArea} from '../popupPosition.js';
 import {backdropBox} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
@@ -139,6 +139,9 @@ const tiny = {x: 0, y: 0, width: 400, height: 300};
 assertEq(popupOrigin(tiny, 600, 80, 'center').x, 0, 'wide popup pins to work left');
 assertEq(popupOrigin(tiny, 200, 400, 'center').y, 0, 'tall popup pins to work top');
 assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center').x, 50, 'pin keeps work origin');
+assertEq(popupWidthForWorkArea(600, 1920), 600, 'wide work keeps request');
+assertEq(popupWidthForWorkArea(1200, 800), 800, 'narrow work shrinks popup');
+assertEq(popupWidthForWorkArea(600, 0), 600, 'unknown work keeps request');
 
 const span = backdropBox([
     {x: 0, y: 0, width: 1920, height: 1080},
