@@ -12,8 +12,14 @@ export function normalizeHexColor(query) {
         const s = text.slice(1).toLowerCase();
         return `#${s[0]}${s[0]}${s[1]}${s[1]}${s[2]}${s[2]}`;
     }
+    if (/^#[0-9a-f]{4}$/i.test(text)) {
+        const s = text.slice(1, 4).toLowerCase();
+        return `#${s[0]}${s[0]}${s[1]}${s[1]}${s[2]}${s[2]}`;
+    }
     if (/^#[0-9a-f]{6}$/i.test(text))
         return text.toLowerCase();
+    if (/^#[0-9a-f]{8}$/i.test(text))
+        return `#${text.slice(1, 7).toLowerCase()}`;
     return null;
 }
 

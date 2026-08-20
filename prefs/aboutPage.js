@@ -11,7 +11,7 @@ export function buildAboutPage() {
     }));
     group.add(new Adw.ActionRow({
         title: 'Looks',
-        subtitle: 'Spotlight, Omarchy (Walker), Pop!_OS (COSMIC), Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light',
+        subtitle: 'Spotlight, Omarchy (Walker), Pop!_OS (COSMIC), Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse',
     }));
     group.add(new Adw.ActionRow({
         title: 'GNOME Shell',

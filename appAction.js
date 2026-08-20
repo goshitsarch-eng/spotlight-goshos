@@ -20,3 +20,9 @@ export function takeAppActions(actions, maxResults) {
         return [];
     return actions.slice(0, maxResults);
 }
+
+// actions are their own section so they get a full max-results
+// leftover app slots would hide New window when six apps already matched
+export function actionResultLimit(maxResults, _usedAppRows) {
+    return maxResults;
+}

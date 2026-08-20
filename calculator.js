@@ -45,7 +45,7 @@ export function normalizeMath(input) {
 function looksLikeMath(text, allowBare) {
     if (allowBare)
         return true;
-    if (/[+\-*/%^]/.test(text))
+    if (/[+\-*/%^!]/.test(text))
         return true;
     const stripped = text
         .replace(/0x[0-9a-fA-F]+/gi, '0')
@@ -66,7 +66,7 @@ export function evaluateArithmetic(input, allowBare) {
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z]+|[+\-*/%()^])/g;
+    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z]+|[+\-*/%()^!])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
@@ -129,11 +129,27 @@ export function evaluateArithmetic(input, allowBare) {
         return Math.pow(value, exp);
     }
 
+    function factorial(n) {
+        if (!Number.isInteger(n) || n < 0 || n > 170)
+            return null;
+        let value = 1;
+        for (let i = 2; i <= n; i++)
+            value *= i;
+        return value;
+    }
+
+    function postfixFact(value) {
+        if (value === null || peek() !== '!')
+            return value;
+        consume();
+        return factorial(value);
+    }
+
     function implicitMul(value) {
         const next = peek();
         if (next === '(' || isIdent(next))
-            return value * parseFactor();
-        return value;
+            return postfixFact(value * parseFactor());
+        return postfixFact(value);
     }
 
     function parseFactor() {

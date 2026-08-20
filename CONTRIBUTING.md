@@ -217,6 +217,7 @@ Manual testing on GNOME Shell 50 Wayland:
 34. Add a GTK bookmark under `~/.config/gtk-3.0/bookmarks` — typing part of its label should open that folder. Disable Bookmarks in Features — it should disappear.
 35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
 36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` — a Color row should copy `#ff0000`.
+37. Type `firefox` with six other apps matching and Firefox as the best match — New window must still appear under Actions. Type `5!` — the result should be 120. Type `#f00f` — a Color row should copy `#ff0000`. Type `zoom` — Accessibility should appear. The About page must list PowerToys and Synapse.
 
 ## Submitting Changes
 

@@ -3,7 +3,7 @@
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
 import {appMatchTier, takeUniqueByBaseName, appRowDescription} from './appMatch.js';
-import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions} from './appAction.js';
+import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from './appAction.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -111,8 +111,13 @@ export function searchApps(query, maxResults, offerActions) {
                 item.app.launch([], global.create_app_launch_context(0, -1));
         },
     }));
-    if (offerActions && unique.length > 0)
-        results.push(..._appActionRows(unique[0].app, unique[0].shellApp, maxResults - results.length));
+    if (offerActions && unique.length > 0) {
+        results.push(..._appActionRows(
+            unique[0].app,
+            unique[0].shellApp,
+            actionResultLimit(maxResults, unique.length),
+        ));
+    }
     return results;
 }
 
