@@ -19,7 +19,10 @@ export function searchCommand(query) {
             const [ok, argv] = GLib.shell_parse_argv(query);
             if (!ok || argv.length === 0)
                 return;
-            Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE);
+            // wait_check_async keeps the subprocess referenced until it exits
+            // a dropped Gio.Subprocess can SIGTERM the child on gc
+            Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE)
+                .wait_check_async(null, () => {});
         },
     }];
 }

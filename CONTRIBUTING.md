@@ -162,7 +162,8 @@ Manual testing on GNOME Shell 50 Wayland:
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, and Rofi.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
-7. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
+7. Press Home and End in a long result list — selection should jump to the first and last rows.
+8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
 
 ## Submitting Changes
 

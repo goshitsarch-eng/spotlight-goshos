@@ -21,6 +21,10 @@ export function resolveKeyAction(key, shift, alt, showNumbers) {
         return {type: 'move', delta: 5};
     if (key === 'Page_Up')
         return {type: 'move', delta: -5};
+    if (key === 'Home')
+        return {type: 'move', delta: -999};
+    if (key === 'End')
+        return {type: 'move', delta: 999};
     if (key === 'Return' || key === 'KP_Enter')
         return {type: 'activate'};
     return {type: 'propagate'};

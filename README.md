@@ -69,7 +69,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
 | Search the web | Type a query with no local matches, or `@ query` |
-| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down` |
+| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`, `Home` / `End` |
 | Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled |
 | Dismiss | `Esc`, `Ctrl + Space`, or click outside the popup |
 
