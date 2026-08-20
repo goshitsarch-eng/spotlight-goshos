@@ -31,6 +31,11 @@ export class ResultsRenderer {
         this._scrollIdleId = 0;
         this._refreshIdleId = 0;
         this._lastQuery = '';
+        this._painting = false;
+    }
+
+    get isPainting() {
+        return this._painting;
     }
 
     _clearSearchIdle() {
@@ -162,6 +167,7 @@ export class ResultsRenderer {
         this._clearScrollIdle();
         const previous = keepSelection ? this._selectedKey() : null;
         this._selection.setResults(results);
+        this._painting = true;
         this._resultsBox.destroy_all_children();
 
         if (this._selection.results.length === 0) {
@@ -175,6 +181,7 @@ export class ResultsRenderer {
         }
 
         this._resultsScroll.show();
+        this._painting = false;
     }
 
     _renderResults() {
@@ -200,8 +207,10 @@ export class ResultsRenderer {
         this._clearRefreshIdle();
         this._lastQuery = '';
         this._selection.setResults([]);
+        this._painting = true;
         this._resultsBox.destroy_all_children();
         this._resultsScroll.hide();
+        this._painting = false;
     }
 
     destroy() {

@@ -17,6 +17,11 @@ export function rowPointerAction(phase, button, wasPressed) {
     return {pressed: false, action: 'propagate'};
 }
 
+// destroy_all_children emits enter on the next row mid-teardown
+export function shouldApplyHoverSelection(painting, now, suppressedUntil) {
+    return !painting && now >= suppressedUntil;
+}
+
 // wayland tablets often send touch-event instead of a synthesized click
 export function rowTouchPhase(kind) {
     if (kind === 'touch-begin')

@@ -277,6 +277,7 @@ Manual testing on GNOME Shell 50 Wayland:
 82. Type `org` — every `org.*` app and window must not appear. Type `zil` — Firefox must not appear from mozilla. Type `ows` — Firefox must not appear from Web Browser. Type `ite` — Notes must not appear from Write notes. Type `mozilla` or `nautilus` — those desktop ids should still match. Type `ume` — Documents must not appear just because the title contains those letters.
 83. Type a `~/` path that exists, then keep typing while the row still says Checking path — the shell must stay up when that exists check finishes. The same must hold for a `!` slash-path command, a recent-file load, and GTK bookmarks. After the check finishes the resolved row must appear without jumping the highlight if you already moved it.
 84. On Pop!_OS or any look with number hints, type a pending `~/` path that also lists Firefox or Open in Terminal below it — `Alt+1` must stay open and must not launch that later row. `Enter` on the pending row may still activate the ready sibling. `Alt+2` should activate the second row if that row is ready.
+85. Rest the pointer over the results list, then type another character or wait for a path exists-check to finish — the shell must stay up. The highlight should stay on the kept row, not jump to whichever row the pointer happens to be over during the rebuild.
 
 ## Submitting Changes
 

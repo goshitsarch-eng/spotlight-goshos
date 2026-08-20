@@ -14,7 +14,7 @@ import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveA
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, pathMatchesQuery, idMatchesQuery, labelMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
-import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from '../resultPointer.js';
+import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON, shouldApplyHoverSelection} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -307,6 +307,9 @@ assertEq(backdropPointerAction('touch-update'), 'stop', 'touch move swallowed');
 assertEq(backdropPointerAction('touch-cancel'), 'stop', 'touch cancel swallowed');
 assertEq(backdropPointerAction('touch-end'), 'close', 'touch end closes');
 assertEq(backdropPointerAction('scroll'), 'propagate', 'scroll ignored');
+assert(!shouldApplyHoverSelection(true, 10, 0), 'hover during paint');
+assert(shouldApplyHoverSelection(false, 10, 0), 'hover after paint');
+assert(!shouldApplyHoverSelection(false, 10, 20), 'hover suppressed after arrows');
 assertEq(rowPointerAction('press', PRIMARY_BUTTON, false).action, 'stop', 'row press claimed');
 assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', 'row release activates');
 assertEq(rowPointerAction('release', PRIMARY_BUTTON, false).action, 'propagate', 'release without press');

@@ -21,6 +21,7 @@ import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction} from './popupGate.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
+import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -91,9 +92,11 @@ class LauncherPopup extends St.BoxLayout {
             resultsBox, resultsScroll, this._selection, this._settings,
             result => this.activateResult(result),
             (idx) => {
-                // ignore hover selection briefly after keyboard nav
-                // prevents scroll-induced enter-events from jumping selection
-                if (GLib.get_monotonic_time() < this._keyHandler.suppressedUntil)
+                if (!shouldApplyHoverSelection(
+                    this._renderer.isPainting,
+                    GLib.get_monotonic_time(),
+                    this._keyHandler.suppressedUntil,
+                ))
                     return;
                 this._selection.applySelection(idx);
             }
