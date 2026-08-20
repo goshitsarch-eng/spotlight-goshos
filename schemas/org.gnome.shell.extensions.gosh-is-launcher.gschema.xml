@@ -226,7 +226,7 @@
     <key name="enable-command-run" type="b">
       <default>false</default>
       <summary>Enable command runner</summary>
-      <description>Run a shell command when the query uses the ! prefix.</description>
+      <description>Run a PATH or file command with the ! prefix as argv, not a shell. Pipes stay literal.</description>
     </key>
 
     <key name="web-search-engine" type="s">

@@ -22,7 +22,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Omarchy** | [Walker on Omarchy Linux](https://github.com/basecamp/omarchy) | Single Tokyo Night panel (`#1a1b26`, `#7aa2f7` accent). |
 | **Pop!_OS** | [COSMIC Launcher](https://system76.com/support/pop-basics/) | Single card, cooler gray, roomy rows, top-anchored, windows first, Alt+1–9 hints. |
 | **Ulauncher** | [Ulauncher](https://ulauncher.io) | Warm dark panel, larger type, orange accent. |
-| **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
+| **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored, Alt+1–9 hints. |
 | **GNOME** | GNOME overview / Adwaita | Native-feeling card that follows the session accent (GNOME 47+). |
 | **Rofi** | [Rofi](https://github.com/davatorium/rofi) | Square dmenu-style list, compact rows, classic `#005577` selection. |
 | **Raycast** | [Raycast](https://www.raycast.com) | Dark rounded panel, red caret, larger icons, no section headers. |
@@ -32,7 +32,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Anyrun** | [Anyrun](https://github.com/anyrun-org/anyrun) | Catppuccin mocha panel (`#1e1e2e`, `#89b4fa` accent), no section headers. |
 | **Tofi** | [Tofi](https://github.com/philj56/tofi) | Stark black dmenu bar, white selected row, top-anchored, compact. |
 | **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the session accent on the selected row. |
-| **PowerToys** | [PowerToys Run](https://learn.microsoft.com/windows/powertoys/run) | Fluent dark card, `#2c2c2c`, `#0078d4` selected row, no section headers. |
+| **PowerToys** | [PowerToys Run](https://learn.microsoft.com/windows/powertoys/run) | Fluent dark card, `#2c2c2c`, `#0078d4` selected row, Alt+1–9 hints, no section headers. |
 | **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
 | **Onagre** | [Onagre](https://github.com/oknozor/onagre) | Centered stone-dark panel, amber selected row with dark text. |
 

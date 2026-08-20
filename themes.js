@@ -77,12 +77,12 @@ export const THEMES = [
     {
         id: 'krunner',
         title: 'KRunner',
-        description: 'Plasma-style compact bar anchored near the top',
+        description: 'Plasma-style compact bar with Alt+1-9 hints near the top',
         hint: 'Search or run',
         look: {
             position: 'top',
             density: 'compact',
-            showNumbers: false,
+            showNumbers: true,
             showHeaders: false,
             showSearchIcon: true,
             showResultIcons: true,
@@ -247,12 +247,12 @@ export const THEMES = [
     {
         id: 'powertoys',
         title: 'PowerToys',
-        description: 'Windows-style runner card with a Fluent blue selected row',
+        description: 'Windows-style runner card with Fluent blue selection and Alt+1-9 hints',
         hint: 'Type here to search',
         look: {
             position: 'center',
             density: 'comfortable',
-            showNumbers: false,
+            showNumbers: true,
             showHeaders: false,
             showSearchIcon: true,
             showResultIcons: true,

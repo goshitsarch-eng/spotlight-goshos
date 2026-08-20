@@ -21,7 +21,7 @@ the other looks follow real launchers researched for this project
 - omarchy uses walker on omarchy linux with the tokyo night palette from https://github.com/basecamp/omarchy/tree/dev/themes/tokyo-night
 - popos follows the cosmic launcher a single card cooler gray roomy rows often placed near the top
 - ulauncher is the alfred-like dark panel with a warm orange accent
-- krunner is the plasma compact bar with breeze blue and a tight radius
+- krunner is the plasma compact bar with breeze blue a tight radius and alt+1-9 hints
 - gnome follows adwaita
 - rofi is the dmenu-style list with a square frame and the classic #005577 selected row
 - raycast is a dark rounded panel with a red caret and no section headers
@@ -31,7 +31,7 @@ the other looks follow real launchers researched for this project
 - anyrun is a catppuccin mocha panel #1e1e2e with a #89b4fa selected edge
 - tofi is a stark black dmenu bar with a white selected row
 - light is adwaita light
-- powertoys is a fluent dark card with a #0078d4 selected row
+- powertoys is a fluent dark card with a #0078d4 selected row and alt+1-9 hints
 - synapse is a large-icon dark panel with an ubuntu-orange caret
 - onagre is a stone-dark card with an amber selected row and dark selected text
 

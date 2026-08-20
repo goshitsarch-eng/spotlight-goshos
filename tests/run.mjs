@@ -590,6 +590,8 @@ for (const id of themeIds)
 
 for (const engine of SEARCH_ENGINES)
     assert(schema.includes(`<choice value="${engine.id}"/>`), `schema has engine ${engine.id}`);
+assert(schema.includes('argv, not a shell'), 'command runner schema is argv');
+assert(!schema.includes('Run a shell command'), 'command runner schema is not a shell');
 assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
@@ -1373,6 +1375,7 @@ applyLookSettings({
 }, getTheme('krunner'));
 assertEq(stored['row-density'], 'compact', 'krunner is compact');
 assertEq(stored['popup-position'], 'top', 'krunner sits at top');
+assertEq(stored['show-result-numbers'], true, 'krunner has number hints');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
@@ -1495,6 +1498,7 @@ applyLookSettings({
 }, getTheme('powertoys'));
 assertEq(stored['show-section-headers'], false, 'powertoys hides headers');
 assertEq(stored['popup-position'], 'center', 'powertoys is centered');
+assertEq(stored['show-result-numbers'], true, 'powertoys has number hints');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
