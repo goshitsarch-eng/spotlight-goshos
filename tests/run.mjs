@@ -1545,6 +1545,8 @@ assert(shouldApplyLook('spotlight', 'popos'), 'prefs applyLook still sees the pr
 assertEq(lookApplyAction('rofi', 'spotlight'), 'apply', 'disabled gsettings look applies on enable');
 assertEq(lookApplyAction('spotlight', 'spotlight'), 'keep', 'same look keeps custom chrome');
 assertEq(lookApplyAction('spotlight', ''), 'stamp', 'first enable does not wipe custom chrome');
+assertEq(lookApplyAction('rofi', ''), 'apply', 'preset look applies on first enable');
+assertEq(lookApplyAction('popos', ''), 'apply', 'popos preset applies on first enable');
 assertEq(lookApplyAction('', 'spotlight'), 'keep', 'empty theme is ignored');
 {
     const syncStore = {'launcher-theme': 'rofi', 'applied-look': 'spotlight', 'icon-size': 40};
@@ -1585,6 +1587,28 @@ assertEq(lookApplyAction('', 'spotlight'), 'keep', 'empty theme is ignored');
     assertEq(action, 'stamp', 'first enable only stamps');
     assertEq(first['icon-size'], 40, 'first enable keeps custom icon size');
     assertEq(first['applied-look'], 'spotlight', 'first enable stamps the current look');
+}
+{
+    const preset = {'launcher-theme': 'rofi', 'applied-look': '', 'icon-size': 40};
+    const action = syncLookSettings({
+        get_string(key) {
+            return preset[key];
+        },
+        set_string(key, value) {
+            preset[key] = value;
+        },
+        set_boolean(key, value) {
+            preset[key] = value;
+        },
+        set_int(key, value) {
+            preset[key] = value;
+        },
+    });
+    assertEq(action, 'apply', 'first enable applies a preset look');
+    assertEq(preset['show-search-icon'], false, 'preset rofi hides the search icon');
+    assertEq(preset['show-result-icons'], false, 'preset rofi hides result icons');
+    assertEq(preset['show-descriptions'], false, 'preset rofi hides descriptions');
+    assertEq(preset['applied-look'], 'rofi', 'preset look is stamped');
 }
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
 assertEq(getTheme('gnome').description.includes('session accent'), true, 'gnome look mentions the session accent');

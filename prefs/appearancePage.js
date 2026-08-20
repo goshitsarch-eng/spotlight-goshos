@@ -25,7 +25,7 @@ const ORDERS = [
 export function buildAppearancePage(settings) {
     const lookGroup = new Adw.PreferencesGroup({
         title: 'Look',
-        description: 'A look sets colors, position, density, headers, number hints, the search icon, result icons, and descriptions. You can still change those after.',
+        description: 'A look sets colors, position, density, headers, number hints, the search icon, result icons, descriptions, icon size, and result order. You can still change those after.',
     });
 
     const themeModel = new Gtk.StringList();

@@ -314,12 +314,13 @@ export function shouldApplyLook(previousId, nextId) {
 }
 
 // a gsettings look write while disabled never reaches the popup listener
-// stamp on first enable so a custom icon size is not wiped
+// first enable of the default look only stamps so a custom icon size lives
+// a non-default look written before the first enable still needs its chrome
 export function lookApplyAction(themeId, appliedId) {
     if (!themeId)
         return 'keep';
     if (!appliedId)
-        return 'stamp';
+        return themeId === THEMES[0].id ? 'stamp' : 'apply';
     if (themeId !== appliedId)
         return 'apply';
     return 'keep';
