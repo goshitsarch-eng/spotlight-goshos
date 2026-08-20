@@ -2,14 +2,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {basenameFromUri, pathFromFileUri} from './recentXbel.js';
-import {fileUriFromAbsolute} from './homePath.js';
+import {fileUriFromAbsolute, expandHomePath} from './homePath.js';
+import {isUnsafeLaunchUri} from './urlMatch.js';
 import {wordPrefixMatch} from './wordMatch.js';
 
-export function normalizeBookmarkUri(uri) {
+export function normalizeBookmarkUri(uri, home) {
     if (!uri)
+        return '';
+    if (isUnsafeLaunchUri(uri))
         return '';
     if (uri.startsWith('/'))
         return fileUriFromAbsolute(uri);
+    if (home && (uri === '~' || uri.startsWith('~/'))) {
+        const expanded = expandHomePath(uri, home);
+        if (expanded.startsWith('/'))
+            return fileUriFromAbsolute(expanded);
+    }
     return uri;
 }
 
@@ -43,7 +51,7 @@ export function bookmarkDescription(uri, home) {
     return uri;
 }
 
-export function parseGtkBookmarks(text) {
+export function parseGtkBookmarks(text, home) {
     const rows = [];
     const seen = new Set();
     const lines = text.split(/\r?\n/);
@@ -53,7 +61,7 @@ export function parseGtkBookmarks(text) {
             continue;
         const space = line.indexOf(' ');
         const rawUri = space === -1 ? line : line.slice(0, space);
-        const uri = normalizeBookmarkUri(rawUri);
+        const uri = normalizeBookmarkUri(rawUri, home);
         const label = space === -1 ? '' : line.slice(space + 1).trim();
         if (!uri || seen.has(uri))
             continue;
@@ -66,8 +74,8 @@ export function parseGtkBookmarks(text) {
     return rows;
 }
 
-export function mergeBookmarkFiles(texts) {
-    return parseGtkBookmarks(texts.join('\n'));
+export function mergeBookmarkFiles(texts, home) {
+    return parseGtkBookmarks(texts.join('\n'), home);
 }
 
 export function bookmarkMatches(title, description, query) {

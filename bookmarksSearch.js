@@ -70,7 +70,7 @@ function _startLoad() {
             return;
         if (loadId !== _loadId)
             return;
-        _rows = mergeBookmarkFiles(texts.map(text => text || ''));
+        _rows = mergeBookmarkFiles(texts.map(text => text || ''), GLib.get_home_dir() || '');
         _loading = false;
         _flush();
     };

@@ -54,11 +54,15 @@ export function isPlausibleWebHost(host) {
     return /^[a-z]{2,}$/.test(tld);
 }
 
+export function isUnsafeLaunchUri(query) {
+    return /^(javascript|data|vbscript):/i.test(query.trim());
+}
+
 export function isUrlQuery(query) {
     const trimmed = query.trim();
     if (trimmed.length === 0 || /\s/.test(trimmed))
         return false;
-    if (/^(javascript|data|vbscript):/i.test(trimmed))
+    if (isUnsafeLaunchUri(trimmed))
         return false;
     if (SCHEME_RE.test(trimmed) ||
         MAILTO_RE.test(trimmed) ||
@@ -101,7 +105,7 @@ export function schemeForHost(host) {
 
 export function normalizeUrl(query) {
     const trimmed = query.trim();
-    if (/^(javascript|data|vbscript):/i.test(trimmed))
+    if (isUnsafeLaunchUri(trimmed))
         return null;
     if (/^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:)/i.test(trimmed))
         return trimmed;

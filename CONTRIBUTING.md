@@ -245,6 +245,7 @@ Manual testing on GNOME Shell 50 Wayland:
 54. Type `2 hours to min` — the title should be `120 min`. Type `1 acre to m2` — an area row should appear. Type `.5+1` — the calculator result should be 1.5. Type `1e` — it must stay an app search. Type `2*e` — Euler’s number should evaluate. A GTK bookmark line that is a bare `/home/…` path should open that folder.
 55. Type `100 kph to mph` or `100 km/h to mph` — a speed row should appear. Type `1 m3 to l` — the title should be `1000 l`. Type `1 m² to ft2` — an area row should appear. Type `rgb(100%, 0%, 0%)` — a Color row should copy `#ff0000`. Type `what's the time` — a Clock row should appear.
 56. Type `2pi^2` — the result should be about 19.74, not 39.48. Type `2^3pi` — the result should be about 25.13. Type `~/` plus a path and press Enter while it says Checking path — the popup must stay open. A missing path or `!badcmd` must also stay open.
+57. Type `force quit` plus an open window title — the row should say Kill … and Enter should force-quit. A GTK bookmark line that is `~/Documents` should open that folder. A `javascript:` bookmark must not appear.
 
 ## Submitting Changes
 
