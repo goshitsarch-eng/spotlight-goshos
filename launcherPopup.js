@@ -70,6 +70,7 @@ class LauncherPopup extends St.BoxLayout {
         this._stageKeyId = 0;
         this._monitorsId = 0;
         this._keyboardBox = null;
+        this._keyboardSlide = null;
         this._backdrop = null;
         this._sessionId = 0;
         this._overviewId = 0;
@@ -260,18 +261,60 @@ class LauncherPopup extends St.BoxLayout {
         // keyboardbox can vanish while the osk is rebuilding
         try {
             box.connectObject(
-                'notify::visible', () => this._onKeyboardChanged(),
-                'notify::allocation', () => this._onKeyboardChanged(),
-                'notify::translation-y', () => this._onKeyboardChanged(),
+                'notify::visible', () => {
+                    this._bindKeyboardSlide();
+                    this._onKeyboardChanged();
+                },
+                'notify::allocation', () => {
+                    this._bindKeyboardSlide();
+                    this._onKeyboardChanged();
+                },
                 this,
             );
             this._keyboardBox = box;
+            this._bindKeyboardSlide();
         } catch (e) {
             this._keyboardBox = null;
+            this._keyboardSlide = null;
         }
     }
 
+    // gnome 50 slides the keys not the parked keyboardbox
+    _bindKeyboardSlide() {
+        const box = this._keyboardBox;
+        if (!box)
+            return;
+        const child = typeof box.get_first_child === 'function' ? box.get_first_child() : null;
+        if (child === this._keyboardSlide)
+            return;
+        this._unlistenKeyboardSlide();
+        if (!child)
+            return;
+        try {
+            child.connectObject(
+                'notify::translation-y', () => this._onKeyboardChanged(),
+                'notify::allocation', () => this._onKeyboardChanged(),
+                this,
+            );
+            this._keyboardSlide = child;
+        } catch (e) {
+            this._keyboardSlide = null;
+        }
+    }
+
+    _unlistenKeyboardSlide() {
+        if (!this._keyboardSlide)
+            return;
+        try {
+            this._keyboardSlide.disconnectObject(this);
+        } catch (e) {
+            // the keys can vanish while the osk is rebuilding
+        }
+        this._keyboardSlide = null;
+    }
+
     _unlistenKeyboard() {
+        this._unlistenKeyboardSlide();
         if (!this._keyboardBox)
             return;
         try {
@@ -317,12 +360,18 @@ class LauncherPopup extends St.BoxLayout {
     _usableWorkArea() {
         const monitor = Main.layoutManager.primaryMonitor;
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
+        this._bindKeyboardSlide();
+        const box = Main.layoutManager.keyboardBox;
+        const slide = this._keyboardSlide || (
+            box && typeof box.get_first_child === 'function' ? box.get_first_child() : null
+        );
         return workAreaAvoidingKeyboard(
             workArea,
             keyboardOverlapFromBox(
-                Main.layoutManager.keyboardBox,
+                box,
                 Main.layoutManager.keyboardIndex,
                 monitor.index,
+                slide,
             ),
         );
     }

@@ -55,16 +55,18 @@ export function placePopup(workArea, popupWidth, emptyHeight, position, requeste
     };
 }
 
-// keyboardbox sits on the monitor bottom edge and slides up with translation-y
-// the work area does not exclude it because it is not a strut
-export function keyboardOverlapFromBox(box, keyboardMonitorIndex, workMonitorIndex) {
+// keyboardbox stays parked at the monitor bottom the keys are a child
+// that slides with translation-y https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/keyboard.js
+export function keyboardOverlapFromBox(box, keyboardMonitorIndex, workMonitorIndex, slide) {
     if (!box)
         return {visible: false, y: 0, height: 0, translationY: 0, monitorIndex: -1, workMonitorIndex};
+    const mover = slide || box;
+    const height = slide && slide.height > 0 ? slide.height : box.height;
     return {
         visible: Boolean(box.visible),
         y: box.y,
-        height: box.height,
-        translationY: box.translation_y,
+        height,
+        translationY: mover.translation_y,
         monitorIndex: keyboardMonitorIndex,
         workMonitorIndex,
     };

@@ -352,7 +352,13 @@ assertEq(nextUnredirectAction(false, true, ''), 'keep', 'missing api does not ho
 const kbHidden = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: 0}, 0, 0);
 assertEq(workAreaAvoidingKeyboard(work, kbHidden), work, 'parked keyboard under the monitor is ignored');
 const kbOpen = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: -300}, 0, 0);
-assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbOpen).height, 780, 'open keyboard shrinks the work area');
+assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbOpen).height, 780, 'box slide shrinks the work area');
+const kbChild = keyboardOverlapFromBox(
+    {visible: true, y: 1080, height: 300, translation_y: 0},
+    0, 0,
+    {height: 300, translation_y: -300},
+);
+assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbChild).height, 780, 'gnome 50 child slide shrinks the work area');
 const kbOther = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: -300}, 1, 0);
 assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbOther).height, 1080, 'keyboard on another monitor is ignored');
 assertEq(keyboardOverlapFromBox(null, 0, 0).visible, false, 'missing keyboard box');
