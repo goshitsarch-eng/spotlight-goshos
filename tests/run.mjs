@@ -76,6 +76,7 @@ assert(themeIds.includes('popos'), 'popos theme');
 assert(themeIds.includes('ulauncher'), 'ulauncher theme');
 assert(themeIds.includes('krunner'), 'krunner theme');
 assert(themeIds.includes('gnome'), 'gnome theme');
+assert(themeIds.includes('rofi'), 'rofi theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
 
@@ -191,6 +192,16 @@ applyLookSettings({
 }, getTheme('krunner'));
 assertEq(stored['row-density'], 'compact', 'krunner is compact');
 assertEq(stored['popup-position'], 'top', 'krunner sits at top');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('rofi'));
+assertEq(stored['row-density'], 'compact', 'rofi is compact');
+assertEq(stored['show-section-headers'], false, 'rofi hides headers');
 
 for (const theme of THEMES)
     assert(theme.look && theme.look.position && theme.look.resultOrder && theme.look.iconSize, `look profile ${theme.id}`);

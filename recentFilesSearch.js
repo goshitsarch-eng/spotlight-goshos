@@ -40,18 +40,19 @@ function _startLoad() {
     const path = GLib.build_filenamev([GLib.get_user_data_dir(), 'recently-used.xbel']);
     const file = Gio.File.new_for_path(path);
     file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, existsRes) => {
+        const exists = src.query_exists_finish(existsRes);
         if (loadId !== _loadId)
             return;
-        if (!src.query_exists_finish(existsRes)) {
+        if (!exists) {
             _uris = [];
             _loading = false;
             _flush();
             return;
         }
         src.load_contents_async(null, (loaded, loadRes) => {
+            const [, contents] = loaded.load_contents_finish(loadRes);
             if (loadId !== _loadId)
                 return;
-            const [, contents] = loaded.load_contents_finish(loadRes);
             const text = new TextDecoder().decode(contents);
             _keepExisting(loadId, parseRecentXbel(text));
         });
@@ -72,9 +73,10 @@ function _keepExisting(loadId, uris) {
         const file = Gio.File.new_for_uri(uris[i]);
         const index = i;
         file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, res) => {
+            const exists = src.query_exists_finish(res);
             if (loadId !== _loadId)
                 return;
-            if (src.query_exists_finish(res))
+            if (exists)
                 kept[index] = uris[index];
             pending--;
             if (pending === 0) {

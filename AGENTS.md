@@ -8,7 +8,7 @@ if you are an ai agent read the whole file do not skim
 
 gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner and gnome and can enable or disable every provider from preferences
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome and rofi and can enable or disable every provider from preferences
 
 ## design philosophy
 
@@ -23,6 +23,7 @@ the other looks follow real launchers researched for this project
 - ulauncher is the alfred-like dark panel with a warm orange accent
 - krunner is the plasma compact bar with breeze blue and a tight radius
 - gnome follows adwaita
+- rofi is the dmenu-style list with a square frame and the classic #005577 selected row
 
 do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
 

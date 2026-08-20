@@ -159,7 +159,7 @@ Manual testing on GNOME Shell 50 Wayland:
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear.
 2. Type `12*8+3` and Enter — clipboard should contain `99`.
 3. Type `=2^8` — calculator prefix should show `256`.
-4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, and GNOME.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, and Rofi.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.

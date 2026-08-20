@@ -16,6 +16,7 @@
         <choice value="ulauncher"/>
         <choice value="krunner"/>
         <choice value="gnome"/>
+        <choice value="rofi"/>
       </choices>
       <default>'spotlight'</default>
       <summary>Launcher look</summary>

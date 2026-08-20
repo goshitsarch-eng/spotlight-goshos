@@ -406,3 +406,62 @@
 .gosh-theme-gnome .gosh-section-header {
   color: #c0bfbc;
 }
+
+/* rofi look - square list classic teal selection */
+.gosh-theme-rofi {
+  background-color: #111111;
+  border-radius: 0;
+  border: 1px solid #222222;
+  padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.gosh-theme-rofi .gosh-entry-box,
+.gosh-theme-rofi .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-rofi .gosh-entry {
+  color: #eeeeee;
+  caret-color: #005577;
+  selection-background-color: #005577;
+  font-size: 14px;
+  padding: 8px 10px 8px 0;
+  border-radius: 0;
+}
+
+.gosh-theme-rofi .gosh-entry StLabel.hint-text {
+  color: #666666;
+}
+
+.gosh-theme-rofi .gosh-search-icon {
+  color: #005577;
+  padding: 0 8px 0 6px;
+}
+
+.gosh-theme-rofi .gosh-result {
+  color: #bbbbbb;
+  border-radius: 0;
+  padding: 4px 8px;
+}
+
+.gosh-theme-rofi .gosh-result:hover,
+.gosh-theme-rofi .gosh-result:focus,
+.gosh-theme-rofi .gosh-result.gosh-selected {
+  background-color: #005577;
+  color: #ffffff;
+}
+
+.gosh-theme-rofi .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-rofi .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.gosh-theme-rofi .gosh-section-header {
+  color: #666666;
+  padding: 4px 8px 2px 8px;
+}

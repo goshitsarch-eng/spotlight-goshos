@@ -24,6 +24,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Ulauncher** | [Ulauncher](https://ulauncher.io) | Warm dark panel, larger type, orange accent. |
 | **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
 | **GNOME** | GNOME overview / Adwaita | Native-feeling card with the GNOME blue accent. |
+| **Rofi** | [Rofi](https://github.com/davatorium/rofi) | Square dmenu-style list, compact rows, classic `#005577` selection. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
@@ -104,7 +105,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)

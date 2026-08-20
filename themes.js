@@ -90,6 +90,20 @@ export const THEMES = [
             iconSize: 28,
         },
     },
+    {
+        id: 'rofi',
+        title: 'Rofi',
+        description: 'dmenu-style list with the classic teal selection bar',
+        hint: 'Filter',
+        look: {
+            position: 'center',
+            density: 'compact',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 22,
+        },
+    },
 ];
 
 export function getTheme(id) {
