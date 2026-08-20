@@ -78,6 +78,8 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
 - **`windowSearch.js`** — Open window switcher, including modal dialogs.
+- **`windowClose.js`** — `close` / `quit` / `kill` window queries.
+- **`workspaceQuery.js`** — `workspace 2` switch-to-workspace queries.
 - **`recentFilesSearch.js`** — Recently used files.
 - **`urlSearch.js`** — URL / domain opener.
 - **`pathSearch.js`** — `~/` `./` and absolute path opener.
@@ -110,6 +112,8 @@ Pure functions with no side effects:
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
+- **`windowClose.js`** — Close / quit / kill query parsing.
+- **`workspaceQuery.js`** — Workspace switch query parsing.
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 - **`homePath.js`** — Expand `~` and `./` against the user home.
@@ -220,7 +224,7 @@ Manual testing on GNOME Shell 50 Wayland:
 37. Type `firefox` with six other apps matching and Firefox as the best match — New window must still appear under Actions. Type `5!` — the result should be 120. Type `#f00f` — a Color row should copy `#ff0000`. Type `zoom` — Accessibility should appear. The About page must list PowerToys and Synapse.
 38. On a short display, set results max height to 800 and a top look — the list must not grow off the work area even if the empty popup was already clamped to the bottom. Change icon size in Appearance while the popup is open — row icons should resize. Type `2*e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `hsl(0, 100%, 50%)` — a Color row should copy `#ff0000`.
 39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
-40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. Type `hibernate` on a machine that can — Hibernate should appear.
+40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. On a tablet that manages orientation, type `rotation` — Lock Screen Rotation should appear.
 41. Type `workspace` — open windows must not all appear. Type `workspace 2` — a Switch to Workspace 2 row should appear if that workspace exists, plus windows on that workspace.
 
 ## Submitting Changes

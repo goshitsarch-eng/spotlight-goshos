@@ -52,21 +52,20 @@ const SYSTEM_ACTIONS = [
         activate: () => SystemActions.getDefault().activatePowerOff(),
     },
     {
-        id: 'hibernate',
-        title: 'Hibernate',
-        icon: 'system-hibernate-symbolic',
-        keywords: ['hibernate', 'disk'],
-        // the power menu hides this even when login1 reports it
-        can: sa => sa.canHibernate,
-        activate: () => SystemActions.getDefault().activateHibernate(),
-    },
-    {
         id: 'switch-user',
         title: 'Switch User',
         icon: 'system-switch-user-symbolic',
         keywords: ['switch user', 'switchuser'],
         can: sa => sa.canSwitchUser,
         activate: () => SystemActions.getDefault().activateSwitchUser(),
+    },
+    {
+        id: 'lock-orientation',
+        title: 'Lock Screen Rotation',
+        icon: 'rotation-locked-symbolic',
+        keywords: ['rotation', 'orientation', 'rotate'],
+        can: sa => sa.canLockOrientation,
+        activate: () => SystemActions.getDefault().activateLockOrientation(),
     },
     {
         id: 'screenshot',
