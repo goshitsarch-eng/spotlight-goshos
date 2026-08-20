@@ -1091,6 +1091,10 @@ assert(!resultCanActivate({activate: () => {}, activatable: false}), 'flag block
 assertEq(terminalSpec(name => name === 'xdg-terminal-exec').argv[0], 'xdg-terminal-exec', 'prefer xdg-terminal-exec');
 assert(terminalCommand(name => name === 'ptyxis', '/tmp/docs').argv.includes('--working-directory=/tmp/docs'), 'ptyxis working dir');
 assertEq(terminalCommand(name => name === 'xdg-terminal-exec', '/tmp/docs').cwd, '/tmp/docs', 'xdg-terminal-exec uses cwd');
+assertEq(terminalSpec(name => name === 'foot').argv[0], 'foot', 'foot fallback');
+assert(terminalCommand(name => name === 'kitty', '/tmp/docs').argv.includes('--directory=/tmp/docs'), 'kitty working dir');
+assert(terminalCommand(name => name === 'ghostty', '/tmp/docs').argv.includes('--working-directory=/tmp/docs'), 'ghostty working dir');
+assertEq(terminalSpec(name => name === 'alacritty').argv[0], 'alacritty', 'alacritty fallback');
 assertEq(terminalCommand(() => null, '/tmp/docs'), null, 'no terminal');
 assertEq(terminalRowMeta('/home/u/docs', '/home/u', 'place').description, '~/docs', 'terminal path collapses');
 assertEq(terminalRowMeta('/tmp/docs', '', 'path').title, 'Open in Terminal', 'terminal title');

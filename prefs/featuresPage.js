@@ -37,7 +37,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-url-open',
         'Open URLs', 'Launch typed addresses, domains, sftp/smb locations, and mailto links');
     addSwitch(providers, settings, 'enable-path-open',
-        'Open paths', 'Open ~/ ./ and absolute paths. Directories also offer Open in Terminal');
+        'Open paths', 'Open ~/ ./ and absolute paths. Directories also offer Open in Terminal including Kitty, Foot, Ghostty, and Alacritty');
     addSwitch(providers, settings, 'enable-places',
         'Folders', 'Home, Documents, Downloads, and the other XDG user folders');
     addSwitch(providers, settings, 'enable-bookmarks',

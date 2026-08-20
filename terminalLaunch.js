@@ -12,6 +12,18 @@ export function terminalSpec(findInPath) {
         return {argv: ['kgx'], workingDirectoryFlag: '--working-directory'};
     if (findInPath('gnome-terminal'))
         return {argv: ['gnome-terminal'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('ghostty'))
+        return {argv: ['ghostty'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('kitty'))
+        return {argv: ['kitty'], workingDirectoryFlag: '--directory'};
+    if (findInPath('alacritty'))
+        return {argv: ['alacritty'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('foot'))
+        return {argv: ['foot'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('blackbox-terminal'))
+        return {argv: ['blackbox-terminal'], workingDirectoryFlag: '--working-directory'};
+    if (findInPath('blackbox'))
+        return {argv: ['blackbox'], workingDirectoryFlag: '--working-directory'};
     return null;
 }
 
