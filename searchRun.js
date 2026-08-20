@@ -7,7 +7,7 @@ export function collectSearchResults(plan, maxResults, providers, settings) {
         const run = providers[name];
         if (!run)
             continue;
-        results.push(...run(plan.query, maxResults, settings));
+        results.push(...run(plan.query, maxResults, settings, plan.mode));
     }
 
     if (results.length === 0 && plan.webFallback && providers.web)

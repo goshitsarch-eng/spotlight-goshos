@@ -5,8 +5,8 @@ import St from 'gi://St';
 import {evaluateArithmetic, formatNumber} from './calculator.js';
 
 // returns a calculator result if the input is valid arithmetic
-export function searchCalculator(query) {
-    const result = evaluateArithmetic(query);
+export function searchCalculator(query, allowBare) {
+    const result = evaluateArithmetic(query, allowBare);
     if (result === null)
         return [];
 

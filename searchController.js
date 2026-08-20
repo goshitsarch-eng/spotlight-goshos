@@ -16,7 +16,7 @@ import {collectSearchResults} from './searchRun.js';
 const PROVIDERS = {
     url: (query, _max, _settings) => searchUrl(query),
     apps: (query, max) => searchApps(query, max),
-    calculator: query => searchCalculator(query),
+    calculator: (query, _max, _settings, mode) => searchCalculator(query, mode === 'calculator'),
     windows: (query, max) => searchWindows(query, max),
     system: (query, max) => searchSystemActions(query, max),
     settings: (query, max) => searchSettings(query, max),

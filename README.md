@@ -36,7 +36,7 @@ Results are aggregated in the following order. Each category is rendered under i
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, or `[IPv6]`. Local, LAN, and IPv6 addresses open with `http`; public hosts use `https`.
 2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching. Ranking combines match quality with usage frequency from `Shell.AppUsage`. Parental controls hide blocked apps.
-3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, and unary negation.
+3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, and unary negation. A bare number such as `42` is not math unless you prefix it (`=42`).
 4. **Windows** — Switch to an open window by title or window class.
 5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`.

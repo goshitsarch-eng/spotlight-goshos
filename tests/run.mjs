@@ -46,6 +46,8 @@ assertEq(evaluateArithmetic('10 % 3'), 1, 'modulo');
 assertEq(evaluateArithmetic('1/0'), null, 'divide by zero');
 assertEq(evaluateArithmetic('not math'), null, 'reject non-math');
 assertEq(evaluateArithmetic('42'), null, 'require an operator');
+assertEq(evaluateArithmetic('42', true), 42, 'bare number allowed when asked');
+assertEq(evaluateArithmetic('0.5', true), 0.5, 'bare float allowed when asked');
 assertEq(formatNumber(0.1 + 0.2), '0.3', 'float rounding');
 assertEq(formatNumber(-0), '0', 'negative zero');
 assertEq(formatNumber(256), '256', 'integers stay integers');
@@ -256,6 +258,15 @@ assertEq(collectSearchResults(planned, 4, providers, null)[0].n, 4, 'max passed 
 assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: true}, 3, providers, null)[0].title, 'web:z', 'web fallback');
 assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: false}, 3, providers, null).length, 0, 'web off');
 assertEq(collectSearchResults({providers: ['missing'], query: 'x', webFallback: false}, 3, providers, null).length, 0, 'skip unknown provider');
+
+const calcProviders = {
+    calculator: (query, _max, _settings, mode) => {
+        const n = evaluateArithmetic(query, mode === 'calculator');
+        return n === null ? [] : [{title: String(n)}];
+    },
+};
+assertEq(collectSearchResults(planSearch('=42', allOn), 1, calcProviders, null)[0].title, '42', 'prefix bare number');
+assertEq(collectSearchResults(planSearch('42', allOn), 1, calcProviders, null).length, 0, 'bare number stays a search');
 
 assert(windowMatches('Firefox', 'Navigator', 'fire'), 'title match');
 assert(windowMatches('Notes', 'org.gnome.TextEditor', 'texted'), 'class match');

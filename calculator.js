@@ -4,8 +4,10 @@
 // recursive descent parser for arithmetic expressions
 // returns null if input is not valid math so the caller knows to treat it as a search query
 // never uses eval() - it tokenizes the input then parses with standard operator precedence
-export function evaluateArithmetic(input) {
-    if (!/\d/.test(input) || !/[+\-*/%^]/.test(input))
+export function evaluateArithmetic(input, allowBare) {
+    if (!/\d/.test(input))
+        return null;
+    if (!allowBare && !/[+\-*/%^]/.test(input))
         return null;
 
     const tokens = [];
