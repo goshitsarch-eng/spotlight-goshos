@@ -223,6 +223,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Arrow-key debounce uses `GLib.get_monotonic_time()`, not `Clutter.Event.get_time()`. Wayland often reports `CLUTTER_CURRENT_TIME` (0), which would swallow every later Down.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
+- Returning focus to the search entry after a row click also runs on idle. `grab_key_focus()` inside `notify::key-focus` or button-release aborts Clutter 18.
 - Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher. If `Screenshot.showScreenshotUI` is missing, fall back to SystemActions.
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed. Recency uses `get_tab_list` so Wayland sessions still list the focused window first.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.

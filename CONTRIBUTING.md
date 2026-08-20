@@ -293,6 +293,7 @@ Manual testing on GNOME Shell 50 Wayland:
 96. Install a broken `.desktop` file or a non-desktop `GAppInfo` — other apps must still appear. Type `browser` — Firefox (or another browser) must still match from Keywords on hosts that expose `get_keywords`. On GNOME 50, Wellbeing must hide when `gnome-wellbeing-panel.desktop` is missing and must not warn about `Gio.DesktopAppInfo`.
 97. Hold Down through a long result list — each key repeat must move the highlight. A second Down after an event whose Clutter time is 0 must still move. Arrow to a later row the instant results appear — the list must not jump to an empty offset.
 98. Hold Ctrl+Space (or your shortcut) — the popup must open once, not vanish because key-repeat cancelled the pending open. Hold the shortcut on an open popup — it must close once, not flicker open again.
+99. Click a pending Checking path row — the shell must stay up (Clutter 18 must not abort from a focus grab during button-release). Then type a letter — it must still reach the entry.
 
 ## Submitting Changes
 

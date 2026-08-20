@@ -38,7 +38,8 @@ export class FocusLossWatcher {
                 if (action === 'close')
                     this._popup.closeSoon();
                 else if (action === 'refocus-entry')
-                    this._popup._entry.grab_key_focus();
+                    // grab during this notify aborts clutter 18
+                    this._popup.refocusEntrySoon();
             });
             return GLib.SOURCE_REMOVE;
         });

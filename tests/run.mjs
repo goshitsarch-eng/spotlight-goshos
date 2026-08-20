@@ -37,7 +37,7 @@ import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDa
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
-import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusLossAction} from '../focusLoss.js';
+import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusLossAction, shouldRunRefocus} from '../focusLoss.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist, acceleratorGrabFlags} from '../shortcutAccel.js';
 import {collectSearchResults, appendProviderResults, safeProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
@@ -1761,6 +1761,9 @@ assertEq(focusLossAction(true, true, false, false), 'ignore', 'stage focus is no
 assertEq(focusLossAction(true, false, false, false), 'close', 'alt-tab leaves the popup');
 assertEq(focusLossAction(true, false, true, false), 'refocus-entry', 'row click returns to entry');
 assertEq(focusLossAction(true, false, true, true), 'ignore', 'entry keeps focus');
+assert(shouldRunRefocus(true, true), 'open visible popup may refocus');
+assert(!shouldRunRefocus(false, true), 'closed popup must not refocus');
+assert(!shouldRunRefocus(true, false), 'hidden popup must not refocus');
 assertEq(paintSelectionIndex(null, keepRows), 0, 'first paint selects top');
 assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Workspace 2', index: 1}, keepRows), 1, 'same title keeps type');
 assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', description: '~', index: 2}, keepRows), 2, 'missing row clamps index');

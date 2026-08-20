@@ -28,3 +28,8 @@ export function focusLossAction(hasFocus, isStage, popupContainsFocus, focusIsEn
         return 'refocus-entry';
     return 'ignore';
 }
+
+// grab_key_focus inside notify::key-focus or button-release aborts clutter 18
+export function shouldRunRefocus(isOpen, visible) {
+    return Boolean(isOpen && visible);
+}

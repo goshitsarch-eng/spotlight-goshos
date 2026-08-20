@@ -20,7 +20,7 @@ import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction} from './popupGate.js';
-import {popupChromeShouldFocus} from './focusLoss.js';
+import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
@@ -62,6 +62,7 @@ class LauncherPopup extends St.BoxLayout {
         this._repaintIdleId = 0;
         this._layoutIdleId = 0;
         this._closeIdleId = 0;
+        this._refocusIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
         this._backdrop = null;
@@ -494,11 +495,24 @@ class LauncherPopup extends St.BoxLayout {
 
     activateResult(result) {
         if (!resultCanActivate(result)) {
-            this._entry.grab_key_focus();
+            this.refocusEntrySoon();
             return;
         }
         this.closeSoon();
         activateResultSafe(result);
+    }
+
+    // notify::key-focus and button-release must not grab during dispatch
+    refocusEntrySoon() {
+        if (this._refocusIdleId)
+            return;
+        this._refocusIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._refocusIdleId = 0;
+            if (!shouldRunRefocus(this._isOpen, this.visible))
+                return GLib.SOURCE_REMOVE;
+            this._entry.grab_key_focus();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     close() {
@@ -551,6 +565,7 @@ class LauncherPopup extends St.BoxLayout {
         this._clearIdle('_closeIdleId');
         this._clearIdle('_repaintIdleId');
         this._clearIdle('_layoutIdleId');
+        this._clearIdle('_refocusIdleId');
     }
 
     // overridden so that disable() -> destroy() tears down everything cleanly:
