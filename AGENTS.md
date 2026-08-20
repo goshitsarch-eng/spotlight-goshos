@@ -461,12 +461,13 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 2. add a choice to the launcher-theme key in the schema
 3. add `.gosh-theme-<id>` rules in stylesheet.css
 4. keep the look as css on the existing widgets do not fork the popup class
-5. keep `.gosh-container.gosh-density-compact` rules last in stylesheet.css so they beat theme-specific row padding
+5. keep `.gosh-container.gosh-density-compact` result padding after every `.gosh-theme-* .gosh-result` rule so compact still beats theme row padding
 6. launcherPopup applies the look profile when launcher-theme changes so dconf writes get the same chrome as the prefs combo
 7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
 8. changed::launcher-theme must not advance lastThemeId the combo writes that key before notify::selected so lastThemeId has to stay on the previous look or picking popos from prefs never writes top windows-first chrome when the extension is disabled
 9. syncLookSettings on popup construct applies a look written while disabled applied-look tracks the last written profile first enable of the default look only stamps that key so a custom icon size is not reset a non-default look written before the first enable still applies its chrome
 10. gnome and light looks follow org.gnome.desktop.interface accent-color on gnome 47+ look up the schema and feature-detect has_key before constructing gio.settings a missing schema_id throw after session listeners are up leaks those hosts and enable never assigns the popup blue stays the stylesheet default so 45/46 construct nothing do not create gio.settings at module scope
+11. hiding the magnifier must add `gosh-no-search-icon` the default entry left padding is 0 because the icon is the inset those rules must come after the compact entry shorthand or compact resets padding-left to 0 again
 
 the applied-look key is a plain string not choices so it can be empty before the first stamp
 

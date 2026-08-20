@@ -357,3 +357,8 @@ export function iconSizeForLook(look, density) {
         return Math.round(look.iconSize * 0.8);
     return look.iconSize;
 }
+
+// the magnifier is the only left inset on the default entry
+export function searchIconStyleClass(showSearchIcon) {
+    return showSearchIcon ? '' : 'gosh-no-search-icon';
+}

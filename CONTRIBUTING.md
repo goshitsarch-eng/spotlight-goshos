@@ -319,7 +319,7 @@ Manual testing on GNOME Shell 50 Wayland:
 116. With an IME, type until the candidate popup appears — the lookup must stay above the launcher after GNOME 50 raises it above `keyboardBox`. Enter, arrows, and number keys must still stay with IBus. Clicking a candidate must not close the launcher.
 117. Open preferences, change the look or shortcut, close the window, open preferences again — combos and the shortcut label must still sync once, not stack leftover `Gio.Settings` handlers from the last window.
 118. Keep typing or page the IME lookup after it is already visible — later pages must stay above the launcher. GNOME 50 restacks the already-visible popup above `keyboardBox` on every `update-lookup-table`.
-119. Switch to Rofi or Tofi — the search icon, result icons, and descriptions must hide. Switch to Pop!_OS — those stay on, windows come first, and number hints appear. A custom search-icon toggle after that must survive until the look changes again.
+119. Switch to Rofi or Tofi — the search icon, result icons, and descriptions must hide. The query must stay inset instead of sitting on the card edge. Switch to Pop!_OS — those stay on, windows come first, and number hints appear. A custom search-icon toggle after that must survive until the look changes again.
 120. Change the shortcut, then disable the extension — the old key must not open the launcher. GNOME 50 `removeKeybinding` is the gsettings path and does not clear `allowKeybinding` for `grab_accelerator` names; a throw there would also skip `ungrab_accelerator`.
 121. If enable throws (a missing ThemeContext used to), disable must still release any grab that was taken and destroy any popup that was constructed. GNOME still calls disable after a failed enable.
 122. Close or disable while the session is tearing down — the next enable must not leave a leftover popup or unredirect hold, and the shortcut must open again. `hide()` must run before host disconnects so a throw cannot leave the actor visible (`canOpenPopup` treats visible as already open).
@@ -332,6 +332,7 @@ Manual testing on GNOME Shell 50 Wayland:
 129. Open the launcher over a fullscreen game or video, then close it — the fullscreen surface must resume scanout only after the popup and backdrop are gone. Releasing unredirect while the backdrop is still mapped lets that surface paint through leftover chrome.
 130. Switch to KRunner or PowerToys — number hints must turn on, matching those runners. The command-runner schema and Features page must say argv, not a shell. Pipes stay literal.
 131. Features → Colors covers `#f00`, `red`, `rgb()`, `hsl()`, and `hwb()`, not only hex. Turning that switch off must hide all of those rows.
+132. Switch to Rofi, Wofi, Tofi, Fuzzel, or Anyrun, or turn off Search icon on Spotlight — the typed query must stay inset. Compact density must not reset that padding to 0. Turn the icon back on — the extra inset must go away so the magnifier and text do not double-pad.
 
 ## Submitting Changes
 

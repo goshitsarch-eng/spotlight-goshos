@@ -17,7 +17,7 @@ import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
 import {LiveSearchWatcher} from './liveSearchWatcher.js';
-import {getTheme, applyLookSettings, syncLookSettings} from './themes.js';
+import {getTheme, applyLookSettings, searchIconStyleClass, syncLookSettings} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
@@ -143,9 +143,7 @@ class LauncherPopup extends St.BoxLayout {
             'changed::launcher-theme', () => this._onLookChanged(),
             'changed::popup-width', () => this._onWidthChanged(),
             'changed::popup-position', () => this._onPositionChanged(),
-            'changed::show-search-icon', () => {
-                this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
-            },
+            'changed::show-search-icon', () => this._syncSearchIcon(),
             'changed::results-max-height', () => this._fitResultsHeight(),
             'changed::row-density', () => this._onChromeChanged(),
             'changed::icon-size', () => this._repaintIfOpen(),
@@ -201,8 +199,18 @@ class LauncherPopup extends St.BoxLayout {
         const accent = this._accentClass(theme.id);
         if (accent)
             this.add_style_class_name(accent);
+        this._syncSearchIcon();
+    }
+
+    // the magnifier is the only left inset on the default entry
+    _syncSearchIcon() {
+        const show = this._settings.get_boolean('show-search-icon');
         if (this._searchIcon)
-            this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
+            this._searchIcon.visible = show;
+        this.remove_style_class_name('gosh-no-search-icon');
+        const name = searchIconStyleClass(show);
+        if (name)
+            this.add_style_class_name(name);
     }
 
     _accentClass(themeId) {

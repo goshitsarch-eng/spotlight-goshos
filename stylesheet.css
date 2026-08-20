@@ -1308,3 +1308,23 @@
   padding: 10px 16px 10px 0;
   font-size: 16px;
 }
+
+/* hiding the magnifier used to leave the query flush against the card */
+.gosh-container.gosh-no-search-icon .gosh-entry {
+  padding-left: 20px;
+}
+
+.gosh-container.gosh-density-compact.gosh-no-search-icon .gosh-entry {
+  padding-left: 16px;
+}
+
+.gosh-container.gosh-theme-rofi.gosh-no-search-icon .gosh-entry,
+.gosh-container.gosh-theme-wofi.gosh-no-search-icon .gosh-entry,
+.gosh-container.gosh-theme-tofi.gosh-no-search-icon .gosh-entry,
+.gosh-container.gosh-theme-fuzzel.gosh-no-search-icon .gosh-entry {
+  padding-left: 8px;
+}
+
+.gosh-container.gosh-theme-anyrun.gosh-no-search-icon .gosh-entry {
+  padding-left: 12px;
+}

@@ -10,7 +10,7 @@ import {themeScale, themeScaleFromContext, stagePx, cssPx, nextScaleListenAction
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction, backdropTeardownOrder} from '../backdropBox.js';
-import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings} from '../themes.js';
+import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings, searchIconStyleClass} from '../themes.js';
 import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey, desktopInterfaceSchema, nextAccentListenAction} from '../accentColor.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
@@ -1531,6 +1531,8 @@ assert(iconSizeForLook(getTheme('popos').look, 'comfortable') > iconSizeForLook(
 assert(iconSizeForLook(getTheme('popos').look, 'compact') > iconSizeForLook(getTheme('krunner').look, 'compact'), 'compact still keeps look icon scale');
 assertEq(iconSizeForLook({iconSize: 40}, 'compact'), 32, 'compact is 80 percent');
 assertEq(iconSizeForLook({iconSize: 28}, 'comfortable'), 28, 'comfortable keeps size');
+assertEq(searchIconStyleClass(true), '', 'visible magnifier keeps default entry padding');
+assertEq(searchIconStyleClass(false), 'gosh-no-search-icon', 'hidden magnifier insets the query');
 assertEq(stored['icon-size'], 48, 'synapse look writes icon size');
 applyLookSettings({
     set_string(key, value) {
@@ -1712,6 +1714,12 @@ assert(
     css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
         Math.max(...themeIds.map(id => css.lastIndexOf(`.gosh-theme-${id} .gosh-result`))),
     'compact rules come after theme padding',
+);
+assert(css.includes('.gosh-container.gosh-no-search-icon .gosh-entry'), 'hidden magnifier insets the query');
+assert(
+    css.lastIndexOf('.gosh-container.gosh-no-search-icon .gosh-entry') >
+        css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-entry'),
+    'hidden-magnifier padding beats compact entry reset',
 );
 assert(css.includes('background-color: #000000'), 'tofi black bar');
 assert(css.includes('background-color: #fdf6e3'), 'fuzzel solarized card');

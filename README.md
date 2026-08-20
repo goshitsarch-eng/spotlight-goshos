@@ -137,7 +137,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Result icon size (16–64 px, default 28; each look sets this)
 - Maximum results per category (1–20, default 6)
-- Search icon, section headers, result icons, descriptions, number hints
+- Search icon, section headers, result icons, descriptions, number hints. Hiding the magnifier still insets the query so Rofi, Wofi, Tofi, Fuzzel, and Anyrun do not flush text against the card.
 - Enable or disable every search provider, plus application actions, unit conversion, colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open and keep the selected row)
 - Prefix modes and empty-state suggestions (capped at Maximum results, including Pop!_OS windows-first)
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
@@ -237,6 +237,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes. A tap on a result row activates it the same way a click does.
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable of the default Spotlight look only stamps that key so a custom icon size is not reset. A non-default look written before the first enable still applies its chrome.
+- Hiding the search icon (Rofi, Wofi, Tofi, Fuzzel, Anyrun, or the Search icon switch) adds `gosh-no-search-icon` so the query stays inset. The default entry left padding is 0 because the magnifier is the inset; compact density's `padding` shorthand would otherwise reset that to 0 again.
 - The GNOME and Light looks follow `org.gnome.desktop.interface accent-color` on GNOME 47+. The desktop schema is looked up before `Gio.Settings` is constructed, so a missing schema cannot abort enable. Blue stays the stylesheet default so GNOME 45/46 construct nothing. Spotlight, Pop!_OS, and the other looks keep their own colors.
 - A missing `ThemeContext` at enable is treated as 1× so load cannot throw. The next width fit retries the scale listen, so a context that appears later still drives live HiDPI refits.
 - Typed paths and slash-path `!` commands stay non-activatable until the exists check finishes.

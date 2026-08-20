@@ -145,7 +145,7 @@ export function buildAppearancePage(settings) {
 
     const iconRow = new Adw.SwitchRow({
         title: 'Search icon',
-        subtitle: 'Magnifying glass in the entry',
+        subtitle: 'Magnifying glass in the entry. Hiding it still keeps the query inset',
     });
     settings.bind('show-search-icon', iconRow, 'active', Gio.SettingsBindFlags.DEFAULT);
     chromeGroup.add(iconRow);
