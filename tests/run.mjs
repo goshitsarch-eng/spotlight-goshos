@@ -1,4 +1,5 @@
 import {evaluateArithmetic, formatNumber, normalizeMath, formatHex, calculatorDescription} from '../calculator.js';
+import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue} from '../unitMatch.js';
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
@@ -206,7 +207,7 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'window', 'system-action', 'settings', 'file', 'path', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
@@ -214,6 +215,7 @@ assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'action prefix');
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['Lock']}, 'lock'), 'action keyword case');
 assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'firefox'), 'action miss');
+assert(!actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'clock'), 'clock is not lock');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
 assertEq(metadata.uuid, 'gosh-is-launcher@nin', 'uuid renamed');
@@ -257,6 +259,21 @@ assertEq(formatHex(255), '0xff', 'hex copy hint');
 assertEq(formatHex(-1), '', 'negative has no hex hint');
 assertEq(calculatorDescription(255), '0xff · press Enter to copy', 'hex description');
 assertEq(calculatorDescription(0.5), 'Press Enter to copy to clipboard', 'float description');
+assertEq(evaluateArithmetic('50% of 80'), 40, 'percent of');
+assertEq(evaluateArithmetic('25 percent of 200'), 50, 'percent word of');
+assertEq(parseUnitQuery('10 km to mi').from, 'km', 'unit from');
+assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
+assertEq(parseUnitQuery('chrome'), null, 'plain word is not a unit query');
+assertEq(convertUnits(10, 'km', 'mi').toId, 'mi', 'km to mi id');
+assertEq(Math.round(convertUnits(10, 'km', 'mi').value * 1000) / 1000, 6.214, '10 km is 6.214 mi');
+assertEq(convertUnits(32, 'f', 'c').value, 0, '32 f is 0 c');
+assertEq(convertUnits(0, 'c', 'k').value, 273.15, '0 c is 273.15 k');
+assertEq(convertUnits(1, 'gb', 'mib').toId, 'mib', 'data decimal to binary');
+assertEq(convertUnits(1, 'kg', 'km'), null, 'cross dimension rejected');
+assertEq(convertUnits(5, 'km', 'km'), null, 'same unit rejected');
+assertEq(convertQuery('100 kg to lb').title.split(' ')[1], 'lb', 'query title unit');
+assertEq(convertQuery('2 cups to ml').description, '2 cup', 'query source');
+assertEq(formatUnitValue(0), '0', 'unit zero');
 assert(isNewWindowAction('new-window'), 'hyphen new window');
 assert(isNewWindowAction('new_window'), 'underscore new window');
 assert(!isNewWindowAction('new-private-window'), 'private window stays');
@@ -345,7 +362,7 @@ assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
 // search plan feature flags
 const allOn = {
     prefixModes: true, url: true, path: true, apps: true, calculator: true,
-    windows: true, system: true, settings: true, files: true,
+    units: true, windows: true, system: true, settings: true, files: true,
     command: true, web: true,
 };
 assertEq(planSearch('=2+2', allOn).mode, 'calculator', 'plan calc prefix');
@@ -366,7 +383,7 @@ const noPrefix = Object.assign({}, allOn, {prefixModes: false});
 assertEq(planSearch('=2+2', noPrefix).mode, 'all', 'prefix disabled');
 const appsOnly = {
     prefixModes: false, url: false, path: false, apps: true, calculator: false,
-    windows: false, system: false, settings: false, files: false,
+    units: false, windows: false, system: false, settings: false, files: false,
     command: false, web: false,
 };
 assertEq(planSearch('x', appsOnly).providers.join(','), 'apps', 'apps only');
@@ -391,6 +408,8 @@ assert(!shouldRefreshCommand(false, planSearch('! ls', allOn)), 'disabled comman
 assert(!shouldRefreshCommand(true, planSearch('ls', allOn)), 'plain words skip command io');
 assertEq(mergeEmptySuggestions('default', ['w'], ['a']).join(','), 'a,w', 'empty state apps first');
 assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a']).join(','), 'w,a', 'empty state windows first');
+assert(planSearch('10 km to mi', allOn).providers.includes('units'), 'units planned');
+assert(!planSearch('10 km to mi', appsOnly).providers.includes('units'), 'units off');
 assert(planSearch('~/docs', allOn).providers.includes('path'), 'home path is planned');
 assert(planSearch('/tmp', allOn).providers.includes('path'), 'absolute path is planned');
 assertEq(planSearch('~/docs', appsOnly).providers.join(','), 'apps', 'path off stays apps');
@@ -408,6 +427,7 @@ assertEq(fromSettings.command, false, 'flags hide command runner');
 assertEq(fromSettings.resultOrder, 'windows-first', 'flags read result order');
 assert(fromSettings.apps, 'flags keep apps');
 assert(fromSettings.path, 'flags keep path open');
+assert(fromSettings.units, 'flags keep unit convert');
 
 const providers = {
     apps: (query, max) => query === 'x' ? [{title: 'App', n: max}] : [],

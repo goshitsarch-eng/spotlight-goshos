@@ -111,6 +111,7 @@ class LauncherPopup extends St.BoxLayout {
             'changed::enable-app-search', () => this._repaintIfOpen(),
             'changed::enable-app-actions', () => this._repaintIfOpen(),
             'changed::enable-calculator', () => this._repaintIfOpen(),
+            'changed::enable-unit-convert', () => this._repaintIfOpen(),
             'changed::enable-window-search', () => this._repaintIfOpen(),
             'changed::enable-system-actions', () => this._repaintIfOpen(),
             'changed::enable-settings-search', () => this._repaintIfOpen(),

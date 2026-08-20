@@ -3,6 +3,7 @@
 
 import {searchApps, searchFrequentApps} from './appSearch.js';
 import {searchCalculator} from './calculatorSearch.js';
+import {searchUnits} from './unitSearch.js';
 import {searchSystemActions} from './systemActionsSearch.js';
 import {searchSettings} from './settingsSearch.js';
 import {searchWeb} from './webSearch.js';
@@ -20,6 +21,7 @@ const PROVIDERS = {
     apps: (query, max, settings) => searchApps(
         query, max, settings && settings.get_boolean('enable-app-actions')),
     calculator: (query, _max, _settings, mode) => searchCalculator(query, mode === 'calculator'),
+    units: query => searchUnits(query),
     windows: (query, max) => searchWindows(query, max),
     system: (query, max) => searchSystemActions(query, max),
     settings: (query, max) => searchSettings(query, max),
@@ -29,7 +31,7 @@ const PROVIDERS = {
 };
 
 // orchestrates all search providers and combines results in priority order
-// priority: urls paths apps calculator windows system settings files then web last
+// priority: urls paths apps calculator units windows system settings files then web last
 export function runSearch(text, settings) {
     const maxResults = settings.get_int('max-results');
     const plan = planSearch(text, flagsFromSettings(settings));

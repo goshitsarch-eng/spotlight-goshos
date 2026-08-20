@@ -12,7 +12,7 @@ A compact launcher for GNOME Shell 45 through 50. Previously named Spotlight.
 
 ## Overview
 
-Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, GNOME Settings panels, and arithmetic expressions. It can open URLs and filesystem paths, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
+Gosh Is Launcher is a keyboard-driven launcher that surfaces results the moment you begin typing. It searches installed applications, open windows, recent files, GNOME Settings panels, arithmetic, and unit conversions. It can open URLs and filesystem paths, run optional commands, expose system power actions, and fall back to web search when nothing local matches.
 
 The popup can look like several real launchers. Pick a look in preferences:
 
@@ -42,12 +42,13 @@ Results are aggregated in the following order. Each category is rendered under i
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
 2. **Paths** — `~/…`, `./…`, and absolute paths such as `/tmp/notes.txt`. `~` and `./` resolve against the user home directory. Missing paths show “Path not found”.
 3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
-4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, thousands commas (`1,000+2`), hex (`0xff+1`), and binary (`0b1010`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
-5. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
-6. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-7. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
-8. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
-9. **Web Search** — Last-resort fallback in the default browser.
+4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), and `50% of 80`. A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
+5. **Units** — Conversions such as `10 km to mi`, `32 f in c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
+6. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
+7. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
+8. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
+9. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
+10. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show frequently used apps and open windows. Windows-first looks (Pop!_OS) put windows above apps here too. Turn that off in Features if you want a blank entry.
 
@@ -74,6 +75,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Open a path | Type `~/Documents` or `/tmp`, then `Enter` |
 | Launch an application | Type its name or abbreviation, then `Enter` |
 | Evaluate an expression | Type the math, then `Enter` (result is copied to clipboard) |
+| Convert units | Type `10 km to mi` or `32 f to c`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
@@ -122,7 +124,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider, plus application actions (changes apply while the popup is open)
+- Enable or disable every search provider, plus application actions and unit conversion (changes apply while the popup is open)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -152,6 +154,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
 | `homePath.js` | Expand home-relative command and path names |
 | `calculator.js` | Recursive-descent arithmetic parser |
+| `unitMatch.js` | Length, mass, temperature, volume, and data conversions |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
 | `prefs/featuresPage.js` | Provider toggles |
@@ -167,7 +170,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 
 ## Clipboard Access
 
-This extension writes to the clipboard **only** when the user explicitly activates a calculator result by pressing `Enter` on a valid arithmetic expression. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
+This extension writes to the clipboard **only** when the user explicitly activates a calculator or unit-conversion result by pressing `Enter`. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
 
 ## GNOME 45–50
 

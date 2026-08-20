@@ -137,6 +137,7 @@ required = [
     'windowMatch.js',
     'appMatch.js',
     'appAction.js',
+    'unitMatch.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

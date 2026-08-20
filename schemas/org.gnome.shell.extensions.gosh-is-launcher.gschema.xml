@@ -141,6 +141,12 @@
       <description>Evaluate arithmetic expressions.</description>
     </key>
 
+    <key name="enable-unit-convert" type="b">
+      <default>true</default>
+      <summary>Enable unit conversion</summary>
+      <description>Convert length, mass, temperature, volume, and data sizes such as 10 km to mi.</description>
+    </key>
+
     <key name="enable-window-search" type="b">
       <default>true</default>
       <summary>Enable window search</summary>

@@ -114,6 +114,8 @@ gosh-is-launcher@nin/
     appSearch.js              app search provider
     appAction.js              desktop action labels (pure)
     calculatorSearch.js       calculator provider
+    unitSearch.js             unit conversion provider
+    unitMatch.js              unit aliases and conversion (pure)
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider
     webSearch.js              web search fallback
@@ -166,7 +168,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -180,7 +182,7 @@ never import a shell-only library in a prefs file or vice versa ego review rejec
 
 ### search priority
 
-results are combined in this order urls first then filesystem paths then apps then calculator then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
+results are combined in this order urls first then filesystem paths then apps then calculator then units then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
 the priority is set in searchController.js do not change it without reason
 
@@ -301,7 +303,7 @@ see the keybinding.js file for the implementation
 
 ## clipboard access
 
-gosh is launcher writes to the clipboard only when the user explicitly selects a calculator result by pressing enter on a math expression it does not read the clipboard ever it does not share clipboard data with any third party
+gosh is launcher writes to the clipboard only when the user explicitly selects a calculator or unit conversion result by pressing enter it does not read the clipboard ever it does not share clipboard data with any third party
 
 this is declared in metadata.json description under the CLIPBOARD ACCESS section ego review requires this declaration for any extension that touches the clipboard
 

@@ -22,6 +22,8 @@ export function buildFeaturesPage(settings) {
         'Application actions', 'New window and desktop-file actions for the best app match');
     addSwitch(providers, settings, 'enable-calculator',
         'Calculator', 'Evaluate math and copy the result with Enter');
+    addSwitch(providers, settings, 'enable-unit-convert',
+        'Unit conversion', '10 km to mi, 32 f to c, 1 gb to mib');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, or workspace');
     addSwitch(providers, settings, 'enable-system-actions',
