@@ -24,8 +24,11 @@ export function normalizeHexColor(query) {
 }
 
 export function normalizeRgbColor(query) {
-    const match = query.trim().match(
+    const text = query.trim();
+    const match = text.match(
         /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)$/i
+    ) || text.match(
+        /^rgba?\(\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     );
     if (!match)
         return null;
@@ -74,8 +77,11 @@ function hslToHex(h, s, l) {
 }
 
 export function normalizeHslColor(query) {
-    const match = query.trim().match(
+    const text = query.trim();
+    const match = text.match(
         /^hsla?\(\s*(-?[\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*[\d.]+\s*)?\)$/i
+    ) || text.match(
+        /^hsla?\(\s*(-?[\d.]+)\s+([\d.]+)%\s+([\d.]+)%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     );
     if (!match)
         return null;

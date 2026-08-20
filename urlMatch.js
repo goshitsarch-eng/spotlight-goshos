@@ -1,7 +1,9 @@
 // gosh is launcher - url detection
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-const SCHEME_RE = /^(https?:\/\/|www\.|file:\/\/)\S+$/i;
+const SCHEME_RE = /^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|www\.|file:\/\/)\S+$/i;
+const MAILTO_RE = /^mailto:[^\s@]+@[^\s]+$/i;
+const MAGNET_RE = /^magnet:\?\S+$/i;
 const LABEL = '[a-z0-9](?:[a-z0-9-]*[a-z0-9])?';
 const DOMAIN_RE = new RegExp(
     `^${LABEL}(?:\\.${LABEL})+(:\\d{1,5})?([/?#]\\S*)?$`,
@@ -57,6 +59,8 @@ export function isUrlQuery(query) {
     if (trimmed.length === 0 || /\s/.test(trimmed))
         return false;
     if (SCHEME_RE.test(trimmed) ||
+        MAILTO_RE.test(trimmed) ||
+        MAGNET_RE.test(trimmed) ||
         LOCAL_RE.test(trimmed) ||
         IPV6_RE.test(trimmed) ||
         BARE_LOOPBACK_V6.test(trimmed))
@@ -95,7 +99,7 @@ export function schemeForHost(host) {
 
 export function normalizeUrl(query) {
     const trimmed = query.trim();
-    if (/^(https?:\/\/|file:\/\/)/i.test(trimmed))
+    if (/^(https?:\/\/|sftp:\/\/|ftp:\/\/|smb:\/\/|davs?:\/\/|file:\/\/|mailto:|magnet:\?)/i.test(trimmed))
         return trimmed;
     if (/^www\./i.test(trimmed))
         return `https://${trimmed}`;
@@ -105,4 +109,26 @@ export function normalizeUrl(query) {
         return `${schemeForHost(host)}://[${host}]${rest}`;
     }
     return `${schemeForHost(host)}://${trimmed}`;
+}
+
+export function urlRowDescription(url) {
+    if (url.startsWith('mailto:'))
+        return 'Write email';
+    if (url.startsWith('magnet:'))
+        return 'Open magnet link';
+    if (/^(sftp|ftp|smb|davs?):/i.test(url))
+        return 'Open location';
+    if (url.startsWith('file:'))
+        return 'Open path';
+    return 'Open in browser';
+}
+
+export function urlRowIcon(url) {
+    if (url.startsWith('mailto:'))
+        return 'mail-message-new-symbolic';
+    if (/^(sftp|ftp|smb|davs?):/i.test(url))
+        return 'network-server-symbolic';
+    if (url.startsWith('file:'))
+        return 'folder-symbolic';
+    return 'web-browser-symbolic';
 }

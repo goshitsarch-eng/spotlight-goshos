@@ -35,7 +35,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-recent-files',
         'Recent files', 'Open recently used files');
     addSwitch(providers, settings, 'enable-url-open',
-        'Open URLs', 'Launch typed addresses and domain names');
+        'Open URLs', 'Launch typed addresses, domains, sftp/smb locations, and mailto links');
     addSwitch(providers, settings, 'enable-path-open',
         'Open paths', 'Open ~/ ./ and absolute paths in the default handler');
     addSwitch(providers, settings, 'enable-places',
