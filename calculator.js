@@ -50,6 +50,15 @@ export function normalizeMath(input) {
     return text;
 }
 
+function hasEvaluableValue(text, allowBare) {
+    if (/\d/.test(text) || /\bpi\b/i.test(text))
+        return true;
+    // e+e and =e are euler bare e stays an app search
+    if (!/\be\b/i.test(text))
+        return false;
+    return allowBare || /[+\-*/%^!()]/.test(text);
+}
+
 function looksLikeMath(text, allowBare) {
     if (allowBare)
         return true;
@@ -68,7 +77,7 @@ function isIdent(tok) {
 
 export function evaluateArithmetic(input, allowBare) {
     const text = normalizeMath(input);
-    if (!/\d/.test(text) && !/\bpi\b/i.test(text))
+    if (!hasEvaluableValue(text, allowBare))
         return null;
     if (!looksLikeMath(text, allowBare))
         return null;

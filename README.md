@@ -47,10 +47,10 @@ Results are aggregated in the following order. Each category is rendered under i
 3. **Folders** — XDG user folders: Home, Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates. Typing `docs` or `downloads` opens that folder. The first match also offers Open in Terminal. A single letter only matches a prefix, so `o` does not list Home.
 4. **Bookmarks** — Folders saved in `~/.config/gtk-3.0/bookmarks` and `~/.config/gtk-4.0/bookmarks`, loaded asynchronously. Remote URIs such as `sftp://` are included.
 5. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
-6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, `!` (factorial), parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), postfix percent (`50%` is `0.5`; `10%3` stays modulo), `50% of 80`, constants (`pi`, and `e` in an expression such as `2*e`), functions (`sqrt`, `cbrt`, `abs`, `log`, `log2`, `ln`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan` in degrees, `round`, `floor`, `ceil`), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Bare `e` stays an app search. Integer results show the hex form in the description.
+6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, `!` (factorial), parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), postfix percent (`50%` is `0.5`; `10%3` stays modulo), `50% of 80`, constants (`pi`, and `e` in an expression such as `2*e`, `e+1`, or `=e`), functions (`sqrt`, `cbrt`, `abs`, `log`, `log2`, `ln`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan` in degrees, `round`, `floor`, `ceil`), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Bare `e` stays an app search. Integer results show the hex form in the description.
 7. **Units** — Conversions such as `10 km to mi`, `1,000 km to mi`, `1e3 km to mi`, `32 f in c`, `32°f to c`, `1 stone to kg`, `1 nmi to km`, `1024 bytes to kib`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
 8. **Color** — A hash hex such as `#f00`, `#ff0000`, `#f00f`, or `#ff000080`, or `rgb(255, 0, 0)` / `rgb(255 0 0)` / `hsl(0, 100%, 50%)` / `hsl(0deg 100% 50%)` / `hwb(0 0% 0%)` / `hwb(0deg, 0%, 0%)`, copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
-9. **Clock** — Type `time`, `now`, `date`, `today`, `tomorrow`, `yesterday`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
+9. **Clock** — Type `time`, `now`, `what time is it`, `date`, `today`, `tomorrow`, `yesterday`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
 10. **Windows** — Switch to an open window by title, window class, or workspace number (`2`, `workspace 2`, or `ws 2`), including modal dialogs. Results are ordered by GNOME’s alt-tab list (`get_tab_list`) so Wayland still shows most-recently focused first when `get_user_time()` is 0. The description shows the workspace number, or “On all workspaces” for sticky windows. The shared `Workspace N` label is not a free-text match, so `workspace` or `spa` does not list every window. Type `workspace 2` to switch to that workspace. Type `close firefox` or `quit firefox` to ask matching windows to close. Type `kill firefox` to force-quit them.
 11. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, lock screen rotation (tablets), and take a screenshot, only when GNOME says the action is available.
 12. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
@@ -70,7 +70,7 @@ Walker-style prefixes jump to one provider. Disable them in Features if you neve
 | `#` | GNOME Settings (`# wifi`, not `#ff0000`) |
 | `$` | Open windows (`$ term`, not `$HOME`) |
 | `.` | Recent files (`. notes`, not `.bashrc`) |
-| `!` | Run command (off by default) |
+| `!` | Run command (off by default). This is argv, not a shell — pipes stay literal. |
 
 ## Usage
 
@@ -85,7 +85,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Convert units | Type `10 km to mi` or `32 f to c`, then `Enter` |
 | Open Documents | Type `docs`, then `Enter` |
 | Open a bookmark | Type part of a GTK bookmark label, then `Enter` |
-| Copy the time | Type `time` or `now`, then `Enter` |
+| Copy the time | Type `time`, `now`, or `what time is it`, then `Enter` |
 | Copy tomorrow or yesterday | Type `tomorrow` or `yesterday`, then `Enter` |
 | Copy a color | Type `#ff0000`, `rgb(255, 0, 0)`, or `hwb(0 0% 0%)`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
@@ -166,7 +166,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `windowSearch.js` | Open window switcher |
 | `windowClose.js` | `close` / `quit` / `kill` window queries |
 | `workspaceQuery.js` | `workspace 2` switch-to-workspace queries |
-| `appReady.js` | Hide apps until parental controls finish initialising |
+| `appReady.js` | Hide apps until parental controls finish, then show if malcontent never answers |
 | `terminalLaunch.js` | Open a folder in a terminal |
 | `resultActivate.js` | Activate a result without taking down the shell |
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
@@ -188,7 +188,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 - **Looks are settings.** One popup, many CSS themes. No forked widget trees.
 - **Dark, not black** on the Spotlight look. Background `#1c1c1e` with text `#f5f5f7`.
 - **No blur, no overlay, no border** on the Spotlight look. Other looks may add a thin theme border.
-- **Fixed anchor.** The popup is positioned once at open time in the primary work area (below the panel) and grows downward from that anchor. If the chosen width is wider than the work area, the popup shrinks to fit.
+- **Fixed anchor.** The popup is positioned once at open time in the primary work area (below the panel) and grows downward from that anchor. If the remaining space below that origin cannot hold a usable list, the origin lifts so results stay visible. If the chosen width is wider than the work area, the popup shrinks to fit.
 - **Instant.** No fade-in, no slide animation.
 - **GNOME 50 safe.** No X11-only APIs, no `RunDialog._restart`, no `holdKeyboard` / `releaseKeyboard`.
 
@@ -202,7 +202,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 
 - Skip removed X11 restart APIs (`RunDialog._restart`, `holdKeyboard` / `releaseKeyboard`).
 - Keep `GLib.idle_add` instead of the 50-only `idle_add_once`.
-- Honor parental-control app filtering.
+- Honor parental-control app filtering. Repaint when `app-filter-changed` fires. If malcontent never finishes, show unfiltered desktop apps after five seconds rather than an empty launcher.
+- Close an open popup when the session locks or the greeter starts.
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
@@ -210,10 +211,10 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed. Recency uses `get_tab_list` so Wayland sessions still list the focused window first.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
-- `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
+- `!` commands run from the user home directory as argv, not `/bin/sh -c`. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
 - Typed `~/` `./` and absolute paths open in the default handler. Existence is checked asynchronously so a hung network mount cannot stall the compositor.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
-- Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom.
+- Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom. A short work area lifts the origin so the list is not `max-height: 0`.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, icon size, result order), not only the CSS class.

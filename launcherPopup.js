@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -18,9 +19,10 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession} from './popupGate.js';
 import {activateResultSafe} from './resultActivate.js';
-import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from './popupPosition.js';
+import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
+import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -58,7 +60,12 @@ class LauncherPopup extends St.BoxLayout {
         this._stageKeyId = 0;
         this._monitorsId = 0;
         this._backdrop = null;
+        this._sessionId = 0;
+        this._parentalGiveUpId = 0;
+        this._parental = null;
         this._focusWatcher = new FocusLossWatcher(this);
+        this._listenSession();
+        this._listenParental();
 
         const {entryBox, entry, searchIcon} = buildSearchEntry(this._settings);
         this._entryBox = entryBox;
@@ -199,6 +206,48 @@ class LauncherPopup extends St.BoxLayout {
         this._monitorsId = 0;
     }
 
+    _listenSession() {
+        if (this._sessionId)
+            return;
+        // super+l can update the session during a key handler
+        this._sessionId = Main.sessionMode.connect('updated', () => {
+            if (shouldCloseOnSession(Main.sessionMode.isLocked, Main.sessionMode.isGreeter))
+                this.closeSoon();
+        });
+    }
+
+    _unlistenSession() {
+        if (!this._sessionId)
+            return;
+        Main.sessionMode.disconnect(this._sessionId);
+        this._sessionId = 0;
+    }
+
+    _listenParental() {
+        const pcm = ParentalControlsManager.getDefault();
+        this._parental = pcm;
+        // init and later filter edits both emit this
+        pcm.connectObject('app-filter-changed', () => this._repaintIfOpen(), this);
+        if (pcm.initialized)
+            return;
+        this._parentalGiveUpId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, PARENTAL_GIVE_UP_MS, () => {
+            this._parentalGiveUpId = 0;
+            if (!pcm.initialized) {
+                markParentalGiveUp();
+                this._repaintIfOpen();
+            }
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _unlistenParental() {
+        this._clearIdle('_parentalGiveUpId');
+        if (!this._parental)
+            return;
+        this._parental.disconnectObject(this);
+        this._parental = null;
+    }
+
     _refitForMonitors() {
         if (!Main.layoutManager.primaryMonitor) {
             this.closeSoon();
@@ -231,24 +280,10 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _fitResultsHeight() {
-        const requested = this._settings.get_int('results-max-height');
-        const monitor = Main.layoutManager.primaryMonitor;
-        if (!monitor || !this._isOpen) {
-            this._resultsScroll.style = `max-height: ${requested}px;`;
-            return;
-        }
-        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
-        const popupWidth = this._fittedWidth();
-        const emptyHeight = this._emptyPopupHeight(popupWidth);
-        const origin = popupOrigin(
-            workArea,
-            popupWidth,
-            emptyHeight,
-            this._settings.get_string('popup-position'),
-        );
-        const spaceBelow = workArea.y + workArea.height - origin.y - emptyHeight;
-        const maxHeight = resultsMaxHeightForWorkArea(requested, spaceBelow);
-        this._resultsScroll.style = `max-height: ${maxHeight}px;`;
+        if (this._isOpen)
+            this._reposition();
+        else
+            this._resultsScroll.style = `max-height: ${this._settings.get_int('results-max-height')}px;`;
     }
 
     _reposition() {
@@ -258,15 +293,15 @@ class LauncherPopup extends St.BoxLayout {
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
         const popupWidth = this._fittedWidth();
         this.set_width(popupWidth);
-        const emptyHeight = this._emptyPopupHeight(popupWidth);
-        const origin = popupOrigin(
+        const placed = placePopup(
             workArea,
             popupWidth,
-            emptyHeight,
+            this._emptyPopupHeight(popupWidth),
             this._settings.get_string('popup-position'),
+            this._settings.get_int('results-max-height'),
         );
-        this.set_position(origin.x, origin.y);
-        this._fitResultsHeight();
+        this.set_position(placed.x, placed.y);
+        this._resultsScroll.style = `max-height: ${placed.resultsMax}px;`;
     }
 
     open() {
@@ -383,6 +418,8 @@ class LauncherPopup extends St.BoxLayout {
     destroy() {
         this._clearIdle('_positionIdleId');
         this._clearIdle('_closeIdleId');
+        this._unlistenSession();
+        this._unlistenParental();
         this.close();
         this._settings.disconnectObject(this);
         if (this.get_parent())

@@ -67,7 +67,7 @@ gnome 50 removed x11 and with it RunDialog._restart plus the global.display rest
 
 easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want one zip for 45-50 keep GLib.idle_add
 
-parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps
+parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps listen for app-filter-changed and repaint so a search typed during init is not stuck empty if malcontent dbus fails without setting initialized show desktop apps after five seconds rather than never
 
 gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel datetime users about and region are system subpages gnome-control-center still remaps the old ids so keep launching those names for gnome 45
 
@@ -227,14 +227,20 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - global.display.connect('accelerator-activated') in keybinding.js disconnected manually in disable()
 - global.stage.connect('notify::key-focus') in focusLossWatcher.js for focus-loss detection disconnected manually in stop()
 - global.stage.connect('captured-event') in launcherPopup.js for stage-level key capture disconnected manually in close()
+- Main.sessionMode.connect('updated') in launcherPopup.js so lock and greeter close an open popup disconnected manually in destroy()
+- Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 
-each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
+parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy()
+
+each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 
 ### popup positioning
 
 the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear
 
 center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the work area height so popos and krunner looks sit high without covering the panel
+
+if that origin leaves fewer than 120px below the entry placePopup lifts the origin so the list is not max-height 0 on a short work area
 
 do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side width and position changes may call _reposition while open that path must still use the empty-state height not the current results height
 

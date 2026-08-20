@@ -3,9 +3,11 @@
 
 export function timeQueryKind(query) {
     const q = query.trim().toLowerCase();
-    if (q === 'time' || q === 'now' || q === 'clock')
+    if (q === 'time' || q === 'now' || q === 'clock' ||
+        q === 'what time' || q === 'what time is it' || q === 'current time')
         return 'time';
-    if (q === 'date' || q === 'today' || q === 'calendar')
+    if (q === 'date' || q === 'today' || q === 'calendar' ||
+        q === 'what date' || q === 'what date is it' || q === 'current date')
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';

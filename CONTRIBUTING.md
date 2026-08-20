@@ -107,14 +107,14 @@ Pure functions with no side effects:
 - **`keyAction.js`** — Key press to popup action.
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
-- **`popupGate.js`** — Whether a shortcut should open or close, including lock screen.
-- **`popupPosition.js`** — Work-area origin so the popup stays off the panel.
+- **`popupGate.js`** — Whether a shortcut should open or close, and whether lock or greeter must close an open popup.
+- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display would hide the list.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
 - **`windowClose.js`** — Close / quit / kill query parsing.
 - **`workspaceQuery.js`** — Workspace switch query parsing.
-- **`appReady.js`** — Whether an app may appear before parental controls finish.
+- **`appReady.js`** — Whether an app may appear before parental controls finish, and the give-up after malcontent never answers.
 - **`resultActivate.js`** — Activate a result without taking down the shell.
 - **`terminalLaunch.js`** — Pick a terminal command for a directory.
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
@@ -229,7 +229,7 @@ Manual testing on GNOME Shell 50 Wayland:
 39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
 40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. On a tablet that manages orientation, type `rotation` — Lock Screen Rotation should appear.
 41. Type `workspace` — open windows must not all appear. Type `workspace 2` — a Switch to Workspace 2 row should appear if that workspace exists, plus windows on that workspace.
-42. With results visible, `Ctrl+j` and `Ctrl+n` should move down, `Ctrl+k` and `Ctrl+p` should move up. Typing `j` without Control must still insert the letter. Type `1 stone to kg` — a Units row should appear. If parental controls are still initialising, blocked apps must not flash in the list.
+42. With results visible, `Ctrl+j` and `Ctrl+n` should move down, `Ctrl+k` and `Ctrl+p` should move up. Typing `j` without Control must still insert the letter. Type `1 stone to kg` — a Units row should appear. If parental controls are still initialising, blocked apps must not flash in the list. After they finish, an already-open search must grow app rows without retyping.
 43. Type `~/` plus an existing folder — after the exists check, Open in Terminal should appear under Open Path. Type `docs` — Documents should appear, and Open in Terminal should follow if a terminal is installed.
 44. Open Appearance, change icon size, close prefs, reopen Appearance without changing the look — the custom icon size must still be there. Switch to Onagre — selected rows should be amber with dark descriptions. The About page must list Onagre.
 45. Type `hwb(0 0% 0%)` or `hwb(0deg, 0%, 0%)` — a Color row should copy `#ff0000`. Arrow to a later result, then wait for recent files or a path exists-check to finish — the same row should stay selected and stay in view. Change icon size or a provider toggle while a result is selected — that row should stay selected.
@@ -238,6 +238,7 @@ Manual testing on GNOME Shell 50 Wayland:
 48. Type `yesterday` — the date should be yesterday. Type `1e3 km to mi` — a Units row should appear. Type `yesterdays` — it must not be a clock row.
 49. Open a file on an `sftp` or `smb` share, then search for its name — it should appear under Recent files with the host as the description. An `https` bookmark in `recently-used.xbel` must not appear. Type `screenshot` with Overview closed — the screenshot UI must still open.
 50. Focus a terminal, then another app, then open the launcher with Pop!_OS (windows first) and an empty query — the app you just focused should be first among windows, even on Wayland.
+51. Open the launcher, then lock the screen — the popup must be gone after unlock. Type `e+1` or `=e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `what time is it` — a Clock row should appear. On a short display with a top look, results must stay visible (not a zero-height list).
 
 ## Submitting Changes
 

@@ -19,9 +19,9 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-app-search',
         'Applications', 'Installed apps ranked by match quality and usage');
     addSwitch(providers, settings, 'enable-app-actions',
-        'Application actions', 'New window and desktop-file actions for the best app match');
+        'Application actions', 'New window and desktop-file actions for the best app match. Applications must stay enabled');
     addSwitch(providers, settings, 'enable-calculator',
-        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, round, and 5! and copy the result with Enter');
+        'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, round, 5!, e+1, and =e and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 1,000 km to mi, 32 f to c, 1 stone to kg, 1024 bytes to kib');
     addSwitch(providers, settings, 'enable-color-hex',
@@ -43,9 +43,9 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-bookmarks',
         'Bookmarks', 'Folders saved in the GTK 3 and GTK 4 bookmark files');
     addSwitch(providers, settings, 'enable-time-date',
-        'Time and date', 'Type time, now, date, today, tomorrow, or yesterday to copy the local clock');
+        'Time and date', 'Type time, now, what time is it, date, today, tomorrow, or yesterday to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',
-        'Command runner', 'Run a command with the ! prefix');
+        'Command runner', 'Run a PATH or file command with the ! prefix. This is not a shell so pipes and redirection stay literal arguments');
 
     const extras = new Adw.PreferencesGroup({
         title: 'Behavior',
