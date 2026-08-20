@@ -23,8 +23,9 @@ import {resolveKeyAction, resolveHomeEndAction, isNavAction} from '../keyAction.
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandRowMeta} from '../commandReady.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
 import {pathRowMeta} from '../pathMatch.js';
-import {placeMatches, matchPlaces, PLACE_CATALOG} from '../placeMatch.js';
-import {timeQueryKind, formatClock, formatDateTitle} from '../timeMatch.js';
+import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../placeMatch.js';
+import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
+import {normalizeHexColor} from '../colorMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
@@ -69,6 +70,8 @@ assertEq(parseQuery('= 2+2').mode, 'calculator', 'calc prefix');
 assertEq(parseQuery('=2+2').query, '2+2', 'calc query strip');
 assertEq(parseQuery('@ gnome').mode, 'web', 'web prefix');
 assertEq(parseQuery('# wifi').mode, 'settings', 'settings prefix');
+assertEq(parseQuery('#ff0000').mode, 'all', 'hex color is not settings prefix');
+assertEq(parseQuery('#').mode, 'settings', 'hash alone is settings');
 assertEq(parseQuery('$ term').mode, 'windows', 'windows prefix');
 assertEq(parseQuery('. notes').mode, 'files', 'files prefix');
 assertEq(parseQuery('! ls -la').mode, 'command', 'command prefix');
@@ -209,7 +212,7 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'unit', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'time', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'time', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
@@ -364,7 +367,7 @@ assertEq(nextSelectedIndex(0, 1, 0), -1, 'empty list');
 // search plan feature flags
 const allOn = {
     prefixModes: true, url: true, path: true, places: true, apps: true, calculator: true,
-    units: true, time: true, windows: true, system: true, settings: true, files: true,
+    units: true, color: true, time: true, windows: true, system: true, settings: true, files: true,
     command: true, web: true,
 };
 assertEq(planSearch('=2+2', allOn).mode, 'calculator', 'plan calc prefix');
@@ -385,7 +388,7 @@ const noPrefix = Object.assign({}, allOn, {prefixModes: false});
 assertEq(planSearch('=2+2', noPrefix).mode, 'all', 'prefix disabled');
 const appsOnly = {
     prefixModes: false, url: false, path: false, places: false, apps: true, calculator: false,
-    units: false, time: false, windows: false, system: false, settings: false, files: false,
+    units: false, color: false, time: false, windows: false, system: false, settings: false, files: false,
     command: false, web: false,
 };
 assertEq(planSearch('x', appsOnly).providers.join(','), 'apps', 'apps only');
@@ -434,6 +437,7 @@ assert(fromSettings.path, 'flags keep path open');
 assert(fromSettings.units, 'flags keep unit convert');
 assert(fromSettings.places, 'flags keep places');
 assert(fromSettings.time, 'flags keep time');
+assert(fromSettings.color, 'flags keep color');
 
 const providers = {
     apps: (query, max) => query === 'x' ? [{title: 'App', n: max}] : [],
@@ -781,8 +785,11 @@ assertEq(pathRowMeta('/tmp/a.pdf', '/tmp/a.pdf', 'file').icon, 'x-office-documen
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').title, '~/docs', 'path title collapses home');
 assert(PLACE_CATALOG.length >= 8, 'xdg places');
 assert(placeMatches('Downloads', ['downloads'], 'down'), 'place prefix');
-assert(matchPlaces('docs', 5).some(p => p.id === 'documents'), 'docs is documents');
-assert(matchPlaces('chrome', 5).length === 0, 'place miss');
+assert(matchPlaces('docs').some(p => p.id === 'documents'), 'docs is documents');
+assert(matchPlaces('chrome').length === 0, 'place miss');
+const collapsed = takeUniquePlaces(PLACE_CATALOG, id => id === 'home' ? '/home/u' : '/home/u', 9);
+assertEq(collapsed.length, 1, 'duplicate xdg paths collapse');
+assertEq(collapsed[0].place.id, 'home', 'home wins first unique path');
 assert(!placeMatches('Home', ['home'], ''), 'empty query no place');
 assertEq(timeQueryKind('time'), 'time', 'time query');
 assertEq(timeQueryKind('NOW'), 'time', 'now query');
@@ -791,6 +798,15 @@ assertEq(timeQueryKind('clock'), 'time', 'clock query is time');
 assertEq(timeQueryKind('timeout'), null, 'timeout is not time');
 assertEq(formatClock(9, 5, 3), '09:05:03', 'clock pad');
 assertEq(formatDateTitle('Monday', 3, 'August', 2026), 'Monday, 3 August 2026', 'date title');
+assertEq(weekdayName(1), 'Monday', 'glib monday');
+assertEq(weekdayName(7), 'Sunday', 'glib sunday');
+assertEq(monthName(8), 'August', 'august');
+assertEq(formatIsoDate(2026, 8, 3), '2026-08-03', 'iso date');
+assertEq(normalizeHexColor('#f00'), '#ff0000', 'short hex');
+assertEq(normalizeHexColor('#AABBCC'), '#aabbcc', 'long hex');
+assertEq(normalizeHexColor('ff0000'), null, 'hash required');
+assertEq(normalizeHexColor('cafe'), null, 'word is not a color');
+assert(planSearch('#ff0000', allOn).providers.includes('color'), 'color planned');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');

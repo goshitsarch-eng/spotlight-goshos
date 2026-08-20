@@ -140,6 +140,7 @@ required = [
     'unitMatch.js',
     'placeMatch.js',
     'timeMatch.js',
+    'colorMatch.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

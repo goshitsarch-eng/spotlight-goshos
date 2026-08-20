@@ -70,6 +70,8 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`placeMatch.js`** — Folder titles and keywords.
 - **`timeSearch.js`** — Local time and date.
 - **`timeMatch.js`** — Time and date query matching.
+- **`colorSearch.js`** — Hex color copy.
+- **`colorMatch.js`** — Hex color normalization.
 - **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
@@ -208,6 +210,7 @@ Manual testing on GNOME Shell 50 Wayland:
 29. Type `firefox` while Firefox is open — a New window action should appear under Actions. Type `=0xff` — the result should be 255 with a `0xff` description. `2x3` must still evaluate to 6.
 30. Type `10 km to mi` — a Units row should appear. Type `32 f to c` — the title should be `0 c`. Type `clock` — Lock Screen must not appear; a Clock row with the local time should. Type `50% of 80` — the calculator result should be 40.
 31. Type `docs` — Documents should appear under Folders. Type `time` — the local time should copy with Enter. Open `~/Documents` — the path title should start with `~`.
+32. Type `#ff0000` — a Color row should copy `#ff0000`. Type `# wifi` — Settings should still list Wi-Fi. Unset XDG folders that point at Home must not list Documents as a second Home.
 
 ## Submitting Changes
 

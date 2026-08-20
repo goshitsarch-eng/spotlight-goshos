@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
-import {matchPlaces} from './placeMatch.js';
+import {matchPlaces, takeUniquePlaces} from './placeMatch.js';
 import {collapseHomePath, fileUriFromAbsolute} from './homePath.js';
 import {openUri} from './gioLaunch.js';
 
@@ -30,22 +30,13 @@ function _placePath(id) {
 
 export function searchPlaces(query, maxResults) {
     const home = GLib.get_home_dir() || '';
-    const results = [];
-    for (const place of matchPlaces(query, maxResults)) {
-        const path = _placePath(place.id);
-        if (!path)
-            continue;
-        results.push({
-            type: 'place',
-            title: place.title,
-            description: collapseHomePath(path, home),
-            icon: place.icon,
-            activate: () => {
-                openUri(fileUriFromAbsolute(path));
-            },
-        });
-        if (results.length >= maxResults)
-            break;
-    }
-    return results;
+    return takeUniquePlaces(matchPlaces(query), _placePath, maxResults).map(({place, path}) => ({
+        type: 'place',
+        title: place.title,
+        description: collapseHomePath(path, home),
+        icon: place.icon,
+        activate: () => {
+            openUri(fileUriFromAbsolute(path));
+        },
+    }));
 }

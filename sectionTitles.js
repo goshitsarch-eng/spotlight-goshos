@@ -6,6 +6,7 @@ const SECTION_TITLES = {
     'app-action': 'Actions',
     calculator: 'Calculator',
     unit: 'Units',
+    color: 'Color',
     window: 'Windows',
     'system-action': 'System Actions',
     settings: 'Settings',

@@ -20,3 +20,26 @@ export function formatClock(hours, minutes, seconds) {
 export function formatDateTitle(weekday, day, month, year) {
     return `${weekday}, ${day} ${month} ${year}`;
 }
+
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+// glib DateTime.get_day_of_week is 1 monday through 7 sunday
+export function weekdayName(dayOfWeek) {
+    if (dayOfWeek < 1 || dayOfWeek > 7)
+        return '';
+    return WEEKDAYS[dayOfWeek - 1];
+}
+
+export function monthName(month) {
+    if (month < 1 || month > 12)
+        return '';
+    return MONTHS[month - 1];
+}
+
+export function formatIsoDate(year, month, day) {
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}

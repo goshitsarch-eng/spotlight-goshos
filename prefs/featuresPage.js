@@ -24,6 +24,8 @@ export function buildFeaturesPage(settings) {
         'Calculator', 'Evaluate math and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 32 f to c, 1 gb to mib');
+    addSwitch(providers, settings, 'enable-color-hex',
+        'Hex colors', 'Type #f00 or #ff0000 and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, or workspace');
     addSwitch(providers, settings, 'enable-system-actions',
@@ -47,7 +49,7 @@ export function buildFeaturesPage(settings) {
         title: 'Behavior',
     });
     addSwitch(extras, settings, 'enable-prefix-modes',
-        'Prefix modes', '= calculator, @ web, # settings, $ windows, . files, ! command. Use a space after . and $ so .bashrc and $HOME stay normal searches');
+        'Prefix modes', '= calculator, @ web, # settings, $ windows, . files, ! command. Use a space after # . and $ so #ff0000, .bashrc, and $HOME stay normal searches');
     addSwitch(extras, settings, 'show-empty-suggestions',
         'Empty-state suggestions', 'Show windows and frequent apps before you type');
 

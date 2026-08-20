@@ -15,9 +15,10 @@ export const PREFIXES = {
 const SPACE_PREFIXES = {
     '.': true,
     '$': true,
+    '#': true,
 };
 
-// .bashrc and $HOME are filenames and env vars not prefix modes
+// .bashrc $HOME and #ff0000 are names and colors not prefix modes
 export function isPrefixToken(trimmed, prefix) {
     if (trimmed.charAt(0) !== prefix)
         return false;

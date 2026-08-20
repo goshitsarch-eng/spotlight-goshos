@@ -45,12 +45,13 @@ Results are aggregated in the following order. Each category is rendered under i
 4. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
 5. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), and `50% of 80`. A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Integer results show the hex form in the description.
 6. **Units** — Conversions such as `10 km to mi`, `32 f in c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
-7. **Clock** — Type `time`, `now`, `date`, `today`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
-8. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
-9. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-10. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
-11. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
-12. **Web Search** — Last-resort fallback in the default browser.
+7. **Color** — A hash hex such as `#f00` or `#ff0000` copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
+8. **Clock** — Type `time`, `now`, `date`, `today`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
+9. **Windows** — Switch to an open window by title, window class, or workspace label (`workspace 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows.
+10. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
+11. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships. Camera, microphone, location, thunderbolt, and firmware open Privacy & Security because those are subpages, not launchable panel ids.
+12. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension. The description is the parent folder, with the home directory collapsed to `~`. Folder names are searchable too.
+13. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show frequently used apps and open windows. Windows-first looks (Pop!_OS) put windows above apps here too. Turn that off in Features if you want a blank entry.
 
@@ -62,7 +63,7 @@ Walker-style prefixes jump to one provider. Disable them in Features if you neve
 |---|---|
 | `=` | Calculator (`=2^8`) |
 | `@` | Web search |
-| `#` | GNOME Settings |
+| `#` | GNOME Settings (`# wifi`, not `#ff0000`) |
 | `$` | Open windows (`$ term`, not `$HOME`) |
 | `.` | Recent files (`. notes`, not `.bashrc`) |
 | `!` | Run command (off by default) |
@@ -80,6 +81,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Convert units | Type `10 km to mi` or `32 f to c`, then `Enter` |
 | Open Documents | Type `docs`, then `Enter` |
 | Copy the time | Type `time` or `now`, then `Enter` |
+| Copy a color | Type `#ff0000`, then `Enter` |
 | Switch window | Type part of the title, then `Enter` |
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
@@ -128,7 +130,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider, plus application actions, unit conversion, folders, and the clock (changes apply while the popup is open)
+- Enable or disable every search provider, plus application actions, unit conversion, hex colors, folders, and the clock (changes apply while the popup is open)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -161,6 +163,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `unitMatch.js` | Length, mass, temperature, volume, and data conversions |
 | `placeMatch.js` | XDG user folder catalog |
 | `timeMatch.js` | Time and date query matching |
+| `colorMatch.js` | Hex color normalization |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
 | `prefs/featuresPage.js` | Provider toggles |
@@ -176,7 +179,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 
 ## Clipboard Access
 
-This extension writes to the clipboard **only** when the user explicitly activates a calculator, unit-conversion, or time/date result by pressing `Enter`. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
+This extension writes to the clipboard **only** when the user explicitly activates a calculator, unit-conversion, hex-color, or time/date result by pressing `Enter`. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
 
 ## GNOME 45–50
 

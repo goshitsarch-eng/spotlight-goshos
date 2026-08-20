@@ -120,6 +120,8 @@ gosh-is-launcher@nin/
     placeMatch.js             folder catalog (pure)
     timeSearch.js             local time and date
     timeMatch.js              time and date query (pure)
+    colorSearch.js            hex color copy
+    colorMatch.js             hex color normalize (pure)
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider
     webSearch.js              web search fallback
@@ -172,7 +174,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch timeMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator unitMatch placeMatch timeMatch colorMatch sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -186,7 +188,7 @@ never import a shell-only library in a prefs file or vice versa ego review rejec
 
 ### search priority
 
-results are combined in this order urls first then filesystem paths then xdg folders then apps then calculator then units then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
+results are combined in this order urls first then filesystem paths then xdg folders then apps then calculator then units then hex colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
 the priority is set in searchController.js do not change it without reason
 
@@ -196,7 +198,7 @@ prefix modes when enabled jump to a single provider
 
 - `=` calculator
 - `@` web
-- `#` settings
+- `#` settings only when followed by a space or nothing so #ff0000 stays a color
 - `$` windows only when followed by a space or nothing so $HOME stays a normal query
 - `.` recent files only when followed by a space or nothing so .bashrc stays a normal query
 - `!` command
@@ -307,7 +309,7 @@ see the keybinding.js file for the implementation
 
 ## clipboard access
 
-gosh is launcher writes to the clipboard only when the user explicitly selects a calculator unit conversion or time date result by pressing enter it does not read the clipboard ever it does not share clipboard data with any third party
+gosh is launcher writes to the clipboard only when the user explicitly selects a calculator unit conversion hex color or time date result by pressing enter it does not read the clipboard ever it does not share clipboard data with any third party
 
 this is declared in metadata.json description under the CLIPBOARD ACCESS section ego review requires this declaration for any extension that touches the clipboard
 

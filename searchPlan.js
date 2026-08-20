@@ -13,8 +13,8 @@ const PREFIX_TO_FLAG = {
     command: 'command',
 };
 
-const DEFAULT_ORDER = ['url', 'path', 'places', 'apps', 'calculator', 'units', 'time', 'windows', 'system', 'settings', 'files'];
-const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'windows', 'apps', 'calculator', 'units', 'time', 'system', 'settings', 'files'];
+const DEFAULT_ORDER = ['url', 'path', 'places', 'apps', 'calculator', 'units', 'color', 'time', 'windows', 'system', 'settings', 'files'];
+const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'windows', 'apps', 'calculator', 'units', 'color', 'time', 'system', 'settings', 'files'];
 
 export function flagsFromSettings(settings) {
     return {
@@ -25,6 +25,7 @@ export function flagsFromSettings(settings) {
         apps: settings.get_boolean('enable-app-search'),
         calculator: settings.get_boolean('enable-calculator'),
         units: settings.get_boolean('enable-unit-convert'),
+        color: settings.get_boolean('enable-color-hex'),
         time: settings.get_boolean('enable-time-date'),
         windows: settings.get_boolean('enable-window-search'),
         system: settings.get_boolean('enable-system-actions'),

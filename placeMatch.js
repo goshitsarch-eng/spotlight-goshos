@@ -26,14 +26,30 @@ export function placeMatches(title, keywords, query) {
     return false;
 }
 
-export function matchPlaces(query, maxResults) {
+export function matchPlaces(query) {
     const results = [];
     for (const place of PLACE_CATALOG) {
         if (!placeMatches(place.title, place.keywords, query))
             continue;
         results.push(place);
-        if (results.length >= maxResults)
-            break;
     }
     return results;
+}
+
+// unset xdg dirs often fall back to the same home path
+export function takeUniquePlaces(places, getPath, maxResults) {
+    if (maxResults <= 0)
+        return [];
+    const seen = new Set();
+    const unique = [];
+    for (const place of places) {
+        const path = getPath(place.id);
+        if (!path || seen.has(path))
+            continue;
+        seen.add(path);
+        unique.push({place, path});
+        if (unique.length >= maxResults)
+            break;
+    }
+    return unique;
 }

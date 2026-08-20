@@ -147,6 +147,12 @@
       <description>Convert length, mass, temperature, volume, and data sizes such as 10 km to mi.</description>
     </key>
 
+    <key name="enable-color-hex" type="b">
+      <default>true</default>
+      <summary>Enable hex colors</summary>
+      <description>Copy a hex color such as #f00 or #ff0000.</description>
+    </key>
+
     <key name="enable-window-search" type="b">
       <default>true</default>
       <summary>Enable window search</summary>
