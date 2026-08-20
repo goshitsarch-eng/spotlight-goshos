@@ -57,6 +57,7 @@ class LauncherPopup extends St.BoxLayout {
         this._isOpen = false;
         this._positionIdleId = 0;
         this._openIdleId = 0;
+        this._repaintIdleId = 0;
         this._closeIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
@@ -179,9 +180,16 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _repaintIfOpen() {
-        if (!this._isOpen)
+        if (!this._isOpen || this._repaintIdleId)
             return;
-        this._renderer.repaintKeepingSelection();
+        // dconf can arrive while a key is still dispatching
+        this._repaintIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._repaintIdleId = 0;
+            if (!this._isOpen)
+                return GLib.SOURCE_REMOVE;
+            this._renderer.repaintKeepingSelection();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     _onWidthChanged() {
@@ -473,6 +481,7 @@ class LauncherPopup extends St.BoxLayout {
 
     close() {
         this._clearIdle('_openIdleId');
+        this._clearIdle('_repaintIdleId');
         if (!this._isOpen && !this.visible)
             return;
 
@@ -484,9 +493,7 @@ class LauncherPopup extends St.BoxLayout {
         }
         this._focusWatcher.stop();
         this._unlistenMonitors();
-        this._clearIdle('_positionIdleId');
-        this._clearIdle('_openIdleId');
-        this._clearIdle('_closeIdleId');
+        this._clearPopupIdles();
         this._renderer.destroy();
 
         if (this._backdrop) {
@@ -510,14 +517,19 @@ class LauncherPopup extends St.BoxLayout {
         }
     }
 
+    _clearPopupIdles() {
+        this._clearIdle('_positionIdleId');
+        this._clearIdle('_openIdleId');
+        this._clearIdle('_closeIdleId');
+        this._clearIdle('_repaintIdleId');
+    }
+
     // overridden so that disable() -> destroy() tears down everything cleanly:
     // closes the popup which removes the backdrop and focus handler then
     // removes us from the chrome layer and chains up to the parent destroy
     destroy() {
         this._reopenAfterClose = false;
-        this._clearIdle('_positionIdleId');
-        this._clearIdle('_openIdleId');
-        this._clearIdle('_closeIdleId');
+        this._clearPopupIdles();
         this._unlistenSession();
         this._unlistenTimeLimits();
         this._unlistenParental();

@@ -272,13 +272,13 @@ keyboard input is captured by calling grab_key_focus() on the search entry which
 
 close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
 
-the toggle shortcut must not call open() from accelerator-activated clutter 18 aborts if addchrome runs inside that dispatch so toggleFromShortcut schedules openSoon and a second press before that idle cancels the pending open open() uses an _isOpen flag not just visible because the first frames after that idle still have visible=false while the position idle runs a second press in that later gap must close not leak another backdrop clearing the search entry must also paint the empty state on idle destroying result rows inside text-changed during a key press is the same abort
+the toggle shortcut must not call open() from accelerator-activated clutter 18 aborts if addchrome runs inside that dispatch so toggleFromShortcut schedules openSoon and a second press before that idle cancels the pending open open() uses an _isOpen flag not just visible because the first frames after that idle still have visible=false while the position idle runs a second press in that later gap must close not leak another backdrop clearing the search entry must also paint the empty state on idle destroying result rows inside text-changed during a key press is the same abort prefs changed handlers schedule _repaintIfOpen on that idle instead of painting immediately a look change writes several keys and one idle paints them together destroy clears the open close position and repaint idles before close so a dying popup cannot paint after teardown
 
 ### object lifecycle
 
 every object created in enable() is destroyed in disable() every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
 
-the popup widget overrides destroy() to call close() first which removes the backdrop disconnects the focus handler and removes idle sources then it removes itself from the chrome layer and chains up to the parent destroy
+the popup widget overrides destroy() to clear the open close position and repaint idles then call close() which removes the backdrop disconnects the focus handler and removes those idles again then it removes itself from the chrome layer and chains up to the parent destroy
 
 if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
 
