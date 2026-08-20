@@ -24,8 +24,6 @@ export function placeMatches(title, keywords, query) {
     const titleLower = title.toLowerCase();
     if (titleLower.startsWith(q) || wordPrefixMatch(titleLower, q))
         return true;
-    if (q.length >= 3 && titleLower.includes(q))
-        return true;
     for (const keyword of keywords) {
         if (keywordMatchesQuery(keyword, q))
             return true;

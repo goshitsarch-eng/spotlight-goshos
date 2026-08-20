@@ -1,7 +1,7 @@
 // gosh is launcher - app name generic-name and keyword match tiers
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {wordPrefixMatch, keywordMatchesQuery, SUBSTRING_MIN} from './wordMatch.js';
+import {wordPrefixMatch, keywordMatchesQuery, SUBSTRING_MIN, idMatchesQuery, labelMatchesQuery} from './wordMatch.js';
 
 // strip a known trailing variant so firefox and firefox esr collapse
 // do not split on every hyphen or gnome-builder becomes gnome
@@ -54,16 +54,15 @@ export function appMatchTier(name, genericName, id, keywords, query, description
         return 1;
     if (q.length >= SUBSTRING_MIN && nameLower.includes(q))
         return 2;
-    if (genericLower.startsWith(q) || wordPrefixMatch(genericLower, q) ||
-        (q.length >= SUBSTRING_MIN && genericLower.includes(q)))
+    if (labelMatchesQuery(genericLower, q))
         return 3;
-    if (q.length >= SUBSTRING_MIN && idLower.includes(q))
+    if (idMatchesQuery(idLower, q))
         return 4;
     for (const keyword of keywords) {
         if (keywordMatchesQuery(keyword, q))
             return 5;
     }
-    if (q.length >= SUBSTRING_MIN && descLower.includes(q))
+    if (q.length >= SUBSTRING_MIN && labelMatchesQuery(descLower, q))
         return 6;
 
     const words = q.split(/\s+/).filter(word => word.length > 0);
@@ -89,16 +88,15 @@ function _tokenTier(nameLower, genericLower, idLower, keywords, descLower, token
         return 1;
     if (token.length >= SUBSTRING_MIN && nameLower.includes(token))
         return 2;
-    if (genericLower.startsWith(token) || wordPrefixMatch(genericLower, token) ||
-        (token.length >= SUBSTRING_MIN && genericLower.includes(token)))
+    if (labelMatchesQuery(genericLower, token))
         return 3;
-    if (token.length >= SUBSTRING_MIN && idLower.includes(token))
+    if (idMatchesQuery(idLower, token))
         return 4;
     for (const keyword of keywords) {
         if (keywordMatchesQuery(keyword, token))
             return 5;
     }
-    if (token.length >= SUBSTRING_MIN && descLower.includes(token))
+    if (token.length >= SUBSTRING_MIN && labelMatchesQuery(descLower, token))
         return 6;
     return -1;
 }

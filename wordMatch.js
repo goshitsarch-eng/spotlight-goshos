@@ -45,6 +45,36 @@ export function pathMatchesQuery(path, query) {
     return p.startsWith(q) || wordPrefixMatch(p, q);
 }
 
+// generic-name and comments are phrases not haystacks so ows is not browser
+export function labelMatchesQuery(text, query) {
+    if (!text || !query)
+        return false;
+    const t = text.toLowerCase();
+    const q = query.toLowerCase();
+    return t.startsWith(q) || wordPrefixMatch(t, q);
+}
+
+// reverse-dns ids must not match org or com as a prefix of the whole id
+export function idMatchesQuery(id, query) {
+    if (!id || !query)
+        return false;
+    const q = query.toLowerCase();
+    if (q.length < SUBSTRING_MIN)
+        return false;
+
+    for (const token of id.toLowerCase().split(/\s+/)) {
+        if (!token)
+            continue;
+        if (wordPrefixMatch(token, q))
+            return true;
+        const last = token.split('.').pop();
+        if (last.startsWith(q))
+            return true;
+    }
+
+    return false;
+}
+
 export function wordPrefixMatch(nameLower, queryLower) {
     const len = queryLower.length;
     if (len === 0)

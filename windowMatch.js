@@ -1,7 +1,7 @@
 // gosh is launcher - whether an open window matches a query
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
+import {textMatchesQuery, idMatchesQuery} from './wordMatch.js';
 import {replaceNumberWords} from './numberWords.js';
 
 // workspace 2 already occupies a slot so max-results 1 must not also keep a window
@@ -55,11 +55,18 @@ export function workspaceLabelMatches(label, query) {
 export function windowMatches(title, wmClass, query, workspaceLabel) {
     if (query.length === 0)
         return true;
-    if (textMatchesQuery(title, query) || textMatchesQuery(wmClass, query))
+    if (textMatchesQuery(title, query) || idMatchesQuery(wmClass, query))
         return true;
-    if (textMatchesAllWords(`${title} ${wmClass}`, query))
+    if (_windowFieldsMatchAllWords(title, wmClass, query))
         return true;
     return workspaceLabelMatches(workspaceLabel, query);
+}
+
+function _windowFieldsMatchAllWords(title, wmClass, query) {
+    const words = query.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2)
+        return false;
+    return words.every(word => textMatchesQuery(title, word) || idMatchesQuery(wmClass, word));
 }
 
 // mutter workspace.index is 0-based launchers show Workspace 1
