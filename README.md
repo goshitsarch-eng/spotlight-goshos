@@ -41,7 +41,7 @@ Results are aggregated in the following order. Each category is rendered under i
 3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
 4. **Windows** — Switch to an open window by title or window class, including modal dialogs.
 5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`.
+6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the Settings app if that binary is missing.
 7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor.
 8. **Web Search** — Last-resort fallback in the default browser.
 

@@ -52,3 +52,12 @@ export function matchSettingsPanels(query, maxResults) {
 
     return matchingPanels.slice(0, maxResults);
 }
+
+// immutable images may ship settings without the gnome-control-center name
+export function settingsArgv(panelId, findInPath) {
+    if (findInPath('gnome-control-center'))
+        return ['gnome-control-center', panelId];
+    if (findInPath('gapplication'))
+        return ['gapplication', 'launch', 'org.gnome.Settings'];
+    return null;
+}

@@ -1,7 +1,8 @@
 // gosh is launcher - settings search provider
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {matchSettingsPanels} from './settingsPanels.js';
+import GLib from 'gi://GLib';
+import {matchSettingsPanels, settingsArgv} from './settingsPanels.js';
 import {spawnArgv} from './gioLaunch.js';
 
 // searches gnome settings panels by title
@@ -13,7 +14,9 @@ export function searchSettings(query, maxResults) {
         description: 'GNOME Settings',
         icon: 'preferences-system-symbolic',
         activate: () => {
-            spawnArgv(['gnome-control-center', panel.id]);
+            const argv = settingsArgv(panel.id, name => GLib.find_program_in_path(name));
+            if (argv)
+                spawnArgv(argv);
         },
     }));
 }

@@ -11,7 +11,7 @@ import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {appMatchTier} from '../appMatch.js';
-import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
+import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
 import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
@@ -242,6 +242,9 @@ assert(matchSettingsPanels('stylus', 5).some(p => p.id === 'wacom'), 'stylus key
 assert(matchSettingsPanels('user-accounts', 5).some(p => p.id === 'users'), 'user-accounts alias');
 assert(matchSettingsPanels('info-overview', 5).some(p => p.id === 'about'), 'info-overview alias');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
+assertEq(settingsArgv('wifi', name => name === 'gnome-control-center')[1], 'wifi', 'prefer control center');
+assertEq(settingsArgv('wifi', name => name === 'gapplication')[0], 'gapplication', 'fallback launch settings');
+assertEq(settingsArgv('wifi', () => null), null, 'no settings binary');
 
 // selection wrap vs page clamp
 assertEq(nextSelectedIndex(0, -1, 5), 4, 'arrow wrap up');

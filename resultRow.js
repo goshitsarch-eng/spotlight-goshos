@@ -39,6 +39,7 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         vertical: true,
         y_align: Clutter.ActorAlign.CENTER,
         x_expand: true,
+        x_align: Clutter.ActorAlign.FILL,
     });
     const title = new St.Label({
         style_class: 'gosh-result-title',
