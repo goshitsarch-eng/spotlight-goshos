@@ -25,6 +25,19 @@ export function normalizeHexColor(query) {
 
 export function normalizeRgbColor(query) {
     const text = query.trim();
+    const percent = text.match(
+        /^rgba?\(\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
+    ) || text.match(
+        /^rgba?\(\s*([\d.]+)\s*%\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+    );
+    if (percent) {
+        const r = Number(percent[1]);
+        const g = Number(percent[2]);
+        const b = Number(percent[3]);
+        if (r > 100 || g > 100 || b > 100)
+            return null;
+        return `#${hexByte(Math.round(r * 255 / 100))}${hexByte(Math.round(g * 255 / 100))}${hexByte(Math.round(b * 255 / 100))}`;
+    }
     const match = text.match(
         /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
@@ -94,9 +107,9 @@ function hwbToHex(h, w, bl) {
 export function normalizeHslColor(query) {
     const text = query.trim();
     const match = text.match(
-        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*[\d.]+\s*)?\)$/i
+        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
-        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)%\s+([\d.]+)%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+        /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     );
     if (!match)
         return null;
@@ -110,9 +123,9 @@ export function normalizeHslColor(query) {
 export function normalizeHwbColor(query) {
     const text = query.trim();
     const match = text.match(
-        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*[\d.]+\s*)?\)$/i
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
-        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)%\s+([\d.]+)%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+        /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     );
     if (!match)
         return null;

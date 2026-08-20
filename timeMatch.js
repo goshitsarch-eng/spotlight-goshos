@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export function timeQueryKind(query) {
-    const q = query.trim().toLowerCase();
+    const q = query.trim().toLowerCase().replace(/['’]/g, '');
     if (q === 'time' || q === 'now' || q === 'clock' ||
-        q === 'what time' || q === 'what time is it' || q === 'current time')
+        q === 'what time' || q === 'what time is it' || q === 'current time' ||
+        q === 'whats the time' || q === 'what is the time')
         return 'time';
     if (q === 'date' || q === 'today' || q === 'calendar' ||
-        q === 'what date' || q === 'what date is it' || q === 'current date')
+        q === 'what date' || q === 'what date is it' || q === 'current date' ||
+        q === 'whats the date' || q === 'what is the date')
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';

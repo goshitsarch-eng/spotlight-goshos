@@ -23,9 +23,9 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-calculator',
         'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, round, 5!, e+1, and =e and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
-        'Unit conversion', '10 km to mi, 2 hours to min, 1 acre to m2, 32 f to c, 1 stone to kg, 1024 bytes to kib');
+        'Unit conversion', '10 km to mi, 2 hours to min, 100 kph to mph, 100 km/h to mph, 1 acre to m2, 1 m3 to l, 32 f to c, 1024 bytes to kib');
     addSwitch(providers, settings, 'enable-color-hex',
-        'Hex colors', 'Type #f00, rgb(255, 0, 0), hsl(0deg 100% 50%), or hwb(0 0% 0%) and press Enter to copy');
+        'Hex colors', 'Type #f00, rgb(255, 0, 0), rgb(100%, 0%, 0%), hsl(0deg 100% 50%), or hwb(0 0% 0%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, or workspace 2. Type close firefox or kill firefox');
     addSwitch(providers, settings, 'enable-system-actions',

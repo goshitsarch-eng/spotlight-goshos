@@ -1,4 +1,4 @@
-// gosh is launcher - length mass temp volume data duration and area conversions
+// gosh is launcher - length mass temp volume data duration area and speed conversions
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 const ALIASES = {
@@ -33,10 +33,17 @@ const ALIASES = {
     gb: 'gb', gigabyte: 'gb', gigabytes: 'gb',
     tb: 'tb', terabyte: 'tb', terabytes: 'tb',
     kib: 'kib', mib: 'mib', gib: 'gib', tib: 'tib',
-    s: 's', sec: 's', second: 's', seconds: 's',
+    s: 's', sec: 's', secs: 's', second: 's', seconds: 's',
     min: 'min', mins: 'min', minute: 'min', minutes: 'min',
-    h: 'h', hr: 'h', hour: 'h', hours: 'h',
+    h: 'h', hr: 'h', hrs: 'h', hour: 'h', hours: 'h',
     d: 'd', day: 'd', days: 'd',
+    kph: 'kph', kmh: 'kph', kmph: 'kph',
+    mph: 'mph',
+    mps: 'mps',
+    kn: 'kn', knot: 'kn', knots: 'kn',
+    m3: 'm3', cubicmeter: 'm3', cubicmetre: 'm3',
+    cm3: 'cm3', cc: 'cm3',
+    ft3: 'ft3', cuft: 'ft3',
     m2: 'm2', sqm: 'm2', sqmeter: 'm2', sqmetre: 'm2',
     km2: 'km2',
     ha: 'ha', hectare: 'ha', hectares: 'ha',
@@ -90,6 +97,13 @@ const UNITS = {
     acre: {dim: 'area', toBase: 4046.8564224},
     ft2: {dim: 'area', toBase: 0.09290304},
     mi2: {dim: 'area', toBase: 2589988.110336},
+    kph: {dim: 'speed', toBase: 1000 / 3600},
+    mph: {dim: 'speed', toBase: 1609.344 / 3600},
+    mps: {dim: 'speed', toBase: 1},
+    kn: {dim: 'speed', toBase: 1852 / 3600},
+    m3: {dim: 'volume', toBase: 1000},
+    cm3: {dim: 'volume', toBase: 0.001},
+    ft3: {dim: 'volume', toBase: 28.316846592},
 };
 
 const QUERY_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+\-]?\d+)?)\s*([a-z][a-z0-9]*)\s+(?:to|in)\s+([a-z][a-z0-9]*)$/i;
@@ -104,6 +118,11 @@ export function resolveUnit(name) {
 export function normalizeUnitQuery(query) {
     let text = query
         .replace(/°/g, ' ')
+        .replace(/²/g, '2')
+        .replace(/³/g, '3')
+        .replace(/km\s*\/\s*h(?:r)?/gi, 'kph')
+        .replace(/mi\s*\/\s*h/gi, 'mph')
+        .replace(/(^|[^a-z])m\s*\/\s*s\b/gi, '$1mps')
         .replace(/\s*degrees?\s*/gi, ' ');
     // pasted values often use thousands commas the way the calculator does
     let next = text.replace(/(\d),(\d)/g, '$1$2');

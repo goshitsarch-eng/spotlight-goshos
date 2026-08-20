@@ -154,13 +154,13 @@
     <key name="enable-unit-convert" type="b">
       <default>true</default>
       <summary>Enable unit conversion</summary>
-      <description>Convert length, mass, temperature, volume, and data sizes such as 10 km to mi, 1,000 km to mi, or 1e3 km to mi.</description>
+      <description>Convert length, mass, temperature, volume, data, duration, area, and speed such as 10 km to mi, 2 hours to min, 100 kph to mph, or 1 acre to m2.</description>
     </key>
 
     <key name="enable-color-hex" type="b">
       <default>true</default>
       <summary>Enable hex colors</summary>
-      <description>Copy a color such as #f00, rgb(255, 0, 0), hsl(0deg 100% 50%), or hwb(0 0% 0%).</description>
+      <description>Copy a color such as #f00, rgb(255, 0, 0), rgb(100%, 0%, 0%), hsl(0deg 100% 50%), or hwb(0 0% 0%).</description>
     </key>
 
     <key name="enable-window-search" type="b">
@@ -208,7 +208,7 @@
     <key name="enable-time-date" type="b">
       <default>true</default>
       <summary>Enable time and date</summary>
-      <description>Show the local time or date when the query is time, date, now, today, tomorrow, or yesterday.</description>
+      <description>Show the local time or date when the query is time, what time is it, date, now, today, tomorrow, or yesterday.</description>
     </key>
 
     <key name="enable-path-open" type="b">
