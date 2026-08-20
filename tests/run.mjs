@@ -1436,6 +1436,11 @@ assertEq(normalizeHexColor('#ff000080'), '#ff0000', 'eight digit hex drops alpha
 assertEq(normalizeHexColor('ff0000'), null, 'hash required');
 assertEq(normalizeHexColor('cafe'), null, 'word is not a color');
 assertEq(normalizeRgbColor('rgb(255, 0, 0)'), '#ff0000', 'rgb color');
+assertEq(normalizeRgbColor('rgb 255 0 0'), '#ff0000', 'rgb without parens');
+assertEq(normalizeRgbColor('rgb 255, 0, 0'), '#ff0000', 'rgb commas without parens');
+assertEq(normalizeRgbColor('rgb'), null, 'bare rgb stays a search');
+assertEq(normalizeHslColor('hsl 0 100% 50%'), '#ff0000', 'hsl without parens');
+assertEq(normalizeHwbColor('hwb 0 0% 0%'), '#ff0000', 'hwb without parens');
 assertEq(normalizeRgbColor('rgb(255 0 0)'), '#ff0000', 'modern rgb');
 assertEq(normalizeRgbColor('rgb(255 0 0 / 40%)'), '#ff0000', 'modern rgb slash alpha');
 assertEq(normalizeRgbColor('rgba(0,128,255,0.5)'), '#0080ff', 'rgba ignores alpha');

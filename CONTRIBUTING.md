@@ -72,8 +72,8 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`bookmarkParse.js`** — Bookmark file parsing.
 - **`timeSearch.js`** — Local time and date.
 - **`timeMatch.js`** — Time and date query matching.
-- **`colorSearch.js`** — Hex color copy.
-- **`colorMatch.js`** — Hex color normalization.
+- **`colorSearch.js`** — Hex / rgb / hsl / hwb / named color copy.
+- **`colorMatch.js`** — Hex, rgb, hsl, hwb, and CSS name normalization.
 - **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
@@ -96,6 +96,8 @@ Each search type lives in its own file and exports a function that accepts a que
 Pure functions with no side effects:
 
 - **`calculator.js`** — Recursive-descent arithmetic parser.
+- **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
+- **`paintSelection.js`** — Keep the selected row across an async repaint.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
 - **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
@@ -224,7 +226,7 @@ Manual testing on GNOME Shell 50 Wayland:
 33. Type `o` — Home must not appear just because the word contains o. Type `~` or `docs` — Home / Documents should. Type `sqrt(16)` or `2pi` — the calculator should evaluate.
 34. Add a GTK bookmark under `~/.config/gtk-3.0/bookmarks` — typing part of its label should open that folder. Disable Bookmarks in Features — it should disappear.
 35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
-36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` — a Color row should copy `#ff0000`.
+36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` or `rgb 255 0 0` — a Color row should copy `#ff0000`.
 37. Type `firefox` with six other apps matching and Firefox as the best match — New window must still appear under Actions. Type `5!` — the result should be 120. Type `#f00f` — a Color row should copy `#ff0000`. Type `zoom` — Accessibility should appear. The About page must list PowerToys and Synapse.
 38. On a short display, set results max height to 800 and a top look — the list must not grow off the work area even if the empty popup was already clamped to the bottom. Change icon size in Appearance while the popup is open — row icons should resize. Type `2*e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `hsl(0, 100%, 50%)` — a Color row should copy `#ff0000`.
 39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
