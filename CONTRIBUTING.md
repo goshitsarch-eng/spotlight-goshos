@@ -14,8 +14,8 @@ Thank you for your interest in contributing to Gosh Is Launcher (formerly Spotli
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/itsnin/spotlight.git
-cd spotlight
+git clone https://github.com/goshitsarch-eng/spotlight-goshos.git
+cd spotlight-goshos
 ```
 
 2. Install the extension into your local extensions directory for testing:
@@ -50,6 +50,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 - **`launcherPopup.js`** — The popup widget. Handles open/close lifecycle, theme chrome, positioning, and input.
 - **`searchEntry.js`** — Search input box with magnifying-glass icon.
 - **`resultsContainer.js`** — Scrollable results container.
+- **`scrollView.js`** — GNOME 45–50 `St.ScrollView` attach, policy, and adjustment.
 - **`resultRow.js`** — Constructs a single result row with icon, title, and interaction handlers.
 - **`sectionHeader.js`** — Section header label for categorizing results.
 - **`sectionTitles.js`** — Maps result type strings to human-readable section titles.

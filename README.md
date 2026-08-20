@@ -2,7 +2,7 @@
 
 A compact launcher for GNOME Shell 45 through 50. Previously named Spotlight.
 
-[Repository](https://github.com/itsnin/spotlight)
+[Repository](https://github.com/goshitsarch-eng/spotlight-goshos)
 
 **Version:** 2026.08.20
 
@@ -128,6 +128,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `launcherPopup.js` | Popup widget — open/close, theme chrome, positioning |
 | `searchEntry.js` | Search input with magnifying-glass icon |
 | `resultsContainer.js` | Scrollable results area |
+| `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
 | `resultRow.js` | Single result row with icon, title, and optional number hint |
 | `searchController.js` | Orchestrates providers and prefix modes |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
@@ -150,9 +151,17 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 
 This extension writes to the clipboard **only** when the user explicitly activates a calculator result by pressing `Enter` on a valid arithmetic expression. No clipboard data is ever read. No clipboard content is transmitted to any third party. This behavior is declared in `metadata.json` and is strictly user-initiated.
 
-## GNOME 50
+## GNOME 45–50
 
-The extension already lists `50` in `shell-version`. The [GNOME 50 port guide](https://gjs.guide/extensions/upgrading/gnome-shell-50.html) has no `extension.js` or `prefs.js` changes that apply here. Remaining 50 work in this codebase is defensive: skip removed restart APIs, keep `GLib.idle_add` instead of the 50-only `idle_add_once`, and honor parental-control app filtering.
+The extension lists `45` through `50` in `shell-version` and ships as one zip. The [GNOME 50 port guide](https://gjs.guide/extensions/upgrading/gnome-shell-50.html) has no `extension.js` or `prefs.js` changes that apply here. Compatibility work in this codebase:
+
+- Skip removed X11 restart APIs (`RunDialog._restart`, `holdKeyboard` / `releaseKeyboard`).
+- Keep `GLib.idle_add` instead of the 50-only `idle_add_once`.
+- Honor parental-control app filtering.
+- Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
+- Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
+
+This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 
 ## License
 

@@ -3,7 +3,7 @@ name: Feature Request
 about: Suggest a new feature or improvement for Gosh Is Launcher
 title: "[FEATURE] "
 labels: enhancement
-assignees: itsnin
+assignees: ''
 ---
 
 ## Describe the feature

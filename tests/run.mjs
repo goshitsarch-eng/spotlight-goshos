@@ -9,6 +9,7 @@ import {planSearch} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
+import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -206,10 +207,47 @@ for (const key of usedKeys)
 // css defines every theme
 const css = readFileSync('stylesheet.css', 'utf8');
 for (const id of themeIds)
-    assert(css.includes(`.gosh-theme-${id}`) || id === 'spotlight', `css theme ${id}`);
+    assert(css.includes(`.gosh-theme-${id}`), `css theme ${id}`);
 assert(css.includes('.gosh-container'), 'base container class');
 assert(css.includes('.gosh-selected'), 'selected class');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
+
+// scrollview helpers speak both the 45 and 48 apis
+const modernScroll = {
+    set_child(child) {
+        this.child = child;
+    },
+    set_policy(h, v) {
+        this.h = h;
+        this.v = v;
+    },
+    get_vadjustment() {
+        return {kind: 'adj'};
+    },
+};
+attachScrollChild(modernScroll, 'box');
+assertEq(modernScroll.child, 'box', '48 set_child');
+applyScrollPolicy(modernScroll, 0, 1);
+assertEq(modernScroll.v, 1, '48 set_policy');
+assertEq(getVerticalAdjustment(modernScroll).kind, 'adj', '48 vadjustment');
+
+const legacyScroll = {
+    add_child(child) {
+        this.child = child;
+    },
+    get_vscroll_bar() {
+        return {
+            get_adjustment() {
+                return {kind: 'bar'};
+            },
+        };
+    },
+};
+attachScrollChild(legacyScroll, 'box');
+assertEq(legacyScroll.child, 'box', '45 add_child fallback');
+applyScrollPolicy(legacyScroll, 2, 3);
+assertEq(legacyScroll.vscrollbar_policy, 3, '45 policy props');
+assertEq(getVerticalAdjustment(legacyScroll).kind, 'bar', '45 scrollbar adj');
 
 // rename leftovers in source
 assertEq(metadata.uuid.includes('spotlight'), false, 'uuid is not spotlight');

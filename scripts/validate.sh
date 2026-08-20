@@ -90,6 +90,12 @@ if grep -rn "orientation: Clutter.Orientation" *.js; then
   exit 1
 fi
 
+echo "scrollview 48 api"
+if grep -n "get_vscroll_bar" *.js prefs/*.js | grep -v '^scrollView.js:'; then
+  echo "get_vscroll_bar was removed in gnome 48 use scrollView.js"
+  exit 1
+fi
+
 echo "old popup file"
 if [[ -e spotlightPopup.js ]]; then
   echo "spotlightPopup.js should have been renamed"

@@ -3,7 +3,7 @@ name: Bug Report
 about: Report a bug in Gosh Is Launcher for GNOME Shell
 title: "[BUG] "
 labels: bug
-assignees: itsnin
+assignees: ''
 ---
 
 ## Describe the bug

@@ -131,6 +131,11 @@
   font-size: 16px;
 }
 
+/* spotlight look is the default chrome on .gosh-container */
+.gosh-theme-spotlight {
+  padding: 0;
+}
+
 /* omarchy look - tokyo night single panel */
 .gosh-theme-omarchy {
   background-color: #1a1b26;

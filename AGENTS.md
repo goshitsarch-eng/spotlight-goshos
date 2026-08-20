@@ -72,6 +72,13 @@ the codebase calls set_vertical(true) after _init() for the popup box layout not
 
 vertical and set_vertical() are confirmed to exist across the full 45 through 50 range so this is the correct choice do not switch back to orientation in the constructor without first confirming it against the actual minimum supported version not just the newest one
 
+St.ScrollView is not the same object on 45 and 48
+
+- gnome 45 is an St.Bin with get_vscroll_bar() and set_policy() see https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-45/src/st/st-scroll-view.h
+- gnome 48 rewrote it as an St.Widget with set_child() and get_vadjustment() and dropped get_vscroll_bar() see https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-48/src/st/st-scroll-view.h
+
+do not call get_vscroll_bar() from results or selection code and do not rely on add_child() to attach the results box add_child does not wire the scrollable child on some 45/46 builds use scrollView.js which feature-detects set_child set_policy and get_vadjustment
+
 ### single package for all versions
 
 ego supports multi-versioning where you upload separate zips for different gnome versions this extension does not do that one zip works on all supported versions
@@ -103,6 +110,12 @@ gosh-is-launcher@nin/
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes
     searchPlan.js             provider plan from flags (pure)
+    scrollView.js             45-50 scrollview attach policy adjustment
+    selectionManager.js       selected row and scroll-into-view
+    resultsRenderer.js        debounce search and paint rows
+    popupKeyHandler.js        stage-level key capture
+    popupBackdrop.js          click-outside closer
+    focusLossWatcher.js       close on alt-tab focus loss
     themes.js                 look catalog (pure data)
     webEngines.js             search engine catalog (pure data)
     urlMatch.js               url detection (pure)
@@ -342,7 +355,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 
 ## contacts
 
-- repository https://github.com/itsnin/spotlight
+- repository https://github.com/goshitsarch-eng/spotlight-goshos
 - security issues email ninx.sh@gmail.com
 - ego page search for gosh is launcher by nin
 

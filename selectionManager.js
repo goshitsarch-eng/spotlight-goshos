@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {nextSelectedIndex} from './selectionMath.js';
+import {getVerticalAdjustment} from './scrollView.js';
 
 // owns the results array and selected index so launcherPopup.js does not
 // need to touch selection state directly - it calls setResults() after a
@@ -68,12 +69,10 @@ export class SelectionManager {
     }
 
     _scrollRowIntoView(row) {
-        const scrollbar = this._resultsScroll.get_vscroll_bar();
-        if (!scrollbar)
-            return;
-        const adjustment = scrollbar.get_adjustment();
-        const rowY = row.get_allocation_box().y1;
-        const rowHeight = row.get_allocation_box().get_height();
+        const adjustment = getVerticalAdjustment(this._resultsScroll);
+        const box = row.get_allocation_box();
+        const rowY = box.y1;
+        const rowHeight = box.get_height();
         if (rowY < adjustment.value)
             adjustment.value = rowY;
         else if (rowY + rowHeight > adjustment.value + adjustment.page_size)

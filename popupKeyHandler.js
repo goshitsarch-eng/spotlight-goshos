@@ -90,8 +90,14 @@ export class PopupKeyHandler {
             this._popup.close();
             return Clutter.EVENT_STOP;
         case Clutter.KEY_Down:
-        case Clutter.KEY_Tab:
             this._selection.moveSelection(1, this._suppressHover.bind(this));
+            return Clutter.EVENT_STOP;
+        case Clutter.KEY_Tab:
+            // some compositors send Tab+shift instead of ISO_Left_Tab
+            if (state & Clutter.ModifierType.SHIFT_MASK)
+                this._selection.moveSelection(-1, this._suppressHover.bind(this));
+            else
+                this._selection.moveSelection(1, this._suppressHover.bind(this));
             return Clutter.EVENT_STOP;
         case Clutter.KEY_Up:
         case Clutter.KEY_ISO_Left_Tab:
