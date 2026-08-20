@@ -22,6 +22,11 @@ export function windowIconOrFallback(gicon) {
     return 'focus-windows-symbolic';
 }
 
+// a hidden icon can still take box spacing on some st builds
+export function shouldBuildResultIcon(showIcons) {
+    return Boolean(showIcons);
+}
+
 export function resultIconSource(result) {
     if (result.app)
         return appIconOrFallback(result.app, 'application-x-executable');

@@ -129,7 +129,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, Onagre)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, Onagre). Preferences search finds Walker, COSMIC, and the other look names on the Appearance page. The GNOME look is the dark Adwaita card; Light is the light one.
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -140,7 +140,7 @@ Configurable options:
 - Search icon, section headers, result icons, descriptions, number hints. Hiding the magnifier still insets the query so Rofi, Wofi, Tofi, Fuzzel, and Anyrun do not flush text against the card.
 - Enable or disable every search provider, plus application actions, unit conversion, colors, folders, GTK bookmarks, and the clock (changes apply while the popup is open and keep the selected row)
 - Prefix modes and empty-state suggestions (capped at Maximum results, including Pop!_OS windows-first). Command runner stays off in the Features list unless Prefix modes is on, because `!` is prefix-only
-- Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
+- Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia). Preferences search finds those engine names on the Web Search page.
 - Whether to display the web search fallback at all (the `@` prefix still searches the web)
 
 ## Architecture
@@ -238,6 +238,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable of the default Spotlight look only stamps that key so a custom icon size is not reset. A non-default look written before the first enable still applies its chrome.
 - Hiding the search icon (Rofi, Wofi, Tofi, Fuzzel, Anyrun, or the Search icon switch) adds `gosh-no-search-icon` so the query stays inset. The default entry left padding is 0 because the magnifier is the inset; compact density's `padding` shorthand would otherwise reset that to 0 again.
+- Rofi, Wofi, and Tofi do not construct a hidden result icon. A `visible: false` child can still take St.BoxLayout spacing, which left an empty icon column on those dmenu looks.
+- Preferences search uses group descriptions, not combo items. Appearance names Walker, COSMIC, and the other looks; Web Search names the engines. The GNOME look description says Dark Adwaita so it is not confused with Light.
 - Omarchy and Anyrun reserve a transparent 3px leading edge on every result row. Painting the accent on the selected row used to add that border only then, so titles jumped sideways.
 - Command runner is `!`-only. The Features switch is insensitive when Prefix modes is off so a dead toggle cannot look enabled. Turning prefixes back on keeps the previous command-runner value.
 - The GNOME and Light looks follow `org.gnome.desktop.interface accent-color` on GNOME 47+. The desktop schema is looked up before `Gio.Settings` is constructed, so a missing schema cannot abort enable. Blue stays the stylesheet default so GNOME 45/46 construct nothing. Spotlight, Pop!_OS, and the other looks keep their own colors.

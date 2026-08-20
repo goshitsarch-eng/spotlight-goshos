@@ -4,13 +4,13 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-import {SEARCH_ENGINES} from '../webEngines.js';
+import {SEARCH_ENGINES, enginePrefsSearchText} from '../webEngines.js';
 import {bindSettingsCombo} from '../prefsCombo.js';
 
 export function buildWebSearchPage(settings) {
     const group = new Adw.PreferencesGroup({
         title: 'Web Search',
-        description: 'Web search appears when nothing else matches, or immediately with the @ prefix',
+        description: `Web search appears when nothing else matches, or immediately with the @ prefix. ${enginePrefsSearchText()}`,
     });
 
     const webSearchRow = new Adw.SwitchRow({

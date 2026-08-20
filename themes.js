@@ -94,7 +94,7 @@ export const THEMES = [
     {
         id: 'gnome',
         title: 'GNOME',
-        description: 'Adwaita-styled card that follows the session accent on GNOME 47+',
+        description: 'Dark Adwaita card that follows the session accent on GNOME 47+',
         hint: 'Type to search',
         look: {
             position: 'center',

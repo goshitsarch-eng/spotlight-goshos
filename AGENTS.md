@@ -14,7 +14,7 @@ users can switch the look between spotlight omarchy (walker) popos (cosmic) ulau
 
 ### looks are user choice
 
-the original spotlight look stays available as one theme it is still the default so the compact macos-inspired pill is what you get before opening preferences
+the original spotlight look stays available as one theme it is still the default so the compact macos-inspired pill is what you get before opening preferences the gnome look is the dark adwaita card light is a separate look do not follow color-scheme automatically
 
 the other looks follow real launchers researched for this project
 
@@ -472,6 +472,8 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 9. syncLookSettings on popup construct applies a look written while disabled applied-look tracks the last written profile first enable of the default look only stamps that key so a custom icon size is not reset a non-default look written before the first enable still applies its chrome
 10. gnome and light looks follow org.gnome.desktop.interface accent-color on gnome 47+ look up the schema and feature-detect has_key before constructing gio.settings a missing schema_id throw after session listeners are up leaks those hosts and enable never assigns the popup blue stays the stylesheet default so 45/46 construct nothing do not create gio.settings at module scope
 11. hiding the magnifier must add `gosh-no-search-icon` the default entry left padding is 0 because the icon is the inset those rules must come after the compact entry shorthand or compact resets padding-left to 0 again
+12. dmenu looks must not construct a hidden result icon a hidden child can still take box spacing so titles sit in an empty icon column
+13. prefs search indexes group descriptions not combo items so appearance must name walker cosmic and the other looks and web search must name the engines or those queries only hit about
 
 the applied-look key is a plain string not choices so it can be empty before the first stamp
 

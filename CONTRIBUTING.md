@@ -334,6 +334,7 @@ Manual testing on GNOME Shell 50 Wayland:
 131. Features → Colors covers `#f00`, `red`, `rgb()`, `hsl()`, and `hwb()`, not only hex. Turning that switch off must hide all of those rows.
 132. Switch to Rofi, Wofi, Tofi, Fuzzel, or Anyrun, or turn off Search icon on Spotlight — the typed query must stay inset. Compact density must not reset that padding to 0. Turn the icon back on — the extra inset must go away so the magnifier and text do not double-pad.
 133. Switch to Omarchy or Anyrun and arrow through results — titles must stay put. The leading accent edge is reserved on every row. Turn off Prefix modes — Command runner must grey out. Turn Prefix modes back on — the previous Command runner value must still be there.
+134. In preferences search, type Walker, COSMIC, KRunner, or Kagi — Appearance or Web Search must appear, not only About. Switch to Rofi or Tofi — result titles must line up with no empty icon column. The GNOME look must stay a dark card; pick Light for a light session.
 
 ## Submitting Changes
 

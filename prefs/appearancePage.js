@@ -25,7 +25,7 @@ const ORDERS = [
 export function buildAppearancePage(settings) {
     const lookGroup = new Adw.PreferencesGroup({
         title: 'Look',
-        description: 'A look sets colors, position, density, headers, number hints, the search icon, result icons, descriptions, icon size, and result order. You can still change those after.',
+        description: 'Spotlight, Omarchy (Walker), Pop!_OS (COSMIC), Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, and Onagre. A look sets colors, position, density, headers, number hints, the search icon, result icons, descriptions, icon size, and result order. You can still change those after.',
     });
 
     const themeModel = new Gtk.StringList();

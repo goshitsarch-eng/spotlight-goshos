@@ -13,7 +13,7 @@ import {backdropBox, backdropPointerAction, backdropTeardownOrder} from '../back
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings, searchIconStyleClass} from '../themes.js';
 import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey, desktopInterfaceSchema, nextAccentListenAction} from '../accentColor.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
-import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
+import {SEARCH_ENGINES, getEngine, enginePrefsSearchText} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
@@ -21,7 +21,7 @@ import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, pathMatchesQuery
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {appId, appName, appGenericName, appKeywords, appDescription, appActionIds, appActionName, describeInstalledApp, collectInstalledAppMatches, collectUsableApps} from '../appInfo.js';
 import {rowPointerAction, rowTouchPhase, rowTouchGestureAction, eventCoordY, touchMovedPastSlop, shouldIgnorePointerForTouch, PRIMARY_BUTTON, TOUCH_TAP_SLOP, shouldApplyHoverSelection} from '../resultPointer.js';
-import {resultIconSource, appIconOrFallback, windowIconOrFallback} from '../resultIcon.js';
+import {resultIconSource, appIconOrFallback, windowIconOrFallback, shouldBuildResultIcon} from '../resultIcon.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, scrollValueToShowRow} from '../scrollView.js';
@@ -532,6 +532,8 @@ assertEq(appIconOrFallback({get_icon: () => {
 }}, 'missing-symbolic').icon_name, 'missing-symbolic', 'throwing app icon uses fallback');
 assertEq(appIconOrFallback({get_icon: () => null}, 'missing-symbolic').icon_name, 'missing-symbolic', 'null app icon uses fallback');
 assertEq(appIconOrFallback(null, 'missing-symbolic').icon_name, 'missing-symbolic', 'missing app uses fallback name');
+assert(shouldBuildResultIcon(true), 'visible icons are built');
+assert(!shouldBuildResultIcon(false), 'dmenu looks do not build a hidden icon');
 assertEq(Boolean(appIconOrFallback({get_icon: () => ({name: 'ok'})}, 'missing-symbolic').gicon), true, 'valid app icon kept');
 assertEq(windowIconOrFallback(null), 'focus-windows-symbolic', 'null window icon');
 assertEq(windowIconOrFallback({name: 'ok'}).name, 'ok', 'window gicon kept');
@@ -1000,6 +1002,11 @@ assert(matchSettingsPanels('fractional scaling', 5).some(p => p.id === 'display'
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('PowerToys'), 'about lists powertoys');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Synapse'), 'about lists synapse');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Onagre'), 'about lists onagre');
+assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('Walker'), 'appearance search finds walker');
+assert(readFileSync('prefs/appearancePage.js', 'utf8').includes('COSMIC'), 'appearance search finds cosmic');
+assert(readFileSync('prefs/webSearchPage.js', 'utf8').includes('enginePrefsSearchText'), 'web search lists engines');
+assert(enginePrefsSearchText().includes('DuckDuckGo'), 'engine search text has duckduckgo');
+assert(enginePrefsSearchText().includes('Kagi'), 'engine search text has kagi');
 assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('hwb(0 0% 0%)'), 'features mention hwb');
 assert(readFileSync('prefs/featuresPage.js', 'utf8').includes("'Colors'"), 'features lists colors');
 assert(!readFileSync('prefs/featuresPage.js', 'utf8').includes("'Hex colors'"), 'features color switch is not hex-only');
@@ -1626,6 +1633,7 @@ assertEq(lookApplyAction('', 'spotlight'), 'keep', 'empty theme is ignored');
 }
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
 assertEq(getTheme('gnome').description.includes('session accent'), true, 'gnome look mentions the session accent');
+assertEq(getTheme('gnome').description.includes('Dark Adwaita'), true, 'gnome look is the dark card');
 assertEq(getTheme('light').description.includes('session accent'), true, 'light look mentions the session accent');
 assertEq(getTheme('gnome').description.includes('GNOME 47+'), true, 'gnome look does not overpromise accent on 45');
 assertEq(getTheme('light').description.includes('GNOME 47+'), true, 'light look does not overpromise accent on 45');

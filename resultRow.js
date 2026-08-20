@@ -17,7 +17,7 @@ function pointerFromTouchscreen(event) {
     return Boolean(device && device.get_device_type() === kinds.TOUCHSCREEN);
 }
 import {resultRowShouldFocus} from './focusLoss.js';
-import {resultIconSource} from './resultIcon.js';
+import {resultIconSource, shouldBuildResultIcon} from './resultIcon.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -29,16 +29,6 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         can_focus: resultRowShouldFocus(),
         track_hover: true,
     });
-
-    const iconParams = {
-        fallback_icon_name: 'application-x-executable',
-        style_class: 'gosh-result-icon',
-        icon_size: options.iconSize,
-        ...resultIconSource(result),
-    };
-
-    const icon = new St.Icon(iconParams);
-    icon.visible = options.showIcons;
 
     const text = new St.BoxLayout({
         style_class: 'gosh-result-content',
@@ -62,7 +52,14 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         text.add_child(description);
     }
 
-    hbox.add_child(icon);
+    if (shouldBuildResultIcon(options.showIcons)) {
+        hbox.add_child(new St.Icon({
+            fallback_icon_name: 'application-x-executable',
+            style_class: 'gosh-result-icon',
+            icon_size: options.iconSize,
+            ...resultIconSource(result),
+        }));
+    }
     hbox.add_child(text);
 
     if (showNumbers && resultIndex < 9) {

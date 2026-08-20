@@ -14,6 +14,10 @@ export const SEARCH_ENGINES = [
     {id: 'wikipedia', label: 'Wikipedia', url: 'https://en.wikipedia.org/w/index.php?search='},
 ];
 
+export function enginePrefsSearchText() {
+    return SEARCH_ENGINES.map(engine => engine.label).join(', ');
+}
+
 export function getEngine(id) {
     for (const engine of SEARCH_ENGINES) {
         if (engine.id === id)
