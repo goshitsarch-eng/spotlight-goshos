@@ -18,7 +18,7 @@ export function normalizeBookmarkUri(uri, home) {
         if (expanded.startsWith('/'))
             return fileUriFromAbsolute(expanded);
     }
-    if (uri.startsWith('file:'))
+    if (uri.toLowerCase().startsWith('file:'))
         return canonicalizeFileUri(uri);
     return canonicalizeLaunchUri(uri);
 }
@@ -106,7 +106,7 @@ export function matchBookmarks(rows, query, maxResults) {
 }
 
 export function bookmarkIcon(uri) {
-    if (uri.startsWith('file:'))
+    if (uri.toLowerCase().startsWith('file:'))
         return 'folder-symbolic';
     return 'network-server-symbolic';
 }

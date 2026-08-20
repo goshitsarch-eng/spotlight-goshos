@@ -71,8 +71,8 @@ export function isFileUrlQuery(query) {
         return false;
     if (pathFromFileUri(query))
         return true;
-    // file://host/share has no local path but is still a location
-    return !/\s/.test(query) && /^file:\/\/\S+$/i.test(query);
+    // file://host/share may contain spaces after the host
+    return /^file:\/\/[^/\s?#]+(\/.*)?$/i.test(query);
 }
 
 export function isRemoteLocationQuery(query) {
@@ -165,8 +165,8 @@ export function urlRowDescription(url) {
         return 'Open magnet link';
     if (/^(sftp|ftp|smb|davs?):/i.test(url))
         return 'Open location';
-    if (url.startsWith('file:'))
-        return 'Open path';
+    if (url.toLowerCase().startsWith('file:'))
+        return pathFromFileUri(url) ? 'Open path' : 'Open location';
     return 'Open in browser';
 }
 
@@ -175,7 +175,7 @@ export function urlRowIcon(url) {
         return 'mail-message-new-symbolic';
     if (/^(sftp|ftp|smb|davs?):/i.test(url))
         return 'network-server-symbolic';
-    if (url.startsWith('file:'))
-        return 'folder-symbolic';
+    if (url.toLowerCase().startsWith('file:'))
+        return pathFromFileUri(url) ? 'folder-symbolic' : 'network-server-symbolic';
     return 'web-browser-symbolic';
 }

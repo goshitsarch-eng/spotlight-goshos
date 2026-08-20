@@ -100,9 +100,13 @@ export function fileUriFromAbsolute(path) {
 
 export function pathFromFileUri(uri) {
     const href = uri.split('#')[0].split('?')[0];
-    if (!href.startsWith('file://'))
+    if (!href.toLowerCase().startsWith('file://'))
         return '';
-    const raw = href.slice('file://'.length);
+    let raw = href.slice('file://'.length);
+    const rawLower = raw.toLowerCase();
+    // browsers emit file://localhost/path for a local file
+    if (rawLower === 'localhost' || rawLower.startsWith('localhost/'))
+        raw = raw.slice('localhost'.length);
     if (!raw.startsWith('/'))
         return '';
     const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
@@ -116,19 +120,8 @@ function encodeUriPathPart(part) {
     return encodeURIComponent(decodeURIComponent(safe));
 }
 
-// gtk bookmarks and xbel often leave spaces in file:// gio rejects those
-export function canonicalizeFileUri(uri) {
-    if (!uri || !uri.startsWith('file:'))
-        return uri;
-    const path = pathFromFileUri(uri);
-    if (!path)
-        return uri;
-    return fileUriFromAbsolute(path);
-}
-
-// nautilus and gio also leave spaces in sftp:// and smb://
-export function canonicalizeRemoteUri(uri) {
-    const match = /^(sftp|ftp|smb|davs?):\/\/([^/]+)(\/[^?#]*)?([?#].*)?$/i.exec(uri || '');
+function encodeAuthorityUri(uri, pattern) {
+    const match = pattern.exec(uri || '');
     if (!match)
         return uri;
     const path = match[3] || '';
@@ -138,10 +131,26 @@ export function canonicalizeRemoteUri(uri) {
     return `${match[1]}://${match[2]}${encoded}${match[4] || ''}`;
 }
 
+// gtk bookmarks and xbel often leave spaces in file:// gio rejects those
+export function canonicalizeFileUri(uri) {
+    if (!uri || !uri.toLowerCase().startsWith('file:'))
+        return uri;
+    const path = pathFromFileUri(uri);
+    if (path)
+        return fileUriFromAbsolute(path);
+    // file://host/share is not a local path but gio still needs encoding
+    return encodeAuthorityUri(uri, /^(file):\/\/([^/]+)(\/[^?#]*)?([?#].*)?$/i);
+}
+
+// nautilus and gio also leave spaces in sftp:// and smb://
+export function canonicalizeRemoteUri(uri) {
+    return encodeAuthorityUri(uri, /^(sftp|ftp|smb|davs?):\/\/([^/]+)(\/[^?#]*)?([?#].*)?$/i);
+}
+
 export function canonicalizeLaunchUri(uri) {
     if (!uri)
         return uri;
-    if (uri.startsWith('file:'))
+    if (uri.toLowerCase().startsWith('file:'))
         return canonicalizeFileUri(uri);
     if (/^(sftp|ftp|smb|davs?):/i.test(uri))
         return canonicalizeRemoteUri(uri);

@@ -286,6 +286,7 @@ Manual testing on GNOME Shell 50 Wayland:
 89. Click a pending Checking path row, then type another character — the letter must appear in the search entry. Click the scrollbar or a section header, then type — same. Alt-tab must still close the popup.
 90. Paste `file:///home/…/My Documents` (a space in the path) — a URL row should appear and Enter must open it. `javascript:` must still be ignored.
 91. Paste `sftp://nas/My Documents` or `smb://nas/Public Share` — a location row should appear and Enter must open it. A recent-file or bookmark with the same spaced URI must open too.
+92. Paste `file://nas/Public Share` or `file://localhost/home/…/My Documents` — a location row should appear and Enter must open it. A recent-file href with the same spaced network `file://` must be encoded before the exists check so it is not dropped.
 
 ## Submitting Changes
 

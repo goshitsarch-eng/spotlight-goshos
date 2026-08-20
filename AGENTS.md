@@ -158,7 +158,7 @@ gosh-is-launcher@nin/
     urlSearch.js              url open provider
     pathSearch.js             ~/ ./ and absolute path opener
     pathMatch.js              path result row (pure)
-    homePath.js               expand ~ ./ file:// sftp:// encode and home-relative slash commands (pure)
+    homePath.js               expand ~ ./ file:// sftp:// encode including network file://host/share (pure)
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes
@@ -175,7 +175,7 @@ gosh-is-launcher@nin/
     themes.js                 look catalog (pure data)
     prefsCombo.js             keep prefs combos in sync with gsettings (pure)
     webEngines.js             search engine catalog (pure data)
-    urlMatch.js               url detection including spaced file:// pastes (pure)
+    urlMatch.js               url detection including spaced file:// and file://host/share pastes (pure)
     actionMatch.js            system action matching (pure)
     wordMatch.js              gnome-style word prefix (pure)
     settingsPanels.js         settings catalog (pure)

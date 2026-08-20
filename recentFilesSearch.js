@@ -7,7 +7,7 @@ import {
     parseRecentXbel, basenameFromUri, iconForBasename, parentPathFromFileUri,
     remoteHostFromUri, recentFileMatches, RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
 } from './recentXbel.js';
-import {collapseHomePath} from './homePath.js';
+import {collapseHomePath, canonicalizeLaunchUri} from './homePath.js';
 import {openUri} from './gioLaunch.js';
 
 // cache is filled on an async read so search never calls load_contents
@@ -128,14 +128,15 @@ function _keepExisting(loadId, uris) {
     });
 
     for (let i = 0; i < uris.length; i++) {
-        const file = Gio.File.new_for_uri(uris[i]);
+        const uri = canonicalizeLaunchUri(uris[i]);
+        const file = Gio.File.new_for_uri(uri);
         const index = i;
         file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, res) => {
             const exists = _existsFinished(src, res);
             if (loadId !== _loadId)
                 return;
             if (exists)
-                kept[index] = uris[index];
+                kept[index] = uri;
             pending--;
             const elapsedMs = (GLib.get_monotonic_time() - started) / 1000;
             if (recentExistsShouldSettle(pending, elapsedMs, RECENT_EXISTS_BUDGET_MS))
