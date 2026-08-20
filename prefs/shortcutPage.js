@@ -51,6 +51,10 @@ export function buildShortcutPage(settings) {
             return true;
         }
 
+        const keyName = Gdk.keyval_name(keyval);
+        if (!keyName)
+            return true;
+
         let accelerator = '';
         if (state & Gdk.ModifierType.SUPER_MASK)
             accelerator += '<Super>';
@@ -62,19 +66,12 @@ export function buildShortcutPage(settings) {
             accelerator += '<Alt>';
         if (state & Gdk.ModifierType.META_MASK)
             accelerator += '<Meta>';
-        accelerator += Gdk.keyval_name(keyval);
+        accelerator += keyName;
 
         settings.set_strv('toggle-shortcut', [accelerator]);
         shortcutLabel.label = formatShortcut([accelerator]);
         capturing = false;
         return true;
-    });
-
-    eventController.connect('key-released', () => {
-        if (capturing) {
-            capturing = false;
-            shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
-        }
     });
 
     shortcutRow.add_controller(eventController);

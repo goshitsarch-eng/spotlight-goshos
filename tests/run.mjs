@@ -5,7 +5,7 @@ import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from 
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
-import {planSearch} from '../searchPlan.js';
+import {planSearch, flagsFromSettings} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
@@ -169,6 +169,19 @@ assertEq(planSearch('term', windowsFirst).providers.indexOf('windows') <
     planSearch('term', windowsFirst).providers.indexOf('apps'), true, 'windows before apps');
 assertEq(planSearch('term', allOn).providers.indexOf('apps') <
     planSearch('term', allOn).providers.indexOf('windows'), true, 'apps before windows');
+
+const flagSettings = {
+    get_boolean(key) {
+        return key !== 'enable-command-run';
+    },
+    get_string() {
+        return 'windows-first';
+    },
+};
+const fromSettings = flagsFromSettings(flagSettings);
+assertEq(fromSettings.command, false, 'flags hide command runner');
+assertEq(fromSettings.resultOrder, 'windows-first', 'flags read result order');
+assert(fromSettings.apps, 'flags keep apps');
 
 const stored = {};
 applyLookSettings({

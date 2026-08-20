@@ -26,10 +26,10 @@ export class FocusLossWatcher {
                 if (!this._popup.visible)
                     return;
                 const focus = global.stage.get_key_focus();
-                if (!focus || focus === global.stage) {
-                    this._popup.close();
+                // gnome 48 returns null instead of the stage when nothing
+                // has focus a brief null during grab or ime is not alt-tab
+                if (!focus || focus === global.stage)
                     return;
-                }
                 if (!this._popup.contains(focus))
                     this._popup.close();
             });
