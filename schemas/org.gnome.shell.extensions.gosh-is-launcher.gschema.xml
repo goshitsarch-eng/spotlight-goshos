@@ -26,6 +26,7 @@
         <choice value="light"/>
         <choice value="powertoys"/>
         <choice value="synapse"/>
+        <choice value="onagre"/>
       </choices>
       <default>'spotlight'</default>
       <summary>Launcher look</summary>

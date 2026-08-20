@@ -6,7 +6,7 @@ import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from '../popupPosition.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
-import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
+import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
@@ -217,6 +217,7 @@ assert(themeIds.includes('tofi'), 'tofi theme');
 assert(themeIds.includes('light'), 'light theme');
 assert(themeIds.includes('powertoys'), 'powertoys theme');
 assert(themeIds.includes('synapse'), 'synapse theme');
+assert(themeIds.includes('onagre'), 'onagre theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
 
@@ -746,6 +747,23 @@ assert(iconSizeForLook(getTheme('popos').look, 'compact') > iconSizeForLook(getT
 assertEq(iconSizeForLook({iconSize: 40}, 'compact'), 32, 'compact is 80 percent');
 assertEq(iconSizeForLook({iconSize: 28}, 'comfortable'), 28, 'comfortable keeps size');
 assertEq(stored['icon-size'], 48, 'synapse look writes icon size');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+    set_int(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('onagre'));
+assertEq(stored['popup-position'], 'center', 'onagre is centered');
+assertEq(stored['show-section-headers'], false, 'onagre hides headers');
+assertEq(stored['icon-size'], 30, 'onagre look writes icon size');
+assert(shouldApplyLook('spotlight', 'onagre'), 'changing look applies chrome');
+assert(!shouldApplyLook('onagre', 'onagre'), 'same look does not reset chrome');
+assert(!shouldApplyLook('onagre', ''), 'empty look is ignored');
 
 // every get_* key in js exists in the schema
 const settingKeys = new Set();

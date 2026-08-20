@@ -230,6 +230,20 @@ export const THEMES = [
             iconSize: 48,
         },
     },
+    {
+        id: 'onagre',
+        title: 'Onagre',
+        description: 'Centered dark panel with an amber selected row',
+        hint: 'Search',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 30,
+        },
+    },
 ];
 
 export function getTheme(id) {
@@ -242,6 +256,10 @@ export function getTheme(id) {
 
 export function getThemeIds() {
     return THEMES.map(theme => theme.id);
+}
+
+export function shouldApplyLook(previousId, nextId) {
+    return Boolean(nextId) && nextId !== previousId;
 }
 
 export function applyLookSettings(settings, theme) {

@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-import {THEMES, getTheme, applyLookSettings} from '../themes.js';
+import {THEMES, getTheme, applyLookSettings, shouldApplyLook} from '../themes.js';
 
 const POSITIONS = [
     {id: 'center', label: 'Center'},
@@ -187,11 +187,15 @@ export function buildAppearancePage(settings) {
     settings.bind('show-result-numbers', numbersRow, 'active', Gio.SettingsBindFlags.DEFAULT);
     chromeGroup.add(numbersRow);
 
+    let lastThemeId = settings.get_string('launcher-theme');
     themeRow.connect('notify::selected', () => {
         const theme = THEMES[themeRow.selected];
         if (!theme)
             return;
         themeRow.subtitle = theme.description;
+        if (!shouldApplyLook(lastThemeId, theme.id))
+            return;
+        lastThemeId = theme.id;
         applyLookSettings(settings, theme);
         selectId(positionRow, POSITIONS, theme.look.position);
         selectId(densityRow, DENSITIES, theme.look.density);

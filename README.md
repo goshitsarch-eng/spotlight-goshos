@@ -34,6 +34,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
 | **PowerToys** | [PowerToys Run](https://learn.microsoft.com/windows/powertoys/run) | Fluent dark card, `#2c2c2c`, `#0078d4` selected row, no section headers. |
 | **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
+| **Onagre** | [Onagre](https://github.com/oknozor/onagre) | Centered stone-dark panel, amber selected row with dark text. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
@@ -127,7 +128,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, Synapse, Onagre)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
