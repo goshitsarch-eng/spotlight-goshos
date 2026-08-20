@@ -35,7 +35,7 @@ Results are aggregated in the following order. Each category is rendered under i
 2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching. Ranking combines match quality with usage frequency from `Shell.AppUsage`. Parental controls hide blocked apps.
 3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, and unary negation.
 4. **Windows** — Switch to an open window by title or window class.
-5. **System Actions** — Lock, suspend, restart, shut down, log out, and switch user, only when GNOME says the action is available.
+5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`.
 7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`.
 8. **Web Search** — Last-resort fallback in the default browser.

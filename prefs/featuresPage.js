@@ -23,7 +23,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch to a running window');
     addSwitch(providers, settings, 'enable-system-actions',
-        'System actions', 'Lock, suspend, restart, shut down, log out, switch user');
+        'System actions', 'Lock, suspend, restart, shut down, log out, switch user, screenshot');
     addSwitch(providers, settings, 'enable-settings-search',
         'GNOME Settings', 'Jump to Settings panels');
     addSwitch(providers, settings, 'enable-recent-files',
