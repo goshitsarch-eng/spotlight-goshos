@@ -166,6 +166,7 @@ gosh-is-launcher@nin/
     selectionManager.js       selected row and scroll-into-view
     resultsRenderer.js        debounce search and paint rows
     paintSelection.js         keep selected row across a refresh (pure)
+    asyncPaint.js             whether a gio finish may repaint (pure)
     popupKeyHandler.js        stage-level key capture
     entryPreedit.js           ime preedit (pure)
     popupBackdrop.js          click-outside closer
@@ -274,13 +275,13 @@ keyboard input is captured by calling grab_key_focus() on the search entry which
 
 close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
 
-the toggle shortcut must not call open() from accelerator-activated clutter 18 aborts if addchrome runs inside that dispatch so toggleFromShortcut schedules openSoon and a second press before that idle cancels the pending open open() uses an _isOpen flag not just visible because the first frames after that idle still have visible=false while the position idle runs a second press in that later gap must close not leak another backdrop clearing the search entry must also paint the empty state on idle destroying result rows inside text-changed during a key press is the same abort prefs changed handlers schedule _repaintIfOpen on that idle instead of painting immediately a look change writes several keys and one idle paints them together width position and results height changes schedule _scheduleLayout on the same idle so set_width and set_position do not run inside a key dispatch destroy clears the open close position repaint and layout idles before close so a dying popup cannot paint after teardown
+the toggle shortcut must not call open() from accelerator-activated clutter 18 aborts if addchrome runs inside that dispatch so toggleFromShortcut schedules openSoon and a second press before that idle cancels the pending open open() uses an _isOpen flag not just visible because the first frames after that idle still have visible=false while the position idle runs a second press in that later gap must close not leak another backdrop clearing the search entry must also paint the empty state on idle destroying result rows inside text-changed during a key press is the same abort prefs changed handlers schedule _repaintIfOpen on that idle instead of painting immediately a look change writes several keys and one idle paints them together width position and results height changes schedule _scheduleLayout on the same idle so set_width and set_position do not run inside a key dispatch gio query_info and load_contents finish callbacks must not paint immediately they can land while a key is still dispatching the renderer schedules one idle and coalesces path command recent and bookmark completions a later keystroke cancels that idle so a stale finish does not jump the highlight to row 0 destroy clears the open close position repaint layout and renderer refresh idles before close so a dying popup cannot paint after teardown
 
 ### object lifecycle
 
 every object created in enable() is destroyed in disable() every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
 
-the popup widget overrides destroy() to clear the open close position and repaint idles then call close() which removes the backdrop disconnects the focus handler and removes those idles again then it removes itself from the chrome layer and chains up to the parent destroy
+the popup widget overrides destroy() to clear the open close position repaint and layout idles then call close() which destroys the renderer (search scroll and gio refresh idles) removes the backdrop disconnects the focus handler and removes those popup idles again then it removes itself from the chrome layer and chains up to the parent destroy
 
 if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
 

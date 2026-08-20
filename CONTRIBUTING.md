@@ -98,6 +98,7 @@ Pure functions with no side effects:
 - **`calculator.js`** — Recursive-descent arithmetic parser.
 - **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
 - **`paintSelection.js`** — Keep the selected row across an async repaint.
+- **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
 - **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
@@ -274,6 +275,7 @@ Manual testing on GNOME Shell 50 Wayland:
 80. Type `ifi` — Wi-Fi must not appear just because the title contains those letters. Type `security` — Privacy & Security should still appear. Change width or position in preferences while typing in the popup — the shell must stay up and the popup must move after the key lands.
 81. Type `doc` with a recent file or bookmark under Documents — it should still appear. Type `ome` — files under `/home` must not appear just because the path contains those letters.
 82. Type `org` — every `org.*` app and window must not appear. Type `zil` — Firefox must not appear from mozilla. Type `ows` — Firefox must not appear from Web Browser. Type `ite` — Notes must not appear from Write notes. Type `mozilla` or `nautilus` — those desktop ids should still match. Type `ume` — Documents must not appear just because the title contains those letters.
+83. Type a `~/` path that exists, then keep typing while the row still says Checking path — the shell must stay up when that exists check finishes. The same must hold for a `!` slash-path command, a recent-file load, and GTK bookmarks. After the check finishes the resolved row must appear without jumping the highlight if you already moved it.
 
 ## Submitting Changes
 

@@ -188,6 +188,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `colorSearch.js` | Color copy provider |
 | `recentFilesSearch.js` | Recently used files from `recently-used.xbel` |
 | `paintSelection.js` | Keep the selected row across an async or prefs refresh |
+| `asyncPaint.js` | Whether a Gio finish may schedule a result repaint |
 | `themes.js` | Look catalog |
 | `prefs/appearancePage.js` | Look, size, and chrome controls |
 | `prefs/featuresPage.js` | Provider toggles |
@@ -230,7 +231,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, icon size, result order), not only the CSS class.
 - Typed paths and slash-path `!` commands stay non-activatable until the exists check finishes.
 - A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute. Preferences then show that working shortcut. Fallbacks such as Ctrl+Space are only tried when nothing is grabbed yet.
-- Async recent-file, path, bookmark, and command refreshes keep the selected row instead of jumping to the first result.
+- Async recent-file, path, bookmark, and command refreshes keep the selected row instead of jumping to the first result. Those Gio finish callbacks schedule one idle paint so Clutter 18 does not abort if they land during a key press.
 - Calculator and web prefix queries do not refresh `recently-used.xbel`.
 - `@` still searches the web when the fallback toggle is off.
 - `-2^2` is `-4`. Incomplete tokens such as `0x` and `1e` do not become `0` or Euler.

@@ -14,6 +14,7 @@ import {ensurePath, invalidatePathLookup} from './pathSearch.js';
 import {ensureCommand, invalidateCommandLookup} from './commandSearch.js';
 import {ensureBookmarks} from './bookmarksSearch.js';
 import {paintSelectionIndex, resultSelectionKey} from './paintSelection.js';
+import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from './asyncPaint.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -28,7 +29,7 @@ export class ResultsRenderer {
         this._onHover = onHover;
         this._searchIdleId = 0;
         this._scrollIdleId = 0;
-        this._generation = 0;
+        this._refreshIdleId = 0;
         this._lastQuery = '';
     }
 
@@ -46,6 +47,26 @@ export class ResultsRenderer {
         }
     }
 
+    _clearRefreshIdle() {
+        if (this._refreshIdleId) {
+            GLib.source_remove(this._refreshIdleId);
+            this._refreshIdleId = 0;
+        }
+    }
+
+    // path command recent and bookmark finishes share one idle
+    _scheduleAsyncPaint() {
+        if (!shouldScheduleAsyncPaint(Boolean(this._refreshIdleId)))
+            return;
+        this._refreshIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._refreshIdleId = 0;
+            if (!shouldRunAsyncPaint(isActiveSearchQuery(this._lastQuery)))
+                return GLib.SOURCE_REMOVE;
+            this._paint(runSearch(this._lastQuery, this._settings), this._lastQuery.trim(), true);
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
     _rowOptions() {
         const density = this._settings.get_string('row-density');
         return {
@@ -60,6 +81,7 @@ export class ResultsRenderer {
     onTextChanged(text) {
         this._lastQuery = text;
         this._clearSearchIdle();
+        this._clearRefreshIdle();
         // empty paint used to run inside the key handler clutter 18 aborts
         this._searchIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._searchIdleId = 0;
@@ -74,6 +96,7 @@ export class ResultsRenderer {
     // prefs chrome and feature flags should not jump the highlight to row 0
     repaintKeepingSelection() {
         this._clearSearchIdle();
+        this._clearRefreshIdle();
         if (this._lastQuery.trim().length === 0) {
             this._showEmptyState(true);
             return;
@@ -84,7 +107,6 @@ export class ResultsRenderer {
     _showEmptyState(keepSelection) {
         invalidatePathLookup();
         invalidateCommandLookup();
-        this._generation += 1;
         const suggestions = runEmptySuggestions(this._settings);
         if (suggestions.length === 0) {
             this.reset();
@@ -94,7 +116,6 @@ export class ResultsRenderer {
     }
 
     _runSearch(keepSelection) {
-        this._generation += 1;
         const query = this._lastQuery;
         if (!isActiveSearchQuery(query)) {
             this._showEmptyState(keepSelection);
@@ -106,15 +127,7 @@ export class ResultsRenderer {
             invalidatePathLookup();
         if (!shouldRefreshCommand(this._settings.get_boolean('enable-command-run'), plan))
             invalidateCommandLookup();
-        const gen = this._generation;
-        const refresh = () => {
-            if (gen !== this._generation)
-                return;
-            const latest = this._lastQuery;
-            if (!isActiveSearchQuery(latest))
-                return;
-            this._paint(runSearch(latest, this._settings), latest.trim(), true);
-        };
+        const refresh = () => this._scheduleAsyncPaint();
         if (shouldRefreshRecentFiles(this._settings.get_boolean('enable-recent-files'), plan))
             ensureRecentFiles(refresh);
         if (shouldRefreshPath(this._settings.get_boolean('enable-path-open'), plan))
@@ -184,7 +197,7 @@ export class ResultsRenderer {
     reset() {
         this._clearSearchIdle();
         this._clearScrollIdle();
-        this._generation += 1;
+        this._clearRefreshIdle();
         this._lastQuery = '';
         this._selection.setResults([]);
         this._resultsBox.destroy_all_children();
@@ -194,6 +207,6 @@ export class ResultsRenderer {
     destroy() {
         this._clearSearchIdle();
         this._clearScrollIdle();
-        this._generation += 1;
+        this._clearRefreshIdle();
     }
 }

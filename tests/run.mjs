@@ -33,6 +33,7 @@ import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescriptio
 import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
+import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
@@ -1596,6 +1597,10 @@ const keepRows = [
     {type: 'window', title: 'Firefox', description: 'Workspace 2'},
     {type: 'file', title: 'notes.txt', description: '~/Documents'},
 ];
+assert(shouldScheduleAsyncPaint(false), 'first gio finish may schedule');
+assert(!shouldScheduleAsyncPaint(true), 'later gio finishes share the idle');
+assert(shouldRunAsyncPaint(true), 'active query paints after gio');
+assert(!shouldRunAsyncPaint(false), 'empty query does not paint after gio');
 assertEq(paintSelectionIndex(null, keepRows), 0, 'first paint selects top');
 assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Workspace 2', index: 1}, keepRows), 1, 'same title keeps type');
 assertEq(paintSelectionIndex({type: 'file', title: 'gone.txt', description: '~', index: 2}, keepRows), 2, 'missing row clamps index');
