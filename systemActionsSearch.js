@@ -4,7 +4,7 @@
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 import * as Screenshot from 'resource:///org/gnome/shell/ui/screenshot.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {actionMatchesQuery, actionTitle, actionIcon} from './actionMatch.js';
+import {actionMatchesQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from './actionMatch.js';
 
 // system actions using gnome shell's built-in systemactions module
 // this is the recommended way per ego review guidelines
@@ -14,8 +14,10 @@ const SYSTEM_ACTIONS = [
     {
         id: 'lock',
         title: 'Lock Screen',
-        icon: 'changes-prevent-symbolic',
+        icon: 'system-lock-screen-symbolic',
         keywords: ['lock', 'lockscreen', 'lock screen'],
+        titleFor: liveActionName('lock-screen'),
+        iconFor: liveActionIcon('lock-screen'),
         can: sa => sa.canLockScreen,
         activate: () => SystemActions.getDefault().activateLockScreen(),
     },
@@ -23,15 +25,19 @@ const SYSTEM_ACTIONS = [
         id: 'logout',
         title: 'Log Out',
         icon: 'system-log-out-symbolic',
-        keywords: ['logout', 'signout', 'log out', 'sign out', 'log off'],
+        keywords: ['logout', 'signout', 'log out', 'sign out', 'log off', 'sign off'],
+        titleFor: liveActionName('logout'),
+        iconFor: liveActionIcon('logout'),
         can: sa => sa.canLogout,
         activate: () => SystemActions.getDefault().activateLogout(),
     },
     {
         id: 'suspend',
         title: 'Suspend',
-        icon: 'weather-clear-night-symbolic',
+        icon: 'media-playback-pause-symbolic',
         keywords: ['suspend', 'sleep'],
+        titleFor: liveActionName('suspend'),
+        iconFor: liveActionIcon('suspend'),
         can: sa => sa.canSuspend,
         activate: () => SystemActions.getDefault().activateSuspend(),
     },
@@ -40,14 +46,18 @@ const SYSTEM_ACTIONS = [
         title: 'Restart',
         icon: 'system-reboot-symbolic',
         keywords: ['restart', 'reboot'],
+        titleFor: liveActionName('restart'),
+        iconFor: liveActionIcon('restart'),
         can: sa => sa.canRestart,
         activate: () => SystemActions.getDefault().activateRestart(),
     },
     {
         id: 'shutdown',
-        title: 'Shut Down',
+        title: 'Power Off',
         icon: 'system-shutdown-symbolic',
-        keywords: ['shutdown', 'poweroff', 'power off', 'turn off', 'halt'],
+        keywords: ['shutdown', 'shut down', 'poweroff', 'power off', 'turn off', 'halt'],
+        titleFor: liveActionName('power-off'),
+        iconFor: liveActionIcon('power-off'),
         can: sa => sa.canPowerOff,
         activate: () => SystemActions.getDefault().activatePowerOff(),
     },
@@ -56,6 +66,8 @@ const SYSTEM_ACTIONS = [
         title: 'Switch User',
         icon: 'system-switch-user-symbolic',
         keywords: ['switch user', 'switchuser'],
+        titleFor: liveActionName('switch-user'),
+        iconFor: liveActionIcon('switch-user'),
         can: sa => sa.canSwitchUser,
         activate: () => SystemActions.getDefault().activateSwitchUser(),
     },
@@ -63,18 +75,9 @@ const SYSTEM_ACTIONS = [
         id: 'lock-orientation',
         title: 'Lock Screen Rotation',
         icon: 'rotation-locked-symbolic',
-        keywords: ['rotation', 'orientation', 'rotate', 'unlock', 'unlock orientation', 'unlock rotation'],
-        // gnome 50 flips the label when rotation is already locked
-        titleFor: sa => {
-            if (sa && typeof sa.getName === 'function')
-                return sa.getName('lock-orientation');
-            return '';
-        },
-        iconFor: sa => {
-            if (sa && sa.orientationLockIcon)
-                return sa.orientationLockIcon;
-            return '';
-        },
+        keywords: ['rotation', 'orientation', 'rotate', 'unlock', 'lock orientation', 'unlock orientation', 'unlock rotation'],
+        titleFor: liveActionName('lock-orientation'),
+        iconFor: liveActionIcon('lock-orientation'),
         // gnome 50 still exports this tablets hide it when unmanaged
         can: sa => sa.canLockOrientation,
         activate: () => SystemActions.getDefault().activateLockOrientation(),
@@ -82,8 +85,10 @@ const SYSTEM_ACTIONS = [
     {
         id: 'screenshot',
         title: 'Take a Screenshot',
-        icon: 'screenshooter-symbolic',
-        keywords: ['screenshot', 'snip', 'capture', 'screencast'],
+        icon: 'record-screen-symbolic',
+        keywords: ['screenshot', 'snip', 'capture', 'screencast', 'record'],
+        titleFor: liveActionName('open-screenshot-ui'),
+        iconFor: liveActionIcon('open-screenshot-ui'),
         can: () => true,
         // systemactions waits for overview hidden and never opens if
         // overview is already closed which is how the launcher is used

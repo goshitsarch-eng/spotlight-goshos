@@ -21,6 +21,23 @@ export function actionIcon(action, systemActions) {
     return action.icon;
 }
 
+// gnome search localizes these so the row should match overview search
+export function liveActionName(id) {
+    return systemActions => {
+        if (systemActions && typeof systemActions.getName === 'function')
+            return systemActions.getName(id);
+        return '';
+    };
+}
+
+export function liveActionIcon(id) {
+    return systemActions => {
+        if (systemActions && typeof systemActions.getIconName === 'function')
+            return systemActions.getIconName(id);
+        return '';
+    };
+}
+
 export function normalizeActionQuery(query) {
     return query.toLowerCase()
         .replace(/\b(the|a|an|my|please|computer|system|session|machine|pc|of|now)\b/g, ' ')

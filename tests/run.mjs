@@ -9,7 +9,7 @@ import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
-import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon} from '../actionMatch.js';
+import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
@@ -334,10 +334,14 @@ assertEq(normalizeActionQuery('lock the screen'), 'lock screen', 'drop filler wo
 assertEq(normalizeActionQuery('lock now'), 'lock', 'drop now');
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'lock the screen'), 'spoken lock');
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'lock now'), 'lock now');
-assert(actionMatchesQuery({title: 'Shut Down', keywords: ['shutdown', 'turn off']}, 'shut down the computer'), 'spoken shutdown');
-assert(actionMatchesQuery({title: 'Shut Down', keywords: ['turn off']}, 'turn off'), 'turn off');
-assert(actionMatchesQuery({title: 'Log Out', keywords: ['sign out']}, 'sign out'), 'sign out');
+assert(actionMatchesQuery({title: 'Power Off', keywords: ['shutdown', 'shut down', 'turn off']}, 'shut down the computer'), 'spoken shutdown');
+assert(actionMatchesQuery({title: 'Power Off', keywords: ['turn off']}, 'turn off'), 'turn off');
+assert(actionMatchesQuery({title: 'Power Off', keywords: ['power off']}, 'power off'), 'power off');
+assert(actionMatchesQuery({title: 'Log Out', keywords: ['sign out', 'sign off']}, 'sign out'), 'sign out');
+assert(actionMatchesQuery({title: 'Log Out', keywords: ['sign off']}, 'sign off'), 'sign off');
+assert(actionMatchesQuery({title: 'Lock Screen Rotation', keywords: ['lock orientation']}, 'lock orientation'), 'lock orientation');
 assert(actionMatchesQuery({title: 'Unlock Screen Rotation', keywords: ['unlock']}, 'unlock'), 'unlock rotation');
+assert(actionMatchesQuery({title: 'Take a Screenshot', keywords: ['record']}, 'record'), 'record screenshot');
 assertEq(actionTitle({title: 'Lock Screen Rotation'}, null), 'Lock Screen Rotation', 'static rotation title');
 assertEq(actionTitle({
     title: 'Lock Screen Rotation',
@@ -351,6 +355,18 @@ assertEq(actionIcon({
     icon: 'rotation-locked-symbolic',
     iconFor: () => 'rotation-allowed-symbolic',
 }, {}), 'rotation-allowed-symbolic', 'live rotation icon');
+assertEq(actionTitle({
+    title: 'Power Off',
+    titleFor: liveActionName('power-off'),
+}, {getName: id => id === 'power-off' ? 'Power Off' : ''}), 'Power Off', 'live power-off title');
+assertEq(actionIcon({
+    icon: 'system-shutdown-symbolic',
+    iconFor: liveActionIcon('power-off'),
+}, {getIconName: id => id === 'power-off' ? 'system-shutdown-symbolic' : ''}), 'system-shutdown-symbolic', 'live power-off icon');
+assertEq(actionTitle({
+    title: 'Power Off',
+    titleFor: liveActionName('power-off'),
+}, {}), 'Power Off', 'missing getName falls back');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
 assertEq(metadata.uuid, 'gosh-is-launcher@nin', 'uuid renamed');
