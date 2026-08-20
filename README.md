@@ -164,6 +164,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `appAction.js` | New window and desktop-file action labels |
 | `windowSearch.js` | Open window switcher |
 | `windowClose.js` | `close` / `quit` / `kill` window queries |
+| `workspaceQuery.js` | `workspace 2` switch-to-workspace queries |
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
 | `homePath.js` | Expand home-relative command and path names |
 | `calculator.js` | Recursive-descent arithmetic parser |
