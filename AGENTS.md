@@ -359,7 +359,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 2. add a choice to the launcher-theme key in the schema
 3. add `.gosh-theme-<id>` rules in stylesheet.css
 4. keep the look as css on the existing widgets do not fork the popup class
-5. do not set row padding on the theme that beats `.gosh-container.gosh-density-compact` the compact setting must still work
+5. keep `.gosh-container.gosh-density-compact` rules last in stylesheet.css so they beat theme-specific row padding
 
 ## adding a new ui component
 
