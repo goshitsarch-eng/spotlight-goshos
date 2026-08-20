@@ -320,6 +320,7 @@ Manual testing on GNOME Shell 50 Wayland:
 117. Open preferences, change the look or shortcut, close the window, open preferences again — combos and the shortcut label must still sync once, not stack leftover `Gio.Settings` handlers from the last window.
 118. Keep typing or page the IME lookup after it is already visible — later pages must stay above the launcher. GNOME 50 restacks the already-visible popup above `keyboardBox` on every `update-lookup-table`.
 119. Switch to Rofi or Tofi — the search icon, result icons, and descriptions must hide. Switch to Pop!_OS — those stay on, windows come first, and number hints appear. A custom search-icon toggle after that must survive until the look changes again.
+120. Change the shortcut, then disable the extension — the old key must not open the launcher. GNOME 50 `removeKeybinding` is the gsettings path and does not clear `allowKeybinding` for `grab_accelerator` names; a throw there would also skip `ungrab_accelerator`.
 
 ## Submitting Changes
 

@@ -369,6 +369,10 @@ the default shortcut is `Ctrl+Space` stored in gsettings as `['<Control>space']`
 
 the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding() because addkeybinding can fail if the schema is not ready at enable time grab_accelerator is more reliable pass Meta.KeyBindingFlags.IGNORE_AUTOREPEAT so a held shortcut cannot fire accelerator-activated again and cancel the pending open or flip reopen-after-close feature-detect the flag so a host without it still grabs with 0
 
+teardown must call allowKeybinding(name NONE) then ungrab_accelerator independently do not call Main.wm.removeKeybinding for these names that api only clears the allow map when display.remove_keybinding succeeds which is the add_keybinding path a throw there would skip ungrab and leave the shortcut live after disable
+
+see https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/windowManager.js
+
 the popup can be closed in three ways pressing the toggle shortcut again pressing `Escape` or clicking outside the popup bounds
 
 changing the shortcut grabs the new key before dropping the old one so a conflict cannot leave the launcher with no grab if the new key fails keep the previous grab and write that accelerator back to settings do not walk ctrl/super/alt space fallbacks unless nothing is grabbed yet

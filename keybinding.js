@@ -4,7 +4,7 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
-import {acceleratorGrabFlags} from './shortcutAccel.js';
+import {acceleratorGrabFlags, grabReleaseSteps, runGrabRelease} from './shortcutAccel.js';
 
 // grabs keys via mutter instead of gsettings
 // more reliable than addkeybinding which can fail if schema isn't ready at enable time
@@ -59,22 +59,30 @@ export class KeybindingManager {
         return true;
     }
 
+    _release(name, action) {
+        runGrabRelease(grabReleaseSteps(name, action), {
+            allowNone: releasedName => {
+                Main.wm.allowKeybinding(releasedName, Shell.ActionMode.NONE);
+            },
+            ungrab: releasedAction => {
+                global.display.ungrab_accelerator(releasedAction);
+            },
+        });
+    }
+
     _dropExcept(keepAction) {
         for (const k of Object.keys(this._grabbers)) {
             const action = parseInt(k, 10);
             if (action === keepAction)
                 continue;
-            Main.wm.removeKeybinding(this._grabbers[k].name);
-            global.display.ungrab_accelerator(action);
+            this._release(this._grabbers[k].name, action);
             delete this._grabbers[k];
         }
     }
 
     unlisten() {
-        for (const k of Object.keys(this._grabbers)) {
-            Main.wm.removeKeybinding(this._grabbers[k].name);
-            global.display.ungrab_accelerator(parseInt(k, 10));
-        }
+        for (const k of Object.keys(this._grabbers))
+            this._release(this._grabbers[k].name, parseInt(k, 10));
         this._grabbers = {};
     }
 

@@ -91,6 +91,12 @@ if grep -rn "RunDialog\|_restart\|holdKeyboard\|releaseKeyboard\|Meta.Rectangle"
   exit 1
 fi
 
+echo "grab accelerator teardown"
+if grep -n "removeKeybinding" keybinding.js; then
+  echo "grab_accelerator teardown must not use removeKeybinding"
+  exit 1
+fi
+
 echo "constructor orientation"
 if grep -rn "orientation: Clutter.Orientation" *.js; then
   echo "do not set orientation in constructors"

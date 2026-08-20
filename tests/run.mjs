@@ -42,7 +42,7 @@ import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbCol
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
 import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusIsOnScreenKeyboard, focusIsImeCandidate, focusLossAction, shouldRunRefocus, shouldCaptureKeys} from '../focusLoss.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist, acceleratorGrabFlags} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist, acceleratorGrabFlags, grabReleaseSteps, grabEntriesToDrop, runGrabRelease} from '../shortcutAccel.js';
 import {collectSearchResults, appendProviderResults, safeProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
@@ -2085,6 +2085,37 @@ assertEq(shortcutToPersist('<Control>space', '<Control>space'), null, 'same shor
 assertEq(acceleratorGrabFlags({IGNORE_AUTOREPEAT: 16}), 16, 'ignore hold-repeat');
 assertEq(acceleratorGrabFlags({}), 0, 'missing ignore flag');
 assertEq(acceleratorGrabFlags(null), 0, 'no keybinding flags');
+assertEq(grabReleaseSteps('gosh-toggle', 42).map(s => s.kind).join(','), 'allow-none,ungrab', 'clear allow then ungrab');
+assertEq(grabReleaseSteps('', 0).length, 0, 'no name or action skips release');
+assertEq(grabReleaseSteps('gosh-toggle', 0).map(s => s.kind).join(','), 'allow-none', 'none action still clears allow');
+assertEq(grabEntriesToDrop([[7, {name: 'keep'}], [8, {name: 'old'}]], 7).map(e => e.name).join(','), 'old', 'drop every grab except the keeper');
+{
+    const calls = [];
+    const released = runGrabRelease(grabReleaseSteps('gosh-toggle', 9), {
+        allowNone(name) {
+            calls.push(`allow:${name}`);
+            throw new Error('allow');
+        },
+        ungrab(action) {
+            calls.push(`ungrab:${action}`);
+        },
+    });
+    assertEq(calls.join(','), 'allow:gosh-toggle,ungrab:9', 'allow throw still ungrabs');
+    assertEq(released, 1, 'failed allow is not a completed step');
+}
+{
+    const calls = [];
+    runGrabRelease(grabReleaseSteps('gosh-toggle', 3), {
+        allowNone() {
+            calls.push('allow');
+        },
+        ungrab() {
+            calls.push('ungrab');
+            throw new Error('ungrab');
+        },
+    });
+    assertEq(calls.join(','), 'allow,ungrab', 'ungrab throw still cleared allow');
+}
 assertEq(shortcutDisplayLabel([]), 'Not set (will default to Ctrl+Space)', 'empty shortcut label');
 assertEq(shortcutDisplayLabel(['<Alt>space']), 'Alt+space', 'shortcut display');
 assertEq(shortcutLabelAfterChange(['<Control>space'], true), null, 'capture keeps the prompt');

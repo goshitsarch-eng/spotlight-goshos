@@ -127,3 +127,45 @@ export function acceleratorGrabFlags(flags) {
         return ignore;
     return 0;
 }
+
+// grab_accelerator names are not add_keybinding names
+// removeKeybinding only clears allow when display.remove_keybinding succeeds
+// https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/windowManager.js
+export function grabReleaseSteps(name, action) {
+    const steps = [];
+    if (name)
+        steps.push({kind: 'allow-none', name});
+    if (action)
+        steps.push({kind: 'ungrab', action});
+    return steps;
+}
+
+export function grabEntriesToDrop(entries, keepAction) {
+    const dropped = [];
+    for (const [action, grabber] of entries) {
+        const id = Number(action);
+        if (id === keepAction)
+            continue;
+        dropped.push({
+            action: id,
+            name: grabber && grabber.name ? grabber.name : '',
+        });
+    }
+    return dropped;
+}
+
+// one host call must not skip the matching ungrab or leftover allow
+export function runGrabRelease(steps, handlers) {
+    let released = 0;
+    for (const step of steps) {
+        try {
+            if (step.kind === 'allow-none')
+                handlers.allowNone(step.name);
+            else if (step.kind === 'ungrab')
+                handlers.ungrab(step.action);
+            released += 1;
+        } catch {
+        }
+    }
+    return released;
+}
