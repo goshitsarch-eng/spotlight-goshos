@@ -12,6 +12,13 @@ export function themeScale(scale) {
     return scale;
 }
 
+// get_for_stage can be null before the stage theme exists
+export function themeScaleFromContext(ctx) {
+    if (!ctx)
+        return 1;
+    return themeScale(ctx.scale_factor);
+}
+
 export function stagePx(logical, scale) {
     return Math.round(logical * themeScale(scale));
 }

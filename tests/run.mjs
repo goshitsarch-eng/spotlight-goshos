@@ -6,7 +6,7 @@ import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQ
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
-import {themeScale, stagePx, cssPx} from '../uiScale.js';
+import {themeScale, themeScaleFromContext, stagePx, cssPx} from '../uiScale.js';
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
@@ -328,6 +328,9 @@ assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center')
 assertEq(themeScale(2), 2, 'hidpi scale is kept');
 assertEq(themeScale(0), 1, 'zero scale is 1x');
 assertEq(themeScale(-1), 1, 'negative scale is 1x');
+assertEq(themeScaleFromContext(null), 1, 'missing theme context is 1x');
+assertEq(themeScaleFromContext({scale_factor: 2}), 2, 'theme context scale is used');
+assertEq(themeScaleFromContext({scale_factor: 0}), 1, 'zero theme scale is 1x');
 assertEq(stagePx(600, 2), 1200, 'css width becomes stage pixels');
 assertEq(cssPx(800, 2), 400, 'stage height becomes css px');
 assertEq(popupWidthForWorkArea(600, 1920), 600, 'wide work keeps request');

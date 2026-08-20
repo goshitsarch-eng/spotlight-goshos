@@ -26,7 +26,7 @@ import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
-import {themeScale, stagePx} from './uiScale.js';
+import {themeScaleFromContext, stagePx} from './uiScale.js';
 import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -589,7 +589,7 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _uiScale() {
-        return themeScale(St.ThemeContext.get_for_stage(global.stage).scale_factor);
+        return themeScaleFromContext(St.ThemeContext.get_for_stage(global.stage));
     }
 
     _listenScale() {
