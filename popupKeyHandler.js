@@ -3,7 +3,7 @@
 
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
-import {resolveKeyAction, resolveHomeEndAction, isNavAction} from './keyAction.js';
+import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 
 const KEY_NAMES = {
@@ -45,6 +45,17 @@ const KEY_NAMES = {
     [Clutter.KEY_KP_9]: '9',
 };
 
+const CTRL_NAV_KEYS = {
+    [Clutter.KEY_j]: 'j',
+    [Clutter.KEY_J]: 'j',
+    [Clutter.KEY_n]: 'n',
+    [Clutter.KEY_N]: 'n',
+    [Clutter.KEY_k]: 'k',
+    [Clutter.KEY_K]: 'k',
+    [Clutter.KEY_p]: 'p',
+    [Clutter.KEY_P]: 'p',
+};
+
 // captures key events at the stage level during the capture phase, before
 // st entry can consume them
 export class PopupKeyHandler {
@@ -76,11 +87,19 @@ export class PopupKeyHandler {
         }
 
         const key = event.get_key_symbol();
+        const state = event.get_state();
+        if (state & Clutter.ModifierType.CONTROL_MASK) {
+            const ctrl = resolveCtrlNav(CTRL_NAV_KEYS[key] || '');
+            if (ctrl) {
+                this._selection.moveSelection(ctrl.delta, this._suppressHover.bind(this));
+                return Clutter.EVENT_STOP;
+            }
+        }
+
         const name = KEY_NAMES[key];
         if (!name)
             return Clutter.EVENT_PROPAGATE;
 
-        const state = event.get_state();
         const action = resolveHomeEndAction(
             name,
             clutterText.get_cursor_position(),

@@ -47,7 +47,7 @@ Results are aggregated in the following order. Each category is rendered under i
 4. **Bookmarks** — Folders saved in `~/.config/gtk-3.0/bookmarks` and `~/.config/gtk-4.0/bookmarks`, loaded asynchronously. Remote URIs such as `sftp://` are included.
 5. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps. Running apps say “Switch to application”. The best match can also list **New window** and desktop-file actions (Private Window, New Document). Turn those off in Features.
 6. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, `!` (factorial), parentheses, unary negation, unicode `×` `÷` `−` `√`, thousands commas (`1,000+2`), hex (`0xff+1`), binary (`0b1010`), postfix percent (`50%` is `0.5`; `10%3` stays modulo), `50% of 80`, constants (`pi`, and `e` in an expression such as `2*e`), functions (`sqrt`, `cbrt`, `abs`, `log`, `ln`, `sin`, `cos`, `tan` in degrees), and implicit multiplication (`2pi`, `2(3+1)`). A bare number such as `42` or `0xff` is not math unless you prefix it (`=42`). Bare `e` stays an app search. Integer results show the hex form in the description.
-7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, `32°f to c`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
+7. **Units** — Conversions such as `10 km to mi`, `32 f in c`, `32°f to c`, `1 stone to kg`, `1 nmi to km`, and `1 gb to mib`. Length, mass, temperature, US volume, and SI/IEC data sizes. Press `Enter` to copy the converted value.
 8. **Color** — A hash hex such as `#f00`, `#ff0000`, `#f00f`, or `#ff000080`, or `rgb(255, 0, 0)` / `rgb(255 0 0)` / `hsl(0, 100%, 50%)` / `hsl(0deg 100% 50%)`, copies the 6-digit color. `# wifi` is still the Settings prefix; `#ff0000` is not.
 9. **Clock** — Type `time`, `now`, `date`, `today`, `tomorrow`, or `clock` to copy the local time or date. Uses the session timezone via `GLib.DateTime`.
 10. **Windows** — Switch to an open window by title, window class, or workspace number (`2`, `workspace 2`, or `ws 2`), including modal dialogs. Results are ordered by last user focus, not compositor stacking. The description shows the workspace number, or “On all workspaces” for sticky windows. The shared `Workspace N` label is not a free-text match, so `workspace` or `spa` does not list every window. Type `workspace 2` to switch to that workspace. Type `close firefox` or `quit firefox` to ask matching windows to close. Type `kill firefox` to force-quit them.
@@ -91,7 +91,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
 | Search the web | Type a query with no local matches, or `@ query` |
-| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`. `Home` / `End` jump to the first or last row only when the caret is already at that edge of the query. |
+| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`, or `Ctrl+j` / `Ctrl+k` (also `Ctrl+n` / `Ctrl+p`). `Home` / `End` jump to the first or last row only when the caret is already at that edge of the query. |
 | Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled |
 | Dismiss | `Esc`, `Ctrl + Space`, or click / tap outside the popup. The press is claimed so the window underneath does not activate. |
 
@@ -165,6 +165,8 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `windowSearch.js` | Open window switcher |
 | `windowClose.js` | `close` / `quit` / `kill` window queries |
 | `workspaceQuery.js` | `workspace 2` switch-to-workspace queries |
+| `appReady.js` | Hide apps until parental controls finish initialising |
+| `resultActivate.js` | Activate a result without taking down the shell |
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
 | `homePath.js` | Expand home-relative command and path names |
 | `calculator.js` | Recursive-descent arithmetic parser |

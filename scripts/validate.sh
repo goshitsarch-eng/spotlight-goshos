@@ -151,6 +151,8 @@ required = [
     'pathSearch.js',
     'pathMatch.js',
     'resultPointer.js',
+    'resultActivate.js',
+    'appReady.js',
 ]
 missing = [n for n in required if n not in names]
 if missing:

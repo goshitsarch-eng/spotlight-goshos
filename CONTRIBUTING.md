@@ -114,6 +114,8 @@ Pure functions with no side effects:
 - **`windowMatch.js`** — Window title / class matching.
 - **`windowClose.js`** — Close / quit / kill query parsing.
 - **`workspaceQuery.js`** — Workspace switch query parsing.
+- **`appReady.js`** — Whether an app may appear before parental controls finish.
+- **`resultActivate.js`** — Activate a result without taking down the shell.
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 - **`homePath.js`** — Expand `~` and `./` against the user home.
@@ -226,6 +228,7 @@ Manual testing on GNOME Shell 50 Wayland:
 39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
 40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. On a tablet that manages orientation, type `rotation` — Lock Screen Rotation should appear.
 41. Type `workspace` — open windows must not all appear. Type `workspace 2` — a Switch to Workspace 2 row should appear if that workspace exists, plus windows on that workspace.
+42. With results visible, `Ctrl+j` and `Ctrl+n` should move down, `Ctrl+k` and `Ctrl+p` should move up. Typing `j` without Control must still insert the letter. Type `1 stone to kg` — a Units row should appear. If parental controls are still initialising, blocked apps must not flash in the list.
 
 ## Submitting Changes
 

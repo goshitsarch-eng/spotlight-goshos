@@ -26,6 +26,16 @@ export function resolveKeyAction(key, shift, alt, showNumbers) {
     return {type: 'propagate'};
 }
 
+// control plus these letters move the selection they still type without it
+export function resolveCtrlNav(key) {
+    const name = key.toLowerCase();
+    if (name === 'j' || name === 'n')
+        return {type: 'move', delta: 1};
+    if (name === 'k' || name === 'p')
+        return {type: 'move', delta: -1};
+    return null;
+}
+
 // clutter.text uses -1 for the caret at the end
 export function cursorAtStart(cursor) {
     return cursor === 0;

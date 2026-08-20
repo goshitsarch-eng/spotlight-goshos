@@ -142,6 +142,8 @@ gosh-is-launcher@nin/
     windowClose.js            close kill and quit window queries (pure)
     workspaceQuery.js         switch to workspace n (pure)
     appMatch.js               app name generic-name keyword tiers (pure)
+    appReady.js               parental-controls listing (pure)
+    resultActivate.js         activate without crashing the shell (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     pathSearch.js             ~/ ./ and absolute path opener

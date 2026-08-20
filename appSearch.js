@@ -4,16 +4,15 @@ import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
 import {appMatchTier, takeUniqueByBaseName, appRowDescription} from './appMatch.js';
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from './appAction.js';
+import {shouldOfferApp} from './appReady.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
 }
 
 function _shouldShowApp(pcm, app) {
-    if (!app.should_show())
-        return false;
     if (!pcm.initialized)
-        return true;
+        return shouldOfferApp(app.should_show(), false, false);
     return pcm.shouldShowApp(app);
 }
 

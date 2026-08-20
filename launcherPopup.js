@@ -19,6 +19,7 @@ import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup} from './popupGate.js';
+import {activateResultSafe} from './resultActivate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from './popupPosition.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
@@ -336,7 +337,7 @@ class LauncherPopup extends St.BoxLayout {
 
     activateResult(result) {
         this.closeSoon();
-        result.activate();
+        activateResultSafe(result);
     }
 
     close() {
