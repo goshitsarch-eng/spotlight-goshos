@@ -136,9 +136,50 @@ export function normalizeHwbColor(query) {
     return hwbToHex(Number(match[1]), w, b);
 }
 
+const NAMED_COLORS = {
+    red: '#ff0000',
+    green: '#008000',
+    blue: '#0000ff',
+    black: '#000000',
+    white: '#ffffff',
+    orange: '#ffa500',
+    purple: '#800080',
+    yellow: '#ffff00',
+    cyan: '#00ffff',
+    magenta: '#ff00ff',
+    pink: '#ffc0cb',
+    gray: '#808080',
+    grey: '#808080',
+    navy: '#000080',
+    teal: '#008080',
+    lime: '#00ff00',
+    maroon: '#800000',
+    olive: '#808000',
+    silver: '#c0c0c0',
+    aqua: '#00ffff',
+    fuchsia: '#ff00ff',
+    coral: '#ff7f50',
+    gold: '#ffd700',
+    indigo: '#4b0082',
+    violet: '#ee82ee',
+    brown: '#a52a2a',
+    crimson: '#dc143c',
+    tomato: '#ff6347',
+    salmon: '#fa8072',
+    khaki: '#f0e68c',
+    azure: '#f0ffff',
+    beige: '#f5f5dc',
+    ivory: '#fffff0',
+};
+
+export function normalizeNamedColor(query) {
+    return NAMED_COLORS[query.trim().toLowerCase()] || null;
+}
+
 export function normalizeColor(query) {
     return normalizeHexColor(query) ||
         normalizeRgbColor(query) ||
         normalizeHslColor(query) ||
-        normalizeHwbColor(query);
+        normalizeHwbColor(query) ||
+        normalizeNamedColor(query);
 }

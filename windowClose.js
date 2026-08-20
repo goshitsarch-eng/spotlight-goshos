@@ -3,7 +3,7 @@
 
 export function parseWindowCloseQuery(query) {
     const text = query.trim();
-    const match = /^(close|kill|quit|force-?quit|force\s+quit)\s+(.+)$/i.exec(text);
+    const match = /^(close|kill|quit|force-?quit|force\s+quit|force\s+close)\s+(.+)$/i.exec(text);
     if (!match)
         return null;
 
@@ -13,7 +13,7 @@ export function parseWindowCloseQuery(query) {
 
     const raw = match[1].toLowerCase().replace(/[\s-]/g, '');
     return {
-        intent: raw === 'forcequit' ? 'kill' : raw,
+        intent: raw === 'forcequit' || raw === 'forceclose' ? 'kill' : raw,
         title,
     };
 }

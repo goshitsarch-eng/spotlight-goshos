@@ -15,6 +15,22 @@ const PREFIX_TO_FLAG = {
 
 const DEFAULT_ORDER = ['url', 'path', 'places', 'bookmarks', 'apps', 'calculator', 'units', 'color', 'time', 'windows', 'system', 'settings', 'files'];
 const WINDOWS_FIRST_ORDER = ['url', 'path', 'places', 'bookmarks', 'windows', 'apps', 'calculator', 'units', 'color', 'time', 'system', 'settings', 'files'];
+const STRIP_VERB_MODES = {
+    all: true,
+    windows: true,
+    settings: true,
+    files: true,
+};
+
+// open firefox and switch to term are how people talk to a launcher
+export function stripLeadingVerb(query) {
+    const text = query.trim();
+    const match = /^(open|launch|run|start|show|switch\s+to|go\s+to|focus)\s+(.+)$/i.exec(text);
+    if (!match)
+        return text;
+    const rest = match[2].trim();
+    return rest.length > 0 ? rest : text;
+}
 
 export function flagsFromSettings(settings) {
     return {
@@ -82,8 +98,11 @@ export function planSearch(text, flags) {
     const parsed = flags.prefixModes
         ? parseQuery(text)
         : {mode: 'all', query: text.trim()};
+    const query = STRIP_VERB_MODES[parsed.mode]
+        ? stripLeadingVerb(parsed.query)
+        : parsed.query;
 
-    if (parsed.mode === 'all' && !isActiveSearchQuery(parsed.query)) {
+    if (parsed.mode === 'all' && !isActiveSearchQuery(query)) {
         return {
             mode: 'all',
             query: '',
@@ -97,7 +116,7 @@ export function planSearch(text, flags) {
         if (parsed.mode === 'web') {
             return {
                 mode: 'web',
-                query: parsed.query,
+                query,
                 providers: ['web'],
                 webFallback: false,
             };
@@ -105,7 +124,7 @@ export function planSearch(text, flags) {
         const flag = PREFIX_TO_FLAG[parsed.mode];
         return {
             mode: parsed.mode,
-            query: parsed.query,
+            query,
             providers: flags[flag] ? [parsed.mode] : [],
             webFallback: false,
         };
@@ -117,7 +136,7 @@ export function planSearch(text, flags) {
     const providers = order.filter(name => flags[name]);
     return {
         mode: 'all',
-        query: parsed.query,
+        query,
         providers,
         webFallback: flags.web,
     };

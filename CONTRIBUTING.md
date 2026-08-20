@@ -251,6 +251,7 @@ Manual testing on GNOME Shell 50 Wayland:
 60. Type `200 kcal to kj` or `200 calories to kj` — the title should be `836.8 kj`. Type `1 kwh to kj` — the title should be `3600 kj`. Type `1 hp to kw` — a power row should appear. Type `180 deg to rad` or `180° to rad` — an angle row should appear. Type `2π` or `5²` or `sin(90°)` — calculator rows should appear. Type `what time is it now` — a Clock row should appear.
 61. Type `sin 90` or `sqrt 16` — calculator rows should appear. Type `1 cup to tbsp` — the title should be `16 tbsp`. Type `1 fl oz to ml` — a volume row should appear. Type `app.mjs` or `data.csv` — those must not be URL rows. With the command runner on, `!` plus a directory or a non-executable file must stay Command not found and Enter must not close the popup.
 62. Type `1+2=` — the calculator result should be 3. Type `1 000 + 2` — the result should be 1002. Type `1 000 km to mi` — a Units row should appear. Type `example.com.` — a URL row should open `https://example.com`. Type `readme.md.` — it must not be a URL.
+63. Type `open firefox` — Firefox (or your browser) should appear as an app, not only a web search. Type `switch to` plus an open window title — that window should appear. Type `red` or `blue` — a Color row should copy the hex. Type `1+2=3` — the calculator result should be 3. Type `force close` plus an open window title — the row should say Kill … and Enter should force-quit.
 
 ## Submitting Changes
 

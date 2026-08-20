@@ -52,6 +52,7 @@ export function normalizeMath(input) {
         .replace(/([1-9]\d*(?:\.\d+)?)[xX](\d)/g, '$1*$2')
         .replace(/(\d+(?:\.\d+)?)\s*%\s*of\s*(\d+(?:\.\d+)?)/gi, '($1/100)*$2')
         .replace(/(\d+(?:\.\d+)?)\s*percent\s+of\s*(\d+(?:\.\d+)?)/gi, '($1/100)*$2')
+        .replace(/=([+\-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+\-]?\d+)?)\s*$/i, '')
         .replace(/=+\s*$/g, '');
     let next = text.replace(/(\d),(\d)/g, '$1$2');
     while (next !== text) {
