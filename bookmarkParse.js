@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {basenameFromUri, pathFromFileUri} from './recentXbel.js';
-import {fileUriFromAbsolute, expandHomePath, canonicalizeFileUri} from './homePath.js';
+import {fileUriFromAbsolute, expandHomePath, canonicalizeFileUri, canonicalizeLaunchUri} from './homePath.js';
 import {isUnsafeLaunchUri} from './urlMatch.js';
 import {pathMatchesQuery, textMatchesQuery} from './wordMatch.js';
 
@@ -20,7 +20,7 @@ export function normalizeBookmarkUri(uri, home) {
     }
     if (uri.startsWith('file:'))
         return canonicalizeFileUri(uri);
-    return uri;
+    return canonicalizeLaunchUri(uri);
 }
 
 export function hostFromUri(uri) {

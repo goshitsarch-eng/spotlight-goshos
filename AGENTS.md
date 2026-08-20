@@ -158,7 +158,7 @@ gosh-is-launcher@nin/
     urlSearch.js              url open provider
     pathSearch.js             ~/ ./ and absolute path opener
     pathMatch.js              path result row (pure)
-    homePath.js               expand ~ ./ file:// encode and home-relative slash commands (pure)
+    homePath.js               expand ~ ./ file:// sftp:// encode and home-relative slash commands (pure)
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes

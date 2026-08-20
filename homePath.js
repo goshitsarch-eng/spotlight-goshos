@@ -109,6 +109,13 @@ export function pathFromFileUri(uri) {
     return decodeURIComponent(safe);
 }
 
+function encodeUriPathPart(part) {
+    if (!part)
+        return '';
+    const safe = part.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+    return encodeURIComponent(decodeURIComponent(safe));
+}
+
 // gtk bookmarks and xbel often leave spaces in file:// gio rejects those
 export function canonicalizeFileUri(uri) {
     if (!uri || !uri.startsWith('file:'))
@@ -117,4 +124,26 @@ export function canonicalizeFileUri(uri) {
     if (!path)
         return uri;
     return fileUriFromAbsolute(path);
+}
+
+// nautilus and gio also leave spaces in sftp:// and smb://
+export function canonicalizeRemoteUri(uri) {
+    const match = /^(sftp|ftp|smb|davs?):\/\/([^/]+)(\/[^?#]*)?([?#].*)?$/i.exec(uri || '');
+    if (!match)
+        return uri;
+    const path = match[3] || '';
+    if (!path)
+        return uri;
+    const encoded = path.split('/').map(encodeUriPathPart).join('/');
+    return `${match[1]}://${match[2]}${encoded}${match[4] || ''}`;
+}
+
+export function canonicalizeLaunchUri(uri) {
+    if (!uri)
+        return uri;
+    if (uri.startsWith('file:'))
+        return canonicalizeFileUri(uri);
+    if (/^(sftp|ftp|smb|davs?):/i.test(uri))
+        return canonicalizeRemoteUri(uri);
+    return uri;
 }
