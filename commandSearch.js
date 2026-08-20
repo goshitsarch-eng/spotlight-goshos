@@ -83,7 +83,7 @@ function _start(query, resolved) {
     const exe = firstCommandArg(resolved);
     const file = Gio.File.new_for_path(exe);
     file.query_info_async(
-        'standard::type',
+        'standard::type,access::can-execute',
         Gio.FileQueryInfoFlags.NONE,
         GLib.PRIORITY_DEFAULT,
         null,
@@ -93,7 +93,7 @@ function _start(query, resolved) {
                 const info = src.query_info_finish(res);
                 ready = commandFileIsReady(
                     info.get_file_type() === Gio.FileType.DIRECTORY,
-                    GLib.file_test(exe, GLib.FileTest.IS_EXECUTABLE),
+                    info.get_attribute_boolean('access::can-execute'),
                 );
             } catch (e) {
                 ready = false;

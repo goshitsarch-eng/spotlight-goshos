@@ -405,6 +405,12 @@ class LauncherPopup extends St.BoxLayout {
         }
 
         this.hide();
+        // grab_key_focus leaves the hidden entry focused so later typing
+        // would vanish unless we give the stage back only when we still own it
+        // alt-tab already moved focus so leave that window alone
+        const focus = global.stage.get_key_focus();
+        if (focus && this.contains(focus))
+            global.stage.set_key_focus(null);
     }
 
     _clearIdle(field) {

@@ -259,6 +259,8 @@ second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard f
 
 keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result alt+1-9 activates a numbered row when that setting is on home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
 
+close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
+
 open() uses an _isOpen flag not just visible because the first frames after a shortcut press still have visible=false while the position idle runs a second press in that gap must close not leak another backdrop
 
 ### object lifecycle
@@ -268,6 +270,8 @@ every object created in enable() is destroyed in disable() every widget added to
 the popup widget overrides destroy() to call close() first which removes the backdrop disconnects the focus handler and removes idle sources then it removes itself from the chrome layer and chains up to the parent destroy
 
 if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
+
+command existence for slash paths uses query_info_async and the FileInfo access::can-execute attribute do not call GLib.file_test from that callback that is sync io on the compositor thread PATH names still use find_program_in_path
 
 ### module-scope restrictions
 
