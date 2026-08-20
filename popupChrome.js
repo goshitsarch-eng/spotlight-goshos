@@ -20,6 +20,7 @@ export function removePopupChrome(layoutManager, actor) {
 }
 
 export const OSK_POPOVER_STYLE = 'keyboard-subkeys-boxpointer';
+export const IME_CANDIDATE_STYLE = 'candidate-popup-boxpointer';
 
 export function actorHasStyleClass(actor, name) {
     if (!actor || !name)
@@ -32,18 +33,53 @@ export function actorHasStyleClass(actor, name) {
     return style.split(/\s+/).includes(name);
 }
 
+export function actorOrAncestorHasStyleClass(actor, name, maxDepth) {
+    let current = actor;
+    let depth = 0;
+    const limit = maxDepth === undefined ? 8 : maxDepth;
+    while (current && depth < limit) {
+        if (actorHasStyleClass(current, name))
+            return true;
+        current = typeof current.get_parent === 'function' ? current.get_parent() : null;
+        depth += 1;
+    }
+    return false;
+}
+
 // gnome 50 keeps accent popovers in addtopchrome after first use
 // https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/keyboard.js
 export function isOskPopoverActor(actor) {
     return actorHasStyleClass(actor, OSK_POPOVER_STYLE);
 }
 
-export function shouldWatchOskPopover(actor, tracked) {
-    if (!isOskPopoverActor(actor))
+// ibus candidates are addtopchrome at init and only raise above keyboardbox
+// https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/ibusCandidatePopup.js
+export function isImeCandidateActor(actor) {
+    return actorHasStyleClass(actor, IME_CANDIDATE_STYLE);
+}
+
+export function isInputChromeActor(actor) {
+    return isOskPopoverActor(actor) || isImeCandidateActor(actor);
+}
+
+export function shouldWatchInputChrome(actor, tracked) {
+    if (!isInputChromeActor(actor))
         return false;
     if (tracked && tracked.includes(actor))
         return false;
     return true;
+}
+
+export function shouldWatchOskPopover(actor, tracked) {
+    return shouldWatchInputChrome(actor, tracked);
+}
+
+export function imeCandidateVisible(uiGroup) {
+    for (const child of uiGroupChildren(uiGroup)) {
+        if (isImeCandidateActor(child) && child.visible)
+            return true;
+    }
+    return false;
 }
 
 export function uiGroupChildren(uiGroup) {
@@ -53,17 +89,25 @@ export function uiGroupChildren(uiGroup) {
     return Array.isArray(kids) ? kids : [];
 }
 
-export function oskChromeToRaise(uiGroup, keyboardBox, popup) {
+export function inputChromeToRaise(uiGroup, keyboardBox, popup) {
     const actors = [];
     if (keyboardBox)
         actors.push(keyboardBox);
+    const accents = [];
+    const candidates = [];
     for (const child of uiGroupChildren(uiGroup)) {
         if (child === keyboardBox || child === popup)
             continue;
         if (isOskPopoverActor(child))
-            actors.push(child);
+            accents.push(child);
+        else if (isImeCandidateActor(child))
+            candidates.push(child);
     }
-    return actors;
+    return actors.concat(accents, candidates);
+}
+
+export function oskChromeToRaise(uiGroup, keyboardBox, popup) {
+    return inputChromeToRaise(uiGroup, keyboardBox, popup);
 }
 
 // addtopchrome after shell init sits above the parked keyboardbox
@@ -93,15 +137,20 @@ export function raiseChromeAbove(uiGroup, actor, sibling) {
     }
 }
 
-// raise keys first then accents so a reused boxpointer is not buried
-export function raiseOskChrome(uiGroup, keyboardBox, popup) {
+// raise keys then accents then ibus candidates so later addtopchrome
+// cannot bury input chrome under the backdrop
+export function raiseInputChrome(uiGroup, keyboardBox, popup) {
     let raised = false;
     let sibling = popup;
-    for (const actor of oskChromeToRaise(uiGroup, keyboardBox, popup)) {
+    for (const actor of inputChromeToRaise(uiGroup, keyboardBox, popup)) {
         if (!raiseChromeAbove(uiGroup, actor, sibling))
             continue;
         raised = true;
         sibling = actor;
     }
     return raised;
+}
+
+export function raiseOskChrome(uiGroup, keyboardBox, popup) {
+    return raiseInputChrome(uiGroup, keyboardBox, popup);
 }

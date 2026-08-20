@@ -3,13 +3,13 @@
 
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {focusIsSearchEntry, focusLossAction, focusIsOnScreenKeyboard} from './focusLoss.js';
+import {focusIsSearchEntry, focusLossAction, focusIsOnScreenKeyboard, focusIsImeCandidate} from './focusLoss.js';
 
 // watches notify::key-focus on global.stage - if focus moves to an actor
 // outside the popup, for example via alt-tab, the popup closes
 // a click on a row or scrollbar or a gnome 48 null focus is returned
 // to the entry so later letters do not vanish
-// an osk long-press grabs focus on addtopchrome and must not close us
+// an osk long-press or ibus candidate grab on addtopchrome must not close us
 //
 // setup is deferred via an idle source to avoid firing during the initial
 // grab_key_focus call in open(), which would otherwise close the popup
@@ -37,6 +37,7 @@ export class FocusLossWatcher {
                     Boolean(focus && this._popup.contains(focus)),
                     focusIsSearchEntry(focus, this._popup._entry),
                     focusIsOnScreenKeyboard(focus, Main.layoutManager.keyboardBox),
+                    focusIsImeCandidate(focus),
                 );
                 if (action === 'close')
                     this._popup.closeSoon();

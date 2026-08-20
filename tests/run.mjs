@@ -6,7 +6,7 @@ import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQ
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
-import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, isOskPopoverActor, shouldWatchOskPopover, uiGroupChildren, oskChromeToRaise, raiseOskChrome, OSK_POPOVER_STYLE} from '../popupChrome.js';
+import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -25,7 +25,7 @@ import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, scrollValueToShowRow} from '../scrollView.js';
 import {shouldIgnoreNavRepeat, NAV_REPEAT_GAP_US} from '../navRepeat.js';
 import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, remoteHostFromUri, recentFileMatches} from '../recentXbel.js';
-import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
+import {readPreedit, shouldPropagateForPreedit, shouldPropagateForIme} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
 import {shouldOfferApp, hasParentalGiveUp, markParentalGiveUp, resetParentalGiveUp, PARENTAL_GIVE_UP_MS} from '../appReady.js';
 import {activateResultSafe, resultCanActivate, activatableResult, indexedActivatableResult} from '../resultActivate.js';
@@ -40,7 +40,7 @@ import {timeQueryKind, normalizeTimeQuery, dateOffsetDays, formatClock, formatDa
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor, normalizeNamedColor} from '../colorMatch.js';
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
-import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusIsOnScreenKeyboard, focusLossAction, shouldRunRefocus, shouldCaptureKeys} from '../focusLoss.js';
+import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusIsOnScreenKeyboard, focusIsImeCandidate, focusLossAction, shouldRunRefocus, shouldCaptureKeys} from '../focusLoss.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist, acceleratorGrabFlags} from '../shortcutAccel.js';
 import {collectSearchResults, appendProviderResults, safeProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
@@ -396,6 +396,39 @@ const leftoverAccent = {tag: 'accent', visible: true, style_class: OSK_POPOVER_S
 leftoverGroup.get_children = () => [leftoverAccent, leftoverPopup];
 assert(raiseOskChrome(leftoverGroup, null, leftoverPopup), 'reused accent is raised without keyboardbox');
 assertEq(leftoverGroup.last, 'accent>popup', 'leftover accent sits above the popup');
+assert(isImeCandidateActor({style_class: IME_CANDIDATE_STYLE}), 'ibus lookup is input chrome');
+assert(isInputChromeActor({style_class: IME_CANDIDATE_STYLE}), 'candidates are watched with accents');
+assert(shouldWatchInputChrome({style_class: IME_CANDIDATE_STYLE}, []), 'first watch keeps the candidate popup');
+assert(!imeCandidateVisible(stackedGroup), 'hidden or missing candidate is not composing');
+const ime = {visible: true, style_class: IME_CANDIDATE_STYLE, get_parent: () => stackedGroup};
+stackedKids.push(ime);
+assertEq(inputChromeToRaise(stackedGroup, kb, popup).map(a => {
+    if (a === kb)
+        return 'kb';
+    if (a === accent)
+        return 'accent';
+    if (a === buried)
+        return 'buried';
+    if (a === ime)
+        return 'ime';
+    return 'other';
+}).join(','), 'kb,accent,buried,ime', 'candidates raise after accents');
+assert(imeCandidateVisible(stackedGroup), 'visible candidate popup is composing');
+const imeRaise = [];
+const imeGroup = {
+    set_child_above_sibling(actor, sibling) {
+        imeRaise.push(`${actor.tag}>${sibling.tag}`);
+    },
+};
+const imePopup = {tag: 'popup', visible: true, get_parent: () => imeGroup};
+const imeKb = {tag: 'kb', visible: true, get_parent: () => imeGroup};
+const imeAccent = {tag: 'accent', visible: true, style_class: OSK_POPOVER_STYLE, get_parent: () => imeGroup};
+const imeCandidate = {tag: 'ime', visible: true, style_class: IME_CANDIDATE_STYLE, get_parent: () => imeGroup};
+imeGroup.get_children = () => [imeCandidate, imeAccent, imeKb, imePopup];
+assert(raiseInputChrome(imeGroup, imeKb, imePopup), 'visible ibus chrome is raised');
+assertEq(imeRaise.join(','), 'kb>popup,accent>kb,ime>accent', 'candidates sit above accents');
+const imeLabel = {style_class: 'candidate-label', get_parent: () => imeCandidate};
+assert(actorOrAncestorHasStyleClass(imeLabel, IME_CANDIDATE_STYLE), 'candidate label walks to the boxpointer');
 assertEq(unredirectApi(true, true), 'compositor', 'gnome 48-50 use compositor unredirect');
 assertEq(unredirectApi(false, true), 'display', 'gnome 45-47 use display unredirect');
 assertEq(unredirectApi(false, false), '', 'hosts without unredirect helpers');
@@ -1599,6 +1632,9 @@ assertEq(readPreedit(['漢', null, 1]), '漢', 'tuple preedit');
 assertEq(readPreedit(null), '', 'missing preedit');
 assert(shouldPropagateForPreedit('あ'), 'ime composing');
 assert(!shouldPropagateForPreedit(''), 'no preedit');
+assert(shouldPropagateForIme('', true), 'lookup table without preedit still belongs to ime');
+assert(!shouldPropagateForIme('', false), 'idle ime does not steal enter');
+assert(shouldPropagateForIme('あ', false), 'preedit still belongs to ime');
 assertEq(parseRecentXbel('').length, 0, 'empty xbel');
 assertEq(
     parseRecentXbel('<bookmark href="file:///tmp/a&amp;b.txt"/>')[0],
@@ -1890,6 +1926,7 @@ assertEq(focusLossAction(false, false, false, false), 'refocus-entry', 'gnome 48
 assertEq(focusLossAction(true, true, false, false), 'refocus-entry', 'stage focus returns to entry');
 assertEq(focusLossAction(true, false, false, false), 'close', 'alt-tab leaves the popup');
 assertEq(focusLossAction(true, false, false, false, true), 'ignore', 'osk extended keys stay open');
+assertEq(focusLossAction(true, false, false, false, false, true), 'ignore', 'ibus candidate click stays open');
 assertEq(focusLossAction(true, false, true, false), 'refocus-entry', 'row click returns to entry');
 assertEq(focusLossAction(true, false, true, true), 'ignore', 'entry keeps focus');
 assert(shouldCaptureKeys(true, false, false, false), 'null focus still captures escape');
@@ -1897,7 +1934,11 @@ assert(shouldCaptureKeys(true, true, true, false), 'stage focus still captures e
 assert(shouldCaptureKeys(true, true, false, true), 'entry focus captures keys');
 assert(!shouldCaptureKeys(true, true, false, false), 'alt-tab must not steal the next key');
 assert(shouldCaptureKeys(true, true, false, false, true), 'osk focus still captures escape');
+assert(shouldCaptureKeys(true, true, false, false, false, true), 'ime focus still captures then propagates');
 assert(!shouldCaptureKeys(false, false, false, false), 'hidden popup does not capture');
+assert(focusIsImeCandidate({style_class: IME_CANDIDATE_STYLE}), 'candidate popup is ime chrome');
+assert(focusIsImeCandidate(imeLabel), 'candidate label is ime chrome');
+assert(!focusIsImeCandidate({style_class: 'gosh-row'}), 'a result row is not ime');
 const oskBox = {contains: actor => actor === 'osk-key'};
 assert(focusIsOnScreenKeyboard({extendedKey: 'é'}, null), 'extended key actor is osk');
 assert(focusIsOnScreenKeyboard({_extendedKeys: true}, null), 'parent key with subkeys is osk');

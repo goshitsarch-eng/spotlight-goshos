@@ -153,7 +153,7 @@ gosh-is-launcher@nin/
     searchLive.js             when to watch windows and apps (pure)
     liveSearchWatcher.js      refresh rows when a window or app changes
     popupPosition.js          work-area origin (pure)
-    popupChrome.js            addtopchrome versus addchrome and osk accent raise (pure)
+    popupChrome.js            addtopchrome versus addchrome and osk/ime raise (pure)
     unredirect.js             hold compositor unredirect while open (pure)
     resultPointer.js          result row press/release and touch tap versus swipe (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
@@ -184,7 +184,7 @@ gosh-is-launcher@nin/
     paintSelection.js         keep selected row across a refresh (pure)
     asyncPaint.js             whether a gio finish may repaint (pure)
     popupKeyHandler.js        stage-level key capture
-    entryPreedit.js           ime preedit (pure)
+    entryPreedit.js           ime preedit and candidate lookup (pure)
     popupBackdrop.js          click-outside closer
     focusLossWatcher.js       close on alt-tab or return focus to the entry
     themes.js                 look catalog (pure data)
@@ -213,7 +213,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition popupChrome backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -264,7 +264,7 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 - Main.layoutManager.connect('system-modal-opened') in launcherPopup.js so screenshot and polkit close an open popup disconnected manually in destroy()
-- layoutManager.uiGroup.connect('child-added') in launcherPopup.js so a later accent popover is raised above the backdrop disconnected manually in close()
+- layoutManager.uiGroup.connect('child-added') in launcherPopup.js so a later accent popover or ibus candidate is raised above the backdrop disconnected manually in close()
 
 parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers the sliding osk keys are the first child of keyboardbox and their translation-y is disconnected the same way liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers start() and stop() isolate a vanished window or display so open() cannot abort after the backdrop is in chrome
 
@@ -272,7 +272,7 @@ each of these tracks its own handler id in an instance field and disconnects it 
 
 ### popup positioning
 
-the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the parked keyboardbox hosts without addtopchrome fall back to addchrome a visible osk is raised above the popup so taps hit the keys instead of the backdrop gnome 50 keeps accent popovers in addtopchrome after first use so a later launcher open sits above those actors raiseOskChrome lifts keyboardbox then keyboard-subkeys-boxpointer actors and close() disconnects their notify::visible so a reused long-press is not buried under the backdrop https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/keyboard.js
+the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the parked keyboardbox hosts without addtopchrome fall back to addchrome a visible osk is raised above the popup so taps hit the keys instead of the backdrop gnome 50 keeps accent popovers in addtopchrome after first use so a later launcher open sits above those actors ibus candidates are also addtopchrome at init and only raise above keyboardbox so a later launcher open buries cjk lookup tables raiseInputChrome lifts keyboardbox then keyboard-subkeys-boxpointer then candidate-popup-boxpointer and close() disconnects their notify::visible so a reused long-press or ime page is not buried under the backdrop https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/ibusCandidatePopup.js
 
 an unredirected fullscreen window bypasses composition so even top chrome is invisible open() holds unredirect via Meta.Compositor.disable_unredirect on 48-50 or Meta.disable_unredirect_for_display on 45-47 close() and destroy() release that hold once disable/enable are a matched pair do not enable without a hold https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 
@@ -294,7 +294,7 @@ first a transparent full-screen reactive St.Widget called the backdrop is added 
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes if focus stays inside but is not the search entry a click on a result row or scrollbar the watcher returns it to the entry so later letters do not vanish gnome 48 get_key_focus returns null instead of the stage when nothing is focused a click on non-focusable chrome does that so null and stage must refocus the entry not ignore captured-event still handles escape and arrows in that gap and must not handle keys once another actor owns focus start() is deferred via an idle source to avoid firing during the initial grab_key_focus call in open() the return grab is also idle_add via refocusEntrySoon because grab_key_focus inside notify::key-focus or button-release aborts clutter 18 result rows and chrome use can_focus false for the same reason
 
-keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result if that row is still pending enter runs the first ready sibling so a checking path can still open in terminal alt+1-9 activates only that numbered row when the setting is on a pending slot must not steal a later app home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
+keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result if that row is still pending enter runs the first ready sibling so a checking path can still open in terminal alt+1-9 activates only that numbered row when the setting is on a pending slot must not steal a later app home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result stage capture must propagate while clutter text has a preedit or candidate-popup-boxpointer is visible so enter arrows and numbers stay with ibus instead of activating a result a click on that lookup must not be treated as alt-tab
 
 close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
 

@@ -1,6 +1,8 @@
 // gosh is launcher - whether focus should close or return to the entry
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {actorOrAncestorHasStyleClass, IME_CANDIDATE_STYLE} from './popupChrome.js';
+
 // rows and chrome must not take clutter focus or later letters miss the entry
 export function resultRowShouldFocus() {
     return false;
@@ -33,15 +35,20 @@ export function focusIsOnScreenKeyboard(focus, keyboardBox) {
     return typeof keyboardBox.contains === 'function' && keyboardBox.contains(focus);
 }
 
+export function focusIsImeCandidate(focus) {
+    return actorOrAncestorHasStyleClass(focus, IME_CANDIDATE_STYLE);
+}
+
 // gnome 48 get_key_focus returns null instead of the stage
 // https://gjs.guide/extensions/upgrading/gnome-shell-48.html
 // a click on non-focusable chrome does that so return to the entry
 // alt-tab moves focus to another actor and still closes
 // an osk long-press is not alt-tab
-export function focusLossAction(hasFocus, isStage, popupContainsFocus, focusIsEntry, oskContainsFocus) {
+// an ibus candidate click is not alt-tab
+export function focusLossAction(hasFocus, isStage, popupContainsFocus, focusIsEntry, oskContainsFocus, imeContainsFocus) {
     if (!hasFocus || isStage)
         return 'refocus-entry';
-    if (oskContainsFocus)
+    if (oskContainsFocus || imeContainsFocus)
         return 'ignore';
     if (!popupContainsFocus)
         return 'close';
@@ -51,10 +58,10 @@ export function focusLossAction(hasFocus, isStage, popupContainsFocus, focusIsEn
 }
 
 // captured-event is stage-wide skip keys only when another actor owns focus
-export function shouldCaptureKeys(visible, hasFocus, isStage, popupContainsFocus, oskContainsFocus) {
+export function shouldCaptureKeys(visible, hasFocus, isStage, popupContainsFocus, oskContainsFocus, imeContainsFocus) {
     if (!visible)
         return false;
-    if (!hasFocus || isStage || oskContainsFocus)
+    if (!hasFocus || isStage || oskContainsFocus || imeContainsFocus)
         return true;
     return popupContainsFocus;
 }

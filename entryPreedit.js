@@ -13,5 +13,12 @@ export function readPreedit(result) {
 
 // stage capture must not eat enter or arrows while an ime is composing
 export function shouldPropagateForPreedit(preedit) {
-    return preedit.length > 0;
+    return shouldPropagateForIme(preedit, false);
+}
+
+// lookup tables can stay visible after preedit is empty
+export function shouldPropagateForIme(preedit, candidateVisible) {
+    if (typeof preedit === 'string' && preedit.length > 0)
+        return true;
+    return Boolean(candidateVisible);
 }

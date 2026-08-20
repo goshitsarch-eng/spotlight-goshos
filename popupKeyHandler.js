@@ -6,9 +6,10 @@ import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
 import {activatableResult, indexedActivatableResult} from './resultActivate.js';
-import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
+import {readPreedit, shouldPropagateForIme} from './entryPreedit.js';
 import {shouldIgnoreNavRepeat} from './navRepeat.js';
-import {shouldCaptureKeys, focusIsOnScreenKeyboard} from './focusLoss.js';
+import {shouldCaptureKeys, focusIsOnScreenKeyboard, focusIsImeCandidate} from './focusLoss.js';
+import {imeCandidateVisible} from './popupChrome.js';
 
 const KEY_NAMES = {
     [Clutter.KEY_Escape]: 'Escape',
@@ -86,15 +87,16 @@ export class PopupKeyHandler {
             focus === global.stage,
             Boolean(focus && this._popup.contains(focus)),
             focusIsOnScreenKeyboard(focus, Main.layoutManager.keyboardBox),
+            focusIsImeCandidate(focus),
         ))
             return Clutter.EVENT_PROPAGATE;
 
         const clutterText = this._popup._entry.clutter_text;
-        if (typeof clutterText.get_preedit_string === 'function') {
-            const preedit = readPreedit(clutterText.get_preedit_string());
-            if (shouldPropagateForPreedit(preedit))
-                return Clutter.EVENT_PROPAGATE;
-        }
+        let preedit = '';
+        if (typeof clutterText.get_preedit_string === 'function')
+            preedit = readPreedit(clutterText.get_preedit_string());
+        if (shouldPropagateForIme(preedit, imeCandidateVisible(Main.layoutManager.uiGroup)))
+            return Clutter.EVENT_PROPAGATE;
 
         const key = event.get_key_symbol();
         const state = event.get_state();
