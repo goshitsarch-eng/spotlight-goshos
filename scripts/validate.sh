@@ -135,6 +135,7 @@ required = [
     'backdropBox.js',
     'searchRun.js',
     'windowMatch.js',
+    'windowClose.js',
     'appMatch.js',
     'appAction.js',
     'unitMatch.js',

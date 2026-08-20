@@ -52,6 +52,15 @@ const SYSTEM_ACTIONS = [
         activate: () => SystemActions.getDefault().activatePowerOff(),
     },
     {
+        id: 'hibernate',
+        title: 'Hibernate',
+        icon: 'system-hibernate-symbolic',
+        keywords: ['hibernate', 'disk'],
+        // the power menu hides this even when login1 reports it
+        can: sa => sa.canHibernate,
+        activate: () => SystemActions.getDefault().activateHibernate(),
+    },
+    {
         id: 'switch-user',
         title: 'Switch User',
         icon: 'system-switch-user-symbolic',

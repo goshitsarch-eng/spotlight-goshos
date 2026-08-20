@@ -146,11 +146,35 @@ export function evaluateArithmetic(input, allowBare) {
         return factorial(value);
     }
 
-    function implicitMul(value) {
+    // 50% is a fraction infix 10%3 stays modulo
+    function isBinaryModuloPercent() {
+        if (peek() !== '%')
+            return false;
+        const next = tokens[pos + 1];
+        if (next === undefined)
+            return false;
+        if (next === '(' || isIdent(next))
+            return false;
+        if (/^0x[0-9a-fA-F]+$/i.test(next) || /^0b[01]+$/i.test(next))
+            return true;
+        return /^[0-9.]+(?:[eE][+\-]?[0-9]+)?$/.test(next);
+    }
+
+    function postfixPercent(value) {
+        if (value === null || peek() !== '%' || isBinaryModuloPercent())
+            return value;
+        consume();
+        return value / 100;
+    }
+
+    function finishValue(value) {
+        if (value === null)
+            return null;
+        const afterPostfix = postfixPercent(postfixFact(value));
         const next = peek();
         if (next === '(' || isIdent(next))
-            return postfixFact(value * parseFactor());
-        return postfixFact(value);
+            return finishValue(afterPostfix * parseFactor());
+        return afterPostfix;
     }
 
     function parseFactor() {
@@ -172,7 +196,7 @@ export function evaluateArithmetic(input, allowBare) {
             if (v === null || peek() !== ')')
                 return null;
             consume();
-            return implicitMul(v);
+            return finishValue(v);
         }
         if (isIdent(tok)) {
             const name = tok.toLowerCase();
@@ -185,23 +209,23 @@ export function evaluateArithmetic(input, allowBare) {
                 if (v === null || peek() !== ')')
                     return null;
                 consume();
-                return implicitMul(FUNCS[name](v));
+                return finishValue(FUNCS[name](v));
             }
             if (CONSTS[name] !== undefined)
-                return implicitMul(CONSTS[name]);
+                return finishValue(CONSTS[name]);
             return null;
         }
         if (/^0x[0-9a-fA-F]+$/i.test(tok)) {
             consume();
-            return implicitMul(parseInt(tok, 16));
+            return finishValue(parseInt(tok, 16));
         }
         if (/^0b[01]+$/i.test(tok)) {
             consume();
-            return implicitMul(parseInt(tok.slice(2), 2));
+            return finishValue(parseInt(tok.slice(2), 2));
         }
         if (/^[0-9.]+(?:[eE][+\-]?[0-9]+)?$/.test(tok)) {
             consume();
-            return implicitMul(parseFloat(tok));
+            return finishValue(parseFloat(tok));
         }
         return null;
     }

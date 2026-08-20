@@ -8,6 +8,7 @@ const SECTION_TITLES = {
     unit: 'Units',
     color: 'Color',
     window: 'Windows',
+    'window-close': 'Close Window',
     'system-action': 'System Actions',
     settings: 'Settings',
     file: 'Recent Files',

@@ -139,6 +139,7 @@ gosh-is-launcher@nin/
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers (pure)
     windowMatch.js            window title and class match (pure)
+    windowClose.js            close kill and quit window queries (pure)
     appMatch.js               app name generic-name keyword tiers (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
@@ -190,11 +191,13 @@ never import a shell-only library in a prefs file or vice versa ego review rejec
 
 ### search priority
 
-results are combined in this order urls first then filesystem paths then xdg folders then apps then calculator then units then hex colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
+results are combined in this order urls first then filesystem paths then xdg folders then gtk bookmarks then apps then calculator then units then hex colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
 the priority is set in searchController.js do not change it without reason
 
 popos look uses windows-first result order so open windows sit above apps the way the cosmic launcher does other looks keep apps first empty-state suggestions use the same order
+
+typing close firefox or quit firefox lists matching windows as close actions kill firefox force-quits them
 
 prefix modes when enabled jump to a single provider
 

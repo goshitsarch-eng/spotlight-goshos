@@ -21,15 +21,15 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-app-actions',
         'Application actions', 'New window and desktop-file actions for the best app match');
     addSwitch(providers, settings, 'enable-calculator',
-        'Calculator', 'Evaluate math including sqrt, pi, log, and 5! and copy the result with Enter');
+        'Calculator', 'Evaluate math including 50%, sqrt, pi, log, and 5! and copy the result with Enter');
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, 32 f to c, 1 gb to mib');
     addSwitch(providers, settings, 'enable-color-hex',
-        'Hex colors', 'Type #f00, rgb(255, 0, 0), or hsl(0, 100%, 50%) and press Enter to copy');
+        'Hex colors', 'Type #f00, rgb(255, 0, 0), or hsl(0deg 100% 50%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
-        'Open windows', 'Switch by title, class, or workspace');
+        'Open windows', 'Switch by title, class, or workspace. Type close firefox or kill firefox');
     addSwitch(providers, settings, 'enable-system-actions',
-        'System actions', 'Lock, suspend, restart, shut down, log out, switch user, screenshot');
+        'System actions', 'Lock, suspend, hibernate, restart, shut down, log out, switch user, screenshot');
     addSwitch(providers, settings, 'enable-settings-search',
         'GNOME Settings', 'Jump to Settings panels including Privacy & Security');
     addSwitch(providers, settings, 'enable-recent-files',

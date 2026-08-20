@@ -30,6 +30,7 @@ import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeColor}
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
+import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -225,9 +226,10 @@ assertEq(getEngine('kagi').label, 'Kagi', 'kagi engine');
 assertEq(getEngine('nope').id, 'google', 'unknown engine falls back');
 
 const types = getSectionTypes();
-for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'system-action', 'settings', 'file', 'path', 'place', 'bookmark', 'time', 'url', 'command', 'web'])
+for (const type of ['app', 'app-action', 'calculator', 'unit', 'color', 'window', 'window-close', 'system-action', 'settings', 'file', 'path', 'place', 'bookmark', 'time', 'url', 'command', 'web'])
     assert(types.includes(type), `section type ${type}`);
 assertEq(getSectionTitle('window'), 'Windows', 'window title');
+assertEq(getSectionTitle('window-close'), 'Close Window', 'close window title');
 assertEq(getSectionTitle('app-action'), 'Actions', 'app action title');
 
 assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'loc'), 'action prefix');
@@ -280,6 +282,10 @@ assertEq(calculatorDescription(255), '0xff · press Enter to copy', 'hex descrip
 assertEq(calculatorDescription(0.5), 'Press Enter to copy to clipboard', 'float description');
 assertEq(evaluateArithmetic('50% of 80'), 40, 'percent of');
 assertEq(evaluateArithmetic('25 percent of 200'), 50, 'percent word of');
+assertEq(evaluateArithmetic('50%'), 0.5, 'postfix percent is a fraction');
+assertEq(evaluateArithmetic('50% * 80'), 40, 'postfix percent multiply');
+assertEq(evaluateArithmetic('10%3'), 1, 'infix percent stays modulo');
+assertEq(evaluateArithmetic('50 %'), 0.5, 'spaced postfix percent');
 assertEq(evaluateArithmetic('sqrt(16)'), 4, 'sqrt');
 assertEq(evaluateArithmetic('√16'), 4, 'unicode sqrt');
 assertEq(evaluateArithmetic('abs(-3)'), 3, 'abs');
@@ -537,6 +543,18 @@ assertEq(windowWorkspaceLabel(0), 'Workspace 1', 'first workspace is 1-based');
 assertEq(windowWorkspaceLabel(2), 'Workspace 3', 'later workspace');
 assertEq(windowWorkspaceLabel(-1), 'Switch to window', 'unknown workspace');
 assertEq(windowWorkspaceLabel(1, true), 'On all workspaces', 'sticky window');
+assertEq(parseWindowCloseQuery('close firefox').intent, 'close', 'close intent');
+assertEq(parseWindowCloseQuery('close firefox').title, 'firefox', 'close title');
+assertEq(parseWindowCloseQuery('KILL Chrome').intent, 'kill', 'kill intent');
+assertEq(parseWindowCloseQuery('quit notes').intent, 'quit', 'quit intent');
+assertEq(parseWindowCloseQuery('close'), null, 'close needs a title');
+assertEq(parseWindowCloseQuery('firefox'), null, 'plain query is not close');
+assertEq(windowCloseTitle('close', 'Firefox'), 'Close Firefox', 'close title text');
+assertEq(windowCloseTitle('kill', 'Firefox'), 'Kill Firefox', 'kill title text');
+assertEq(windowCloseTitle('quit', 'Notes'), 'Quit Notes', 'quit title text');
+assert(shouldForceQuitWindow('kill'), 'kill force quits');
+assert(!shouldForceQuitWindow('close'), 'close is polite');
+assert(!shouldForceQuitWindow('quit'), 'quit is polite');
 
 const stored = {};
 applyLookSettings({
@@ -956,6 +974,8 @@ assertEq(normalizeColor('#f00'), '#ff0000', 'color helper hex');
 assertEq(normalizeColor('rgb(1, 2, 3)'), '#010203', 'color helper rgb');
 assertEq(normalizeHslColor('hsl(0, 100%, 50%)'), '#ff0000', 'hsl red');
 assertEq(normalizeHslColor('hsl(0 100% 50%)'), '#ff0000', 'modern hsl');
+assertEq(normalizeHslColor('hsl(0deg 100% 50%)'), '#ff0000', 'modern hsl deg');
+assertEq(normalizeHslColor('hsl(0deg, 100%, 50%)'), '#ff0000', 'comma hsl deg');
 assertEq(normalizeHslColor('hsl(0 100% 50% / 0.4)'), '#ff0000', 'modern hsl slash alpha');
 assertEq(normalizeColor('hsla(120, 100%, 50%, 0.4)'), '#00ff00', 'hsla green');
 assertEq(normalizeHslColor('hsl(0, 200%, 50%)'), null, 'hsl sat range');
