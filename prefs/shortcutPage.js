@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
-import {buildAccelerator, modifiersFromMask} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, formatShortcutList} from '../shortcutAccel.js';
 
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -94,13 +94,8 @@ export function buildShortcutPage(settings) {
 }
 
 function formatShortcut(shortcutArray) {
-    if (!shortcutArray || shortcutArray.length === 0)
+    const text = formatShortcutList(shortcutArray);
+    if (!text)
         return 'Not set (will default to Ctrl+Space)';
-    const shortcut = shortcutArray[0];
-    return shortcut
-        .replace(/<Super>/g, 'Super+')
-        .replace(/<Control>/g, 'Ctrl+')
-        .replace(/<Shift>/g, 'Shift+')
-        .replace(/<Alt>/g, 'Alt+')
-        .replace(/<Meta>/g, 'Meta+');
+    return text;
 }

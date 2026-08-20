@@ -15,6 +15,11 @@ const KEY_NAMES = {
     [Clutter.KEY_Page_Up]: 'Page_Up',
     [Clutter.KEY_Home]: 'Home',
     [Clutter.KEY_End]: 'End',
+    // numlock off sends these instead of the digit keysyms
+    [Clutter.KEY_KP_Down]: 'Down',
+    [Clutter.KEY_KP_Up]: 'Up',
+    [Clutter.KEY_KP_Page_Down]: 'Page_Down',
+    [Clutter.KEY_KP_Page_Up]: 'Page_Up',
     [Clutter.KEY_KP_Home]: 'Home',
     [Clutter.KEY_KP_End]: 'End',
     [Clutter.KEY_Return]: 'Return',

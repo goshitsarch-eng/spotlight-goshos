@@ -170,7 +170,7 @@ Manual testing on GNOME Shell 50 Wayland:
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, and Light.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
-7. Press Home and End in a long result list — selection should jump to the first and last rows.
+7. Press Home and End in a long result list — selection should jump to the first and last rows. Keypad arrows with Num Lock off should move the selection too.
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18). On a second monitor the click must still close it.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.

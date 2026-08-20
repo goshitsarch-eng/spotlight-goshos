@@ -39,3 +39,20 @@ export function buildAccelerator(keyName, mods) {
     accelerator += key;
     return accelerator;
 }
+
+export function formatAccelerator(accelerator) {
+    if (!accelerator)
+        return '';
+    return accelerator
+        .replace(/<Super>/g, 'Super+')
+        .replace(/<Control>/g, 'Ctrl+')
+        .replace(/<Shift>/g, 'Shift+')
+        .replace(/<Alt>/g, 'Alt+')
+        .replace(/<Meta>/g, 'Meta+');
+}
+
+export function formatShortcutList(shortcutArray) {
+    if (!shortcutArray || shortcutArray.length === 0)
+        return '';
+    return formatAccelerator(shortcutArray[0]);
+}

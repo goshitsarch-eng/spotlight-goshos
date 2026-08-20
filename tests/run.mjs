@@ -17,7 +17,7 @@ import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../sc
 import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
@@ -544,6 +544,10 @@ assertEq(buildAccelerator('space', {
 assertEq(buildAccelerator('A', {
     super: false, control: true, shift: true, alt: false, meta: false,
 }), '<Control><Shift>a', 'ctrl shift letter');
+assertEq(formatAccelerator('<Control>space'), 'Ctrl+space', 'format ctrl space');
+assertEq(formatAccelerator('<Super><Shift>a'), 'Super+Shift+a', 'format super shift');
+assertEq(formatShortcutList([]), '', 'empty shortcut list');
+assertEq(formatShortcutList(['<Alt>space']), 'Alt+space', 'format list');
 const mods = modifiersFromMask(0b101, {super: 1, control: 4, shift: 2, alt: 8, meta: 16});
 assert(mods.super && mods.control && !mods.shift, 'mask bits');
 assert(isNavAction('move'), 'move is nav');
