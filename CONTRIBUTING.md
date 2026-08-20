@@ -233,6 +233,7 @@ Manual testing on GNOME Shell 50 Wayland:
 43. Type `~/` plus an existing folder — after the exists check, Open in Terminal should appear under Open Path. Type `docs` — Documents should appear, and Open in Terminal should follow if a terminal is installed.
 44. Open Appearance, change icon size, close prefs, reopen Appearance without changing the look — the custom icon size must still be there. Switch to Onagre — selected rows should be amber with dark descriptions. The About page must list Onagre.
 45. Type `hwb(0 0% 0%)` or `hwb(0deg, 0%, 0%)` — a Color row should copy `#ff0000`. Arrow to a later result, then wait for recent files or a path exists-check to finish — the same row should stay selected and stay in view. Change icon size or a provider toggle while a result is selected — that row should stay selected.
+46. Type `~/` plus a path — the first row must say Checking path and Enter must do nothing until the exists check finishes. A missing path must stay Path not found. Change the look with `gsettings set … launcher-theme popos` while the popup is open — it should move to the top, show number hints, and list windows first. Set a shortcut that is already taken — the previous shortcut must keep working.
 
 ## Submitting Changes
 

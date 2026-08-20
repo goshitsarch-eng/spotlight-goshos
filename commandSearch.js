@@ -21,9 +21,9 @@ export function invalidateCommandLookup() {
     _loadId += 1;
 }
 
-function _rowFor(query, resolved, ready) {
-    const row = commandRowMeta(query, ready);
-    row.activate = ready
+function _rowFor(query, resolved, ready, checking = false) {
+    const row = commandRowMeta(query, ready, checking);
+    row.activate = ready && !checking
         ? () => spawnArgv(resolved)
         : () => {};
     return row;
@@ -58,7 +58,7 @@ export function searchCommand(query) {
     if (_query === query && _resolved && _row)
         return [_row];
 
-    return [_rowFor(query, resolved, true)];
+    return [_rowFor(query, resolved, false, true)];
 }
 
 export function ensureCommand(query, onReady) {

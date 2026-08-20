@@ -13,7 +13,7 @@ import {ResultsRenderer} from './resultsRenderer.js';
 import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
-import {getTheme} from './themes.js';
+import {getTheme, applyLookSettings} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
@@ -95,7 +95,7 @@ class LauncherPopup extends St.BoxLayout {
         this._applyChrome();
 
         this._settings.connectObject(
-            'changed::launcher-theme', () => this._onChromeChanged(),
+            'changed::launcher-theme', () => this._onLookChanged(),
             'changed::popup-width', () => this._onWidthChanged(),
             'changed::popup-position', () => this._onPositionChanged(),
             'changed::show-search-icon', () => {
@@ -153,6 +153,12 @@ class LauncherPopup extends St.BoxLayout {
 
         this.add_style_class_name(`gosh-theme-${theme.id}`);
         this.add_style_class_name(`gosh-density-${this._settings.get_string('row-density')}`);
+    }
+
+    // dconf writes must apply popos chrome not only the css class
+    _onLookChanged() {
+        applyLookSettings(this._settings, getTheme(this._settings.get_string('launcher-theme')));
+        this._onChromeChanged();
     }
 
     _onChromeChanged() {

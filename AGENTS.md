@@ -318,6 +318,8 @@ the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding(
 
 the popup can be closed in three ways pressing the toggle shortcut again pressing `Escape` or clicking outside the popup bounds
 
+changing the shortcut grabs the new key before dropping the old one so a conflict cannot leave the launcher with no grab
+
 see the keybinding.js file for the implementation
 
 ## clipboard access
@@ -396,6 +398,8 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 3. add `.gosh-theme-<id>` rules in stylesheet.css
 4. keep the look as css on the existing widgets do not fork the popup class
 5. keep `.gosh-container.gosh-density-compact` rules last in stylesheet.css so they beat theme-specific row padding
+6. launcherPopup applies the look profile when launcher-theme changes so dconf writes get the same chrome as the prefs combo
+7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
 
 ## adding a new ui component
 

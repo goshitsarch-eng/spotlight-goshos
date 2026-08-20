@@ -24,11 +24,11 @@ export function invalidatePathLookup() {
 
 export function pathRow(trimmed, resolved, kind, home) {
     const row = pathRowMeta(trimmed, resolved, kind, home);
-    row.activate = kind === 'missing'
-        ? () => {}
-        : () => {
+    row.activate = kind === 'file' || kind === 'directory'
+        ? () => {
             openUri(fileUriFromAbsolute(resolved));
-        };
+        }
+        : () => {};
     return row;
 }
 
@@ -62,7 +62,7 @@ export function searchPath(query) {
     if (_query === trimmed && _resolved && _rows)
         return _rows;
 
-    return pathRows(trimmed, resolved, 'file', home, _findInPath);
+    return pathRows(trimmed, resolved, 'pending', home, _findInPath);
 }
 
 export function ensurePath(query, onReady) {

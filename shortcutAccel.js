@@ -78,3 +78,10 @@ export function formatShortcutList(shortcutArray) {
         return '';
     return formatAccelerator(shortcutArray[0]);
 }
+
+export function shortcutAttempts(requested, fallback = '<Control>space') {
+    const accel = requested || fallback;
+    if (accel === fallback)
+        return [accel];
+    return [accel, fallback];
+}

@@ -31,7 +31,7 @@ import {parseGtkBookmarks, mergeBookmarkFiles, bookmarkTitle, bookmarkDescriptio
 import {timeQueryKind, formatClock, formatDateTitle, weekdayName, monthName, formatIsoDate} from '../timeMatch.js';
 import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbColor, normalizeColor} from '../colorMatch.js';
 import {paintSelectionIndex} from '../paintSelection.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
@@ -975,6 +975,9 @@ assertEq(pathRowMeta('~/nope', '/home/u/nope', 'missing').description, 'Path not
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory').icon, 'folder-symbolic', 'dir icon');
 assertEq(pathRowMeta('/tmp/a.pdf', '/tmp/a.pdf', 'file').icon, 'x-office-document-symbolic', 'file icon');
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').title, '~/docs', 'path title collapses home');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').description, 'Checking path', 'pending path');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').title, '~/docs', 'pending title collapses home');
+assertEq(pathRowMeta('~/docs', '/home/u/docs', 'pending', '/home/u').icon, 'folder-symbolic', 'pending path icon');
 assertEq(terminalSpec(name => name === 'xdg-terminal-exec').argv[0], 'xdg-terminal-exec', 'prefer xdg-terminal-exec');
 assert(terminalCommand(name => name === 'ptyxis', '/tmp/docs').argv.includes('--working-directory=/tmp/docs'), 'ptyxis working dir');
 assertEq(terminalCommand(name => name === 'xdg-terminal-exec', '/tmp/docs').cwd, '/tmp/docs', 'xdg-terminal-exec uses cwd');
@@ -1065,6 +1068,7 @@ assertEq(paintSelectionIndex({type: 'app', title: 'Firefox'}, []), -1, 'empty li
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
+assertEq(commandRowMeta('~/bin/true', false, true).description, 'Checking command', 'pending command copy');
 
 assertEq(normalizeAccelKey('A'), 'a', 'letter keys lowercased');
 assertEq(normalizeAccelKey('space'), 'space', 'named keys stay');
@@ -1086,6 +1090,9 @@ assert(mods.super && mods.control && !mods.shift, 'mask bits');
 assert(isModifierKeyName('Meta_L'), 'meta is a modifier');
 assert(isModifierKeyName('ISO_Level3_Shift'), 'altgr is a modifier');
 assert(!isModifierKeyName('space'), 'space is not a modifier');
+assertEq(shortcutAttempts('<Super>space').join(','), '<Super>space,<Control>space', 'failed grab falls back');
+assertEq(shortcutAttempts('<Control>space').join(','), '<Control>space', 'default has no second try');
+assertEq(shortcutAttempts('').join(','), '<Control>space', 'empty requested uses default');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 

@@ -26,7 +26,15 @@ export function commandIsReady(exe, findInPath, pathExists) {
     return Boolean(pathExists(exe));
 }
 
-export function commandRowMeta(query, ready) {
+export function commandRowMeta(query, ready, checking = false) {
+    if (checking) {
+        return {
+            type: 'command',
+            title: query,
+            description: 'Checking command',
+            icon: 'utilities-terminal-symbolic',
+        };
+    }
     if (!ready) {
         return {
             type: 'command',

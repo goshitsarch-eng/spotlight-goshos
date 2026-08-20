@@ -6,6 +6,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
 import {shouldCloseOnToggle} from './popupGate.js';
+import {shortcutAttempts} from './shortcutAccel.js';
 
 // entry point - enable and disable are kept next to each other for easy review
 export default class GoshIsLauncherExtension extends Extension {
@@ -22,27 +23,27 @@ export default class GoshIsLauncherExtension extends Extension {
         if (shortcuts.length === 0)
             this._settings.set_strv('toggle-shortcut', [accelerator]);
 
-        this._grabShortcut(accelerator);
+        this._bindToggle(accelerator);
 
         this._settings.connectObject('changed::toggle-shortcut', () => {
-            this._keybindingManager.unlisten();
             const arr = this._settings.get_strv('toggle-shortcut');
-            if (arr.length > 0)
-                this._grabShortcut(arr[0]);
+            this._bindToggle(arr.length > 0 ? arr[0] : '<Control>space');
         }, this);
     }
 
-    _grabShortcut(accelerator) {
-        const onToggle = () => {
-            if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
-                this._popup.close();
-            else
-                this._popup.open();
-        };
-        if (this._keybindingManager.listenFor(accelerator, onToggle))
-            return;
-        if (accelerator !== '<Control>space')
-            this._keybindingManager.listenFor('<Control>space', onToggle);
+    _togglePopup() {
+        if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
+            this._popup.close();
+        else
+            this._popup.open();
+    }
+
+    _bindToggle(accelerator) {
+        const onToggle = () => this._togglePopup();
+        for (const accel of shortcutAttempts(accelerator)) {
+            if (this._keybindingManager.swapTo(accel, onToggle))
+                return;
+        }
     }
 
     disable() {

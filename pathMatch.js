@@ -13,6 +13,14 @@ export function pathRowMeta(trimmed, resolved, kind, home) {
             icon: 'dialog-warning-symbolic',
         };
     }
+    if (kind === 'pending') {
+        return {
+            type: 'path',
+            title: collapseHomePath(resolved, home || ''),
+            description: 'Checking path',
+            icon: 'folder-symbolic',
+        };
+    }
 
     const icon = kind === 'directory'
         ? 'folder-symbolic'
