@@ -3,6 +3,7 @@
 
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
+import {bindSettingsChanged} from '../prefsCombo.js';
 
 function addSwitch(group, settings, key, title, subtitle) {
     const row = new Adw.SwitchRow({title, subtitle});
@@ -24,7 +25,7 @@ export function buildFeaturesPage(settings) {
     const syncActionsRow = () => {
         actionsRow.sensitive = settings.get_boolean('enable-app-search');
     };
-    settings.connect('changed::enable-app-search', syncActionsRow);
+    bindSettingsChanged(settings, 'enable-app-search', actionsRow, syncActionsRow);
     syncActionsRow();
     addSwitch(providers, settings, 'enable-calculator',
         'Calculator', 'Evaluate math including 50%, sqrt, asin, log2, sin 90, 1+2=, 1+2=3, 1 000 + 2, 5!, e+1, =e, 2pi^2, 5 squared, 2 to the power of 8, 2 to the 8th, 2 to the eighth, 2 plus 2, two plus two, twenty plus two, two million, 2 add 3, 8 subtract 3, half of 80, square root of 16, and 8 over 2 and copy the result with Enter');

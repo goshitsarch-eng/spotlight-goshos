@@ -226,6 +226,8 @@ gnome shell extensions run in two processes
 
 never import a shell-only library in a prefs file or vice versa ego review rejects extensions that violate process isolation see https://gjs.guide/extensions/development/preferences.html
 
+gio.settings outlives the prefs window connectObject is a shell signaltracker helper and is not available in the gtk prefs process bindSettingsChanged disconnects on widget destroy so a reused prefs process cannot stack look-apply or combo sync
+
 ### search priority
 
 results are combined in this order urls first then filesystem paths then xdg folders then gtk bookmarks then apps then calculator then units then colors then time then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix

@@ -5,6 +5,13 @@ export function comboSelectedIndex(items, currentId) {
     return items.findIndex(item => item.id === currentId);
 }
 
+// gio.settings outlives the prefs window
+export function bindSettingsChanged(settings, key, widget, handler) {
+    const id = settings.connect(`changed::${key}`, handler);
+    widget.connect('destroy', () => settings.disconnect(id));
+    return id;
+}
+
 // applyLookSettings and a failed theme write must move the combo
 export function bindSettingsCombo(row, settings, key, items) {
     const apply = () => {
@@ -18,5 +25,5 @@ export function bindSettingsCombo(row, settings, key, items) {
         if (selected)
             settings.set_string(key, selected.id);
     });
-    settings.connect(`changed::${key}`, apply);
+    bindSettingsChanged(settings, key, row, apply);
 }

@@ -5,7 +5,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import {THEMES, getTheme, applyLookSettings, shouldApplyLook} from '../themes.js';
-import {bindSettingsCombo} from '../prefsCombo.js';
+import {bindSettingsCombo, bindSettingsChanged} from '../prefsCombo.js';
 
 const POSITIONS = [
     {id: 'center', label: 'Center'},
@@ -65,7 +65,7 @@ export function buildAppearancePage(settings) {
     });
 
     let lastThemeId = settings.get_string('launcher-theme');
-    settings.connect('changed::launcher-theme', () => {
+    bindSettingsChanged(settings, 'launcher-theme', themeRow, () => {
         // the combo writes this key before notify::selected lastThemeId
         // must stay on the previous look or chrome is never applied when
         // the shell popup is not running

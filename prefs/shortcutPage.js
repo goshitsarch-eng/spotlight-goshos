@@ -5,6 +5,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
 import {buildAccelerator, modifiersFromMask, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName} from '../shortcutAccel.js';
+import {bindSettingsChanged} from '../prefsCombo.js';
 
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
@@ -34,7 +35,7 @@ export function buildShortcutPage(settings) {
             shortcutLabel.label = next;
     };
 
-    settings.connect('changed::toggle-shortcut', refreshLabel);
+    bindSettingsChanged(settings, 'toggle-shortcut', shortcutRow, refreshLabel);
 
     shortcutRow.connect('activated', () => {
         capturing = true;

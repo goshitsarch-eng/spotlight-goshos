@@ -11,7 +11,7 @@ import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAnce
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
-import {comboSelectedIndex} from '../prefsCombo.js';
+import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon, liveActionName, liveActionIcon} from '../actionMatch.js';
@@ -1503,6 +1503,27 @@ assert(!shouldApplyLook('onagre', ''), 'empty look is ignored');
 // lastThemeId must still be the previous look or prefs never writes chrome
 assert(shouldApplyLook('spotlight', 'popos'), 'prefs applyLook still sees the previous look after the combo write');
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
+let prefsDisconnected = 0;
+let prefsDestroy = null;
+const prefsSettings = {
+    connect(signal, handler) {
+        this.signal = signal;
+        this.handler = handler;
+        return 7;
+    },
+    disconnect(id) {
+        prefsDisconnected = id;
+    },
+};
+bindSettingsChanged(prefsSettings, 'launcher-theme', {
+    connect(signal, handler) {
+        if (signal === 'destroy')
+            prefsDestroy = handler;
+    },
+}, () => {});
+assertEq(prefsSettings.signal, 'changed::launcher-theme', 'prefs watches the look key');
+prefsDestroy();
+assertEq(prefsDisconnected, 7, 'prefs drops the settings handler when the row dies');
 assertEq(comboSelectedIndex(THEMES, 'missing'), -1, 'unknown look stays put');
 assertEq(comboSelectedIndex(SEARCH_ENGINES, 'kagi'), SEARCH_ENGINES.findIndex(e => e.id === 'kagi'), 'engine combo index');
 
