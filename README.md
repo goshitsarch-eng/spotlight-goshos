@@ -157,6 +157,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `searchEntry.js` | Search input with magnifying-glass icon |
 | `resultsContainer.js` | Scrollable results area |
 | `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
+| `navRepeat.js` | Drop duplicate arrow presses without `Clutter.Event.get_time()` |
 | `resultRow.js` | Single result row with icon, title, and optional number hint |
 | `labelEllipsize.js` | One-line ellipsis so long titles do not widen the popup |
 | `entryPreedit.js` | IME preedit so stage capture does not steal compose keys |
@@ -218,7 +219,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Feature-detect `get_keywords`, `get_generic_name`, and `list_actions`. GNOME 50 can type `AppSystem.get_installed()` entries as `GAppInfo`, and those desktop-only methods are then missing. Skip a desktop file whose `get_id()` throws (invalid encoding) so one bad app cannot hide the rest.
 - Hide the Wellbeing settings row when `gnome-wellbeing-panel.desktop` is missing. Probe `GioUnix.DesktopAppInfo` first (GNOME 49–50), then `Gio.DesktopAppInfo` (45–48). Do not import `GioUnix` at module scope.
 - Close an open popup when the session locks, the greeter starts, or GNOME 48–50 screen-time limits reach `LIMIT_REACHED`. The toggle shortcut also closes via an idle source so Clutter 18 does not abort mid-key.
-- Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
+- Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`. Do not write a scroll offset when `page_size` is still 0 (before the first allocate).
+- Arrow-key debounce uses `GLib.get_monotonic_time()`, not `Clutter.Event.get_time()`. Wayland often reports `CLUTTER_CURRENT_TIME` (0), which would swallow every later Down.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
 - Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
 - Open the screenshot UI directly when Overview is already hidden. `SystemActions.activateScreenshotUI()` waits for Overview `hidden` and never fires from the launcher. If `Screenshot.showScreenshotUI` is missing, fall back to SystemActions.

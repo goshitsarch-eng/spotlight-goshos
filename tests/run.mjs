@@ -19,7 +19,8 @@ import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON, shouldApplyHoverSelecti
 import {resultIconSource} from '../resultIcon.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
-import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
+import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, scrollValueToShowRow} from '../scrollView.js';
+import {shouldIgnoreNavRepeat, NAV_REPEAT_GAP_US} from '../navRepeat.js';
 import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS, pathFromFileUri, parentPathFromFileUri, remoteHostFromUri, recentFileMatches} from '../recentXbel.js';
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
@@ -1412,6 +1413,10 @@ assertEq(legacyScroll.child, 'box', '45 add_child fallback');
 applyScrollPolicy(legacyScroll, 2, 3);
 assertEq(legacyScroll.vscrollbar_policy, 3, '45 policy props');
 assertEq(getVerticalAdjustment(legacyScroll).kind, 'bar', '45 scrollbar adj');
+assertEq(scrollValueToShowRow(200, 40, 0, 0), 0, 'unallocated page size stays');
+assertEq(scrollValueToShowRow(10, 40, 80, 200), 10, 'row above the view');
+assertEq(scrollValueToShowRow(300, 40, 0, 200), 140, 'row below the view');
+assertEq(scrollValueToShowRow(80, 40, 60, 200), 60, 'visible row stays');
 
 const xbel = `
 <xbel>
@@ -1834,6 +1839,11 @@ assertEq(shortcutLabelAfterChange(['<Control>space'], true), null, 'capture keep
 assertEq(shortcutLabelAfterChange(['<Control>space'], false), 'Ctrl+space', 'write-back updates the label');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
+assert(!shouldIgnoreNavRepeat(65364, 0, 1000, 0), 'first arrow is never a repeat');
+assert(!shouldIgnoreNavRepeat(65364, 65364, 2000, 0), 'zero clutter time is not a repeat');
+assert(shouldIgnoreNavRepeat(65364, 65364, 10000000 + 10000, 10000000), 'same key inside the gap');
+assert(!shouldIgnoreNavRepeat(65364, 65364, 10000000 + NAV_REPEAT_GAP_US, 10000000), 'same key after the gap');
+assert(!shouldIgnoreNavRepeat(65362, 65364, 10000000 + 10000, 10000000), 'other arrow is not a repeat');
 
 // rename leftovers in source
 assertEq(metadata.uuid.includes('spotlight'), false, 'uuid is not spotlight');

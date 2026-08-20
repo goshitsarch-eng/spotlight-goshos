@@ -181,6 +181,7 @@ required = [
     'focusLoss.js',
     'labelEllipsize.js',
     'scrollView.js',
+    'navRepeat.js',
     'entryPreedit.js',
     'homePath.js',
     'userPath.js',

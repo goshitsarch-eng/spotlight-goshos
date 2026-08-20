@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {nextActivatableIndex} from './selectionMath.js';
-import {getVerticalAdjustment} from './scrollView.js';
+import {getVerticalAdjustment, scrollValueToShowRow} from './scrollView.js';
 
 // owns the results array and selected index so launcherPopup.js does not
 // need to touch selection state directly - it calls setResults() after a
@@ -73,12 +73,14 @@ export class SelectionManager {
         if (!adjustment)
             return;
         // allocation_box is only reliable inside paint use the laid-out actor box
-        const rowY = row.get_y();
-        const rowHeight = row.get_height();
-        if (rowY < adjustment.value)
-            adjustment.value = rowY;
-        else if (rowY + rowHeight > adjustment.value + adjustment.page_size)
-            adjustment.value = rowY + rowHeight - adjustment.page_size;
+        const next = scrollValueToShowRow(
+            row.get_y(),
+            row.get_height(),
+            adjustment.value,
+            adjustment.page_size,
+        );
+        if (next !== adjustment.value)
+            adjustment.value = next;
     }
 
     _getResultRow(resultIndex) {

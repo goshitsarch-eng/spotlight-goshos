@@ -81,6 +81,10 @@ SystemActions.getName and getIconName are the same labels and icons overview sea
 
 clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon() a second press while that idle is pending arms reopen after close instead of eating the key
 
+do not debounce arrows with event.get_time() that getter is milliseconds or clutter_current_time (0) and wayland often reports 0 so a second down looks like the same instant and never moves again use glib.get_monotonic_time() via navRepeat.js
+
+st.scrollview page_size is 0 before the first allocate do not write rowY + rowHeight as the adjustment or a keep-selection refresh jumps the list off screen
+
 ### no x11 support
 
 gnome shell 50 removed x11 support entirely this extension does not support x11 on any version if you are on x11 use gnome's overview search instead do not add x11 compatibility code
@@ -170,6 +174,7 @@ gosh-is-launcher@nin/
     prefixParser.js           = @ # $ . ! prefixes
     searchPlan.js             provider plan from flags (pure)
     scrollView.js             45-50 scrollview attach policy adjustment
+    navRepeat.js              drop duplicate arrows without clutter event time (pure)
     selectionManager.js       selected row and scroll-into-view
     resultsRenderer.js        debounce search and paint rows
     paintSelection.js         keep selected row across a refresh (pure)
@@ -204,7 +209,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

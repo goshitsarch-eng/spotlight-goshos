@@ -1,4 +1,4 @@
-import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, setOverlayScrollbars} from '../scrollView.js';
+import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, setOverlayScrollbars, scrollValueToShowRow} from '../scrollView.js';
 
 const modern = {
     set_child(c) {
@@ -58,6 +58,11 @@ setOverlayScrollbars(overlay, false);
 if (overlay.overlay !== false)
     throw new Error('overlay scrollbars must be set');
 setOverlayScrollbars({}, false);
+
+if (scrollValueToShowRow(120, 32, 0, 0) !== 0)
+    throw new Error('unallocated page size must not jump');
+if (scrollValueToShowRow(300, 40, 0, 200) !== 140)
+    throw new Error('row below the view must scroll');
 
 print('gjs scrollView helpers ok');
 

@@ -291,6 +291,7 @@ Manual testing on GNOME Shell 50 Wayland:
 94. Open the launcher with several frequent apps and a window that closes as the popup appears — frequent apps must still show. Close one of several matching windows while typing its title — the other windows must stay listed.
 95. Search for an app whose icon is missing — the row must still appear with a fallback icon, and hovering later rows must still move the highlight.
 96. Install a broken `.desktop` file or a non-desktop `GAppInfo` — other apps must still appear. Type `browser` — Firefox (or another browser) must still match from Keywords on hosts that expose `get_keywords`. On GNOME 50, Wellbeing must hide when `gnome-wellbeing-panel.desktop` is missing and must not warn about `Gio.DesktopAppInfo`.
+97. Hold Down through a long result list — each key repeat must move the highlight. A second Down after an event whose Clutter time is 0 must still move. Arrow to a later row the instant results appear — the list must not jump to an empty offset.
 
 ## Submitting Changes
 

@@ -33,6 +33,17 @@ export function setOverlayScrollbars(scrollView, enabled) {
         scrollView.set_overlay_scrollbars(enabled);
 }
 
+// page_size is 0 before the first allocate writing that offset jumps the list
+export function scrollValueToShowRow(rowY, rowHeight, value, pageSize) {
+    if (pageSize <= 0)
+        return value;
+    if (rowY < value)
+        return rowY;
+    if (rowY + rowHeight > value + pageSize)
+        return rowY + rowHeight - pageSize;
+    return value;
+}
+
 export function getVerticalAdjustment(scrollView) {
     // 48 removed get_vscroll_bar and exposes the adjustment directly
     // both paths can be null before the first allocate

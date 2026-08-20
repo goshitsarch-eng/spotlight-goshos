@@ -6,6 +6,7 @@ import GLib from 'gi://GLib';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
 import {activatableResult, indexedActivatableResult} from './resultActivate.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
+import {shouldIgnoreNavRepeat} from './navRepeat.js';
 
 const KEY_NAMES = {
     [Clutter.KEY_Escape]: 'Escape',
@@ -92,6 +93,8 @@ export class PopupKeyHandler {
         if (state & Clutter.ModifierType.CONTROL_MASK) {
             const ctrl = resolveCtrlNav(CTRL_NAV_KEYS[key] || '');
             if (ctrl) {
+                if (this._ignoreRepeat(key))
+                    return Clutter.EVENT_STOP;
                 this._selection.moveSelection(ctrl.delta, this._suppressHover.bind(this));
                 return Clutter.EVENT_STOP;
             }
@@ -115,13 +118,8 @@ export class PopupKeyHandler {
         if (action.type === 'propagate')
             return Clutter.EVENT_PROPAGATE;
 
-        if (isNavAction(action.type)) {
-            const time = event.get_time();
-            if (key === this._lastNavKey && time - this._lastNavKeyTime < 50)
-                return Clutter.EVENT_STOP;
-            this._lastNavKey = key;
-            this._lastNavKeyTime = time;
-        }
+        if (isNavAction(action.type) && this._ignoreRepeat(key))
+            return Clutter.EVENT_STOP;
 
         if (action.type === 'close') {
             this._popup.closeSoon();
@@ -138,6 +136,15 @@ export class PopupKeyHandler {
             return Clutter.EVENT_STOP;
         }
         return Clutter.EVENT_PROPAGATE;
+    }
+
+    _ignoreRepeat(key) {
+        const now = GLib.get_monotonic_time();
+        if (shouldIgnoreNavRepeat(key, this._lastNavKey, now, this._lastNavKeyTime))
+            return true;
+        this._lastNavKey = key;
+        this._lastNavKeyTime = now;
+        return false;
     }
 
     _suppressHover() {
