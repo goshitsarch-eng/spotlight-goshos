@@ -97,3 +97,24 @@ export function collapseHomePath(path, home) {
 export function fileUriFromAbsolute(path) {
     return `file://${path.split('/').map(part => encodeURIComponent(part)).join('/')}`;
 }
+
+export function pathFromFileUri(uri) {
+    const href = uri.split('#')[0].split('?')[0];
+    if (!href.startsWith('file://'))
+        return '';
+    const raw = href.slice('file://'.length);
+    if (!raw.startsWith('/'))
+        return '';
+    const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+    return decodeURIComponent(safe);
+}
+
+// gtk bookmarks and xbel often leave spaces in file:// gio rejects those
+export function canonicalizeFileUri(uri) {
+    if (!uri || !uri.startsWith('file:'))
+        return uri;
+    const path = pathFromFileUri(uri);
+    if (!path)
+        return uri;
+    return fileUriFromAbsolute(path);
+}

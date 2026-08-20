@@ -279,6 +279,7 @@ Manual testing on GNOME Shell 50 Wayland:
 84. On Pop!_OS or any look with number hints, type a pending `~/` path that also lists Firefox or Open in Terminal below it — `Alt+1` must stay open and must not launch that later row. `Enter` on the pending row may still activate the ready sibling. `Alt+2` should activate the second row if that row is ready.
 85. Rest the pointer over the results list, then type another character or wait for a path exists-check to finish — the shell must stay up. The highlight should stay on the kept row, not jump to whichever row the pointer happens to be over during the rebuild.
 86. Set Max results to 2, switch to Pop!_OS, and open the launcher with several windows and frequent apps — the empty list must show 2 rows, not windows plus apps. Switch result order to apps first with the same cap — still 2 rows.
+87. Add a GTK bookmark whose `file://` line has a space in the folder name, or open a recent file under such a folder — Enter must open it. A `javascript:` bookmark must still be ignored.
 
 ## Submitting Changes
 

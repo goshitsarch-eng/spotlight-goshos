@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {textMatchesQuery, pathMatchesQuery} from './wordMatch.js';
+import {pathFromFileUri} from './homePath.js';
+
+export {pathFromFileUri};
 
 // skip http https and javascript so only openable locations remain
 const HREF_RE = /href\s*=\s*["']((?:file|sftp|ftp|smb|davs?):[^"']+)["']/gi;
@@ -75,17 +78,6 @@ export const RECENT_EXISTS_BUDGET_MS = 800;
 
 export function recentExistsShouldSettle(pending, elapsedMs, budgetMs) {
     return pending <= 0 || elapsedMs >= budgetMs;
-}
-
-export function pathFromFileUri(uri) {
-    const href = uri.split('#')[0].split('?')[0];
-    if (!href.startsWith('file://'))
-        return '';
-    const raw = href.slice('file://'.length);
-    if (!raw.startsWith('/'))
-        return '';
-    const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
-    return decodeURIComponent(safe);
 }
 
 export function remoteHostFromUri(uri) {
