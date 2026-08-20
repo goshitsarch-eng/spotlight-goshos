@@ -38,6 +38,15 @@ export function isActiveSearchQuery(query) {
     return query.trim().length > 0;
 }
 
+// skip xbel io when files cannot appear in this plan
+export function shouldRefreshRecentFiles(enableRecent, plan) {
+    if (!enableRecent)
+        return false;
+    if (plan.mode === 'files')
+        return true;
+    return plan.mode === 'all' && plan.providers.includes('files');
+}
+
 export function planSearch(text, flags) {
     const parsed = flags.prefixModes
         ? parseQuery(text)

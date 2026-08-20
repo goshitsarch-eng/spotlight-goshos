@@ -28,3 +28,8 @@ export function windowClassText(wmClass, wmInstance, sandboxedId) {
         parts.push(sandboxedId);
     return parts.join(' ');
 }
+
+// compositor list order is stacking not focus
+export function sortWindowsMostRecent(windows, getUserTime) {
+    return windows.slice().sort((a, b) => getUserTime(b) - getUserTime(a));
+}

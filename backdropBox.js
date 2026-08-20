@@ -26,3 +26,13 @@ export function backdropBox(monitors) {
     }
     return {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
 }
+
+// swallow the press so click-outside does not activate a window below
+export function backdropPointerAction(type) {
+    if (type === 'button-press' || type === 'touch-begin' ||
+        type === 'touch-update' || type === 'touch-cancel')
+        return 'stop';
+    if (type === 'button-release' || type === 'touch-end')
+        return 'close';
+    return 'propagate';
+}

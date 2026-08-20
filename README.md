@@ -40,9 +40,9 @@ Picking a look applies its colors and the matching chrome (position, density, he
 Results are aggregated in the following order. Each category is rendered under its own section header unless you hide headers. Web search appears only when every preceding category returned nothing, or immediately when you use the `@` prefix.
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
-2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName and Keywords so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`. Parental controls hide blocked apps.
+2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName and Keywords so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps.
 3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
-4. **Windows** — Switch to an open window by title or window class, including modal dialogs.
+4. **Windows** — Switch to an open window by title or window class, including modal dialogs. Results are ordered by last user focus, not compositor stacking.
 5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships.
 7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension.
@@ -78,7 +78,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Search the web | Type a query with no local matches, or `@ query` |
 | Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`, `Home` / `End` |
 | Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled |
-| Dismiss | `Esc`, `Ctrl + Space`, or click outside the popup |
+| Dismiss | `Esc`, `Ctrl + Space`, or click / tap outside the popup. The press is claimed so the window underneath does not activate. |
 
 ## Installation
 
@@ -120,7 +120,7 @@ Configurable options:
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)
 - Search icon, section headers, result icons, descriptions, number hints
-- Enable or disable every search provider
+- Enable or disable every search provider (changes apply while the popup is open)
 - Prefix modes and empty-state suggestions
 - Web search engine (Google, DuckDuckGo, Brave, Bing, Startpage, Ecosia, Qwant, Kagi, Wikipedia)
 - Whether to display the web search fallback at all
@@ -180,6 +180,9 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
 - `!` commands run from the user home directory. gnome-shell's own cwd is often `/`.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
+- Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
+- Provider and web-engine preference changes repaint an open popup without a reopen.
+- Calculator and web prefix queries do not refresh `recently-used.xbel`.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

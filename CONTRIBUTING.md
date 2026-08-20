@@ -174,7 +174,7 @@ Manual testing on GNOME Shell 50 Wayland:
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home and End in a long result list — selection should jump to the first and last rows. Keypad arrows with Num Lock off should move the selection too.
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
-9. Click outside the popup — it must close without crashing the shell (Clutter 18). On a second monitor the click must still close it.
+9. Click outside the popup — it must close without crashing the shell (Clutter 18) and without activating the window underneath. On a second monitor the click must still close it. A tap on a touchscreen should dismiss the same way.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `::1` — it should open `http://[::1]`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
@@ -185,6 +185,9 @@ Manual testing on GNOME Shell 50 Wayland:
 17. Change width or position in preferences while the popup is open — it should move or resize without a reopen.
 18. With the command runner on, `! pwd` should print the home directory, not `/`.
 19. Change resolution or unplug a monitor while the popup is open — it should move into the new work area, and click-outside should still cover every screen.
+20. Toggle a provider or the web engine in preferences while the popup is open — results should update without a reopen.
+21. With both Firefox and Firefox ESR installed, the one you use more should be the only Firefox row.
+22. Open several windows, focus one, then open the launcher — that window should be first in the empty-state list.
 
 ## Submitting Changes
 

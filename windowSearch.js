@@ -4,7 +4,7 @@
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {windowMatches, windowClassText, shouldListWindow} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent} from './windowMatch.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -29,7 +29,7 @@ function _windowIcon(win) {
 export function searchWindows(query, maxResults) {
     const q = query.toLowerCase();
     const results = [];
-    const windows = _metaWindows();
+    const windows = sortWindowsMostRecent(_metaWindows(), win => win.get_user_time());
 
     for (const win of windows) {
         if (!win)

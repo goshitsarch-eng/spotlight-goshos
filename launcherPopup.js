@@ -109,6 +109,17 @@ class LauncherPopup extends St.BoxLayout {
             'changed::result-order', () => this._repaintIfOpen(),
             'changed::max-results', () => this._repaintIfOpen(),
             'changed::show-empty-suggestions', () => this._repaintIfOpen(),
+            'changed::enable-app-search', () => this._repaintIfOpen(),
+            'changed::enable-calculator', () => this._repaintIfOpen(),
+            'changed::enable-window-search', () => this._repaintIfOpen(),
+            'changed::enable-system-actions', () => this._repaintIfOpen(),
+            'changed::enable-settings-search', () => this._repaintIfOpen(),
+            'changed::enable-recent-files', () => this._repaintIfOpen(),
+            'changed::enable-url-open', () => this._repaintIfOpen(),
+            'changed::enable-command-run', () => this._repaintIfOpen(),
+            'changed::enable-prefix-modes', () => this._repaintIfOpen(),
+            'changed::show-web-search', () => this._repaintIfOpen(),
+            'changed::web-search-engine', () => this._repaintIfOpen(),
             this,
         );
 

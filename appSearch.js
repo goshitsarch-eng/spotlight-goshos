@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
-import {appMatchTier, appBaseName} from './appMatch.js';
+import {appMatchTier, takeUniqueByBaseName} from './appMatch.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -25,7 +25,6 @@ export function searchApps(query, maxResults) {
     const appSystem = Shell.AppSystem.get_default();
     const allApps = appSystem.get_installed();
     const pcm = _parentalControls();
-    const seenNames = new Set();
     const scored = [];
     const q = query.toLowerCase();
     if (q.length === 0)
@@ -43,12 +42,6 @@ export function searchApps(query, maxResults) {
         if (tier < 0)
             continue;
 
-        const baseName = appBaseName(name);
-
-        if (seenNames.has(baseName))
-            continue;
-        seenNames.add(baseName);
-
         scored.push({app, appId: id, title: name, tier});
     }
 
@@ -61,7 +54,7 @@ export function searchApps(query, maxResults) {
         return appUsage.compare(a.appId, b.appId);
     });
 
-    return scored.slice(0, maxResults).map(({app, title}) => ({
+    return takeUniqueByBaseName(scored, item => item.title, maxResults).map(({app, title}) => ({
         type: 'app',
         title,
         app,
@@ -82,7 +75,6 @@ export function searchFrequentApps(maxResults) {
     const appUsage = Shell.AppUsage.get_default();
     const pcm = _parentalControls();
     const usable = [];
-    const seenNames = new Set();
 
     for (const app of allApps) {
         if (!_shouldShowApp(pcm, app))
@@ -90,16 +82,12 @@ export function searchFrequentApps(maxResults) {
         const id = app.get_id();
         if (!id)
             continue;
-        const baseName = appBaseName(app.get_name() || id);
-        if (seenNames.has(baseName))
-            continue;
-        seenNames.add(baseName);
         usable.push(app);
     }
 
     usable.sort((a, b) => appUsage.compare(a.get_id(), b.get_id()));
 
-    return usable.slice(0, maxResults).map(app => ({
+    return takeUniqueByBaseName(usable, app => app.get_name() || app.get_id(), maxResults).map(app => ({
         type: 'app',
         title: app.get_name() || app.get_id(),
         app,

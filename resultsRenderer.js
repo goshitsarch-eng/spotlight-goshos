@@ -7,7 +7,7 @@ import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
-import {isActiveSearchQuery} from './searchPlan.js';
+import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles} from './searchPlan.js';
 import {getTheme, iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
 
@@ -80,7 +80,8 @@ export class ResultsRenderer {
             return;
         }
         this._paint(runSearch(query, this._settings), query.trim());
-        if (!this._settings.get_boolean('enable-recent-files'))
+        const plan = planSearch(query, flagsFromSettings(this._settings));
+        if (!shouldRefreshRecentFiles(this._settings.get_boolean('enable-recent-files'), plan))
             return;
         const gen = this._generation;
         ensureRecentFiles(() => {

@@ -11,6 +11,25 @@ export function appBaseName(name) {
         .trim();
 }
 
+// sort first then keep the winner so usage beats install order
+export function takeUniqueByBaseName(items, getName, maxResults) {
+    if (maxResults <= 0)
+        return [];
+
+    const seen = new Set();
+    const unique = [];
+    for (const item of items) {
+        const baseName = appBaseName(getName(item));
+        if (seen.has(baseName))
+            continue;
+        seen.add(baseName);
+        unique.push(item);
+        if (unique.length >= maxResults)
+            break;
+    }
+    return unique;
+}
+
 // lower tier is a better match so a name prefix still beats a keyword hit
 // generic-name and keywords are how overview finds firefox from browser
 export function appMatchTier(name, genericName, id, keywords, query) {

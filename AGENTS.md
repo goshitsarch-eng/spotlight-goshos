@@ -218,7 +218,7 @@ if the monitor geometry changes while the popup is open listen for layoutmanager
 
 the popup does not use Main.pushModal a modal grab swallows pointer events before they reach the stage which makes click-outside detection impossible instead the popup uses two mechanisms working together
 
-first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers the entire primary monitor and listens for button-release-event when the user clicks anywhere outside the popup the click lands on the backdrop and closeSoon() runs after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
+first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers every monitor and listens for button-press button-release and touch-event press must return EVENT_STOP or wayland delivers it to the window below and the matching release activates that window after closeSoon() hides the launcher release and touch-end call closeSoon() after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
 

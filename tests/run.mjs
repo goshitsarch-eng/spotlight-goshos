@@ -3,14 +3,14 @@ import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {popupOrigin, popupWidthForWorkArea} from '../popupPosition.js';
-import {backdropBox} from '../backdropBox.js';
+import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
-import {planSearch, flagsFromSettings, isActiveSearchQuery} from '../searchPlan.js';
+import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
-import {appMatchTier, appBaseName} from '../appMatch.js';
+import {appMatchTier, appBaseName, takeUniqueByBaseName} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -20,7 +20,7 @@ import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -158,6 +158,13 @@ assertEq(span.width, 3200, 'backdrop spans both widths');
 assertEq(span.height, 1080, 'backdrop uses tallest monitor');
 assertEq(backdropBox([]).width, 0, 'empty monitors');
 assertEq(backdropBox([{x: 100, y: 40, width: 800, height: 600}]).x, 100, 'single monitor x');
+assertEq(backdropPointerAction('button-press'), 'stop', 'press is swallowed');
+assertEq(backdropPointerAction('button-release'), 'close', 'release closes');
+assertEq(backdropPointerAction('touch-begin'), 'stop', 'touch begin swallowed');
+assertEq(backdropPointerAction('touch-update'), 'stop', 'touch move swallowed');
+assertEq(backdropPointerAction('touch-cancel'), 'stop', 'touch cancel swallowed');
+assertEq(backdropPointerAction('touch-end'), 'close', 'touch end closes');
+assertEq(backdropPointerAction('scroll'), 'propagate', 'scroll ignored');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();
@@ -244,6 +251,15 @@ assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss
 assertEq(appBaseName('Firefox ESR'), 'firefox', 'esr suffix');
 assertEq(appBaseName('GNOME-Builder'), 'gnome-builder', 'hyphenated name stays');
 assertEq(appBaseName('Chromium'), 'chromium', 'plain name');
+const variants = [
+    {title: 'Firefox ESR', usage: 1},
+    {title: 'Firefox', usage: 50},
+];
+variants.sort((a, b) => b.usage - a.usage);
+const uniqueApps = takeUniqueByBaseName(variants, item => item.title, 6);
+assertEq(uniqueApps.length, 1, 'variant collapsed after sort');
+assertEq(uniqueApps[0].title, 'Firefox', 'usage winner kept not install order');
+assertEq(takeUniqueByBaseName(variants, item => item.title, 0).length, 0, 'zero max keeps none');
 
 assert(wordPrefixMatch('google chrome', 'chro'), 'chro matches chrome word');
 assert(!wordPrefixMatch('google chrome', 'ogle'), 'mid-word is not prefix');
@@ -317,6 +333,12 @@ assertEq(planSearch('term', windowsFirst).providers.indexOf('windows') <
     planSearch('term', windowsFirst).providers.indexOf('apps'), true, 'windows before apps');
 assertEq(planSearch('term', allOn).providers.indexOf('apps') <
     planSearch('term', allOn).providers.indexOf('windows'), true, 'apps before windows');
+assert(shouldRefreshRecentFiles(true, planSearch('. notes', allOn)), 'files prefix refreshes');
+assert(!shouldRefreshRecentFiles(true, planSearch('=2+2', allOn)), 'calc prefix skips recent');
+assert(!shouldRefreshRecentFiles(true, planSearch('@cats', allOn)), 'web prefix skips recent');
+assert(shouldRefreshRecentFiles(true, planSearch('notes', allOn)), 'all-mode with files refreshes');
+assert(!shouldRefreshRecentFiles(false, planSearch('notes', allOn)), 'disabled files skip');
+assert(!shouldRefreshRecentFiles(true, planSearch('notes', appsOnly)), 'apps-only skips recent');
 
 const flagSettings = {
     get_boolean(key) {
@@ -360,6 +382,12 @@ assert(windowMatches('Notes', 'org.gnome.TextEditor', 'texted'), 'class match');
 assert(windowMatches('Any', 'x', ''), 'empty query matches windows');
 assert(!windowMatches('Firefox', 'Navigator', 'chrome'), 'window miss');
 assertEq(windowClassText('Firefox', 'Navigator', 'org.mozilla.firefox'), 'Firefox Navigator org.mozilla.firefox', 'class text');
+const recency = sortWindowsMostRecent(
+    [{id: 'old', t: 1}, {id: 'new', t: 9}, {id: 'mid', t: 4}],
+    win => win.t,
+);
+assertEq(recency[0].id, 'new', 'most recent window first');
+assertEq(recency[2].id, 'old', 'oldest window last');
 
 const stored = {};
 applyLookSettings({
