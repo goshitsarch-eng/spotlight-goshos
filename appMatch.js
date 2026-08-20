@@ -32,7 +32,7 @@ export function takeUniqueByBaseName(items, getName, maxResults) {
 
 // lower tier is a better match so a name prefix still beats a keyword hit
 // generic-name and keywords are how overview finds firefox from browser
-export function appMatchTier(name, genericName, id, keywords, query) {
+export function appMatchTier(name, genericName, id, keywords, query, description) {
     if (query.length === 0)
         return -1;
 
@@ -40,6 +40,7 @@ export function appMatchTier(name, genericName, id, keywords, query) {
     const nameLower = name.toLowerCase();
     const genericLower = genericName.toLowerCase();
     const idLower = id.replace(/\.desktop$/i, '').toLowerCase();
+    const descLower = (description || '').toLowerCase();
 
     if (nameLower.startsWith(q))
         return 0;
@@ -55,5 +56,7 @@ export function appMatchTier(name, genericName, id, keywords, query) {
         if (keyword.toLowerCase().includes(q))
             return 5;
     }
+    if (descLower.includes(q))
+        return 6;
     return -1;
 }

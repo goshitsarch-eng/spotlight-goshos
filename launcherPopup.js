@@ -18,7 +18,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {canOpenPopup} from './popupGate.js';
-import {popupOrigin, popupWidthForWorkArea} from './popupPosition.js';
+import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from './popupPosition.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -99,10 +99,7 @@ class LauncherPopup extends St.BoxLayout {
             'changed::show-search-icon', () => {
                 this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
             },
-            'changed::results-max-height', () => {
-                this._resultsScroll.style =
-                    `max-height: ${this._settings.get_int('results-max-height')}px;`;
-            },
+            'changed::results-max-height', () => this._fitResultsHeight(),
             'changed::row-density', () => this._onChromeChanged(),
             'changed::show-section-headers', () => this._repaintIfOpen(),
             'changed::show-result-icons', () => this._repaintIfOpen(),
@@ -211,6 +208,34 @@ class LauncherPopup extends St.BoxLayout {
         return popupWidthForWorkArea(requested, workArea.width);
     }
 
+    // entry only so a width change does not recast the origin from the
+    // taller results height and walk the popup up the screen
+    _emptyPopupHeight(popupWidth) {
+        const [, entryHeight] = this._entryBox.get_preferred_height(popupWidth);
+        return entryHeight;
+    }
+
+    _fitResultsHeight() {
+        const requested = this._settings.get_int('results-max-height');
+        const monitor = Main.layoutManager.primaryMonitor;
+        if (!monitor || !this._isOpen) {
+            this._resultsScroll.style = `max-height: ${requested}px;`;
+            return;
+        }
+        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
+        const popupWidth = this._fittedWidth();
+        const emptyHeight = this._emptyPopupHeight(popupWidth);
+        const origin = popupOrigin(
+            workArea,
+            popupWidth,
+            emptyHeight,
+            this._settings.get_string('popup-position'),
+        );
+        const spaceBelow = workArea.y + workArea.height - origin.y - emptyHeight;
+        const maxHeight = resultsMaxHeightForWorkArea(requested, spaceBelow);
+        this._resultsScroll.style = `max-height: ${maxHeight}px;`;
+    }
+
     _reposition() {
         const monitor = Main.layoutManager.primaryMonitor;
         if (!monitor)
@@ -218,14 +243,15 @@ class LauncherPopup extends St.BoxLayout {
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
         const popupWidth = this._fittedWidth();
         this.set_width(popupWidth);
-        const [, naturalHeight] = this.get_preferred_height(popupWidth);
+        const emptyHeight = this._emptyPopupHeight(popupWidth);
         const origin = popupOrigin(
             workArea,
             popupWidth,
-            naturalHeight,
+            emptyHeight,
             this._settings.get_string('popup-position'),
         );
         this.set_position(origin.x, origin.y);
+        this._fitResultsHeight();
     }
 
     open() {

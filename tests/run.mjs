@@ -2,7 +2,7 @@ import {evaluateArithmetic, formatNumber, normalizeMath} from '../calculator.js'
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
-import {popupOrigin, popupWidthForWorkArea} from '../popupPosition.js';
+import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea} from '../popupPosition.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
@@ -11,6 +11,7 @@ import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, mergeEmptySuggestions} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName} from '../appMatch.js';
+import {rowPointerAction, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -149,6 +150,9 @@ assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center')
 assertEq(popupWidthForWorkArea(600, 1920), 600, 'wide work keeps request');
 assertEq(popupWidthForWorkArea(1200, 800), 800, 'narrow work shrinks popup');
 assertEq(popupWidthForWorkArea(600, 0), 600, 'unknown work keeps request');
+assertEq(resultsMaxHeightForWorkArea(400, 900), 400, 'tall work keeps request');
+assertEq(resultsMaxHeightForWorkArea(800, 220), 220, 'short work shrinks results');
+assertEq(resultsMaxHeightForWorkArea(400, 0), 400, 'unknown space keeps request');
 
 const span = backdropBox([
     {x: 0, y: 0, width: 1920, height: 1080},
@@ -167,6 +171,11 @@ assertEq(backdropPointerAction('touch-update'), 'stop', 'touch move swallowed');
 assertEq(backdropPointerAction('touch-cancel'), 'stop', 'touch cancel swallowed');
 assertEq(backdropPointerAction('touch-end'), 'close', 'touch end closes');
 assertEq(backdropPointerAction('scroll'), 'propagate', 'scroll ignored');
+assertEq(rowPointerAction('press', PRIMARY_BUTTON, false).action, 'stop', 'row press claimed');
+assertEq(rowPointerAction('release', PRIMARY_BUTTON, true).action, 'activate', 'row release activates');
+assertEq(rowPointerAction('release', PRIMARY_BUTTON, false).action, 'propagate', 'release without press');
+assertEq(rowPointerAction('leave', PRIMARY_BUTTON, true).pressed, false, 'leave cancels press');
+assertEq(rowPointerAction('press', 3, false).action, 'propagate', 'right click ignored');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();
@@ -250,6 +259,7 @@ assertEq(appMatchTier('Firefox', '', 'org.mozilla.firefox.desktop', [], 'mozilla
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['Internet', 'Browser'], 'browser'), 5, 'keyword');
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], ''), -1, 'empty query no app');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss');
+assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'write', 'Write notes and lists'), 6, 'desktop comment');
 assertEq(appBaseName('Firefox ESR'), 'firefox', 'esr suffix');
 assertEq(appBaseName('GNOME-Builder'), 'gnome-builder', 'hyphenated name stays');
 assertEq(appBaseName('Chromium'), 'chromium', 'plain name');

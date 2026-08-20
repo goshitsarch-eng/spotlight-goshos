@@ -41,7 +41,7 @@ Results are aggregated in the following order. Each category is rendered under i
 
 1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
 2. **Paths** — `~/…`, `./…`, and absolute paths such as `/tmp/notes.txt`. `~` and `./` resolve against the user home directory. Missing paths show “Path not found”.
-3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName and Keywords so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps.
+3. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching on the name, plus GenericName, Keywords, and the desktop Comment so `browser` finds Firefox. Ranking combines match quality with usage frequency from `Shell.AppUsage`, then collapses variants (`Firefox` / `Firefox ESR`) so the used app wins. Parental controls hide blocked apps.
 4. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
 5. **Windows** — Switch to an open window by title or window class, including modal dialogs. Results are ordered by last user focus, not compositor stacking.
 6. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
@@ -185,6 +185,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
 - Typed `~/` `./` and absolute paths open in the default handler. Existence is checked asynchronously so a hung network mount cannot stall the compositor.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
+- Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
 - Provider and web-engine preference changes repaint an open popup without a reopen.
 - Calculator and web prefix queries do not refresh `recently-used.xbel`.

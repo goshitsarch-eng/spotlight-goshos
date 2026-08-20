@@ -124,6 +124,7 @@ gosh-is-launcher@nin/
     shortcutAccel.js          mutter accelerator string (pure)
     popupGate.js              open versus toggle-close (pure)
     popupPosition.js          work-area origin (pure)
+    resultPointer.js          result row press/release (pure)
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers (pure)
     windowMatch.js            window title and class match (pure)
@@ -164,7 +165,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath pathMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -213,7 +214,7 @@ the popup is positioned once in open() via _reposition() on the primary monitor 
 
 center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the work area height so popos and krunner looks sit high without covering the panel
 
-do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side
+do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side width and position changes may call _reposition while open that path must still use the empty-state height not the current results height
 
 if the monitor geometry changes while the popup is open listen for layoutmanager monitors-changed then resize the backdrop and reposition in the new work area do not wait for the next open or the popup can sit off-screen with a stale click-outside box
 

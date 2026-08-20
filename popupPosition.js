@@ -9,6 +9,14 @@ export function popupWidthForWorkArea(requested, workWidth) {
     return requested;
 }
 
+// top looks grow down from a high origin so the list must shrink
+// instead of covering the dock or running off the work area
+export function resultsMaxHeightForWorkArea(requested, spaceBelow) {
+    if (spaceBelow <= 0)
+        return requested;
+    return Math.min(requested, spaceBelow);
+}
+
 export function popupOrigin(workArea, popupWidth, popupHeight, position) {
     let x = Math.floor(workArea.x + (workArea.width - popupWidth) / 2);
     let y;

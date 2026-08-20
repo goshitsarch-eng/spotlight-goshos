@@ -103,6 +103,7 @@ Pure functions with no side effects:
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 - **`homePath.js`** — Expand `~` and `./` against the user home.
 - **`pathMatch.js`** — Path result title, icon, and missing-path copy.
+- **`resultPointer.js`** — Result-row press must stay on the same row.
 
 ### Preference Pages
 
@@ -169,7 +170,7 @@ That compiles the schema, parses every JavaScript file, runs `tests/run.mjs`, an
 
 Manual testing on GNOME Shell 50 Wayland:
 
-1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName or Keywords.
+1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName, Keywords, or the desktop Comment.
 2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3`, `2**3`, `2 x 3`, `1e3+2`, or `1,000+2` — all should evaluate.
 3. Type `=2^8` — calculator prefix should show `256`.
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, and Light. Change a look while the popup is open — rows should restyle.
@@ -182,7 +183,7 @@ Manual testing on GNOME Shell 50 Wayland:
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `::1` — it should open `http://[::1]`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
 13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
-14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it.
+14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it. Set results max height to 800 on a short display — the list must stay inside the work area.
 15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
 16. With an IME composing a character, Enter and arrows must stay with the compose, not activate a result.
 17. Change width or position in preferences while the popup is open — it should move or resize without a reopen.

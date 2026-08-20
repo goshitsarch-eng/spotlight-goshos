@@ -4,6 +4,7 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import {ellipsizeLabel} from './labelEllipsize.js';
+import {rowPointerAction} from './resultPointer.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -68,13 +69,28 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
     }
 
     hbox._resultIndex = resultIndex;
+    let pressed = false;
 
     hbox.connectObject(
+        'button-press-event', (_actor, event) => {
+            const next = rowPointerAction('press', event.get_button(), pressed);
+            pressed = next.pressed;
+            return next.action === 'propagate' ? Clutter.EVENT_PROPAGATE : Clutter.EVENT_STOP;
+        },
         'button-release-event', (_actor, event) => {
-            if (event.get_button() !== Clutter.BUTTON_PRIMARY)
+            const next = rowPointerAction('release', event.get_button(), pressed);
+            pressed = next.pressed;
+            if (next.action === 'activate')
+                onActivate(result);
+            return next.action === 'propagate' ? Clutter.EVENT_PROPAGATE : Clutter.EVENT_STOP;
+        },
+        'leave-event', (_actor, event) => {
+            const related = typeof event.get_related === 'function' ? event.get_related() : null;
+            if (related && hbox.contains(related))
                 return Clutter.EVENT_PROPAGATE;
-            onActivate(result);
-            return Clutter.EVENT_STOP;
+            const next = rowPointerAction('leave', 0, pressed);
+            pressed = next.pressed;
+            return Clutter.EVENT_PROPAGATE;
         },
         'enter-event', () => {
             onHover(resultIndex);
