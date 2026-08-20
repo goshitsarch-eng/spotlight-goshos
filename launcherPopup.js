@@ -76,10 +76,6 @@ class LauncherPopup extends St.BoxLayout {
 
         const clutterText = this._entry.clutter_text;
         clutterText.set_x_expand(true);
-        clutterText.connectObject(
-            'text-changed', () => this._renderer.onTextChanged(this._entry.get_text()),
-            this,
-        );
 
         const {resultsScroll, resultsBox} = buildResultsContainer(this._settings);
         this._resultsScroll = resultsScroll;
@@ -97,6 +93,11 @@ class LauncherPopup extends St.BoxLayout {
                     return;
                 this._selection.applySelection(idx);
             }
+        );
+        // connect after the renderer exists so an early text-changed cannot throw
+        clutterText.connectObject(
+            'text-changed', () => this._renderer.onTextChanged(this._entry.get_text()),
+            this,
         );
 
         this.add_child(this._entryBox);

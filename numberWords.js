@@ -5,6 +5,8 @@ export const NUMBER_WORDS = {
     zero: '0', one: '1', two: '2', three: '3', four: '4',
     five: '5', six: '6', seven: '7', eight: '8', nine: '9',
     ten: '10', eleven: '11', twelve: '12',
+    thirteen: '13', fourteen: '14', fifteen: '15',
+    sixteen: '16', seventeen: '17', eighteen: '18', nineteen: '19',
 };
 
 export const ORDINAL_WORDS = {
@@ -13,7 +15,7 @@ export const ORDINAL_WORDS = {
     eleventh: '11', twelfth: '12',
 };
 
-const NUMBER_WORD_RE = /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/gi;
+const NUMBER_WORD_RE = /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b/gi;
 const ORDINAL_POWER_RE = /\bto the\s+(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth)(?:\s+power)?\b/gi;
 
 export function replaceNumberWords(text) {

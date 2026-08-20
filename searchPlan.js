@@ -22,8 +22,8 @@ const STRIP_VERB_MODES = {
     files: true,
 };
 
-const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you|tell\s+me)\s+/i;
-const LAUNCH_VERB = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus|convert|calculate|compute|what(?:['’]s|s|\s+is)|how\s+much\s+is)\s+(.+)$/i;
+const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you|tell\s+me|help\s+me|just|i\s+want\s+to)\s+/i;
+const LAUNCH_VERB = /^(open|launch|run|start|show|find|search(?:\s+for)?|look(?:\s+up|\s+for|up)|switch\s+to|go\s+to|navigate\s+to|focus|convert|calculate|compute|what(?:['’]s|s|\s+is)|how\s+much\s+is)\s+(.+)$/i;
 const LEADING_ARTICLE = /^(?:my|the|an?|me)\s+(.+)$/i;
 const CATEGORY_PREFIX = /^(windows?|settings?|files?|recent(?:\s+files?)?|apps?|applications?)\s+(.+)$/i;
 const TRAILING_NOUN = /^(.+)\s+(folders?|directories|directory|dirs?|settings?|preferences|prefs)$/i;

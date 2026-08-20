@@ -95,3 +95,13 @@ export function settingsArgv(panelId, findInPath) {
         return ['gapplication', 'launch', 'org.gnome.Settings'];
     return null;
 }
+
+export function settingsResultMeta(panel, argv) {
+    return {
+        type: 'settings',
+        title: panel.title,
+        description: 'GNOME Settings',
+        icon: panel.icon || 'preferences-system-symbolic',
+        activatable: argv !== null,
+    };
+}

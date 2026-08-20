@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Gio from 'gi://Gio';
-import {matchSettingsPanels, settingsArgv, settingsPanelAvailable} from './settingsPanels.js';
+import {matchSettingsPanels, settingsArgv, settingsPanelAvailable, settingsResultMeta} from './settingsPanels.js';
 import {spawnArgv, findInUserPath} from './gioLaunch.js';
 
 function _hasDesktop(desktopId) {
@@ -18,15 +18,13 @@ export function searchSettings(query, maxResults) {
         query,
         maxResults,
         id => settingsPanelAvailable(id, _hasDesktop),
-    ).map(panel => ({
-        type: 'settings',
-        title: panel.title,
-        description: 'GNOME Settings',
-        icon: panel.icon || 'preferences-system-symbolic',
-        activate: () => {
-            const argv = settingsArgv(panel.id, name => findInUserPath(name));
+    ).map(panel => {
+        const argv = settingsArgv(panel.id, name => findInUserPath(name));
+        const row = settingsResultMeta(panel, argv);
+        row.activate = () => {
             if (argv)
                 spawnArgv(argv);
-        },
-    }));
+        };
+        return row;
+    });
 }

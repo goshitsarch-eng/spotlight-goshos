@@ -1,8 +1,16 @@
 // gosh is launcher - whether a query asks for the clock or calendar
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// stripLeadingVerb leaves time right now from what's the time right now
+export function normalizeTimeQuery(query) {
+    let q = query.trim().toLowerCase().replace(/['’]/g, '');
+    q = q.replace(/(?:\s+(?:right\s+now|currently|at\s+the\s+moment|please))+$/g, '').trim();
+    const withoutNow = q.replace(/^(.+?)\s+now$/, '$1').trim();
+    return withoutNow.length > 0 ? withoutNow : q;
+}
+
 export function timeQueryKind(query) {
-    const q = query.trim().toLowerCase().replace(/['’]/g, '');
+    const q = normalizeTimeQuery(query);
     if (q === 'time' || q === 'now' || q === 'clock' ||
         q === 'what time' || q === 'what time is it' || q === 'current time' ||
         q === 'whats the time' || q === 'what is the time' ||
