@@ -165,7 +165,7 @@
 
     <key name="enable-color-hex" type="b">
       <default>true</default>
-      <summary>Enable hex colors</summary>
+      <summary>Enable colors</summary>
       <description>Copy a color such as #f00, red, rgb(255, 0, 0), rgb(100%, 0%, 0%), hsl(0deg 100% 50%), or hwb(0 0% 0%).</description>
     </key>
 

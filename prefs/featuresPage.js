@@ -32,7 +32,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-unit-convert',
         'Unit conversion', '10 km to mi, ten km to mi, 10 km into mi, convert 10 km to mi, how many miles in 10 km, how many miles in ten km, how many km in a mile, a cup to ml, two million km to mi, 1 000 km to mi, 1 cup to tbsp, 1 fl oz to ml, 2 hours to min, 100 kph to mph, 32 psi to bar, 200 kcal to kj, 1 hp to kw, 180 deg to rad, 32 f to c');
     addSwitch(providers, settings, 'enable-color-hex',
-        'Hex colors', 'Type #f00, red, rebeccapurple, rgb(255, 0, 0), rgb 255 0 0, rgb 100% 0% 0%, rgba 255 0 0 0.5, rgb(100%, 0%, 0%), hsl(0deg 100% 50%), hsl 0 100% 50%, hsl(0 100 50), or hwb(0 0% 0%) and press Enter to copy');
+        'Colors', 'Type #f00, red, rebeccapurple, rgb(255, 0, 0), rgb 255 0 0, rgb 100% 0% 0%, rgba 255 0 0 0.5, rgb(100%, 0%, 0%), hsl(0deg 100% 50%), hsl 0 100% 50%, hsl(0 100 50), or hwb(0 0% 0%) and press Enter to copy');
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, workspace 2, workspace two, workspace twenty, switch to firefox, or find windows firefox. Type close firefox, close the firefox window, close the firefox application, can you close firefox, kill firefox, force quit firefox, or force close firefox');
     addSwitch(providers, settings, 'enable-system-actions',

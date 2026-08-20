@@ -1001,6 +1001,9 @@ assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('PowerToys'), 'about 
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Synapse'), 'about lists synapse');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('Onagre'), 'about lists onagre');
 assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('hwb(0 0% 0%)'), 'features mention hwb');
+assert(readFileSync('prefs/featuresPage.js', 'utf8').includes("'Colors'"), 'features lists colors');
+assert(!readFileSync('prefs/featuresPage.js', 'utf8').includes("'Hex colors'"), 'features color switch is not hex-only');
+assert(schema.includes('<summary>Enable colors</summary>'), 'schema color summary is not hex-only');
 assert(metadata.description.includes('hwb(0 0% 0%)'), 'metadata mentions hwb');
 assert(matchSettingsPanels('o', 20).some(p => p.id === 'online-accounts'), 'o prefixes online accounts');
 assert(!matchSettingsPanels('o', 20).some(p => p.id === 'wifi'), 'o is not wifi');

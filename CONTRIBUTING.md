@@ -331,6 +331,7 @@ Manual testing on GNOME Shell 50 Wayland:
 128. Close via Escape, click-outside, or the shortcut — GNOME 50 must not abort. Clutter 18 unrealizes on `removeChrome`; a still-mapped backdrop trips `clutter_actor_real_unrealize`. The backdrop must hide before it is removed from chrome.
 129. Open the launcher over a fullscreen game or video, then close it — the fullscreen surface must resume scanout only after the popup and backdrop are gone. Releasing unredirect while the backdrop is still mapped lets that surface paint through leftover chrome.
 130. Switch to KRunner or PowerToys — number hints must turn on, matching those runners. The command-runner schema and Features page must say argv, not a shell. Pipes stay literal.
+131. Features → Colors covers `#f00`, `red`, `rgb()`, `hsl()`, and `hwb()`, not only hex. Turning that switch off must hide all of those rows.
 
 ## Submitting Changes
 
