@@ -1,6 +1,6 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
-import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost} from '../urlMatch.js';
+import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {popupOrigin} from '../popupPosition.js';
 import {backdropBox} from '../backdropBox.js';
@@ -92,6 +92,9 @@ assertEq(normalizeUrl('https://ok.test'), 'https://ok.test', 'keep scheme');
 assertEq(normalizeUrl('www.ok.test'), 'https://www.ok.test', 'www gets https');
 assert(isUrlQuery('localhost:3000'), 'localhost port');
 assert(isUrlQuery('127.0.0.1'), 'loopback');
+assert(isDottedIpv4('192.168.0.1'), 'valid ipv4');
+assert(!isDottedIpv4('999.999.999.999'), 'octet too large');
+assert(!isUrlQuery('999.999.999.999'), 'invalid ipv4 is not a url');
 assert(isUrlQuery('192.168.1.1:8080'), 'lan port');
 assert(isUrlQuery('example.com:3000'), 'domain port');
 assert(!isUrlQuery('localhostx'), 'localhost prefix is not a url');
@@ -410,6 +413,11 @@ for (const id of themeIds)
 assert(css.includes('.gosh-container'), 'base container class');
 assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
+assert(
+    css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
+        css.lastIndexOf('.gosh-theme-wofi .gosh-result {'),
+    'compact rules come after theme padding',
+);
 assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
 assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');

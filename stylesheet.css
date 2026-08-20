@@ -121,16 +121,6 @@
   padding-bottom: 4px;
 }
 
-/* two classes so compact still wins over theme-specific row padding */
-.gosh-container.gosh-density-compact .gosh-result {
-  padding: 5px 10px;
-}
-
-.gosh-container.gosh-density-compact .gosh-entry {
-  padding: 10px 16px 10px 0;
-  font-size: 16px;
-}
-
 /* spotlight look is the default chrome on .gosh-container */
 .gosh-theme-spotlight {
   padding: 0;
@@ -707,4 +697,14 @@
 
 .gosh-theme-light .gosh-no-results-title {
   color: #2e3436;
+}
+
+/* last so compact still wins over theme-specific row padding */
+.gosh-container.gosh-density-compact .gosh-result {
+  padding: 5px 10px;
+}
+
+.gosh-container.gosh-density-compact .gosh-entry {
+  padding: 10px 16px 10px 0;
+  font-size: 16px;
 }

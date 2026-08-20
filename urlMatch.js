@@ -26,6 +26,19 @@ const FILE_EXTS = new Set([
 
 // scheme-less hostnames need a real site tld so node.js and readme.md
 // stay app and file searches
+export function isDottedIpv4(host) {
+    const parts = host.split('.');
+    if (parts.length !== 4)
+        return false;
+    for (const part of parts) {
+        if (!/^\d{1,3}$/.test(part))
+            return false;
+        if (Number(part) > 255)
+            return false;
+    }
+    return true;
+}
+
 export function isPlausibleWebHost(host) {
     if (!host)
         return false;
@@ -44,9 +57,10 @@ export function isUrlQuery(query) {
         return false;
     if (SCHEME_RE.test(trimmed) ||
         LOCAL_RE.test(trimmed) ||
-        IPV4_RE.test(trimmed) ||
         IPV6_RE.test(trimmed))
         return true;
+    if (IPV4_RE.test(trimmed))
+        return isDottedIpv4(hostOfQuery(trimmed));
     return DOMAIN_RE.test(trimmed) && isPlausibleWebHost(hostOfQuery(trimmed));
 }
 
@@ -66,7 +80,7 @@ export function hostOfQuery(query) {
 export function schemeForHost(host) {
     if (/^localhost$/i.test(host))
         return 'http';
-    if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host))
+    if (isDottedIpv4(host))
         return 'http';
     if (host.indexOf(':') !== -1)
         return 'http';

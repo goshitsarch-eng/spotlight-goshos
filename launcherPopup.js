@@ -132,6 +132,8 @@ class LauncherPopup extends St.BoxLayout {
     // this prevents the popup from shifting upward when results grow
     _reposition() {
         const monitor = Main.layoutManager.primaryMonitor;
+        if (!monitor)
+            return;
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
         const popupWidth = this._settings.get_int('popup-width');
         const [, naturalHeight] = this.get_preferred_height(popupWidth);
@@ -145,6 +147,8 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     open() {
+        if (!Main.layoutManager.primaryMonitor)
+            return;
         if (!canOpenPopup(
             this._isOpen,
             this.visible,
