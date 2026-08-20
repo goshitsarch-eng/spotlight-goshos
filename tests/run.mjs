@@ -668,6 +668,7 @@ assert(matchSettingsPanels('dnd', 5).some(p => p.id === 'notifications'), 'dnd i
 assert(matchSettingsPanels('hotspot', 5).some(p => p.id === 'wifi'), 'hotspot is wifi');
 assert(matchSettingsPanels('hot', 5).some(p => p.id === 'wifi'), 'hot is hotspot prefix');
 assert(!matchSettingsPanels('pot', 5).some(p => p.id === 'wifi'), 'pot is not hotspot');
+assert(!matchSettingsPanels('ifi', 5).some(p => p.id === 'wifi'), 'ifi is not wifi');
 assert(matchSettingsPanels('zoom', 5).some(p => p.id === 'universal-access'), 'zoom is accessibility');
 assert(matchSettingsPanels('fractional scaling', 5).some(p => p.id === 'display'), 'fractional scaling is displays');
 assert(readFileSync('prefs/aboutPage.js', 'utf8').includes('PowerToys'), 'about lists powertoys');

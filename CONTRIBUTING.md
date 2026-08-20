@@ -208,7 +208,7 @@ Manual testing on GNOME Shell 50 Wayland:
 14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it. Set results max height to 800 on a short display — the list must stay inside the work area.
 15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
 16. With an IME composing a character, Enter and arrows must stay with the compose, not activate a result.
-17. Change width or position in preferences while the popup is open — it should move or resize without a reopen.
+17. Change width or position in preferences while the popup is open — it should move or resize without a reopen. Changing those while typing must not crash the shell.
 18. With the command runner on, `! pwd` should print the home directory, not `/`.
 19. Change resolution or unplug a monitor while the popup is open — it should move into the new work area, and click-outside should still cover every screen.
 20. Toggle a provider or the web engine in preferences while the popup is open — results should update without a reopen. Changing several settings at once for example picking a look should paint once after the keys land not once per key.
@@ -271,6 +271,7 @@ Manual testing on GNOME Shell 50 Wayland:
 77. Type an existing `~/` path, then `firefox`, then the same path after deleting that folder — the row must say Path not found, not reuse the earlier Open path row. With the command runner on, the same leave-and-return must recheck `! ./script`.
 78. Disable the extension, open Appearance, switch to Pop!_OS, then enable the extension — the popup must sit at the top with number hints and windows first. Reopen Appearance without changing the look — a custom icon size must still survive.
 79. Type `row` — Firefox must not appear just because the keyword browser contains those letters. Type `hot` — Pictures must not appear from photos; Wi-Fi may appear from hotspot. Type `een` — Lock Screen must not appear. Type `off` — Power Off should still appear.
+80. Type `ifi` — Wi-Fi must not appear just because the title contains those letters. Type `security` — Privacy & Security should still appear. Change width or position in preferences while typing in the popup — the shell must stay up and the popup must move after the key lands.
 
 ## Submitting Changes
 

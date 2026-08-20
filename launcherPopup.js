@@ -58,6 +58,7 @@ class LauncherPopup extends St.BoxLayout {
         this._positionIdleId = 0;
         this._openIdleId = 0;
         this._repaintIdleId = 0;
+        this._layoutIdleId = 0;
         this._closeIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
@@ -193,14 +194,29 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _onWidthChanged() {
-        this.set_width(this._fittedWidth());
         if (this._isOpen)
-            this._reposition();
+            this._scheduleLayout();
+        else
+            this.set_width(this._fittedWidth());
     }
 
     _onPositionChanged() {
         if (this._isOpen)
+            this._scheduleLayout();
+    }
+
+    // dconf can arrive while a key is still dispatching
+    _scheduleLayout() {
+        if (!this._isOpen || this._layoutIdleId)
+            return;
+        this._layoutIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._layoutIdleId = 0;
+            if (!this._isOpen)
+                return GLib.SOURCE_REMOVE;
+            this.set_width(this._fittedWidth());
             this._reposition();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     _listenMonitors() {
@@ -328,7 +344,7 @@ class LauncherPopup extends St.BoxLayout {
 
     _fitResultsHeight() {
         if (this._isOpen)
-            this._reposition();
+            this._scheduleLayout();
         else
             this._resultsScroll.style = `max-height: ${this._settings.get_int('results-max-height')}px;`;
     }
@@ -482,6 +498,7 @@ class LauncherPopup extends St.BoxLayout {
     close() {
         this._clearIdle('_openIdleId');
         this._clearIdle('_repaintIdleId');
+        this._clearIdle('_layoutIdleId');
         if (!this._isOpen && !this.visible)
             return;
 
@@ -522,6 +539,7 @@ class LauncherPopup extends St.BoxLayout {
         this._clearIdle('_openIdleId');
         this._clearIdle('_closeIdleId');
         this._clearIdle('_repaintIdleId');
+        this._clearIdle('_layoutIdleId');
     }
 
     // overridden so that disable() -> destroy() tears down everything cleanly:

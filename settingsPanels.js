@@ -61,12 +61,6 @@ export function matchSettingsPanels(query, maxResults, isAvailable) {
             return true;
         if (titleLower.startsWith(lowerQuery) || wordPrefixMatch(titleLower, lowerQuery))
             return true;
-        if (normalizedQuery.length >= 3 && (
-            normalizedTitle.includes(normalizedQuery) ||
-            normalizedId.includes(normalizedQuery) ||
-            titleLower.includes(lowerQuery)
-        ))
-            return true;
         for (const keyword of p.keywords) {
             if (keywordMatchesQuery(keyword, lowerQuery))
                 return true;
