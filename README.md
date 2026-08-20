@@ -49,7 +49,7 @@ Results are aggregated in the following order. Each category is rendered under i
 8. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension.
 9. **Web Search** — Last-resort fallback in the default browser.
 
-Before you type, the popup can show open windows and frequently used apps. Turn that off in Features if you want a blank entry.
+Before you type, the popup can show frequently used apps and open windows. Windows-first looks (Pop!_OS) put windows above apps here too. Turn that off in Features if you want a blank entry.
 
 ## Prefix Modes
 
@@ -182,7 +182,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
-- `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home.
+- `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
 - Typed `~/` `./` and absolute paths open in the default handler. Existence is checked asynchronously so a hung network mount cannot stall the compositor.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.

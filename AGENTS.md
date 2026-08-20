@@ -182,7 +182,7 @@ results are combined in this order urls first then filesystem paths then apps th
 
 the priority is set in searchController.js do not change it without reason
 
-popos look uses windows-first result order so open windows sit above apps the way the cosmic launcher does other looks keep apps first
+popos look uses windows-first result order so open windows sit above apps the way the cosmic launcher does other looks keep apps first empty-state suggestions use the same order
 
 prefix modes when enabled jump to a single provider
 

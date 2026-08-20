@@ -11,7 +11,7 @@ import {searchUrl} from './urlSearch.js';
 import {searchPath} from './pathSearch.js';
 import {searchCommand} from './commandSearch.js';
 import {searchRecentFiles} from './recentFilesSearch.js';
-import {flagsFromSettings, planSearch} from './searchPlan.js';
+import {flagsFromSettings, planSearch, mergeEmptySuggestions} from './searchPlan.js';
 import {collectSearchResults} from './searchRun.js';
 
 const PROVIDERS = {
@@ -40,13 +40,11 @@ export function runEmptySuggestions(settings) {
         return [];
 
     const maxResults = settings.get_int('max-results');
-    const results = [];
-
-    if (settings.get_boolean('enable-window-search'))
-        results.push(...searchWindows('', maxResults));
-
-    if (settings.get_boolean('enable-app-search'))
-        results.push(...searchFrequentApps(maxResults));
-
-    return results;
+    const windows = settings.get_boolean('enable-window-search')
+        ? searchWindows('', maxResults)
+        : [];
+    const apps = settings.get_boolean('enable-app-search')
+        ? searchFrequentApps(maxResults)
+        : [];
+    return mergeEmptySuggestions(settings.get_string('result-order'), windows, apps);
 }

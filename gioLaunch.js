@@ -3,18 +3,14 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {firstCommandArg, commandIsReady} from './commandReady.js';
+import {firstCommandArg, commandUsesPathLookup} from './commandReady.js';
 import {expandHomeArgv} from './homePath.js';
 
 export function spawnArgv(argv) {
     const home = GLib.get_home_dir() || '';
     const resolved = expandHomeArgv(argv, home);
     const exe = firstCommandArg(resolved);
-    if (!commandIsReady(
-        exe,
-        name => GLib.find_program_in_path(name),
-        path => Gio.File.new_for_path(path).query_exists(null),
-    ))
+    if (commandUsesPathLookup(exe) && !GLib.find_program_in_path(exe))
         return;
 
     const launcher = new Gio.SubprocessLauncher({
@@ -23,7 +19,13 @@ export function spawnArgv(argv) {
     // gnome-shell cwd is often / so run the command from the user home
     if (home)
         launcher.set_cwd(home);
-    const proc = launcher.spawnv(resolved);
+    let proc;
+    // spawnv raises gerror if the binary vanished after the ready check
+    try {
+        proc = launcher.spawnv(resolved);
+    } catch (e) {
+        return;
+    }
     // wait_async holds the subprocess until exit so gc cannot SIGTERM it
     proc.wait_async(null, (p, res) => {
         try {

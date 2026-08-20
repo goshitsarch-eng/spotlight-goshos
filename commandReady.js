@@ -25,3 +25,20 @@ export function commandIsReady(exe, findInPath, pathExists) {
         return Boolean(findInPath(exe));
     return Boolean(pathExists(exe));
 }
+
+export function commandRowMeta(query, ready) {
+    if (!ready) {
+        return {
+            type: 'command',
+            title: query,
+            description: 'Command not found',
+            icon: 'dialog-warning-symbolic',
+        };
+    }
+    return {
+        type: 'command',
+        title: query,
+        description: 'Run command',
+        icon: 'utilities-terminal-symbolic',
+    };
+}

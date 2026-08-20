@@ -55,6 +55,18 @@ export function shouldRefreshPath(enablePath, plan) {
     return plan.providers.includes('path') && isPathQuery(plan.query);
 }
 
+export function shouldRefreshCommand(enableCommand, plan) {
+    if (!enableCommand)
+        return false;
+    return plan.mode === 'command' && plan.providers.includes('command');
+}
+
+export function mergeEmptySuggestions(resultOrder, windows, apps) {
+    if (resultOrder === 'windows-first')
+        return windows.concat(apps);
+    return apps.concat(windows);
+}
+
 export function planSearch(text, flags) {
     const parsed = flags.prefixModes
         ? parseQuery(text)

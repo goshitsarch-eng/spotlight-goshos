@@ -7,10 +7,11 @@ import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
-import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles, shouldRefreshPath} from './searchPlan.js';
+import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand} from './searchPlan.js';
 import {getTheme, iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
 import {ensurePath} from './pathSearch.js';
+import {ensureCommand} from './commandSearch.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -95,6 +96,8 @@ export class ResultsRenderer {
             ensureRecentFiles(refresh);
         if (shouldRefreshPath(this._settings.get_boolean('enable-path-open'), plan))
             ensurePath(plan.query, refresh);
+        if (shouldRefreshCommand(this._settings.get_boolean('enable-command-run'), plan))
+            ensureCommand(plan.query, refresh);
     }
 
     _paint(results, query) {

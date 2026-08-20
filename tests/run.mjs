@@ -8,7 +8,7 @@ import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from 
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
-import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath} from '../searchPlan.js';
+import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, mergeEmptySuggestions} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
@@ -17,7 +17,7 @@ import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../sc
 import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSettle, RECENT_EXISTS_BUDGET_MS} from '../recentXbel.js';
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, isNavAction} from '../keyAction.js';
-import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
+import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandRowMeta} from '../commandReady.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriFromAbsolute} from '../homePath.js';
 import {pathRowMeta} from '../pathMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
@@ -345,6 +345,11 @@ assert(shouldRefreshPath(true, planSearch('~/docs', allOn)), 'home path refreshe
 assert(shouldRefreshPath(true, planSearch('/tmp', allOn)), 'absolute path refreshes');
 assert(!shouldRefreshPath(true, planSearch('chrome', allOn)), 'plain words skip path io');
 assert(!shouldRefreshPath(false, planSearch('~/docs', allOn)), 'disabled path skips');
+assert(shouldRefreshCommand(true, planSearch('! ls', allOn)), 'command prefix refreshes');
+assert(!shouldRefreshCommand(false, planSearch('! ls', allOn)), 'disabled command skips');
+assert(!shouldRefreshCommand(true, planSearch('ls', allOn)), 'plain words skip command io');
+assertEq(mergeEmptySuggestions('default', ['w'], ['a']).join(','), 'a,w', 'empty state apps first');
+assertEq(mergeEmptySuggestions('windows-first', ['w'], ['a']).join(','), 'w,a', 'empty state windows first');
 assert(planSearch('~/docs', allOn).providers.includes('path'), 'home path is planned');
 assert(planSearch('/tmp', allOn).providers.includes('path'), 'absolute path is planned');
 assertEq(planSearch('~/docs', appsOnly).providers.join(','), 'apps', 'path off stays apps');
@@ -682,6 +687,8 @@ assertEq(pathRowMeta('~/nope', '/home/u/nope', 'missing').description, 'Path not
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory').icon, 'folder-symbolic', 'dir icon');
 assertEq(pathRowMeta('/tmp/a.pdf', '/tmp/a.pdf', 'file').icon, 'x-office-document-symbolic', 'file icon');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
+assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
+assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');
 
 assertEq(normalizeAccelKey('A'), 'a', 'letter keys lowercased');
 assertEq(normalizeAccelKey('space'), 'space', 'named keys stay');
