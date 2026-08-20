@@ -10,6 +10,7 @@ import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
+import {appMatchTier} from '../appMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
@@ -204,6 +205,14 @@ assertEq(evaluateArithmetic('2^3*2'), 16, 'power before multiply');
 assertEq(formatNumber(1.2300000000001), '1.23', 'trim float noise');
 
 // word prefix
+assertEq(appMatchTier('Firefox', 'Web Browser', 'firefox.desktop', ['browser'], 'fire'), 0, 'name prefix');
+assertEq(appMatchTier('Google Chrome', '', 'google-chrome.desktop', [], 'chro'), 1, 'word prefix');
+assertEq(appMatchTier('Firefox', 'Web Browser', 'org.mozilla.firefox.desktop', [], 'browser'), 3, 'generic name');
+assertEq(appMatchTier('Firefox', '', 'org.mozilla.firefox.desktop', [], 'mozilla'), 4, 'desktop id');
+assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['Internet', 'Browser'], 'browser'), 5, 'keyword');
+assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], ''), -1, 'empty query no app');
+assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss');
+
 assert(wordPrefixMatch('google chrome', 'chro'), 'chro matches chrome word');
 assert(!wordPrefixMatch('google chrome', 'ogle'), 'mid-word is not prefix');
 assert(wordPrefixMatch('gnome-builder', 'bui'), 'hyphen boundary');

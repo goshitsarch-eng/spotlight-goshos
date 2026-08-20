@@ -97,6 +97,7 @@ Pure functions with no side effects:
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
+- **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 
 ### Preference Pages
 
@@ -163,7 +164,7 @@ That compiles the schema, parses every JavaScript file, runs `tests/run.mjs`, an
 
 Manual testing on GNOME Shell 50 Wayland:
 
-1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear.
+1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName or Keywords.
 2. Type `12*8+3` and Enter — clipboard should contain `99`.
 3. Type `=2^8` — calculator prefix should show `256`.
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, and Light.

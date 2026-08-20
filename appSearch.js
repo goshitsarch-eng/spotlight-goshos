@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
-import {wordPrefixMatch} from './wordMatch.js';
+import {appMatchTier} from './appMatch.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -37,33 +37,16 @@ export function searchApps(query, maxResults) {
 
         const name = app.get_name() || '';
         const id = app.get_id() || '';
-        const nameLower = name.toLowerCase();
-        const idLower = id.replace('.desktop', '').toLowerCase();
-
-        // tier determines match quality - lower is better
-        // tier 0: name starts with query
-        // tier 1: any word in name starts with query
-        // tier 2: name contains query anywhere
-        // tier 3: desktop id contains query
-        // -1: no match
-        let tier = -1;
-
-        if (nameLower.startsWith(q)) {
-            tier = 0;
-        } else if (wordPrefixMatch(nameLower, q)) {
-            tier = 1;
-        } else if (nameLower.includes(q)) {
-            tier = 2;
-        } else if (idLower.includes(q)) {
-            tier = 3;
-        }
-
+        const generic = app.get_generic_name() || '';
+        const keywords = app.get_keywords() || [];
+        const tier = appMatchTier(name, generic, id, keywords, q);
         if (tier < 0)
             continue;
 
         // strip a known trailing variant suffix (e.g. "Firefox ESR" -> "firefox")
         // rather than splitting on any hyphen, which would also wrongly
         // truncate apps whose real name contains one, like "GNOME-Builder"
+        const nameLower = name.toLowerCase();
         const baseName = nameLower
             .replace(/[\s-]+(esr|beta|nightly|dev|canary|stable|preview)$/, '')
             .trim();

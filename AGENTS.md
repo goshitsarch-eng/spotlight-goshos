@@ -119,6 +119,7 @@ gosh-is-launcher@nin/
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers (pure)
     windowMatch.js            window title and class match (pure)
+    appMatch.js               app name generic-name keyword tiers (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     commandSearch.js          command runner
@@ -151,7 +152,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch wordMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

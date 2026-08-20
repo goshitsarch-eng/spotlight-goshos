@@ -135,6 +135,7 @@ required = [
     'backdropBox.js',
     'searchRun.js',
     'windowMatch.js',
+    'appMatch.js',
     'scrollView.js',
 ]
 missing = [n for n in required if n not in names]
