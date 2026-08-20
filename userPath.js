@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export function extraPathDirs(home) {
-    if (!home)
-        return [];
-    return [
-        `${home}/.local/bin`,
-        `${home}/.cargo/bin`,
-        `${home}/bin`,
-    ];
+    const dirs = [];
+    if (home) {
+        dirs.push(
+            `${home}/.local/bin`,
+            `${home}/.local/share/flatpak/exports/bin`,
+            `${home}/.cargo/bin`,
+            `${home}/go/bin`,
+            `${home}/bin`,
+        );
+    }
+    // gnome-shell path often omits the system flatpak export dir
+    dirs.push('/var/lib/flatpak/exports/bin');
+    return dirs;
 }
 
 export function joinPathDirs(extraDirs, currentPath) {

@@ -86,6 +86,8 @@ assertEq(evaluateArithmetic('8 divided by 2'), 4, 'spoken divide');
 assertEq(evaluateArithmetic('8 over 2'), 4, 'spoken over');
 assertEq(evaluateArithmetic('5 squared'), 25, 'spoken squared');
 assertEq(evaluateArithmetic('2 cubed'), 8, 'spoken cubed');
+assertEq(evaluateArithmetic('2 to the power of 8'), 256, 'spoken power');
+assertEq(evaluateArithmetic('negative 3 plus 5'), 2, 'spoken negative');
 assertEq(evaluateArithmetic('sometimes'), null, 'times stays inside a word');
 assertEq(evaluateArithmetic('plus'), null, 'bare plus is not math');
 assertEq(evaluateArithmetic('leftover'), null, 'over stays inside a word');
@@ -1206,7 +1208,8 @@ assertEq(resolveSpawnPath('scripts/deploy', '/home/u'), '/home/u/scripts/deploy'
 assertEq(resolveSpawnPath('ls', '/home/u'), 'ls', 'bare name stays for PATH');
 assertEq(resolveSpawnPath('./tool', '/home/u'), '/home/u/tool', 'dot slash exe');
 assertEq(resolveCommandArgv(['scripts/deploy', 'notes.txt'], '/home/u').join(','), '/home/u/scripts/deploy,notes.txt', 'only exe is made absolute');
-assertEq(extraPathDirs('/home/u').join(','), '/home/u/.local/bin,/home/u/.cargo/bin,/home/u/bin', 'user path dirs');
+assertEq(extraPathDirs('/home/u').join(','), '/home/u/.local/bin,/home/u/.local/share/flatpak/exports/bin,/home/u/.cargo/bin,/home/u/go/bin,/home/u/bin,/var/lib/flatpak/exports/bin', 'user path dirs');
+assertEq(findUserProgram('tool', () => null, p => p === '/home/u/go/bin/tool', extraPathDirs('/home/u')), '/home/u/go/bin/tool', 'finds ~/go/bin');
 assertEq(joinPathDirs(['/home/u/.local/bin'], '/usr/bin'), '/home/u/.local/bin:/usr/bin', 'user path prepends');
 assertEq(findUserProgram('gh', () => null, p => p === '/home/u/.local/bin/gh', extraPathDirs('/home/u')), '/home/u/.local/bin/gh', 'finds ~/.local/bin');
 assertEq(findUserProgram('ls', () => '/bin/ls', () => false, extraPathDirs('/home/u')), '/bin/ls', 'system PATH wins');

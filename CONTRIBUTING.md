@@ -259,6 +259,7 @@ Manual testing on GNOME Shell 50 Wayland:
 68. Type `10 km into mi` or `how many miles in 10 km` — a Units row should appear. Type `5 squared` or `8 over 2` — calculator rows should appear.
 69. Type `show me the time` or `tell me the time` — a Clock row should appear. Type `today's date` or `what day is it` — a Date row should appear.
 70. Type `how many miles are 10 km` — a Units row should appear. Type `rebeccapurple` — a Color row should copy `#663399`. On a machine whose only terminal is WezTerm or Tilix, `~/` plus a folder should still offer Open in Terminal.
+71. Type `2 to the power of 8` or `negative 3 plus 5` — calculator rows should appear. With the command runner on, a tool installed only as a Flatpak export or in `~/go/bin` should be found.
 
 ## Submitting Changes
 

@@ -53,6 +53,8 @@ export function normalizeMath(input) {
         .replace(/\b(?:times|multiplied\s+by)\b/gi, '*')
         .replace(/\bdivided\s+by\b/gi, '/')
         .replace(/\bover\b/gi, '/')
+        .replace(/\bto the power of\b/gi, '^')
+        .replace(/\bnegative\b/gi, '-')
         .replace(/√\s*\(/g, 'sqrt(')
         .replace(/√\s*(\d+(?:\.\d+)?)/g, 'sqrt($1)')
         .replace(/(\d)\s+[xX]\s+(\d)/g, '$1*$2')
