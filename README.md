@@ -36,7 +36,7 @@ Picking a look applies its colors and the matching chrome (position, density, he
 
 Results are aggregated in the following order. Each category is rendered under its own section header unless you hide headers. Web search appears only when every preceding category returned nothing, or immediately when you use the `@` prefix.
 
-1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, or `[IPv6]`. Local, LAN, and IPv6 addresses open with `http`; public hosts use `https`.
+1. **URLs** — `https://…`, `www.…`, a bare domain such as `example.com`, `host:port`, `localhost`, dotted IPv4, `[IPv6]`, or `*.local`. Local, LAN, mDNS, and IPv6 addresses open with `http`; public hosts use `https`. Names that look like files (`node.js`, `readme.md`) stay app and file searches.
 2. **Applications** — Matched against every installed `.desktop` entry using prefix, word-prefix, and substring matching. Ranking combines match quality with usage frequency from `Shell.AppUsage`. Parental controls hide blocked apps.
 3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, and unary negation. A bare number such as `42` is not math unless you prefix it (`=42`).
 4. **Windows** — Switch to an open window by title or window class.

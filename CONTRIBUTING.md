@@ -174,7 +174,7 @@ Manual testing on GNOME Shell 50 Wayland:
 9. Click outside the popup — it must close without crashing the shell (Clutter 18). On a second monitor the click must still close it.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
-12. Type `localhost:3000` — a URL result should open `http://localhost:3000`.
+12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
 13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
 14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it.
 

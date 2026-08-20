@@ -10,18 +10,44 @@ const DOMAIN_RE = new RegExp(
 const LOCAL_RE = /^(localhost|127\.0\.0\.1)(:\d{1,5})?([/?#]\S*)?$/i;
 const IPV4_RE = /^(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?([/?#]\S*)?$/;
 const IPV6_RE = /^\[([0-9a-f:.]+)\](:\d{1,5})?([/?#]\S*)?$/i;
+const PRIVATE_SUFFIX_RE = /\.(local|lan|home|internal|home\.arpa)$/i;
 
-// scheme-less hostnames need a dot so plain words stay app searches
-// localhost and dotted ipv4 are the exception because they are typed as sites
+// last labels that are almost always files not sites
+// even when they collide with a country code such as md or py
+const FILE_EXTS = new Set([
+    'md', 'py', 'rs', 'ts', 'js', 'jsx', 'tsx', 'c', 'h', 'go', 'rb', 'php',
+    'java', 'kt', 'css', 'html', 'htm', 'xml', 'json', 'yml', 'yaml', 'toml',
+    'txt', 'log', 'conf', 'ini', 'cfg', 'png', 'jpg', 'jpeg', 'gif', 'svg',
+    'webp', 'ico', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'tar', 'gz',
+    'mp3', 'mp4', 'wav', 'exe', 'deb', 'rpm', 'so', 'dll', 'vue', 'sql',
+    'db', 'lock', 'map', 'wasm', 'dart', 'swift', 'lua', 'zig', 'desktop',
+    'service', 'timer', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'bat', 'env',
+]);
+
+// scheme-less hostnames need a real site tld so node.js and readme.md
+// stay app and file searches
+export function isPlausibleWebHost(host) {
+    if (!host)
+        return false;
+    const parts = host.split('.').filter(part => part.length > 0);
+    if (parts.length < 2)
+        return false;
+    const tld = parts[parts.length - 1].toLowerCase();
+    if (FILE_EXTS.has(tld))
+        return false;
+    return /^[a-z]{2,}$/.test(tld);
+}
+
 export function isUrlQuery(query) {
     const trimmed = query.trim();
     if (trimmed.length === 0 || /\s/.test(trimmed))
         return false;
-    return SCHEME_RE.test(trimmed) ||
-           DOMAIN_RE.test(trimmed) ||
-           LOCAL_RE.test(trimmed) ||
-           IPV4_RE.test(trimmed) ||
-           IPV6_RE.test(trimmed);
+    if (SCHEME_RE.test(trimmed) ||
+        LOCAL_RE.test(trimmed) ||
+        IPV4_RE.test(trimmed) ||
+        IPV6_RE.test(trimmed))
+        return true;
+    return DOMAIN_RE.test(trimmed) && isPlausibleWebHost(hostOfQuery(trimmed));
 }
 
 export function hostOfQuery(query) {
@@ -43,6 +69,8 @@ export function schemeForHost(host) {
     if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host))
         return 'http';
     if (host.indexOf(':') !== -1)
+        return 'http';
+    if (PRIVATE_SUFFIX_RE.test(host))
         return 'http';
     return 'https';
 }

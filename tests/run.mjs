@@ -1,6 +1,6 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
-import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost} from '../urlMatch.js';
+import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {popupOrigin} from '../popupPosition.js';
 import {backdropBox} from '../backdropBox.js';
@@ -106,6 +106,16 @@ assert(isUrlQuery('http://[fe80::1]/'), 'ipv6 scheme');
 assertEq(hostOfQuery('[::1]:8080'), '::1', 'ipv6 host');
 assertEq(normalizeUrl('[::1]:3000'), 'http://[::1]:3000', 'ipv6 uses http');
 assertEq(schemeForHost('::1'), 'http', 'ipv6 scheme http');
+assert(!isUrlQuery('node.js'), 'js file is not a url');
+assert(!isUrlQuery('readme.md'), 'markdown is not a url');
+assert(!isUrlQuery('package.json'), 'json is not a url');
+assert(!isUrlQuery('photo.png'), 'image is not a url');
+assert(!isPlausibleWebHost('node.js'), 'js tld rejected');
+assert(isUrlQuery('site.de'), 'country domain is a url');
+assert(isUrlQuery('nas.local'), 'mdns host is a url');
+assertEq(normalizeUrl('nas.local'), 'http://nas.local', 'mdns uses http');
+assertEq(schemeForHost('printer.local'), 'http', 'local suffix is http');
+assertEq(schemeForHost('box.lan'), 'http', 'lan suffix is http');
 
 assert(canOpenPopup(false, false, false, false), 'idle can open');
 assert(!canOpenPopup(true, false, false, false), 'open flag blocks');
