@@ -12,6 +12,7 @@ import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
 import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
 import {resolveKeyAction, isNavAction} from '../keyAction.js';
+import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -57,6 +58,8 @@ assertEq(parseQuery('   ').query, '', 'empty trim');
 assert(Object.keys(PREFIXES).length === 6, 'expected six prefixes');
 
 // urls
+assert(isUrlQuery('file:///tmp/notes.txt'), 'file url');
+assertEq(normalizeUrl('file:///tmp/notes.txt'), 'file:///tmp/notes.txt', 'keep file scheme');
 assert(isUrlQuery('https://example.com'), 'https url');
 assert(isUrlQuery('www.example.com'), 'www url');
 assert(isUrlQuery('example.com'), 'bare domain');
@@ -77,6 +80,8 @@ assert(themeIds.includes('ulauncher'), 'ulauncher theme');
 assert(themeIds.includes('krunner'), 'krunner theme');
 assert(themeIds.includes('gnome'), 'gnome theme');
 assert(themeIds.includes('rofi'), 'rofi theme');
+assert(themeIds.includes('raycast'), 'raycast theme');
+assert(themeIds.includes('albert'), 'albert theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
 
@@ -132,6 +137,8 @@ assert(matchSettingsPanels('wifi', 5).some(p => p.id === 'wifi'), 'wifi panel');
 assert(matchSettingsPanels('wi-fi', 5).some(p => p.id === 'wifi'), 'wi-fi hyphen');
 assert(matchSettingsPanels('display', 5).some(p => p.id === 'display'), 'displays');
 assert(matchSettingsPanels('wellbeing', 5).some(p => p.id === 'wellbeing'), 'wellbeing');
+assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyword');
+assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
 
 // selection wrap vs page clamp
@@ -215,6 +222,27 @@ applyLookSettings({
 }, getTheme('rofi'));
 assertEq(stored['row-density'], 'compact', 'rofi is compact');
 assertEq(stored['show-section-headers'], false, 'rofi hides headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('raycast'));
+assertEq(stored['show-section-headers'], false, 'raycast hides headers');
+assertEq(stored['popup-position'], 'center', 'raycast is centered');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('albert'));
+assertEq(stored['show-section-headers'], true, 'albert keeps headers');
+assertEq(iconSizeForLook(getTheme('raycast').look, 'comfortable') >
+    iconSizeForLook(getTheme('albert').look, 'comfortable'), true, 'raycast icons larger than albert');
 
 for (const theme of THEMES)
     assert(theme.look && theme.look.position && theme.look.resultOrder && theme.look.iconSize, `look profile ${theme.id}`);
@@ -253,6 +281,8 @@ assert(css.includes('.gosh-container'), 'base container class');
 assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
 assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
+assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
+assert(css.includes('background-color: #1d99f3'), 'albert selected row');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
 
 // scrollview helpers speak both the 45 and 48 apis
@@ -316,6 +346,16 @@ assertEq(nextSelectedIndex(1, 999, 6), 5, 'end clamps to last');
 assertEq(resolveKeyAction('3', false, true, true).index, 2, 'alt 3');
 assertEq(resolveKeyAction('3', false, true, false).type, 'propagate', 'alt 3 without hints');
 assertEq(resolveKeyAction('a', false, false, false).type, 'propagate', 'letters propagate');
+
+assertEq(firstCommandArg([]), '', 'empty argv');
+assertEq(firstCommandArg(['ls', '-la']), 'ls', 'first arg');
+assert(commandUsesPathLookup('ls'), 'bare name uses PATH');
+assert(!commandUsesPathLookup('/bin/ls'), 'absolute skips PATH');
+assert(!commandUsesPathLookup('./tool'), 'relative slash skips PATH');
+assert(commandIsReady('ls', name => name === 'ls' ? '/bin/ls' : null, () => false), 'path lookup hit');
+assert(!commandIsReady('nope', () => null, () => false), 'missing on PATH');
+assert(commandIsReady('/bin/ls', () => null, path => path === '/bin/ls'), 'absolute exists');
+assert(!commandIsReady('/no/such', () => '/bin/true', () => false), 'absolute missing');
 assert(isNavAction('move'), 'move is nav');
 assert(!isNavAction('propagate'), 'propagate is not nav');
 

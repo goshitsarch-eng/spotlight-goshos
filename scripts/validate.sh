@@ -126,6 +126,7 @@ required = [
     'prefs/appearancePage.js',
     'schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.xml',
     'gioLaunch.js',
+    'commandReady.js',
     'scrollView.js',
 ]
 missing = [n for n in required if n not in names]

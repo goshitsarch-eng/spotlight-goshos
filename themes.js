@@ -104,6 +104,34 @@ export const THEMES = [
             iconSize: 22,
         },
     },
+    {
+        id: 'raycast',
+        title: 'Raycast',
+        description: 'Dark rounded panel with a red caret and no section headers',
+        hint: 'Search for apps and commands...',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 32,
+        },
+    },
+    {
+        id: 'albert',
+        title: 'Albert',
+        description: 'Breeze-dark card with a Plasma-blue selected row',
+        hint: 'Enter a query',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: true,
+            resultOrder: 'default',
+            iconSize: 26,
+        },
+    },
 ];
 
 export function getTheme(id) {

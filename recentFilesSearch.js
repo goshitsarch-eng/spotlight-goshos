@@ -35,13 +35,22 @@ function _flush() {
         cb();
 }
 
+// gio finish raises gerror when the file cannot be queried
+function _existsFinished(src, res) {
+    try {
+        return src.query_exists_finish(res);
+    } catch (e) {
+        return false;
+    }
+}
+
 function _startLoad() {
     const loadId = _loadId;
     _loading = true;
     const path = GLib.build_filenamev([GLib.get_user_data_dir(), 'recently-used.xbel']);
     const file = Gio.File.new_for_path(path);
     file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, existsRes) => {
-        const exists = src.query_exists_finish(existsRes);
+        const exists = _existsFinished(src, existsRes);
         if (loadId !== _loadId)
             return;
         if (!exists) {
@@ -51,7 +60,18 @@ function _startLoad() {
             return;
         }
         src.load_contents_async(null, (loaded, loadRes) => {
-            const [, contents] = loaded.load_contents_finish(loadRes);
+            let contents;
+            // finish must run even when the read fails or _loading sticks
+            try {
+                [, contents] = loaded.load_contents_finish(loadRes);
+            } catch (e) {
+                if (loadId !== _loadId)
+                    return;
+                _uris = [];
+                _loading = false;
+                _flush();
+                return;
+            }
             if (loadId !== _loadId)
                 return;
             const text = new TextDecoder().decode(contents);
@@ -74,7 +94,7 @@ function _keepExisting(loadId, uris) {
         const file = Gio.File.new_for_uri(uris[i]);
         const index = i;
         file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, res) => {
-            const exists = src.query_exists_finish(res);
+            const exists = _existsFinished(src, res);
             if (loadId !== _loadId)
                 return;
             if (exists)

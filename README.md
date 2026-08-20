@@ -25,6 +25,8 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
 | **GNOME** | GNOME overview / Adwaita | Native-feeling card with the GNOME blue accent. |
 | **Rofi** | [Rofi](https://github.com/davatorium/rofi) | Square dmenu-style list, compact rows, classic `#005577` selection. |
+| **Raycast** | [Raycast](https://www.raycast.com) | Dark rounded panel, red caret, larger icons, no section headers. |
+| **Albert** | [Albert](https://albertlauncher.github.io) | Breeze-dark card with a `#1d99f3` selected row and section headers. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
@@ -105,7 +107,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -161,6 +163,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Honor parental-control app filtering.
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
+- Close the popup from an idle source after pointer and key handlers so Clutter 18 does not abort when the actor tree changes mid-event.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

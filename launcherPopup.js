@@ -48,6 +48,7 @@ class LauncherPopup extends St.BoxLayout {
         this._settings = extension._settings;
         this._isOpen = false;
         this._positionIdleId = 0;
+        this._closeIdleId = 0;
         this._stageKeyId = 0;
         this._backdrop = null;
         this._focusWatcher = new FocusLossWatcher(this);
@@ -72,7 +73,7 @@ class LauncherPopup extends St.BoxLayout {
         this._keyHandler = new PopupKeyHandler(this, this._selection, this._settings);
         this._renderer = new ResultsRenderer(
             resultsBox, resultsScroll, this._selection, this._settings,
-            (r) => { r.activate(); this.close(); },
+            result => this.activateResult(result),
             (idx) => {
                 // ignore hover selection briefly after keyboard nav
                 // prevents scroll-induced enter-events from jumping selection
@@ -154,7 +155,7 @@ class LauncherPopup extends St.BoxLayout {
         // create and show backdrop first then popup - later addition to
         // chrome means higher in the stacking order so popup naturally
         // sits above the backdrop
-        this._backdrop = new PopupBackdrop(() => this.close());
+        this._backdrop = new PopupBackdrop(() => this.closeSoon());
         this._backdrop.show();
 
         // always re-add popup to chrome to guarantee correct stacking order
@@ -194,6 +195,24 @@ class LauncherPopup extends St.BoxLayout {
         this._renderer.reset();
     }
 
+    // clutter 18 aborts if the actor tree changes inside an input handler
+    // click-outside destroys the backdrop and activate hides this widget
+    // so those paths schedule close after the event finishes
+    closeSoon() {
+        if (this._closeIdleId)
+            return;
+        this._closeIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._closeIdleId = 0;
+            this.close();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    activateResult(result) {
+        this.closeSoon();
+        result.activate();
+    }
+
     close() {
         if (!this._isOpen && !this.visible)
             return;
@@ -206,6 +225,7 @@ class LauncherPopup extends St.BoxLayout {
         }
         this._focusWatcher.stop();
         this._clearIdle('_positionIdleId');
+        this._clearIdle('_closeIdleId');
         this._renderer.destroy();
 
         if (this._backdrop) {
@@ -227,6 +247,8 @@ class LauncherPopup extends St.BoxLayout {
     // closes the popup which removes the backdrop and focus handler then
     // removes us from the chrome layer and chains up to the parent destroy
     destroy() {
+        this._clearIdle('_positionIdleId');
+        this._clearIdle('_closeIdleId');
         this.close();
         this._settings.disconnectObject(this);
         if (this.get_parent())

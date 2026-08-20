@@ -8,7 +8,7 @@ if you are an ai agent read the whole file do not skim
 
 gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome and rofi and can enable or disable every provider from preferences
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast and albert and can enable or disable every provider from preferences
 
 ## design philosophy
 
@@ -24,6 +24,8 @@ the other looks follow real launchers researched for this project
 - krunner is the plasma compact bar with breeze blue and a tight radius
 - gnome follows adwaita
 - rofi is the dmenu-style list with a square frame and the classic #005577 selected row
+- raycast is a dark rounded panel with a red caret and no section headers
+- albert is a breeze-dark card with a #1d99f3 selected row
 
 do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
 
@@ -58,6 +60,8 @@ gnome 50 removed x11 and with it RunDialog._restart plus the global.display rest
 easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want one zip for 45-50 keep GLib.idle_add
 
 parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps
+
+clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes
 
 ### no x11 support
 
@@ -108,6 +112,7 @@ gosh-is-launcher@nin/
     recentFilesSearch.js      recent files provider
     recentXbel.js             parse recently-used.xbel (pure)
     keyAction.js              key press to popup action (pure)
+    commandReady.js           whether a command argv can be spawned (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     commandSearch.js          command runner
@@ -140,7 +145,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -197,7 +202,7 @@ if the monitor geometry changes while the popup is open for example the user cha
 
 the popup does not use Main.pushModal a modal grab swallows pointer events before they reach the stage which makes click-outside detection impossible instead the popup uses two mechanisms working together
 
-first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers the entire primary monitor and listens for button-release-event when the user clicks anywhere outside the popup the click lands on the backdrop and the popup closes the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
+first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers the entire primary monitor and listens for button-release-event when the user clicks anywhere outside the popup the click lands on the backdrop and closeSoon() runs after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
 

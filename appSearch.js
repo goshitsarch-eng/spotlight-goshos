@@ -92,7 +92,7 @@ export function searchApps(query, maxResults) {
             if (shellApp)
                 shellApp.activate();
             else
-                app.launch([], null);
+                app.launch([], global.create_app_launch_context(0, -1));
         },
     }));
 }
@@ -125,7 +125,7 @@ export function searchFrequentApps(maxResults) {
             if (shellApp)
                 shellApp.activate();
             else
-                app.launch([], null);
+                app.launch([], global.create_app_launch_context(0, -1));
         },
     }));
 }

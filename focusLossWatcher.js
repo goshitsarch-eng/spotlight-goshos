@@ -31,7 +31,7 @@ export class FocusLossWatcher {
                 if (!focus || focus === global.stage)
                     return;
                 if (!this._popup.contains(focus))
-                    this._popup.close();
+                    this._popup.closeSoon();
             });
             return GLib.SOURCE_REMOVE;
         });

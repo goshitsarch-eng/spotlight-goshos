@@ -17,6 +17,8 @@
         <choice value="krunner"/>
         <choice value="gnome"/>
         <choice value="rofi"/>
+        <choice value="raycast"/>
+        <choice value="albert"/>
       </choices>
       <default>'spotlight'</default>
       <summary>Launcher look</summary>

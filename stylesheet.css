@@ -465,3 +465,113 @@
   color: #666666;
   padding: 4px 8px 2px 8px;
 }
+
+/* raycast look - dark rounded panel red caret */
+.gosh-theme-raycast {
+  background-color: #161618;
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.gosh-theme-raycast .gosh-entry-box,
+.gosh-theme-raycast .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-raycast .gosh-entry {
+  color: #f5f5f5;
+  caret-color: #ff6363;
+  selection-background-color: #ff6363;
+  font-size: 17px;
+  padding: 12px 12px 14px 0;
+}
+
+.gosh-theme-raycast .gosh-entry StLabel.hint-text {
+  color: #6e6e73;
+}
+
+.gosh-theme-raycast .gosh-search-icon {
+  color: #ff6363;
+}
+
+.gosh-theme-raycast .gosh-result {
+  color: #ececec;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.gosh-theme-raycast .gosh-result:hover,
+.gosh-theme-raycast .gosh-result:focus,
+.gosh-theme-raycast .gosh-result.gosh-selected {
+  background-color: #2c2c2e;
+  color: #ffffff;
+}
+
+.gosh-theme-raycast .gosh-result-description,
+.gosh-theme-raycast .gosh-result-index {
+  color: #8e8e93;
+}
+
+.gosh-theme-raycast .gosh-no-results-title {
+  color: #f5f5f5;
+}
+
+/* albert look - breeze-dark card blue selected row */
+.gosh-theme-albert {
+  background-color: #31363b;
+  border-radius: 6px;
+  border: 1px solid #3d4248;
+  padding: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+
+.gosh-theme-albert .gosh-entry-box,
+.gosh-theme-albert .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-albert .gosh-entry {
+  color: #eff0f1;
+  caret-color: #1d99f3;
+  selection-background-color: #1d99f3;
+  font-size: 16px;
+  padding: 10px 12px 12px 0;
+}
+
+.gosh-theme-albert .gosh-entry StLabel.hint-text {
+  color: #7f8c8d;
+}
+
+.gosh-theme-albert .gosh-search-icon {
+  color: #1d99f3;
+}
+
+.gosh-theme-albert .gosh-result {
+  color: #eff0f1;
+  border-radius: 4px;
+}
+
+.gosh-theme-albert .gosh-result:hover,
+.gosh-theme-albert .gosh-result:focus,
+.gosh-theme-albert .gosh-result.gosh-selected {
+  background-color: #1d99f3;
+  color: #ffffff;
+}
+
+.gosh-theme-albert .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-albert .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.gosh-theme-albert .gosh-section-header {
+  color: #7f8c8d;
+}

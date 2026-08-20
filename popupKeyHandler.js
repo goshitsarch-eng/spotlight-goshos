@@ -87,7 +87,7 @@ export class PopupKeyHandler {
         }
 
         if (action.type === 'close') {
-            this._popup.close();
+            this._popup.closeSoon();
             return Clutter.EVENT_STOP;
         }
         if (action.type === 'move') {
@@ -113,21 +113,16 @@ export class PopupKeyHandler {
 
     _activateIndex(index) {
         const {results} = this._selection;
-        if (index >= 0 && index < results.length) {
-            results[index].activate();
-            this._popup.close();
-        }
+        if (index >= 0 && index < results.length)
+            this._popup.activateResult(results[index]);
         return Clutter.EVENT_STOP;
     }
 
     _activateSelected() {
         const {results, selectedIndex} = this._selection;
-        if (selectedIndex >= 0 && selectedIndex < results.length) {
-            results[selectedIndex].activate();
-            this._popup.close();
-        } else if (results.length > 0) {
-            results[0].activate();
-            this._popup.close();
-        }
+        if (selectedIndex >= 0 && selectedIndex < results.length)
+            this._popup.activateResult(results[selectedIndex]);
+        else if (results.length > 0)
+            this._popup.activateResult(results[0]);
     }
 }

@@ -1,7 +1,7 @@
 // gosh is launcher - url detection
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-const SCHEME_RE = /^(https?:\/\/|www\.)\S+$/i;
+const SCHEME_RE = /^(https?:\/\/|www\.|file:\/\/)\S+$/i;
 const DOMAIN_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+([/?#]\S*)?$/i;
 
 // scheme-less hostnames need a dot so plain words stay app searches
@@ -14,7 +14,7 @@ export function isUrlQuery(query) {
 
 export function normalizeUrl(query) {
     const trimmed = query.trim();
-    if (/^https?:\/\//i.test(trimmed))
+    if (/^(https?:\/\/|file:\/\/)/i.test(trimmed))
         return trimmed;
     return `https://${trimmed}`;
 }
