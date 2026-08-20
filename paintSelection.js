@@ -20,7 +20,7 @@ export function firstSelectableIndex(results) {
         if (results[i].activatable !== false)
             return i;
     }
-    return 0;
+    return -1;
 }
 
 export function paintSelectionIndex(previous, results) {

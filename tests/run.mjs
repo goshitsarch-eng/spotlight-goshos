@@ -89,7 +89,9 @@ assertEq(evaluateArithmetic('one hundred + 1'), 101, 'one hundred');
 assertEq(evaluateArithmetic('a hundred + 1'), 101, 'a hundred');
 assertEq(evaluateArithmetic('a thousand + 1'), 1001, 'a thousand');
 assertEq(evaluateArithmetic('one hundred and twenty + 1'), 121, 'one hundred and twenty');
+assertEq(evaluateArithmetic('one hundred twenty + 1'), 121, 'one hundred twenty');
 assertEq(evaluateArithmetic('one hundred and twenty-one + 1'), 122, 'one hundred and twenty-one');
+assertEq(evaluateArithmetic('one thousand two hundred + 1'), 1201, 'one thousand two hundred');
 assertEq(evaluateArithmetic('twenty thousand + 1'), 20001, 'twenty thousand');
 assertEq(evaluateArithmetic('2 add 3'), 5, 'spoken add');
 assertEq(evaluateArithmetic('8 subtract 3'), 5, 'spoken subtract');
@@ -473,6 +475,8 @@ assertEq(parseUnitQuery('three thousand km to mi').value, 3000, 'three thousand 
 assertEq(parseUnitQuery('twenty km to mi').value, 20, 'twenty km');
 assertEq(parseUnitQuery('a hundred km to mi').value, 100, 'a hundred km');
 assertEq(parseUnitQuery('one hundred and twenty km to mi').value, 120, 'one hundred and twenty km');
+assertEq(parseUnitQuery('one hundred twenty km to mi').value, 120, 'one hundred twenty km');
+assertEq(parseUnitQuery('one thousand two hundred km to mi').value, 1200, 'one thousand two hundred km');
 assertEq(parseUnitQuery('forty five km to mi').value, 45, 'forty five km');
 assertEq(Math.round(convertQuery('10 kms to mi').title.split(' ')[0] * 1000) / 1000, 6.214, 'kms alias');
 assertEq(parseUnitQuery('10km to miles').to, 'miles', 'unit to alias');
@@ -650,6 +654,7 @@ assertEq(settingsArgv('appearance', name => name === 'gnome-control-center')[1],
 assertEq(settingsArgv('wifi', name => name === 'gio')[0], 'gio', 'gio launches panel desktop');
 assertEq(settingsArgv('wifi', name => name === 'gio')[2], 'gnome-wifi-panel.desktop', 'panel desktop id');
 assertEq(settingsArgv('wifi', name => name === 'gapplication')[0], 'gapplication', 'fallback launch settings');
+assertEq(settingsArgv('wifi', name => name === 'gapplication')[3], 'wifi', 'gapplication passes panel');
 assertEq(settingsArgv('wifi', () => null), null, 'no settings binary');
 assertEq(settingsResultMeta({title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, null).activatable, false, 'no launcher stays closed');
 assertEq(settingsResultMeta({id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, ['gnome-control-center', 'wifi']).id, 'wifi', 'settings row id');
@@ -913,6 +918,7 @@ assertEq(parseWorkspaceSwitchQuery('workspace 2').number, 2, 'switch workspace 2
 assertEq(parseWorkspaceSwitchQuery('workspace two').number, 2, 'workspace two');
 assertEq(parseWorkspaceSwitchQuery('workspace twenty').number, 20, 'workspace twenty');
 assertEq(parseWorkspaceSwitchQuery('switch to workspace twenty-one').number, 21, 'workspace twenty-one');
+assertEq(parseWorkspaceSwitchQuery('workspace one hundred twenty').number, 120, 'workspace one hundred twenty');
 assertEq(parseWorkspaceSwitchQuery('switch to workspace two').index, 1, 'switch to workspace two');
 assert(workspaceLabelMatches('Workspace 2', 'workspace two'), 'label workspace two');
 assert(workspaceLabelMatches('Workspace 3', 'ws three'), 'label ws three');
@@ -1440,7 +1446,9 @@ assertEq(normalizeRgbColor('rgb 255 0 0'), '#ff0000', 'rgb without parens');
 assertEq(normalizeRgbColor('rgb 255, 0, 0'), '#ff0000', 'rgb commas without parens');
 assertEq(normalizeRgbColor('rgb'), null, 'bare rgb stays a search');
 assertEq(normalizeHslColor('hsl 0 100% 50%'), '#ff0000', 'hsl without parens');
+assertEq(normalizeHslColor('hsl 0, 100%, 50%'), '#ff0000', 'hsl commas without parens');
 assertEq(normalizeHwbColor('hwb 0 0% 0%'), '#ff0000', 'hwb without parens');
+assertEq(normalizeHwbColor('hwb 0, 0%, 0%'), '#ff0000', 'hwb commas without parens');
 assertEq(normalizeRgbColor('rgb(255 0 0)'), '#ff0000', 'modern rgb');
 assertEq(normalizeRgbColor('rgb(255 0 0 / 40%)'), '#ff0000', 'modern rgb slash alpha');
 assertEq(normalizeRgbColor('rgba(0,128,255,0.5)'), '#0080ff', 'rgba ignores alpha');
@@ -1497,6 +1505,9 @@ assertEq(firstSelectableIndex([
     {type: 'path', title: '~/docs', activatable: false},
     {type: 'path', title: 'Open in Terminal'},
 ]), 1, 'skip pending path on first paint');
+assertEq(firstSelectableIndex([
+    {type: 'path', title: '~/docs', activatable: false},
+]), -1, 'no highlight when nothing is ready');
 assertEq(resultSelectionKey({type: 'window', title: 'Firefox', id: 42}, 1).id, 42, 'selection key keeps id');
 const pendingThenReady = [
     {type: 'path', title: '~/docs', activatable: false, activate: () => {}},

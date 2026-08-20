@@ -189,6 +189,10 @@ gosh-is-launcher@nin/
         featuresPage.js
         webSearchPage.js
         aboutPage.js
+    scripts/
+        pack.sh               ego zip
+        install.sh            local uuid install from that zip
+        validate.sh           syntax schema tests and zip checks
 ```
 
 pure modules (themes webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
@@ -370,6 +374,8 @@ run the validator
 ```bash
 bash scripts/validate.sh
 ```
+
+`scripts/install.sh` packs that zip and extracts only those files into the local uuid directory do not `cp -r` the repository tree into `gosh-is-launcher@nin`
 
 if you do not have the script use gjs or node to parse each file
 

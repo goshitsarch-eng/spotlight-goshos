@@ -21,10 +21,10 @@ cd spotlight-goshos
 2. Install the extension into your local extensions directory for testing:
 
 ```bash
-mkdir -p ~/.local/share/gnome-shell/extensions/gosh-is-launcher@nin
-cp -r * ~/.local/share/gnome-shell/extensions/gosh-is-launcher@nin/
-glib-compile-schemas ~/.local/share/gnome-shell/extensions/gosh-is-launcher@nin/schemas/
+bash scripts/install.sh
 ```
+
+That packs the EGO zip and extracts only those files into `~/.local/share/gnome-shell/extensions/gosh-is-launcher@nin/`, then compiles the schema. Do not `cp -r` the repository into the UUID directory. Tests and scripts must stay out of the installed extension.
 
 3. Restart GNOME Shell and enable the extension:
 
@@ -161,7 +161,7 @@ Use `connectObject()` / `disconnectObject()` except for `global.display` and `gl
 
 ### Object Lifecycle
 
-Everything created in `enable()` is destroyed in `disable()`. The popup `destroy()` method calls `close()` first so backdrops, idles, and stage handlers are released even if the popup never became visible.
+Everything created in `enable()` is destroyed in `disable()`. `disable()` invalidates recent-file, path, command, and bookmark caches before destroying the popup so in-flight Gio callbacks cannot repaint a torn-down widget. The popup `destroy()` method calls `close()` first so backdrops, idles, and stage handlers are released even if the popup never became visible.
 
 ## Adding a New Search Provider
 

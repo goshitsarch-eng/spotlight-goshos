@@ -92,7 +92,7 @@ export function settingsArgv(panelId, findInPath) {
     if (findInPath('gio'))
         return ['gio', 'launch', `gnome-${id}-panel.desktop`];
     if (findInPath('gapplication'))
-        return ['gapplication', 'launch', 'org.gnome.Settings'];
+        return ['gapplication', 'launch', 'org.gnome.Settings', id];
     return null;
 }
 

@@ -115,6 +115,8 @@ export function normalizeHslColor(query) {
     ) || text.match(
         /^hsla?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
     ) || text.match(
+        /^hsla?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*$/i
+    ) || text.match(
         /^hsla?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%\s*$/i
     );
     if (!match)
@@ -132,6 +134,8 @@ export function normalizeHwbColor(query) {
         /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*(?:,\s*[\d.]+\s*)?\)$/i
     ) || text.match(
         /^hwba?\(\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%(?:\s*\/\s*[\d.%]+)?\s*\)$/i
+    ) || text.match(
+        /^hwba?\s+(-?[\d.]+)(?:deg)?\s*,\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*$/i
     ) || text.match(
         /^hwba?\s+(-?[\d.]+)(?:deg)?\s+([\d.]+)\s*%\s+([\d.]+)\s*%\s*$/i
     );

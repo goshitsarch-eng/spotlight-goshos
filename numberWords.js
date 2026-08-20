@@ -42,8 +42,10 @@ export function replaceNumberWords(text) {
     out = out.replace(/\bthousand\b/gi, '1000');
     out = out.replace(/\bhundred\b/gi, '100');
     out = out.replace(NUMBER_WORD_RE, word => NUMBER_WORDS[word.toLowerCase()]);
-    // one hundred and twenty becomes 100 and 20 before this join
-    return out.replace(/\b(\d+00)\s+and\s+(\d{1,2})\b/g, (_all, hundreds, rest) => String(Number(hundreds) + Number(rest)));
+    // one thousand two hundred becomes 1000 200 before this join
+    out = out.replace(/\b(\d+000)\s+(?:and\s+)?(\d{1,3})\b/g, (_all, thousands, rest) => String(Number(thousands) + Number(rest)));
+    // one hundred twenty becomes 100 20 before this join
+    return out.replace(/\b(\d+00)\s+(?:and\s+)?(\d{1,2})\b/g, (_all, hundreds, rest) => String(Number(hundreds) + Number(rest)));
 }
 
 export function replaceOrdinalPower(text) {

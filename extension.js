@@ -8,6 +8,10 @@ import {KeybindingManager} from './keybinding.js';
 import {shouldCloseOnToggle} from './popupGate.js';
 import {shortcutAttempts} from './shortcutAccel.js';
 import {resetParentalGiveUp} from './appReady.js';
+import {invalidateRecentFiles} from './recentFilesSearch.js';
+import {invalidatePathLookup} from './pathSearch.js';
+import {invalidateCommandLookup} from './commandSearch.js';
+import {invalidateBookmarks} from './bookmarksSearch.js';
 
 // entry point - enable and disable are kept next to each other for easy review
 export default class GoshIsLauncherExtension extends Extension {
@@ -42,8 +46,12 @@ export default class GoshIsLauncherExtension extends Extension {
     _bindToggle(accelerator) {
         const onToggle = () => this._togglePopup();
         for (const accel of shortcutAttempts(accelerator)) {
-            if (this._keybindingManager.swapTo(accel, onToggle))
-                return;
+            if (!this._keybindingManager.swapTo(accel, onToggle))
+                continue;
+            // prefs must show the grab that actually won
+            if (accel !== accelerator)
+                this._settings.set_strv('toggle-shortcut', [accel]);
+            return;
         }
     }
 
@@ -52,6 +60,12 @@ export default class GoshIsLauncherExtension extends Extension {
 
         this._keybindingManager.disable();
         this._keybindingManager = null;
+
+        // bump load ids before destroy so in-flight gio cannot repaint
+        invalidateRecentFiles();
+        invalidatePathLookup();
+        invalidateCommandLookup();
+        invalidateBookmarks();
 
         this._popup.destroy();
         this._popup = null;

@@ -115,6 +115,36 @@ if [[ -e schemas/org.gnome.shell.extensions.spotlight.gschema.xml ]]; then
   exit 1
 fi
 
+echo "install docs"
+if grep -nE 'cp -r \*' README.md CONTRIBUTING.md; then
+  echo "docs must not copy the repo tree into the uuid"
+  exit 1
+fi
+if [[ ! -x scripts/install.sh ]]; then
+  echo "scripts/install.sh must be executable"
+  exit 1
+fi
+
+echo "install script"
+install_home="$(mktemp -d)"
+XDG_DATA_HOME="$install_home" bash scripts/install.sh >/tmp/gosh-install.out
+python3 - "$install_home" <<'PY'
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1]) / 'gnome-shell/extensions/gosh-is-launcher@nin'
+if not (root / 'extension.js').is_file():
+    raise SystemExit('install missing extension.js')
+if not (root / 'schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.xml').is_file():
+    raise SystemExit('install missing schema')
+names = {path.name for path in root.iterdir()}
+for banned in ('tests', 'scripts', 'README.md', '.github', 'CONTRIBUTING.md'):
+    if banned in names:
+        raise SystemExit(f'install shipped {banned}')
+print(f'install extracted {len(list(root.rglob("*")))} paths')
+PY
+rm -rf "$install_home"
+
 echo "pack zip"
 bash scripts/pack.sh >/tmp/gosh-pack.out
 python3 - <<'PY'
