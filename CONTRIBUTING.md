@@ -1,6 +1,6 @@
-# Contributing to Spotlight
+# Contributing to Gosh Is Launcher
 
-Thank you for your interest in contributing to Spotlight. This document outlines the development workflow, project architecture, code style conventions, and testing procedures expected of all contributions.
+Thank you for your interest in contributing to Gosh Is Launcher (formerly Spotlight). This document outlines the development workflow, project architecture, code style conventions, and testing procedures expected of all contributions.
 
 ## Prerequisites
 
@@ -14,29 +14,31 @@ Thank you for your interest in contributing to Spotlight. This document outlines
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/itsnin/spotlight.git
-cd spotlight
+git clone https://github.com/goshitsarch-eng/spotlight-goshos.git
+cd spotlight-goshos
 ```
 
 2. Install the extension into your local extensions directory for testing:
 
 ```bash
-mkdir -p ~/.local/share/gnome-shell/extensions/spotlight@nin
-cp -r * ~/.local/share/gnome-shell/extensions/spotlight@nin/
-glib-compile-schemas ~/.local/share/gnome-shell/extensions/spotlight@nin/schemas/
+bash scripts/install.sh
 ```
+
+That packs the EGO zip and extracts only those files into `~/.local/share/gnome-shell/extensions/gosh-is-launcher@nin/`, then compiles the schema. Do not `cp -r` the repository into the UUID directory. Tests and scripts must stay out of the installed extension.
 
 3. Restart GNOME Shell and enable the extension:
 
 ```bash
-gnome-extensions enable spotlight@nin
+gnome-extensions enable gosh-is-launcher@nin
 ```
 
 On Wayland, restarting GNOME Shell requires logging out and logging back in.
 
 ## Project Structure
 
-The codebase consists of 22 JavaScript files: 18 at the root level for the shell process and 4 inside `prefs/` for the preferences process. `extension.js` must reside at the root of the archive for the GNOME Extensions website to locate it. The preferences files are isolated under `prefs/` because they execute in a separate GTK4 process and must not import shell-only libraries (`St`, `Clutter`, `Meta`, `Shell`), just as shell-side files must not import GTK-only libraries (`Gtk`, `Gdk`, `Adw`).
+`extension.js` must reside at the root of the archive for the GNOME Extensions website to locate it. Preference files are isolated under `prefs/` because they execute in a separate GTK4 process and must not import shell-only libraries (`St`, `Clutter`, `Meta`, `Shell`), just as shell-side files must not import GTK-only libraries (`Gtk`, `Gdk`, `Adw`).
+
+Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `actionMatch.js`, `calculator.js`, `sectionTitles.js`) must not import any of those libraries so both processes can share them.
 
 ### Entry Points
 
@@ -45,166 +47,302 @@ The codebase consists of 22 JavaScript files: 18 at the root level for the shell
 
 ### UI Components
 
-These files construct the visual elements of the popup:
-
-- **`spotlightPopup.js`** — The popup widget. Handles open/close lifecycle, search rendering, keyboard navigation, and click-outside dismissal.
+- **`launcherPopup.js`** — The popup widget. Handles open/close lifecycle, theme chrome, positioning, and input.
+- **`popupBackdrop.js`** — Click-outside actor. Added with `addTopChrome` so it sits above always-on-top windows.
 - **`searchEntry.js`** — Search input box with magnifying-glass icon.
 - **`resultsContainer.js`** — Scrollable results container.
+- **`scrollView.js`** — GNOME 45–50 `St.ScrollView` attach, policy, and adjustment.
 - **`resultRow.js`** — Constructs a single result row with icon, title, and interaction handlers.
+- **`labelEllipsize.js`** — Keeps long titles on one line inside the fixed-width popup.
 - **`sectionHeader.js`** — Section header label for categorizing results.
 - **`sectionTitles.js`** — Maps result type strings to human-readable section titles.
 - **`noResults.js`** — Empty-state widget displayed when a search yields no matches.
+- **`focusLossWatcher.js`** — Closes on alt-tab. Returns focus to the search entry if a row or scrollbar steals it.
+- **`liveSearchWatcher.js`** — Repaints while open when a window appears or closes, the workspace changes, or an app is installed.
 
 ### Search Providers
 
-Each search type lives in its own file and exports a function that accepts a query string and returns an array of result objects. Every result object must contain `type`, `title`, `icon`, and `activate` properties.
+Each search type lives in its own file and exports a function that accepts a query string and returns an array of result objects. Every result object must contain `type`, `title`, `icon`, `id`, and `activate` properties. The `id` keeps the selected row across an async repaint.
 
 - **`appSearch.js`** — GNOME-style application search via `Shell.AppSystem`.
+- **`appAction.js`** — New window and desktop-file action labels.
 - **`calculatorSearch.js`** — Arithmetic evaluation and clipboard copy.
-- **`systemActionsSearch.js`** — System actions (lock, suspend, restart, etc.) via `Shell.SystemActions` singleton.
+- **`unitSearch.js`** — Length, mass, temperature, volume, data, energy, power, and angle conversion.
+- **`unitMatch.js`** — Unit aliases and conversion math.
+- **`placesSearch.js`** — XDG user folders.
+- **`placeMatch.js`** — Folder titles and keywords.
+- **`bookmarksSearch.js`** — GTK 3/4 folder bookmarks.
+- **`bookmarkParse.js`** — Bookmark file parsing.
+- **`timeSearch.js`** — Local time and date.
+- **`timeMatch.js`** — Time and date query matching.
+- **`colorSearch.js`** — Hex / rgb / hsl / hwb / named color copy.
+- **`colorMatch.js`** — Hex, rgb, hsl, hwb, and CSS name normalization.
+- **`systemActionsSearch.js`** — System actions via `misc/systemActions.js` (`SystemActions.getDefault()`).
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
+- **`windowSearch.js`** — Open window switcher, including modal dialogs.
+- **`windowClose.js`** — `close` / `quit` / `kill` window queries.
+- **`workspaceQuery.js`** — `workspace 2` switch-to-workspace queries.
+- **`recentFilesSearch.js`** — Recently used files.
+- **`urlSearch.js`** — URL / domain opener.
+- **`pathSearch.js`** — `~/` `./` and absolute path opener.
+- **`commandSearch.js`** — Optional `!` command runner.
 
 ### Services
 
-- **`searchController.js`** — Orchestrates all search providers and combines their results in priority order.
+- **`searchController.js`** — Orchestrates all search providers, feature flags, and prefix modes.
 - **`keybinding.js`** — Keybinding manager using `Meta.Display.grab_accelerator`.
+- **`themes.js`** — Look catalog used by the popup and preferences.
 
 ### Utilities
 
 Pure functions with no side effects:
 
 - **`calculator.js`** — Recursive-descent arithmetic parser.
+- **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
+- **`paintSelection.js`** — Keep the selected row across an async repaint.
+- **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint. A closed popup must not accept one.
+- **`focusLoss.js`** — Close on alt-tab, or return focus to the search entry after a row click or when GNOME 48+ reports null focus.
+- **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
+- **`searchPlan.js`** — Provider plan from feature flags.
+- **`urlMatch.js`** — URL detection.
+- **`actionMatch.js`** — System-action keyword matching.
+- **`wordMatch.js`** — GNOME-style word-prefix matching.
+- **`settingsPanels.js`** — Settings panel catalog.
+- **`selectionMath.js`** — Arrow wrap and page-key clamp.
+- **`recentXbel.js`** — Parse `recently-used.xbel`.
+- **`keyAction.js`** — Key press to popup action.
+- **`commandReady.js`** — Whether a parsed command argv can be spawned.
+- **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers, and the prefs label after a failed grab writes the working bind back.
+- **`prefsCombo.js`** — Keep Appearance and Web Search combo rows in sync when gsettings writes a look or engine.
+- **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
+- **`searchLive.js`** — Whether window and app listeners should start or stop when the popup opens or closes.
+- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list. Width settings are CSS pixels and must be scaled to stage pixels on HiDPI.
+- **`uiScale.js`** — Convert between St CSS pixels and Clutter allocation pixels.
+- **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher. Raise a visible on-screen keyboard, reused accent popovers, and the IBus candidate popup above the backdrop.
+- **`unredirect.js`** — Hold compositor unredirect while the popup is open so a fullscreen window cannot hide it.
+- **`backdropBox.js`** — Union box so click-outside covers every monitor.
+- **`searchRun.js`** — Run a search plan against provider functions.
+- **`windowMatch.js`** — Window title / class matching and the workspace-switch result budget.
+- **`windowClose.js`** — Close / quit / kill query parsing.
+- **`workspaceQuery.js`** — Workspace switch query parsing.
+- **`appReady.js`** — Whether an app may appear before parental controls finish, and the give-up after malcontent never answers.
+- **`resultActivate.js`** — Activate a result without taking down the shell.
+- **`terminalLaunch.js`** — Pick a terminal command for a directory.
+- **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
+- **`appMatch.js`** — App name, GenericName, and keyword match tiers.
+- **`homePath.js`** — Expand `~`, `./`, and home-relative slash commands such as `scripts/deploy`.
+- **`userPath.js`** — Extra directories the GNOME Shell PATH often omits (`~/.local/bin`, Flatpak exports, `~/.cargo/bin`, `~/go/bin`, `~/bin`).
+- **`pathMatch.js`** — Path result title, icon, and missing-path copy.
+- **`resultPointer.js`** — Result-row press must stay on the same row.
 
 ### Preference Pages
 
-Each preference page resides in its own file under `prefs/`, since these run exclusively in the preferences process and must remain isolated from shell-only code:
-
 - **`prefs/shortcutPage.js`** — Keyboard shortcut capture and configuration.
-- **`prefs/appearancePage.js`** — Popup width and maximum result count.
+- **`prefs/appearancePage.js`** — Look, position, density, size, and chrome.
+- **`prefs/featuresPage.js`** — Provider and behavior toggles.
 - **`prefs/webSearchPage.js`** — Search engine selection and web search toggle.
 - **`prefs/aboutPage.js`** — About section.
 
 ## Code Style
 
-### Comments
+Follow `AGENTS.md`. The short version:
 
-- All comments must be **lowercase** with **no punctuation**, unless a capital letter or punctuation mark is required to preserve meaning. For example, `curl -fsSL` must retain the capital `S` and `L` because they are case-sensitive command-line flags.
-- Explain **why**, not **what**. The code itself already describes what it does; comments should illuminate the reasoning behind non-obvious decisions.
-- No block-comment boxes, no JSDoc annotations, no `/* */` banners. Use plain `//` comments exclusively.
-- No references to other projects or extensions within comments.
-- No LLM-generated phrasing such as "here we", "let's", "we need to", "note that", "important:", "TODO", or "FIXME".
-- For obscure or uncommon code, provide both **what** and **why**. For conventional code, provide only **why**.
-- Wherever possible, include verified working links to the official GNOME Shell extension documentation at `https://gjs.guide`.
-
-### Code Structure
-
-- Split logic into many small files, each bearing a single responsibility.
-- Keep the entry point (`extension.js`) as minimal as possible — it should only wire components together.
-- Keep `enable()` and `disable()` adjacent to each other in the entry point to facilitate review of cleanup logic.
-- One concept per file; one file per concept.
-- Prefer pure functions with no side effects in utility modules.
-- No TypeScript. This is plain JavaScript with no build step.
-
-### Anti AI-Code Smells
-
-The following patterns are prohibited:
-
-- Wrapping standard API calls in `try`/`catch` blocks. Methods such as `destroy()`, `connect()`, `disconnect()`, `abort()`, and `GLib.Source.remove()` do not throw unhandled exceptions during normal operation.
-- Using `try`/`catch` to silence errors that should never occur. Return `null` or handle the error explicitly instead.
-- Using optional chaining (`?.`) or nullish coalescing (`??`) for methods or properties that are guaranteed to exist.
-- Adding defensive null checks that mask bugs rather than handling them.
-- Writing "just in case" code for situations that cannot occur.
-- Adding comments that describe what a line does — only describe why.
-
-### Review Discipline
-
-- Before producing final output, read every single line you have written.
-- Look for potential issues on every line, not merely the line currently being edited.
-- When fixing a bug, verify whether the same bug pattern exists elsewhere in the codebase.
-- Do not assume a fix works — validate it against the actual code.
+- Lowercase comments with no punctuation unless meaning requires it.
+- Explain why, not what.
+- No `try`/`catch` around standard APIs, no optional chaining, no nullish coalescing for guaranteed methods.
+- `enable()` and `disable()` stay next to each other.
+- One concept per file.
 
 ### Process Isolation
 
 GNOME Shell extensions execute across two distinct processes:
 
-- **The shell process** runs `extension.js` and all root-level JavaScript files. It has access to `St`, `Clutter`, `Meta`, `Shell`, `GLib`, `GObject`, `Gio`, and `Main`. It must never import `Gtk`, `Gdk`, or `Adw` — these conflict with Clutter.
-- **The preferences process** runs `prefs.js` and `prefs/*.js`. It has access to `Gtk`, `Gdk`, `Adw`, and `Gio`. It must never import `St`, `Clutter`, `Meta`, or `Shell` — these conflict with GTK.
-
-Never import a shell-only library in a preferences file, or vice versa. EGO review will reject any extension that violates process isolation.
+- **The shell process** runs `extension.js` and all root-level JavaScript files. It has access to `St`, `Clutter`, `Meta`, `Shell`, `GLib`, `GObject`, `Gio`, and `Main`. It must never import `Gtk`, `Gdk`, or `Adw`.
+- **The preferences process** runs `prefs.js` and `prefs/*.js`. It has access to `Gtk`, `Gdk`, `Adw`, and `Gio`. It must never import `St`, `Clutter`, `Meta`, or `Shell`.
 
 ### Module-Scope Restrictions
 
-GNOME Shell extensions must not create any objects, connect any signals, add any main-loop sources, or modify the shell during module initialization. This means no `new SomeClass()`, no `something.connect()`, and no `GLib.timeout_add()` at the top level of any JavaScript file.
-
-The only exception is static data structures — arrays, plain objects, `Map`, `Set`, and `RegExp` instances. All dynamically allocated memory must be released in `disable()`.
+Do not create objects, connect signals, add main-loop sources, or modify the shell during module initialization. Static data only.
 
 ### Signal Management
 
-All signal connections on GObjects use `connectObject()` and `disconnectObject()` — the convenience API introduced in GNOME Shell 42 that auto-disconnects every signal registered with a given owner object. In `disable()` or `destroy()`, call `disconnectObject(this)` to release every signal connected with `this` as the owner.
-
-The only exceptions use plain `connect()` because the source is not a GObject that supports `connectObject()`:
-
-- `global.display.connect('accelerator-activated')` in `keybinding.js` — disconnected manually in `disable()`.
-- `global.stage.connect('captured-event')` in `spotlightPopup.js` — for click-outside dismissal, disconnected manually in `close()`.
+Use `connectObject()` / `disconnectObject()` except for `global.display` and `global.stage`, which need manual handler ids.
 
 ### Object Lifecycle
 
-Every object created in `enable()` must be destroyed in `disable()`. Every widget added to the chrome layer must be removed. Every main-loop source must be removed. Every signal must be disconnected.
-
-The popup widget overrides `destroy()` to call `close()` first — which pops the modal grab, removes idle sources, and disconnects the captured-event handler — then removes itself from the chrome layer and chains up to the parent destroy.
+Everything created in `enable()` is destroyed in `disable()`. `disable()` invalidates recent-file, path, command, and bookmark caches before destroying the popup so in-flight Gio callbacks cannot repaint a torn-down widget. The popup `destroy()` method calls `close()` first so backdrops, idles, and stage handlers are released even if the popup never became visible.
 
 ## Adding a New Search Provider
 
 1. Create a new file at the root level, for example `mySearch.js`.
 2. Export a function that accepts a query string and returns an array of result objects.
-3. Each result object must contain `type`, `title`, `icon`, and `activate` properties.
+3. Each result object must contain `type`, `title`, `icon`, `id`, and `activate` properties.
 4. Import the new provider in `searchController.js`.
-5. Add it to the `runSearch()` function in the correct priority order.
+5. Add it to `runSearch()` in the correct priority order.
 6. Add the type string to `sectionTitles.js` if a custom section header is desired.
-7. Never create module-scope instances — use lazy calls inside callbacks.
+7. Add an `enable-*` key to the schema and a switch on the Features page.
+8. Never create module-scope instances — use lazy calls inside callbacks.
 
-## Adding a New UI Component
+## Adding a New Look
 
-1. Create a new file at the root level, for example `myWidget.js`.
-2. Export a function that constructs and returns the widget.
-3. Import it in `spotlightPopup.js` where needed.
-4. Use `connectObject()` for all signal connections.
-5. Ensure the widget is destroyed when the popup is destroyed.
+1. Add an entry to `THEMES` in `themes.js`.
+2. Add a `<choice>` to `launcher-theme` in the schema.
+3. Add `.gosh-theme-<id>` rules in `stylesheet.css`.
+4. Do not fork `launcherPopup.js`.
 
 ## Testing
 
-### Static Analysis
-
-Run the EGO-style static analyzer to verify module-scope compliance, absence of deprecated imports, process isolation, and metadata well-formedness:
-
 ```bash
-gjs -c "Reflect.parse(readFile('extension.js'), { target: 'module' })"
+bash scripts/validate.sh
 ```
 
-### Schema Validation
+That compiles the schema, parses every JavaScript file, runs `tests/run.mjs`, and checks process isolation, optional chaining, removed GNOME 50 APIs, and CSS comment style.
 
-Compile the GSettings schema to confirm the XML is valid:
+Manual testing on GNOME Shell 50 Wayland:
 
-```bash
-glib-compile-schemas schemas/
-```
-
-### Syntax Verification
-
-Every JavaScript file must parse as an ES module. A syntax error in any file will cause GNOME Shell to fail loading the extension silently.
-
-### Manual Testing
-
-Test on GNOME Shell 50 under Wayland first, then validate on at least one older supported version. The extension must behave identically across all supported versions.
+1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName, Keywords, or the desktop Comment.
+2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3`, `2**3`, `2 x 3`, `1e3+2`, or `1,000+2` — all should evaluate.
+3. Type `=2^8` — calculator prefix should show `256`.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, Light, PowerToys, and Synapse. Change a look while the popup is open — rows should restyle.
+5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
+6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
+7. Press Home in the middle of a query — the caret should move to the start of the text, not the first result. Press Home again at the start — selection should jump to the first row. End at the end of the query should jump to the last row. Keypad arrows with Num Lock off should move the selection too.
+8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop. Press the shortcut a third time immediately — it must reopen after that close, not stay shut. Press the shortcut twice before the popup is created — the second press must cancel the pending open so Clutter 18 does not add chrome during the key grab.
+9. Click outside the popup — it must close without crashing the shell (Clutter 18) and without activating the window underneath. On a second monitor the click must still close it. A tap on a touchscreen should dismiss the same way.
+10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must stay open and the shell must stay up.
+11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
+12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `::1` — it should open `http://[::1]`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
+13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
+14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it. Set results max height to 800 on a short display — the list must stay inside the work area.
+15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
+16. With an IME composing a character, Enter and arrows must stay with the compose, not activate a result.
+17. Change width or position in preferences while the popup is open — it should move or resize without a reopen. Changing those while typing must not crash the shell.
+18. With the command runner on, `! pwd` should print the home directory, not `/`.
+19. Change resolution or unplug a monitor while the popup is open — it should move into the new work area, and click-outside should still cover every screen.
+20. Toggle a provider or the web engine in preferences while the popup is open — results should update without a reopen. Changing several settings at once for example picking a look should paint once after the keys land not once per key.
+21. With both Firefox and Firefox ESR installed, the one you use more should be the only Firefox row.
+22. Open several windows, focus one, then open the launcher with Pop!_OS (windows first) — that window should be first in the empty-state list. The empty list must not exceed Max results. Switch result order to apps first — frequent apps should lead.
+23. Type `~/` then a folder that exists — it should open that path. Type `/no-such-gosh-path` — the row should say Path not found.
+24. With the command runner on, `! ./` plus a script in your home directory should run, and `! ~/bin/true` should resolve if that file exists.
+25. Type `camera`, `location`, or `microphone` — Privacy & Security should appear. Those are GNOME 50 privacy subpages, not separate panel ids.
+26. Open windows on two workspaces — window rows should say Workspace 1 / Workspace 2. A sticky window should say On all workspaces. Typing `workspace 2` should list windows on that workspace.
+27. Open a recent file under the home directory — the description should start with `~`.
+28. Select a result on Fuzzel — the description must stay dark on the light selected row. On Omarchy, Raycast, and Anyrun the selected description must stay readable on the tinted row.
+29. Type `firefox` while Firefox is open — a New window action should appear under Actions. Type `=0xff` — the result should be 255 with a `0xff` description. `2x3` must still evaluate to 6.
+30. Type `10 km to mi` — a Units row should appear. Type `32 f to c` — the title should be `0 c`. Type `clock` — Lock Screen must not appear; a Clock row with the local time should. Type `50% of 80` — the calculator result should be 40.
+31. Type `docs` — Documents should appear under Folders. Type `time` — the local time should copy with Enter. Open `~/Documents` — the path title should start with `~`.
+32. Type `#ff0000` — a Color row should copy `#ff0000`. Type `# wifi` — Settings should still list Wi-Fi. Unset XDG folders that point at Home must not list Documents as a second Home.
+33. Type `o` — Home must not appear just because the word contains o. Type `~` or `docs` — Home / Documents should. Type `sqrt(16)` or `2pi` — the calculator should evaluate.
+34. Add a GTK bookmark under `~/.config/gtk-3.0/bookmarks` — typing part of its label should open that folder. Disable Bookmarks in Features — it should disappear.
+35. Select a numbered row on Tofi, KRunner, and PowerToys — the 1–9 hint must stay readable on the selected color.
+36. Type `o` with several windows open — they must not all appear just because “Workspace 1” contains o. Type `2` or `workspace 2` to find that workspace. Type `log(100)` — the result should be 2. Type `32°f to c` — the title should be `0 c`. Type `tomorrow` — the date should be tomorrow. Type `rgb(255, 0, 0)` or `rgb 255 0 0` — a Color row should copy `#ff0000`.
+37. Type `firefox` with six other apps matching and Firefox as the best match — New window must still appear under Actions. Type `5!` — the result should be 120. Type `#f00f` — a Color row should copy `#ff0000`. Type `zoom` — Accessibility should appear. The About page must list PowerToys and Synapse.
+38. On a short display, set results max height to 800 and a top look — the list must not grow off the work area even if the empty popup was already clamped to the bottom. Change icon size in Appearance while the popup is open — row icons should resize. Type `2*e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `hsl(0, 100%, 50%)` — a Color row should copy `#ff0000`.
+39. Type `sftp://` plus a host you use — it should open that location, not become a web search. Type `mailto:you@example.com` — it should offer Write email. Type `javascript:alert(1)` — it must not be a URL. Type `rgb(255 0 0)` — a Color row should copy `#ff0000`.
+40. Type `close` plus an open window title — the row should say Close … and Enter should close that window. Type `kill` plus the same title — it should force-quit. Type `50%` — the calculator result should be 0.5. Type `10%3` — the result should be 1. Type `hsl(0deg 100% 50%)` — a Color row should copy `#ff0000`. On a tablet that manages orientation, type `rotation` — Lock Screen Rotation should appear.
+41. Type `workspace` — open windows must not all appear. Type `workspace 2` — a Switch to Workspace 2 row should appear if that workspace exists, plus windows on that workspace. With max results set to 1, only the switch row should appear.
+42. With results visible, `Ctrl+j` and `Ctrl+n` should move down, `Ctrl+k` and `Ctrl+p` should move up. Typing `j` without Control must still insert the letter. Type `1 stone to kg` — a Units row should appear. If parental controls are still initialising, blocked apps must not flash in the list. After they finish, an already-open search must grow app rows without retyping.
+43. Type `~/` plus an existing folder — after the exists check, Open in Terminal should appear under Open Path. Type `docs` — Documents should appear, and Open in Terminal should follow if a terminal is installed.
+44. Open Appearance, change icon size, close prefs, reopen Appearance without changing the look — the custom icon size must still be there. Switch to Onagre — selected rows should be amber with dark descriptions. The About page must list Onagre. With Appearance open, `gsettings set … launcher-theme popos` — the Look, Position, Density, and Result order combos must follow.
+45. Type `hwb(0 0% 0%)` or `hwb(0deg, 0%, 0%)` — a Color row should copy `#ff0000`. Arrow to a later result, then wait for recent files or a path exists-check to finish — the same row should stay selected and stay in view. Change icon size or a provider toggle while a result is selected — that row should stay selected.
+46. Type `~/` plus a path — the first row must say Checking path and Enter must do nothing until the exists check finishes. A missing path must stay Path not found. Change the look with `gsettings set … launcher-theme popos` while the popup is open — it should move to the top, show number hints, and list windows first. Set a shortcut that is already taken — the previous working shortcut must keep working, and the Shortcut page label must snap back to that working bind immediately, not keep the taken key.
+47. Type `1,000 km to mi` — a Units row should appear. Type `1024 bytes to kib` — the title should be `1 kib`. Type `asin(1)` — the calculator result should be 90. Type `log2(8)` — the result should be 3. Type `round(1.5)` — the result should be 2.
+48. Type `yesterday` — the date should be yesterday. Type `1e3 km to mi` — a Units row should appear. Type `yesterdays` — it must not be a clock row.
+49. Open a file on an `sftp` or `smb` share, then search for its name — it should appear under Recent files with the host as the description. An `https` bookmark in `recently-used.xbel` must not appear. Type `screenshot` with Overview closed — the screenshot UI must still open.
+50. Focus a terminal, then another app, then open the launcher with Pop!_OS (windows first) and an empty query — the app you just focused should be first among windows, even on Wayland.
+51. Open the launcher, then lock the screen — the popup must be gone after unlock. Type `e+1` or `=e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `what time is it` — a Clock row should appear. On a short display with a top look, results must stay visible (not a zero-height list).
+52. With the command runner on, `!` plus a script under your home such as `scripts/true` (no `./`) should run after the exists check. A tool installed only in `~/.local/bin` should be found. On GNOME 45–47, `wellbeing` must not appear under Settings. Disable and re-enable the extension — blocked apps must stay hidden until parental controls finish again.
+53. Type `-2^2` — the result should be `-4`. Type `tan(90)` or `0x` or `2foo` — those must not be calculator rows. Turn off Show web search fallback, then type `@ cats` — a web row should still appear. On Raycast, Anyrun, and Omarchy, arrow to a later row — the selected row must be obviously different from its neighbors, and titles must not shift sideways. In Shortcut prefs, click the shortcut row then Tab away — the label must restore the current shortcut.
+54. Type `2 hours to min` — the title should be `120 min`. Type `1 acre to m2` — an area row should appear. Type `.5+1` — the calculator result should be 1.5. Type `1e` — it must stay an app search. Type `2*e` — Euler’s number should evaluate. A GTK bookmark line that is a bare `/home/…` path should open that folder.
+55. Type `100 kph to mph` or `100 km/h to mph` — a speed row should appear. Type `1 m3 to l` — the title should be `1000 l`. Type `1 m² to ft2` — an area row should appear. Type `rgb(100%, 0%, 0%)` — a Color row should copy `#ff0000`. Type `what's the time` — a Clock row should appear.
+56. Type `2pi^2` — the result should be about 19.74, not 39.48. Type `2^3pi` — the result should be about 25.13. Type `~/` plus a path and press Enter while it says Checking path — the popup must stay open. A missing path or `!badcmd` must also stay open.
+57. Type `force quit` plus an open window title — the row should say Kill … and Enter should force-quit. A GTK bookmark line that is `~/Documents` should open that folder. A `javascript:` bookmark must not appear.
+58. On a machine whose only terminal is Kitty, Ghostty, Alacritty, or Foot, `~/` plus a folder should still offer Open in Terminal after the exists check. `xdg-terminal-exec` must still win when it is installed.
+59. Type `32 psi to bar` — a pressure row should appear. Type `1 atm to kpa` — the title should be about `101 kpa`. With the Pop!_OS look and number hints on, a long list should keep 1-9 visible beside the scrollbar.
+60. Type `200 kcal to kj` or `200 calories to kj` — the title should be `836.8 kj`. Type `1 kwh to kj` — the title should be `3600 kj`. Type `1 hp to kw` — a power row should appear. Type `180 deg to rad` or `180° to rad` — an angle row should appear. Type `2π` or `5²` or `sin(90°)` — calculator rows should appear. Type `what time is it now` — a Clock row should appear.
+61. Type `sin 90` or `sqrt 16` — calculator rows should appear. Type `1 cup to tbsp` — the title should be `16 tbsp`. Type `1 fl oz to ml` — a volume row should appear. Type `app.mjs` or `data.csv` — those must not be URL rows. With the command runner on, `!` plus a directory or a non-executable file must stay Command not found and Enter must not close the popup.
+62. Type `1+2=` — the calculator result should be 3. Type `1 000 + 2` — the result should be 1002. Type `1 000 km to mi` — a Units row should appear. Type `example.com.` — a URL row should open `https://example.com`. Type `readme.md.` — it must not be a URL.
+63. Type `open firefox` — Firefox (or your browser) should appear as an app, not only a web search. Type `switch to` plus an open window title — that window should appear. Type `red` or `blue` — a Color row should copy the hex. Type `1+2=3` — the calculator result should be 3. Type `force close` plus an open window title — the row should say Kill … and Enter should force-quit.
+64. Type `find firefox` or `search for firefox` — the app should appear. On a touchscreen, tap a result — it should activate. A finger that slides off the row must not activate.
+65. Type `please open firefox` — the app should appear. Type `lock the screen` — Lock Screen should appear. Type `shut down the computer`, `power off`, or `turn off` — Power Off should appear. Type `sign out` or `sign off` — Log Out should appear. Type `lock orientation` — the rotation row should appear if the tablet manages orientation.
+66. Type `can you open firefox`, `help me open firefox`, `just open firefox`, or `i want to open firefox` — the app should appear. Type `open my documents`, `my downloads`, or `navigate to downloads` — the matching folder should appear. Type `navigate to wifi settings` — Wi-Fi should appear. Type `show me firefox` — the app should appear. Type `what is 2+2` or `calculate 2+2` — a calculator row should appear. Type `convert 10 km to mi` — a Units row should appear. Type `can you close` or `close the` plus an open window title — a Close row should appear. Type `open` or `can you` or `help me` alone — those words must stay as the query.
+67. Type `2 plus 2`, `2 add 3`, `8 subtract 3`, `10 minus 3`, `4 times 5`, `8 divided by 2`, `half of 80`, `square root of 16`, `three thousand + 1`, or `what is the answer to 2+2` — calculator rows should appear. Close the launcher with Escape, then type in another app — keystrokes must reach that app, not a hidden search entry. Alt-tab away from the launcher — the window you switched to must keep keyboard focus.
+68. Type `10 km into mi` or `how many miles in 10 km` — a Units row should appear. Type `5 squared` or `8 over 2` — calculator rows should appear.
+69. Type `show me the time`, `tell me the time`, or `what's the time right now` — a Clock row should appear. Type `today's date`, `what day is it`, `what's the day`, or `tell me the day` — a Date row should appear. Type `lookup hex` — the same results as `look up hex`.
+70. Type `how many miles are 10 km` — a Units row should appear. Type `rebeccapurple` — a Color row should copy `#663399`. On a machine whose only terminal is WezTerm or Tilix, `~/` plus a folder should still offer Open in Terminal.
+71. Type `2 to the power of 8` or `negative 3 plus 5` — calculator rows should appear. With the command runner on, a tool installed only as a Flatpak export or in `~/go/bin` should be found.
+72. Type `find windows firefox` or `search settings wifi` — the app or Wi-Fi panel should appear. Type `open the pictures folder` — Pictures should appear. Type `two plus two` or `2 to the 8th` — calculator rows should appear. Type `tell me what time it is` — a Clock row should appear. Type `how many miles are there in 10 km` — a Units row should appear. Type `close the` plus an open window title plus `application` — a Close row should appear.
+73. Type `chrome browser` or `firefox browser` — the matching browser should appear. Type `ten km to mi`, `10 kms to mi`, `thirteen km to mi`, `1/2 cup to ml`, or `how many miles in ten km` — a Units row should appear. Type `2 to the eighth` — a calculator row should appear. Type `lock now` — Lock Screen should appear. With two windows that share a title, change a setting while the second is selected — the highlight must stay on that window. Type a pending `~/` path that also offers Open in Terminal — Enter must open the terminal, not close with no effect.
+74. Type `open wifi settings` or `open display preferences` — the matching Settings panel should appear. Type `open pictures dir` — Pictures should appear. Type `workspace two` or `workspace twenty` — a Switch to Workspace row should appear if that workspace exists. Type `twenty plus two`, `one hundred + 1`, or `one hundred and twenty` — calculator rows should appear. Type `twenty km to mi` or `a hundred km to mi` — a Units row should appear. On GNOME 50, when a screen-time limit is reached the launcher must refuse to open and an already-open popup must close. Press the toggle shortcut while the popup is open — it must close without crashing the shell.
+75. On a tablet that manages orientation, lock rotation then type `unlock` — the row should say Unlock Screen Rotation. Unlock it and type `rotation` — the row should say Lock Screen Rotation. The icon should follow the locked/unlocked state. Type `record` — Take a Screenshot should appear with the same icon Overview search uses.
+76. Type `open up firefox` or `fire up firefox` — the app should appear. Type `open source` — it must stay a search for those words, not `source`. Type `how many km in a mile` or `a cup to ml` — a Units row should appear. Type `two million + 1` — a calculator row should appear. Type `rgb 100% 0% 0%` — a Color row should copy `#ff0000`. Type `workspace 2` — the Switch to Workspace row must stay selected across a prefs repaint.
+77. Type an existing `~/` path, then `firefox`, then the same path after deleting that folder — the row must say Path not found, not reuse the earlier Open path row. With the command runner on, the same leave-and-return must recheck `! ./script`.
+78. Disable the extension, open Appearance, switch to Pop!_OS, then enable the extension — the popup must sit at the top with number hints and windows first. Reopen Appearance without changing the look — a custom icon size must still survive.
+79. Type `row` — Firefox must not appear just because the keyword browser contains those letters. Type `hot` — Pictures must not appear from photos; Wi-Fi may appear from hotspot. Type `een` — Lock Screen must not appear. Type `off` — Power Off should still appear.
+80. Type `ifi` — Wi-Fi must not appear just because the title contains those letters. Type `security` — Privacy & Security should still appear. Change width or position in preferences while typing in the popup — the shell must stay up and the popup must move after the key lands.
+81. Type `doc` with a recent file or bookmark under Documents — it should still appear. Type `ome` — files under `/home` must not appear just because the path contains those letters.
+82. Type `org` — every `org.*` app and window must not appear. Type `zil` — Firefox must not appear from mozilla. Type `ows` — Firefox must not appear from Web Browser. Type `ite` — Notes must not appear from Write notes. Type `mozilla` or `nautilus` — those desktop ids should still match. Type `ume` — Documents must not appear just because the title contains those letters.
+83. Type a `~/` path that exists, then keep typing while the row still says Checking path — the shell must stay up when that exists check finishes. The same must hold for a `!` slash-path command, a recent-file load, and GTK bookmarks. After the check finishes the resolved row must appear without jumping the highlight if you already moved it.
+84. On Pop!_OS or any look with number hints, type a pending `~/` path that also lists Firefox or Open in Terminal below it — `Alt+1` must stay open and must not launch that later row. `Enter` on the pending row may still activate the ready sibling. `Alt+2` should activate the second row if that row is ready.
+85. Rest the pointer over the results list, then type another character or wait for a path exists-check to finish — the shell must stay up. The highlight should stay on the kept row, not jump to whichever row the pointer happens to be over during the rebuild.
+86. Set Max results to 2, switch to Pop!_OS, and open the launcher with several windows and frequent apps — the empty list must show 2 rows, not windows plus apps. Switch result order to apps first with the same cap — still 2 rows.
+87. Add a GTK bookmark whose `file://` line has a space in the folder name, or open a recent file under such a folder — Enter must open it. A `javascript:` bookmark must still be ignored.
+88. Close the launcher while a `~/` path, `!` slash-path, recent-file load, or GTK bookmark read is still in flight — the shell must stay up. Reopen and type the same query — the exists check must run again, not reuse a row from the closed session.
+89. Click a pending Checking path row, then type another character — the letter must appear in the search entry. Click the scrollbar or a section header, then type — same. Alt-tab must still close the popup.
+90. Paste `file:///home/…/My Documents` (a space in the path) — a URL row should appear and Enter must open it. `javascript:` must still be ignored.
+91. Paste `sftp://nas/My Documents` or `smb://nas/Public Share` — a location row should appear and Enter must open it. A recent-file or bookmark with the same spaced URI must open too.
+92. Paste `file://nas/Public Share` or `file://localhost/home/…/My Documents` — a location row should appear and Enter must open it. A recent-file href with the same spaced network `file://` must be encoded before the exists check so it is not dropped.
+93. Add a recent-file or bookmark whose URI contains a latin-1 percent sequence such as `caf%E9` — the launcher must still list apps and other results. Enter on that row must not crash the shell.
+94. Open the launcher with several frequent apps and a window that closes as the popup appears — frequent apps must still show. Close one of several matching windows while typing its title — the other windows must stay listed.
+95. Search for an app whose icon is missing — the row must still appear with a fallback icon, and hovering later rows must still move the highlight.
+96. Install a broken `.desktop` file or a non-desktop `GAppInfo` — other apps must still appear. Type `browser` — Firefox (or another browser) must still match from Keywords on hosts that expose `get_keywords`. On GNOME 50, Wellbeing must hide when `gnome-wellbeing-panel.desktop` is missing and must not warn about `Gio.DesktopAppInfo`.
+97. Hold Down through a long result list — each key repeat must move the highlight. A second Down after an event whose Clutter time is 0 must still move. Arrow to a later row the instant results appear — the list must not jump to an empty offset.
+98. Hold Ctrl+Space (or your shortcut) — the popup must open once, not vanish because key-repeat cancelled the pending open. Hold the shortcut on an open popup — it must close once, not flicker open again.
+99. Click a pending Checking path row — the shell must stay up (Clutter 18 must not abort from a focus grab during button-release). Then type a letter — it must still reach the entry.
+100. Open the launcher over an always-on-top window or a fullscreen video — the popup must appear above that window, and a click on it must close the launcher instead of activating the window. Open the on-screen keyboard while the popup is open — the list must lift or shrink so the keyboard does not cover the entry.
+101. Open the launcher over a fullscreen game or video that uses unredirect / direct scanout — the popup must appear (not stay invisible behind the fullscreen surface). Close it — fullscreen presentation must resume without a leftover unredirect hold.
+102. Click the search icon or empty padding of the open popup — Escape must still close it and the next letter must reach the entry. Alt-tab must still close and leave the first keystroke with the window you switched to.
+103. Search for an app or open window whose `get_icon()` throws — the row must still appear with a fallback icon, and the rest of the list must stay visible. Hovering later rows must still move the highlight.
+104. On a tablet, open the on-screen keyboard then long-press a letter for accented characters — the launcher must stay open. Escape must still close it. Alt-tab must still close.
+105. Open the launcher, then press Super — the launcher must close so Overview is usable. Open Overview first, then the shortcut — the launcher must still appear over Overview.
+106. Open the launcher on Pop!_OS (windows first) with several windows, then close one of those windows without typing — the closed window must leave the list. Install or remove an app while the popup is open — the app list must update without retyping.
+107. Open the launcher, then press Print Screen — the launcher must close so the screenshot UI can grab the keyboard. A polkit or network password dialog that appears while the popup is open must also dismiss it.
+108. Open the launcher while a window is closing — the popup must still appear. A vanished Meta.Window during the first live-search scan must not abort open() after the backdrop is already in chrome.
+109. On a tablet, swipe the result list — it must scroll. A tap that stays inside the slop must still activate that row. A mouse click must still activate.
+110. Open the launcher, then open the on-screen keyboard — the list must lift or shrink as the keys slide up. The parked keyboardBox at the monitor bottom must not be treated as already covering the work area. A keyboard on another monitor must leave the primary popup alone.
+111. Open the launcher, then open the on-screen keyboard — tapping a key must type into the entry and must not close the launcher. The keys sit in keyboardBox which is addTopChrome at shell init; the launcher is added later and must raise that box above the backdrop while the keyboard is visible.
+112. Use the on-screen keyboard and long-press a letter so an accent popover is created, dismiss the launcher, then open it again and long-press the same letter — the accents must appear above the backdrop and tapping one must type into the entry instead of closing the launcher. GNOME 50 keeps those popovers in addTopChrome after first use.
+113. With an IME (Chinese, Japanese, Korean, or typing-booster), type in the launcher until the candidate popup appears — the lookup table must sit above the launcher, not under the backdrop. Enter, arrows, and number keys must commit or move IME candidates, not activate a result. Clicking a candidate must type that character and must not close the launcher.
+114. If opening fails after the unredirect hold or chrome add (for example the primary monitor vanishes mid-open), the next shortcut press must open the launcher. It must not stay stuck treating the popup as already open, and it must not leave a leftover unredirect hold.
+115. On a 200% scale session, a 600px width must look like 600 CSS pixels (not half-width). Results max height 400 must stay inside the work area — St scales stylesheet `px` but `set_width` is stage pixels. Changing scale while the popup is open must refit. Enabling the extension before a theme scale exists must still load; width then uses 1× until `ThemeContext` is ready.
+116. With an IME, type until the candidate popup appears — the lookup must stay above the launcher after GNOME 50 raises it above `keyboardBox`. Enter, arrows, and number keys must still stay with IBus. Clicking a candidate must not close the launcher.
+117. Open preferences, change the look or shortcut, close the window, open preferences again — combos and the shortcut label must still sync once, not stack leftover `Gio.Settings` handlers from the last window.
+118. Keep typing or page the IME lookup after it is already visible — later pages must stay above the launcher. GNOME 50 restacks the already-visible popup above `keyboardBox` on every `update-lookup-table`.
+119. Switch to Rofi or Tofi — the search icon, result icons, and descriptions must hide. The query must stay inset instead of sitting on the card edge. Switch to Pop!_OS — those stay on, windows come first, and number hints appear. A custom search-icon toggle after that must survive until the look changes again.
+120. Change the shortcut, then disable the extension — the old key must not open the launcher. GNOME 50 `removeKeybinding` is the gsettings path and does not clear `allowKeybinding` for `grab_accelerator` names; a throw there would also skip `ungrab_accelerator`.
+121. If enable throws (a missing ThemeContext used to), disable must still release any grab that was taken and destroy any popup that was constructed. GNOME still calls disable after a failed enable.
+122. Close or disable while the session is tearing down — the next enable must not leave a leftover popup or unredirect hold, and the shortcut must open again. `hide()` must run before host disconnects so a throw cannot leave the actor visible (`canOpenPopup` treats visible as already open).
+123. Disable the extension, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size after picking Spotlight in preferences must still survive disable and enable.
+124. On GNOME 47+, set a teal or purple accent, then switch to the GNOME or Light look — the caret and selected row must follow that accent. Spotlight and Pop!_OS must keep their own colors. On GNOME 45/46 the GNOME look stays Adwaita blue.
+125. Enable the extension before a theme scale exists, then open the launcher after `ThemeContext` is ready — a 600px width must use the live scale, not stay 1×. Change scale while that popup is open — it must refit even though enable never saw a context.
+126. Enable on GNOME 45/46, or on a host whose desktop interface schema is missing — the extension must still load. GNOME and Light stay Adwaita blue. A missing `Gio.Settings` schema_id must not leave session/overview listeners connected on an unassigned popup.
+127. Before the first enable, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size with the default Spotlight look still survives that first enable.
+128. Close via Escape, click-outside, or the shortcut — GNOME 50 must not abort. Clutter 18 unrealizes on `removeChrome`; a still-mapped backdrop trips `clutter_actor_real_unrealize`. The backdrop must hide before it is removed from chrome.
+129. Open the launcher over a fullscreen game or video, then close it — the fullscreen surface must resume scanout only after the popup and backdrop are gone. Releasing unredirect while the backdrop is still mapped lets that surface paint through leftover chrome.
+130. Switch to KRunner or PowerToys — number hints must turn on, matching those runners. The command-runner schema and Features page must say argv, not a shell. Pipes stay literal.
+131. Features → Colors covers `#f00`, `red`, `rgb()`, `hsl()`, and `hwb()`, not only hex. Turning that switch off must hide all of those rows.
+132. Switch to Rofi, Wofi, Tofi, Fuzzel, or Anyrun, or turn off Search icon on Spotlight — the typed query must stay inset. Compact density must not reset that padding to 0. Turn the icon back on — the extra inset must go away so the magnifier and text do not double-pad.
+133. Switch to Omarchy or Anyrun and arrow through results — titles must stay put. The leading accent edge is reserved on every row. Turn off Prefix modes — Command runner must grey out. Turn Prefix modes back on — the previous Command runner value must still be there.
+134. In preferences search, type Walker, COSMIC, KRunner, or Kagi — Appearance or Web Search must appear, not only About. Switch to Rofi or Tofi — result titles must line up with no empty icon column. The GNOME look must stay a dark card; pick Light for a light session.
+135. Pick Pop!_OS, change icon size and turn off number hints, then click Reset look — icon size, position, density, number hints, and windows-first must match Pop!_OS again. Picking Pop!_OS in the combo a second time must still leave a later custom icon size alone. Width must stay the value you set.
 
 ## Submitting Changes
 
 1. Implement your changes following the code style above.
 2. Test locally on GNOME Shell 50.
-3. Run static analysis and resolve any reported issues.
-4. Run a GJS parse check and resolve any syntax errors.
-5. Open a pull request with a clear description of what changed and why.
+3. Run `bash scripts/validate.sh`.
+4. Open a pull request with a clear description of what changed and why.
 
 ## Reporting Bugs
 
@@ -214,4 +352,4 @@ Open an issue on GitHub with the following information:
 - Linux distribution
 - Steps to reproduce
 - Expected behavior versus actual behavior
-- Relevant logs from `journalctl -b /usr/bin/gnome-shell | grep spotlight`
+- Relevant logs from `journalctl -b /usr/bin/gnome-shell | grep -i gosh`

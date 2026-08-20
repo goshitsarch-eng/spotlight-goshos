@@ -1,100 +1,183 @@
-// spotlight - stage-level keyboard capture for the popup
+// gosh is launcher - stage-level keyboard capture for the popup
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
+import {activatableResult, indexedActivatableResult} from './resultActivate.js';
+import {readPreedit, shouldPropagateForIme} from './entryPreedit.js';
+import {shouldIgnoreNavRepeat} from './navRepeat.js';
+import {shouldCaptureKeys, focusIsOnScreenKeyboard, focusIsImeCandidate} from './focusLoss.js';
+import {imeCandidateVisible} from './popupChrome.js';
+
+const KEY_NAMES = {
+    [Clutter.KEY_Escape]: 'Escape',
+    [Clutter.KEY_Down]: 'Down',
+    [Clutter.KEY_Up]: 'Up',
+    [Clutter.KEY_Tab]: 'Tab',
+    [Clutter.KEY_ISO_Left_Tab]: 'ISO_Left_Tab',
+    [Clutter.KEY_Page_Down]: 'Page_Down',
+    [Clutter.KEY_Page_Up]: 'Page_Up',
+    [Clutter.KEY_Home]: 'Home',
+    [Clutter.KEY_End]: 'End',
+    // numlock off sends these instead of the digit keysyms
+    [Clutter.KEY_KP_Down]: 'Down',
+    [Clutter.KEY_KP_Up]: 'Up',
+    [Clutter.KEY_KP_Page_Down]: 'Page_Down',
+    [Clutter.KEY_KP_Page_Up]: 'Page_Up',
+    [Clutter.KEY_KP_Home]: 'Home',
+    [Clutter.KEY_KP_End]: 'End',
+    [Clutter.KEY_Return]: 'Return',
+    [Clutter.KEY_KP_Enter]: 'KP_Enter',
+    [Clutter.KEY_1]: '1',
+    [Clutter.KEY_2]: '2',
+    [Clutter.KEY_3]: '3',
+    [Clutter.KEY_4]: '4',
+    [Clutter.KEY_5]: '5',
+    [Clutter.KEY_6]: '6',
+    [Clutter.KEY_7]: '7',
+    [Clutter.KEY_8]: '8',
+    [Clutter.KEY_9]: '9',
+    [Clutter.KEY_KP_1]: '1',
+    [Clutter.KEY_KP_2]: '2',
+    [Clutter.KEY_KP_3]: '3',
+    [Clutter.KEY_KP_4]: '4',
+    [Clutter.KEY_KP_5]: '5',
+    [Clutter.KEY_KP_6]: '6',
+    [Clutter.KEY_KP_7]: '7',
+    [Clutter.KEY_KP_8]: '8',
+    [Clutter.KEY_KP_9]: '9',
+};
+
+const CTRL_NAV_KEYS = {
+    [Clutter.KEY_j]: 'j',
+    [Clutter.KEY_J]: 'j',
+    [Clutter.KEY_n]: 'n',
+    [Clutter.KEY_N]: 'n',
+    [Clutter.KEY_k]: 'k',
+    [Clutter.KEY_K]: 'k',
+    [Clutter.KEY_p]: 'p',
+    [Clutter.KEY_P]: 'p',
+};
 
 // captures key events at the stage level during the capture phase, before
-// st entry can consume them - this was the fix for keyboard not working at
-// all, see AGENTS.md for the full history of why this exists
-//
-// deduplicates rapid-fire navigation keys (see the isNavKey block below)
-// but never deduplicates character keys, so typing is never affected. this
-// class only decides what a keypress means - it never touches selection or
-// results state directly, it calls back into the popup for all of that
+// st entry can consume them
 export class PopupKeyHandler {
-    constructor(popup, selection) {
+    constructor(popup, selection, settings) {
         this._popup = popup;
         this._selection = selection;
+        this._settings = settings;
         this._keyboardNavSuppressUntil = 0;
         this._lastNavKey = 0;
         this._lastNavKeyTime = 0;
     }
 
     handleEvent(event) {
-        // captured-event receives all event types we only act on key press
-        // events ignoring key release to prevent double-processing
         if (event.type() !== Clutter.EventType.KEY_PRESS)
             return Clutter.EVENT_PROPAGATE;
 
-        const key = event.get_key_symbol();
-
-        // safety guards since we capture at stage level
         if (!this._popup.visible)
             return Clutter.EVENT_PROPAGATE;
 
         const focus = global.stage.get_key_focus();
-        if (!focus || !this._popup.contains(focus))
+        if (!shouldCaptureKeys(
+            true,
+            Boolean(focus),
+            focus === global.stage,
+            Boolean(focus && this._popup.contains(focus)),
+            focusIsOnScreenKeyboard(focus, Main.layoutManager.keyboardBox),
+            focusIsImeCandidate(focus),
+        ))
             return Clutter.EVENT_PROPAGATE;
 
-        // only deduplicate navigation keys not character keys
-        // some systems fire two key_press events for a single physical tap
-        // before the key_release this causes arrow navigation to jump by 2
-        // we track the last nav key and time and ignore repeats within 50ms
-        // character keys are never deduplicated so fast typing works normally
-        const isNavKey = key === Clutter.KEY_Up || key === Clutter.KEY_Down ||
-                         key === Clutter.KEY_Return || key === Clutter.KEY_KP_Enter ||
-                         key === Clutter.KEY_Escape;
-        if (isNavKey) {
-            const time = event.get_time();
-            if (key === this._lastNavKey && time - this._lastNavKeyTime < 50)
-                return Clutter.EVENT_STOP;
-            this._lastNavKey = key;
-            this._lastNavKeyTime = time;
+        const clutterText = this._popup._entry.clutter_text;
+        let preedit = '';
+        if (typeof clutterText.get_preedit_string === 'function')
+            preedit = readPreedit(clutterText.get_preedit_string());
+        if (shouldPropagateForIme(preedit, imeCandidateVisible(Main.layoutManager.uiGroup))) {
+            // capture runs before ibus restacks the lookup above keyboardbox
+            this._popup._raiseOnScreenKeyboardSoon();
+            return Clutter.EVENT_PROPAGATE;
         }
 
-        switch (key) {
-        case Clutter.KEY_Escape:
-            this._popup.close();
+        const key = event.get_key_symbol();
+        const state = event.get_state();
+        if (state & Clutter.ModifierType.CONTROL_MASK) {
+            const ctrl = resolveCtrlNav(CTRL_NAV_KEYS[key] || '');
+            if (ctrl) {
+                if (this._ignoreRepeat(key))
+                    return Clutter.EVENT_STOP;
+                this._selection.moveSelection(ctrl.delta, this._suppressHover.bind(this));
+                return Clutter.EVENT_STOP;
+            }
+        }
+
+        const name = KEY_NAMES[key];
+        if (!name)
+            return Clutter.EVENT_PROPAGATE;
+
+        const action = resolveHomeEndAction(
+            name,
+            clutterText.get_cursor_position(),
+            clutterText.get_text().length,
+        ) || resolveKeyAction(
+            name,
+            Boolean(state & Clutter.ModifierType.SHIFT_MASK),
+            Boolean(state & Clutter.ModifierType.MOD1_MASK),
+            this._settings.get_boolean('show-result-numbers'),
+        );
+
+        if (action.type === 'propagate')
+            return Clutter.EVENT_PROPAGATE;
+
+        if (isNavAction(action.type) && this._ignoreRepeat(key))
             return Clutter.EVENT_STOP;
-        case Clutter.KEY_Down:
-            this._selection.moveSelection(1, this._suppressHover.bind(this));
+
+        if (action.type === 'close') {
+            this._popup.closeSoon();
             return Clutter.EVENT_STOP;
-        case Clutter.KEY_Up:
-            this._selection.moveSelection(-1, this._suppressHover.bind(this));
+        }
+        if (action.type === 'move') {
+            this._selection.moveSelection(action.delta, this._suppressHover.bind(this));
             return Clutter.EVENT_STOP;
-        case Clutter.KEY_Return:
-        case Clutter.KEY_KP_Enter:
+        }
+        if (action.type === 'activate-index')
+            return this._activateIndex(action.index);
+        if (action.type === 'activate') {
             this._activateSelected();
             return Clutter.EVENT_STOP;
-        default:
-            return Clutter.EVENT_PROPAGATE;
         }
+        return Clutter.EVENT_PROPAGATE;
     }
 
-    // suppress hover selection briefly after keyboard navigation
-    // prevents scroll-induced enter-events from overwriting the selection
-    // passed into SelectionManager.moveSelection as a callback since only
-    // this class knows the suppression window, and only resultRow's hover
-    // handler (via the popup's onHover callback) needs to check it
+    _ignoreRepeat(key) {
+        const now = GLib.get_monotonic_time();
+        if (shouldIgnoreNavRepeat(key, this._lastNavKey, now, this._lastNavKeyTime))
+            return true;
+        this._lastNavKey = key;
+        this._lastNavKeyTime = now;
+        return false;
+    }
+
     _suppressHover() {
         this._keyboardNavSuppressUntil = GLib.get_monotonic_time() + 150000;
     }
 
-    // exposed so the popup's onHover callback can check it before applying
-    // a hover-triggered selection change
     get suppressedUntil() {
         return this._keyboardNavSuppressUntil;
     }
 
+    _activateIndex(index) {
+        const chosen = indexedActivatableResult(this._selection.results, index);
+        if (chosen)
+            this._popup.activateResult(chosen);
+        return Clutter.EVENT_STOP;
+    }
+
     _activateSelected() {
-        const {results, selectedIndex} = this._selection;
-        if (selectedIndex >= 0 && selectedIndex < results.length) {
-            results[selectedIndex].activate();
-            this._popup.close();
-        } else if (results.length > 0) {
-            results[0].activate();
-            this._popup.close();
-        }
+        const chosen = activatableResult(this._selection.results, this._selection.selectedIndex);
+        if (chosen)
+            this._popup.activateResult(chosen);
     }
 }

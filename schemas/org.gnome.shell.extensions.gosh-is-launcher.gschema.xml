@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.gosh-is-launcher" path="/org/gnome/shell/extensions/gosh-is-launcher/">
+    <!-- Default is Ctrl+Space (Super+Space has timing issues on some GNOME 50 setups) -->
+    <key name="toggle-shortcut" type="as">
+      <default>['&lt;Control&gt;space']</default>
+      <summary>Toggle shortcut</summary>
+      <description>Keyboard shortcut to open Gosh Is Launcher. Default is Ctrl+Space.</description>
+    </key>
+
+    <key name="launcher-theme" type="s">
+      <choices>
+        <choice value="spotlight"/>
+        <choice value="omarchy"/>
+        <choice value="popos"/>
+        <choice value="ulauncher"/>
+        <choice value="krunner"/>
+        <choice value="gnome"/>
+        <choice value="rofi"/>
+        <choice value="raycast"/>
+        <choice value="albert"/>
+        <choice value="wofi"/>
+        <choice value="fuzzel"/>
+        <choice value="anyrun"/>
+        <choice value="tofi"/>
+        <choice value="light"/>
+        <choice value="powertoys"/>
+        <choice value="synapse"/>
+        <choice value="onagre"/>
+      </choices>
+      <default>'spotlight'</default>
+      <summary>Launcher look</summary>
+      <description>Visual style of the launcher popup.</description>
+    </key>
+
+    <key name="applied-look" type="s">
+      <default>''</default>
+      <summary>Last applied look</summary>
+      <description>Internal. Last launcher-theme whose chrome profile was written. A look change while the extension is disabled still applies on enable without resetting custom chrome on every enable.</description>
+    </key>
+
+    <key name="popup-position" type="s">
+      <choices>
+        <choice value="center"/>
+        <choice value="top"/>
+      </choices>
+      <default>'center'</default>
+      <summary>Popup position</summary>
+      <description>Where the launcher sits on the primary monitor.</description>
+    </key>
+
+    <key name="popup-width" type="i">
+      <default>600</default>
+      <range min="400" max="1200"/>
+      <summary>Popup width</summary>
+      <description>Width of the launcher popup in pixels.</description>
+    </key>
+
+    <key name="results-max-height" type="i">
+      <default>400</default>
+      <range min="160" max="800"/>
+      <summary>Results max height</summary>
+      <description>Maximum height of the results list before scrolling.</description>
+    </key>
+
+    <key name="max-results" type="i">
+      <default>6</default>
+      <range min="1" max="20"/>
+      <summary>Maximum results per category</summary>
+      <description>Maximum results displayed per category.</description>
+    </key>
+
+    <key name="result-order" type="s">
+      <choices>
+        <choice value="default"/>
+        <choice value="windows-first"/>
+      </choices>
+      <default>'default'</default>
+      <summary>Result order</summary>
+      <description>default keeps apps before windows. windows-first matches the Pop!_OS launcher.</description>
+    </key>
+
+    <key name="icon-size" type="i">
+      <default>28</default>
+      <range min="16" max="64"/>
+      <summary>Result icon size</summary>
+      <description>Icon size for result rows in pixels. Compact density still shrinks this by 20%.</description>
+    </key>
+
+    <key name="row-density" type="s">
+      <choices>
+        <choice value="comfortable"/>
+        <choice value="compact"/>
+      </choices>
+      <default>'comfortable'</default>
+      <summary>Row density</summary>
+      <description>Spacing of result rows.</description>
+    </key>
+
+    <key name="show-search-icon" type="b">
+      <default>true</default>
+      <summary>Show search icon</summary>
+      <description>Show the magnifying-glass icon in the search entry.</description>
+    </key>
+
+    <key name="show-section-headers" type="b">
+      <default>true</default>
+      <summary>Show section headers</summary>
+      <description>Show category labels above groups of results.</description>
+    </key>
+
+    <key name="show-result-icons" type="b">
+      <default>true</default>
+      <summary>Show result icons</summary>
+      <description>Show icons on result rows.</description>
+    </key>
+
+    <key name="show-descriptions" type="b">
+      <default>true</default>
+      <summary>Show result descriptions</summary>
+      <description>Show secondary text under result titles.</description>
+    </key>
+
+    <key name="show-result-numbers" type="b">
+      <default>false</default>
+      <summary>Show result numbers</summary>
+      <description>Show 1-9 hints and activate with Alt+digit.</description>
+    </key>
+
+    <key name="show-empty-suggestions" type="b">
+      <default>true</default>
+      <summary>Show empty-state suggestions</summary>
+      <description>When the query is empty, show open windows and frequent apps.</description>
+    </key>
+
+    <key name="enable-prefix-modes" type="b">
+      <default>true</default>
+      <summary>Enable prefix modes</summary>
+      <description>Allow = @ # $ . ! prefixes to jump to a single provider.</description>
+    </key>
+
+    <key name="enable-app-search" type="b">
+      <default>true</default>
+      <summary>Enable application search</summary>
+      <description>Search installed applications.</description>
+    </key>
+
+    <key name="enable-app-actions" type="b">
+      <default>true</default>
+      <summary>Enable application actions</summary>
+      <description>Show New Window and desktop-file actions for the best app match.</description>
+    </key>
+
+    <key name="enable-calculator" type="b">
+      <default>true</default>
+      <summary>Enable calculator</summary>
+      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, sin 90, round, 5!, 2π, and 5².</description>
+    </key>
+
+    <key name="enable-unit-convert" type="b">
+      <default>true</default>
+      <summary>Enable unit conversion</summary>
+      <description>Convert length, mass, temperature, volume, data, duration, area, speed, pressure, energy, power, and angle such as 10 km to mi, 1 cup to tbsp, 200 kcal to kj, 1 hp to kw, or 180 deg to rad.</description>
+    </key>
+
+    <key name="enable-color-hex" type="b">
+      <default>true</default>
+      <summary>Enable colors</summary>
+      <description>Copy a color such as #f00, red, rgb(255, 0, 0), rgb(100%, 0%, 0%), hsl(0deg 100% 50%), or hwb(0 0% 0%).</description>
+    </key>
+
+    <key name="enable-window-search" type="b">
+      <default>true</default>
+      <summary>Enable window search</summary>
+      <description>Search and switch to open windows.</description>
+    </key>
+
+    <key name="enable-system-actions" type="b">
+      <default>true</default>
+      <summary>Enable system actions</summary>
+      <description>Show lock, suspend, restart, and related actions.</description>
+    </key>
+
+    <key name="enable-settings-search" type="b">
+      <default>true</default>
+      <summary>Enable settings search</summary>
+      <description>Search GNOME Settings panels.</description>
+    </key>
+
+    <key name="enable-recent-files" type="b">
+      <default>true</default>
+      <summary>Enable recent files</summary>
+      <description>Search recently opened local files and sftp/smb locations.</description>
+    </key>
+
+    <key name="enable-url-open" type="b">
+      <default>true</default>
+      <summary>Enable URL opening</summary>
+      <description>Open typed URLs and domain names in the browser.</description>
+    </key>
+
+    <key name="enable-places" type="b">
+      <default>true</default>
+      <summary>Enable folder places</summary>
+      <description>Search XDG user folders such as Documents and Downloads.</description>
+    </key>
+
+    <key name="enable-bookmarks" type="b">
+      <default>true</default>
+      <summary>Enable GTK bookmarks</summary>
+      <description>Search folders saved in ~/.config/gtk-3.0/bookmarks and gtk-4.0/bookmarks.</description>
+    </key>
+
+    <key name="enable-time-date" type="b">
+      <default>true</default>
+      <summary>Enable time and date</summary>
+      <description>Show the local time or date when the query is time, what time is it, what's the day, tell me the day, date, today, today's date, tomorrow, or yesterday.</description>
+    </key>
+
+    <key name="enable-path-open" type="b">
+      <default>true</default>
+      <summary>Enable path opening</summary>
+      <description>Open typed ~/ ./ and absolute filesystem paths.</description>
+    </key>
+
+    <key name="enable-command-run" type="b">
+      <default>false</default>
+      <summary>Enable command runner</summary>
+      <description>Run a PATH or file command with the ! prefix as argv, not a shell. Pipes stay literal.</description>
+    </key>
+
+    <key name="web-search-engine" type="s">
+      <choices>
+        <choice value="google"/>
+        <choice value="duckduckgo"/>
+        <choice value="brave"/>
+        <choice value="bing"/>
+        <choice value="startpage"/>
+        <choice value="ecosia"/>
+        <choice value="qwant"/>
+        <choice value="kagi"/>
+        <choice value="wikipedia"/>
+      </choices>
+      <default>'google'</default>
+      <summary>Web search engine</summary>
+      <description>Search engine used for the web search fallback.</description>
+    </key>
+
+    <key name="show-web-search" type="b">
+      <default>true</default>
+      <summary>Show web search fallback</summary>
+      <description>If true, a web search result is shown when nothing else matches.</description>
+    </key>
+  </schema>
+</schemalist>

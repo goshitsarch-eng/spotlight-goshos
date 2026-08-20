@@ -1,10 +1,15 @@
-// spotlight - detects focus leaving the popup and closes it
+// gosh is launcher - detects focus leaving the popup and closes it
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {focusIsSearchEntry, focusLossAction, focusIsOnScreenKeyboard, focusIsImeCandidate} from './focusLoss.js';
 
 // watches notify::key-focus on global.stage - if focus moves to an actor
 // outside the popup, for example via alt-tab, the popup closes
+// a click on a row or scrollbar or a gnome 48 null focus is returned
+// to the entry so later letters do not vanish
+// an osk long-press or ibus candidate grab on addtopchrome must not close us
 //
 // setup is deferred via an idle source to avoid firing during the initial
 // grab_key_focus call in open(), which would otherwise close the popup
@@ -17,6 +22,7 @@ export class FocusLossWatcher {
     }
 
     start() {
+        this.stop();
         this._focusIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._focusIdleId = 0;
             if (!this._popup.visible)
@@ -25,12 +31,19 @@ export class FocusLossWatcher {
                 if (!this._popup.visible)
                     return;
                 const focus = global.stage.get_key_focus();
-                if (!focus || focus === global.stage) {
-                    this._popup.close();
-                    return;
-                }
-                if (!this._popup.contains(focus))
-                    this._popup.close();
+                const action = focusLossAction(
+                    Boolean(focus),
+                    focus === global.stage,
+                    Boolean(focus && this._popup.contains(focus)),
+                    focusIsSearchEntry(focus, this._popup._entry),
+                    focusIsOnScreenKeyboard(focus, Main.layoutManager.keyboardBox),
+                    focusIsImeCandidate(focus),
+                );
+                if (action === 'close')
+                    this._popup.closeSoon();
+                else if (action === 'refocus-entry')
+                    // grab during this notify aborts clutter 18
+                    this._popup.refocusEntrySoon();
             });
             return GLib.SOURCE_REMOVE;
         });

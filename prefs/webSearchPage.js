@@ -1,26 +1,21 @@
-// spotlight - web search preferences page
+// gosh is launcher - web search preferences page
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-
-const SEARCH_ENGINES = [
-    {id: 'google', label: 'Google'},
-    {id: 'duckduckgo', label: 'DuckDuckGo'},
-    {id: 'brave', label: 'Brave'},
-    {id: 'bing', label: 'Bing'},
-    {id: 'startpage', label: 'Startpage'},
-];
+import {SEARCH_ENGINES, enginePrefsSearchText} from '../webEngines.js';
+import {bindSettingsCombo} from '../prefsCombo.js';
 
 export function buildWebSearchPage(settings) {
     const group = new Adw.PreferencesGroup({
         title: 'Web Search',
-        description: 'Web search only appears when no apps or settings match',
+        description: `Web search appears when nothing else matches, or immediately with the @ prefix. ${enginePrefsSearchText()}`,
     });
 
     const webSearchRow = new Adw.SwitchRow({
         title: 'Show web search fallback',
+        subtitle: 'When nothing local matches. The @ prefix still searches the web',
     });
     settings.bind('show-web-search', webSearchRow, 'active',
         Gio.SettingsBindFlags.DEFAULT);
@@ -35,17 +30,8 @@ export function buildWebSearchPage(settings) {
         model: engineModel,
     });
 
-    const currentEngine = settings.get_string('web-search-engine');
-    const engineIndex = SEARCH_ENGINES.findIndex(e => e.id === currentEngine);
-    if (engineIndex >= 0)
-        engineRow.selected = engineIndex;
-
-    engineRow.connect('notify::selected', () => {
-        const selected = SEARCH_ENGINES[engineRow.selected];
-        if (selected)
-            settings.set_string('web-search-engine', selected.id);
-    });
+    bindSettingsCombo(engineRow, settings, 'web-search-engine', SEARCH_ENGINES);
 
     group.add(engineRow);
-    return group;
+    return [group];
 }

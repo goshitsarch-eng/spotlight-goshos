@@ -1,14 +1,14 @@
 ---
 name: Feature Request
-about: Suggest a new feature or improvement for Spotlight
+about: Suggest a new feature or improvement for Gosh Is Launcher
 title: "[FEATURE] "
 labels: enhancement
-assignees: itsnin
+assignees: ''
 ---
 
 ## Describe the feature
 
-A clear and concise description of what you want added to Spotlight.
+A clear and concise description of what you want added to Gosh Is Launcher.
 
 ## Why is this useful
 

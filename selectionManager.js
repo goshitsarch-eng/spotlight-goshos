@@ -1,7 +1,10 @@
-// spotlight - tracks which result row is selected and keeps it visible
+// gosh is launcher - tracks which result row is selected and keeps it visible
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// owns the results array and selected index so spotlightPopup.js does not
+import {nextActivatableIndex} from './selectionMath.js';
+import {getVerticalAdjustment, scrollValueToShowRow} from './scrollView.js';
+
+// owns the results array and selected index so launcherPopup.js does not
 // need to touch selection state directly - it calls setResults() after a
 // search and moveSelection()/applySelection() in response to input
 export class SelectionManager {
@@ -36,7 +39,7 @@ export class SelectionManager {
         if (this._selectedIndex >= 0 && this._selectedIndex < this._results.length) {
             const oldRow = this._getResultRow(this._selectedIndex);
             if (oldRow)
-                oldRow.remove_style_class_name('spotlight-selected');
+                oldRow.remove_style_class_name('gosh-selected');
         }
 
         this._selectedIndex = index;
@@ -44,7 +47,7 @@ export class SelectionManager {
         if (index >= 0 && index < this._results.length) {
             const newRow = this._getResultRow(index);
             if (newRow) {
-                newRow.add_style_class_name('spotlight-selected');
+                newRow.add_style_class_name('gosh-selected');
                 if (!skipScroll)
                     this._scrollRowIntoView(newRow);
             }
@@ -54,11 +57,10 @@ export class SelectionManager {
     moveSelection(delta, suppressHoverUntil) {
         if (this._results.length === 0)
             return;
-        let newIndex = this._selectedIndex + delta;
+        const newIndex = nextActivatableIndex(
+            this._selectedIndex, delta, this._results);
         if (newIndex < 0)
-            newIndex = this._results.length - 1;
-        if (newIndex >= this._results.length)
-            newIndex = 0;
+            return;
         // suppress hover selection briefly after keyboard navigation
         // prevents scroll-induced enter-events from overwriting the selection
         // the caller owns the actual suppression window, this just applies it
@@ -67,16 +69,18 @@ export class SelectionManager {
     }
 
     _scrollRowIntoView(row) {
-        const scrollbar = this._resultsScroll.get_vscroll_bar();
-        if (!scrollbar)
+        const adjustment = getVerticalAdjustment(this._resultsScroll);
+        if (!adjustment)
             return;
-        const adjustment = scrollbar.get_adjustment();
-        const rowY = row.get_allocation_box().y1;
-        const rowHeight = row.get_allocation_box().get_height();
-        if (rowY < adjustment.value)
-            adjustment.value = rowY;
-        else if (rowY + rowHeight > adjustment.value + adjustment.page_size)
-            adjustment.value = rowY + rowHeight - adjustment.page_size;
+        // allocation_box is only reliable inside paint use the laid-out actor box
+        const next = scrollValueToShowRow(
+            row.get_y(),
+            row.get_height(),
+            adjustment.value,
+            adjustment.page_size,
+        );
+        if (next !== adjustment.value)
+            adjustment.value = next;
     }
 
     _getResultRow(resultIndex) {

@@ -23,6 +23,7 @@ Briefly describe what this PR changes and why.
 - [ ] Prefs files don't import `St`/`Clutter`/`Meta`/`Shell`
 - [ ] Tested on GNOME Shell 50 Wayland
 - [ ] All JS files parse as ES modules
+- [ ] `bash scripts/validate.sh` passes
 
 ## Testing
 

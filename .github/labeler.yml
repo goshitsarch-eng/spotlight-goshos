@@ -6,13 +6,26 @@ search providers:
           - systemActionsSearch.js
           - settingsSearch.js
           - webSearch.js
+          - windowSearch.js
+          - recentFilesSearch.js
+          - urlSearch.js
+          - commandSearch.js
           - searchController.js
+          - searchPlan.js
           - calculator.js
+          - prefixParser.js
+          - urlMatch.js
+          - actionMatch.js
+          - wordMatch.js
+          - settingsPanels.js
+          - recentXbel.js
+          - keyAction.js
+          - gioLaunch.js
 
 popup ui:
   - changed-files:
       - any-glob-to-any-file:
-          - spotlightPopup.js
+          - launcherPopup.js
           - searchEntry.js
           - resultsContainer.js
           - resultRow.js
@@ -20,6 +33,14 @@ popup ui:
           - sectionTitles.js
           - noResults.js
           - stylesheet.css
+          - themes.js
+          - scrollView.js
+          - selectionManager.js
+          - selectionMath.js
+          - resultsRenderer.js
+          - popupKeyHandler.js
+          - popupBackdrop.js
+          - focusLossWatcher.js
 
 preferences:
   - changed-files:

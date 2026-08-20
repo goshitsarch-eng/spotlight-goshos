@@ -1,32 +1,61 @@
-// spotlight - search controller
+// gosh is launcher - search controller
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import {searchApps} from './appSearch.js';
+import {searchApps, searchFrequentApps} from './appSearch.js';
 import {searchCalculator} from './calculatorSearch.js';
+import {searchUnits} from './unitSearch.js';
+import {searchColor} from './colorSearch.js';
 import {searchSystemActions} from './systemActionsSearch.js';
 import {searchSettings} from './settingsSearch.js';
 import {searchWeb} from './webSearch.js';
+import {searchWindows} from './windowSearch.js';
+import {searchUrl} from './urlSearch.js';
+import {searchPath} from './pathSearch.js';
+import {searchPlaces} from './placesSearch.js';
+import {searchBookmarks} from './bookmarksSearch.js';
+import {searchTime} from './timeSearch.js';
+import {searchCommand} from './commandSearch.js';
+import {searchRecentFiles} from './recentFilesSearch.js';
+import {flagsFromSettings, planSearch, mergeEmptySuggestions} from './searchPlan.js';
+import {collectSearchResults, safeProviderResults} from './searchRun.js';
+
+const PROVIDERS = {
+    url: (query, _max, _settings) => searchUrl(query),
+    path: (query, _max, _settings) => searchPath(query),
+    places: (query, max) => searchPlaces(query, max),
+    bookmarks: (query, max) => searchBookmarks(query, max),
+    apps: (query, max, settings) => searchApps(
+        query, max, settings && settings.get_boolean('enable-app-actions')),
+    calculator: (query, _max, _settings, mode) => searchCalculator(query, mode === 'calculator'),
+    units: query => searchUnits(query),
+    color: query => searchColor(query),
+    time: query => searchTime(query),
+    windows: (query, max) => searchWindows(query, max),
+    system: (query, max) => searchSystemActions(query, max),
+    settings: (query, max) => searchSettings(query, max),
+    files: (query, max) => searchRecentFiles(query, max),
+    command: query => searchCommand(query),
+    web: (query, _max, settings) => searchWeb(query, settings.get_string('web-search-engine')),
+};
 
 // orchestrates all search providers and combines results in priority order
-// priority: apps first then calculator then system actions then settings then web last
+// priority: urls paths places bookmarks apps calculator units color time windows system settings files then web last
 export function runSearch(text, settings) {
-    const trimmed = text.trim();
     const maxResults = settings.get_int('max-results');
-    const allResults = [];
+    const plan = planSearch(text, flagsFromSettings(settings));
+    return collectSearchResults(plan, maxResults, PROVIDERS, settings);
+}
 
-    allResults.push(...searchApps(trimmed, maxResults));
+export function runEmptySuggestions(settings) {
+    if (!settings.get_boolean('show-empty-suggestions'))
+        return [];
 
-    const calcResult = searchCalculator(trimmed);
-    if (calcResult)
-        allResults.push(calcResult);
-
-    allResults.push(...searchSystemActions(trimmed));
-    allResults.push(...searchSettings(trimmed));
-
-    if (allResults.length === 0 && settings.get_boolean('show-web-search')) {
-        const engine = settings.get_string('web-search-engine');
-        allResults.push(searchWeb(trimmed, engine));
-    }
-
-    return allResults;
+    const maxResults = settings.get_int('max-results');
+    const windows = settings.get_boolean('enable-window-search')
+        ? safeProviderResults(() => searchWindows('', maxResults))
+        : [];
+    const apps = settings.get_boolean('enable-app-search')
+        ? safeProviderResults(() => searchFrequentApps(maxResults))
+        : [];
+    return mergeEmptySuggestions(settings.get_string('result-order'), windows, apps, maxResults);
 }
