@@ -22,7 +22,7 @@ import {parseRecentXbel, basenameFromUri, iconForBasename, recentExistsShouldSet
 import {readPreedit, shouldPropagateForPreedit} from '../entryPreedit.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from '../keyAction.js';
 import {shouldOfferApp, hasParentalGiveUp, markParentalGiveUp, resetParentalGiveUp, PARENTAL_GIVE_UP_MS} from '../appReady.js';
-import {activateResultSafe, resultCanActivate, activatableResult} from '../resultActivate.js';
+import {activateResultSafe, resultCanActivate, activatableResult, indexedActivatableResult} from '../resultActivate.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandFileIsReady, commandRowMeta} from '../commandReady.js';
 import {extraPathDirs, findUserProgram, joinPathDirs} from '../userPath.js';
 import {isPathQuery, expandHomePath, expandHomeArgv, resolveSpawnPath, resolveCommandArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath} from '../homePath.js';
@@ -1629,9 +1629,15 @@ const pendingThenReady = [
     {type: 'path', title: 'Open in Terminal', activate: () => {}},
 ];
 assertEq(activatableResult(pendingThenReady, 0).title, 'Open in Terminal', 'enter skips checking path');
+assertEq(indexedActivatableResult(pendingThenReady, 0), null, 'alt 1 on pending stays');
+assertEq(indexedActivatableResult(pendingThenReady, 1).title, 'Open in Terminal', 'alt 2 is that row');
 assertEq(activatableResult([
     {type: 'path', title: '~/docs', activatable: false, activate: () => {}},
 ], 0), null, 'only pending stays closed');
+assertEq(indexedActivatableResult([
+    {type: 'path', title: '~/docs', activatable: false, activate: () => {}},
+    {type: 'app', title: 'Firefox', activate: () => {}},
+], 0), null, 'alt 1 does not steal firefox');
 assert(commandIsReady(expandHomePath('./ls', '/bin'), () => null, path => path === '/bin/ls'), 'home-relative ready');
 assertEq(commandRowMeta('ls', true).description, 'Run command', 'ready command copy');
 assertEq(commandRowMeta('nope', false).description, 'Command not found', 'missing command copy');

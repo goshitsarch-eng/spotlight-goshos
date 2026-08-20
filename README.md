@@ -94,7 +94,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Search the web | Type a query with no local matches, or `@ query` |
 | Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`, or `Ctrl+j` / `Ctrl+k` (also `Ctrl+n` / `Ctrl+p`). `Home` / `End` jump to the first or last row only when the caret is already at that edge of the query. |
 | Activate a result | Click or tap the row, or press `Enter` |
-| Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled |
+| Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled. That numbered row must be ready; a pending Checking path slot does not fall through to the next app. |
 | Dismiss | `Esc`, `Ctrl + Space`, or click / tap outside the popup. The press is claimed so the window underneath does not activate. |
 
 ## Installation

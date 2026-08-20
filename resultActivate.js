@@ -20,6 +20,13 @@ export function activatableResult(results, selectedIndex) {
     return null;
 }
 
+// numbered hints must not steal a later row when that slot is still pending
+export function indexedActivatableResult(results, index) {
+    if (index >= 0 && index < results.length && resultCanActivate(results[index]))
+        return results[index];
+    return null;
+}
+
 export function activateResultSafe(result) {
     try {
         result.activate();

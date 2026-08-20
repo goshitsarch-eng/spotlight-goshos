@@ -271,7 +271,7 @@ first a transparent full-screen reactive St.Widget called the backdrop is added 
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
 
-keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result alt+1-9 activates a numbered row when that setting is on home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
+keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result if that row is still pending enter runs the first ready sibling so a checking path can still open in terminal alt+1-9 activates only that numbered row when the setting is on a pending slot must not steal a later app home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
 
 close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
 
