@@ -5,17 +5,18 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {isPathQuery, expandHomePath, fileUriFromAbsolute} from './homePath.js';
 import {pathRowMeta} from './pathMatch.js';
-import {openUri} from './gioLaunch.js';
+import {openUri, spawnArgv} from './gioLaunch.js';
+import {terminalCommand, terminalRowMeta} from './terminalLaunch.js';
 
 let _query = '';
-let _row = null;
+let _rows = null;
 let _resolved = false;
 let _onReady = null;
 let _loadId = 0;
 
 export function invalidatePathLookup() {
     _query = '';
-    _row = null;
+    _rows = null;
     _resolved = false;
     _onReady = null;
     _loadId += 1;
@@ -31,6 +32,23 @@ export function pathRow(trimmed, resolved, kind, home) {
     return row;
 }
 
+function _findInPath(name) {
+    return GLib.find_program_in_path(name);
+}
+
+export function pathRows(trimmed, resolved, kind, home, findInPath) {
+    const rows = [pathRow(trimmed, resolved, kind, home)];
+    if (kind !== 'directory')
+        return rows;
+    const command = terminalCommand(findInPath, resolved);
+    if (!command)
+        return rows;
+    const term = terminalRowMeta(resolved, home, 'path');
+    term.activate = () => spawnArgv(command.argv, command.cwd);
+    rows.push(term);
+    return rows;
+}
+
 export function searchPath(query) {
     const trimmed = query.trim();
     if (!isPathQuery(trimmed))
@@ -41,10 +59,10 @@ export function searchPath(query) {
     if (!resolved)
         return [];
 
-    if (_query === trimmed && _resolved && _row)
-        return [_row];
+    if (_query === trimmed && _resolved && _rows)
+        return _rows;
 
-    return [pathRow(trimmed, resolved, 'file', home)];
+    return pathRows(trimmed, resolved, 'file', home, _findInPath);
 }
 
 export function ensurePath(query, onReady) {
@@ -87,7 +105,7 @@ function _start(trimmed) {
             }
             if (loadId !== _loadId)
                 return;
-            _row = pathRow(trimmed, resolved, kind, home);
+            _rows = pathRows(trimmed, resolved, kind, home, _findInPath);
             _resolved = true;
             const cb = _onReady;
             _onReady = null;

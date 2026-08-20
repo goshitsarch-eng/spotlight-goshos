@@ -4,7 +4,8 @@
 import GLib from 'gi://GLib';
 import {matchPlaces, takeUniquePlaces} from './placeMatch.js';
 import {collapseHomePath, fileUriFromAbsolute} from './homePath.js';
-import {openUri} from './gioLaunch.js';
+import {openUri, spawnArgv} from './gioLaunch.js';
+import {terminalCommand, terminalRowMeta} from './terminalLaunch.js';
 
 function _placePath(id) {
     if (id === 'home')
@@ -30,7 +31,8 @@ function _placePath(id) {
 
 export function searchPlaces(query, maxResults) {
     const home = GLib.get_home_dir() || '';
-    return takeUniquePlaces(matchPlaces(query), _placePath, maxResults).map(({place, path}) => ({
+    const matches = takeUniquePlaces(matchPlaces(query), _placePath, maxResults);
+    const rows = matches.map(({place, path}) => ({
         type: 'place',
         title: place.title,
         description: collapseHomePath(path, home),
@@ -39,4 +41,13 @@ export function searchPlaces(query, maxResults) {
             openUri(fileUriFromAbsolute(path));
         },
     }));
+    if (matches.length === 0 || rows.length >= maxResults)
+        return rows;
+    const command = terminalCommand(name => GLib.find_program_in_path(name), matches[0].path);
+    if (!command)
+        return rows;
+    const term = terminalRowMeta(matches[0].path, home, 'place');
+    term.activate = () => spawnArgv(command.argv, command.cwd);
+    rows.push(term);
+    return rows;
 }

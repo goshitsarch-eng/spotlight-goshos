@@ -6,7 +6,7 @@ import GLib from 'gi://GLib';
 import {firstCommandArg, commandUsesPathLookup} from './commandReady.js';
 import {expandHomeArgv} from './homePath.js';
 
-export function spawnArgv(argv) {
+export function spawnArgv(argv, cwd) {
     const home = GLib.get_home_dir() || '';
     const resolved = expandHomeArgv(argv, home);
     const exe = firstCommandArg(resolved);
@@ -17,8 +17,10 @@ export function spawnArgv(argv) {
         flags: Gio.SubprocessFlags.NONE,
     });
     // gnome-shell cwd is often / so run the command from the user home
-    if (home)
-        launcher.set_cwd(home);
+    // a directory opener can pass cwd so xdg-terminal-exec starts there
+    const workdir = cwd || home;
+    if (workdir)
+        launcher.set_cwd(workdir);
     let proc;
     // spawnv raises gerror if the binary vanished after the ready check
     try {

@@ -153,6 +153,7 @@ required = [
     'resultPointer.js',
     'resultActivate.js',
     'appReady.js',
+    'terminalLaunch.js',
 ]
 missing = [n for n in required if n not in names]
 if missing:
