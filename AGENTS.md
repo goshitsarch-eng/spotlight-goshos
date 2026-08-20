@@ -263,6 +263,7 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.sessionMode.connect('updated') in launcherPopup.js so lock and greeter close an open popup disconnected manually in destroy()
 - Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
+- Main.layoutManager.connect('system-modal-opened') in launcherPopup.js so screenshot and polkit close an open popup disconnected manually in destroy()
 
 parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers
 

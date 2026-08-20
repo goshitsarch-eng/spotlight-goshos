@@ -44,6 +44,7 @@ export class LiveSearchWatcher {
         this._appSystem = Shell.AppSystem.get_default();
         this._appSystem.connectObject(
             'installed-changed', () => this._onChange(),
+            'app-state-changed', () => this._onChange(),
             this,
         );
     }
@@ -72,7 +73,7 @@ export class LiveSearchWatcher {
     }
 
     _trackWindow(win) {
-        if (!win)
+        if (!win || this._windows.includes(win))
             return;
         win.connectObject('unmanaged', () => {
             this._forgetWindow(win);

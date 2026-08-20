@@ -251,6 +251,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - A provider that throws (a window that closed mid-search, or a recent-file URI with latin-1 percent bytes) leaves the other categories on screen. The empty-state list isolates windows from frequent apps the same way, and one vanished window is skipped instead of dropping the whole window list.
 - A missing app icon no longer becomes `gicon: null`. A throw while building rows clears the painting flag so hover selection is not stuck off. A throwing `get_icon()` still paints that row with a fallback.
 - Super / Activities closes the launcher so `addTopChrome` cannot cover Overview. Opening with the shortcut while Overview is already visible still works.
+- Print Screen, polkit, and other system modals emit `system-modal-opened`. The launcher closes so it cannot sit over that grab.
 - On-screen keyboard long-press accent keys grab focus in `addTopChrome`. That does not close the launcher.
 - While the popup is open, a window that appears or closes, a workspace change, or an installed-app change repaints the current query so Pop!_OS windows-first does not keep a closed window.
 

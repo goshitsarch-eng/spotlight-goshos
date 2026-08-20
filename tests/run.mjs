@@ -3,7 +3,7 @@ import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUn
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
-import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview} from '../popupGate.js';
+import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
 import {nextLiveSearchAction} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {chromeAddMethod} from '../popupChrome.js';
@@ -293,6 +293,9 @@ assert(!shouldCancelOpenOnOverview(false), 'idle overview leaves a closed popup'
 assert(shouldCloseOnOverview(true, false), 'overview closes an open popup');
 assert(shouldCloseOnOverview(false, true), 'overview closes a visible popup');
 assert(!shouldCloseOnOverview(false, false), 'overview does not open the popup');
+assert(shouldCancelOpenOnShellUi(true), 'screenshot cancels a pending open');
+assert(shouldCloseOnShellUi(true, false), 'screenshot closes an open popup');
+assert(!shouldCloseOnShellUi(false, false), 'screenshot does not open the popup');
 assertEq(nextLiveSearchAction(false, true), 'start', 'open starts live search');
 assertEq(nextLiveSearchAction(true, false), 'stop', 'close stops live search');
 assertEq(nextLiveSearchAction(true, true), 'keep', 'already listening');

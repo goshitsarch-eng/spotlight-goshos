@@ -21,7 +21,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from './popupGate.js';
 import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
@@ -73,6 +73,7 @@ class LauncherPopup extends St.BoxLayout {
         this._backdrop = null;
         this._sessionId = 0;
         this._overviewId = 0;
+        this._systemModalId = 0;
         this._timeLimitsId = 0;
         this._parentalGiveUpId = 0;
         this._parental = null;
@@ -82,6 +83,7 @@ class LauncherPopup extends St.BoxLayout {
         this._liveSearch = new LiveSearchWatcher(() => this._repaintIfOpen());
         this._listenSession();
         this._listenOverview();
+        this._listenSystemModal();
         this._listenTimeLimits();
         this._listenParental();
 
@@ -344,9 +346,9 @@ class LauncherPopup extends St.BoxLayout {
         if (!Main.overview)
             return;
         this._overviewId = Main.overview.connect('showing', () => {
-            if (shouldCancelOpenOnOverview(Boolean(this._openIdleId)))
+            if (shouldCancelOpenOnShellUi(Boolean(this._openIdleId)))
                 this.cancelPendingOpen();
-            if (shouldCloseOnOverview(this._isOpen, this.visible))
+            if (shouldCloseOnShellUi(this._isOpen, this.visible))
                 this.closeSoon();
         });
     }
@@ -356,6 +358,26 @@ class LauncherPopup extends St.BoxLayout {
             return;
         Main.overview.disconnect(this._overviewId);
         this._overviewId = 0;
+    }
+
+    // screenshot and polkit emit this so addtopchrome cannot cover their grab
+    // https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/screenshot.js
+    _listenSystemModal() {
+        if (this._systemModalId)
+            return;
+        this._systemModalId = Main.layoutManager.connect('system-modal-opened', () => {
+            if (shouldCancelOpenOnShellUi(Boolean(this._openIdleId)))
+                this.cancelPendingOpen();
+            if (shouldCloseOnShellUi(this._isOpen, this.visible))
+                this.closeSoon();
+        });
+    }
+
+    _unlistenSystemModal() {
+        if (!this._systemModalId)
+            return;
+        Main.layoutManager.disconnect(this._systemModalId);
+        this._systemModalId = 0;
     }
 
     _limitsReached() {
@@ -679,6 +701,7 @@ class LauncherPopup extends St.BoxLayout {
         this._clearPopupIdles();
         this._unlistenSession();
         this._unlistenOverview();
+        this._unlistenSystemModal();
         this._unlistenTimeLimits();
         this._unlistenParental();
         this._liveSearch.stop();

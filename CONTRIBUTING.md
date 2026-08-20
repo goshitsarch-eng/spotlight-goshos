@@ -306,6 +306,7 @@ Manual testing on GNOME Shell 50 Wayland:
 104. On a tablet, open the on-screen keyboard then long-press a letter for accented characters — the launcher must stay open. Escape must still close it. Alt-tab must still close.
 105. Open the launcher, then press Super — the launcher must close so Overview is usable. Open Overview first, then the shortcut — the launcher must still appear over Overview.
 106. Open the launcher on Pop!_OS (windows first) with several windows, then close one of those windows without typing — the closed window must leave the list. Install or remove an app while the popup is open — the app list must update without retyping.
+107. Open the launcher, then press Print Screen — the launcher must close so the screenshot UI can grab the keyboard. A polkit or network password dialog that appears while the popup is open must also dismiss it.
 
 ## Submitting Changes
 
