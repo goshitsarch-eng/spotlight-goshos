@@ -7,6 +7,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from './workspaceQuery.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId, takeWindowResults} from './windowMatch.js';
+import {appIconOrFallback, windowIconOrFallback} from './resultIcon.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -35,11 +36,17 @@ function _tabRanks() {
 }
 
 function _windowIcon(win) {
-    const tracker = Shell.WindowTracker.get_default();
-    const app = tracker.get_window_app(win);
-    if (app)
-        return app.get_icon();
-    return 'focus-windows-symbolic';
+    try {
+        const tracker = Shell.WindowTracker.get_default();
+        const app = tracker.get_window_app(win);
+        const source = appIconOrFallback(app, 'focus-windows-symbolic');
+        if (source.gicon)
+            return source.gicon;
+        return source.icon_name;
+    } catch (e) {
+        // tracker can vanish with the window
+    }
+    return windowIconOrFallback(null);
 }
 
 function _switchWorkspaceResult(switchQuery) {

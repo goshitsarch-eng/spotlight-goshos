@@ -18,7 +18,7 @@ import {wordPrefixMatch, textMatchesQuery, keywordMatchesQuery, pathMatchesQuery
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {appId, appName, appGenericName, appKeywords, appDescription, appActionIds, appActionName, describeInstalledApp, collectInstalledAppMatches, collectUsableApps} from '../appInfo.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON, shouldApplyHoverSelection} from '../resultPointer.js';
-import {resultIconSource} from '../resultIcon.js';
+import {resultIconSource, appIconOrFallback, windowIconOrFallback} from '../resultIcon.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv, settingsPanelAvailable, settingsPanelDesktop, settingsResultMeta, firstDesktopAppInfoCtor, settingsDesktopExists} from '../settingsPanels.js';
 import {nextSelectedIndex, nextActivatableIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, scrollValueToShowRow} from '../scrollView.js';
@@ -355,6 +355,17 @@ assertEq(Boolean(resultIconSource({app: {get_icon: () => ({name: 'ok'})}}).gicon
 assertEq(resultIconSource({icon: 'folder-symbolic'}).icon_name, 'folder-symbolic', 'string icon');
 assertEq(resultIconSource({}).icon_name, 'application-x-executable-symbolic', 'missing icon');
 assert(!('gicon' in resultIconSource({app: {get_icon: () => null}})), 'null app icon is not a gicon');
+assertEq(resultIconSource({app: {get_icon: () => {
+    throw new Error('gone');
+}}}).icon_name, 'application-x-executable', 'throwing app icon falls back');
+assertEq(appIconOrFallback({get_icon: () => {
+    throw new Error('gone');
+}}, 'missing-symbolic').icon_name, 'missing-symbolic', 'throwing app icon uses fallback');
+assertEq(appIconOrFallback({get_icon: () => null}, 'missing-symbolic').icon_name, 'missing-symbolic', 'null app icon uses fallback');
+assertEq(appIconOrFallback(null, 'missing-symbolic').icon_name, 'missing-symbolic', 'missing app uses fallback name');
+assertEq(Boolean(appIconOrFallback({get_icon: () => ({name: 'ok'})}, 'missing-symbolic').gicon), true, 'valid app icon kept');
+assertEq(windowIconOrFallback(null), 'focus-windows-symbolic', 'null window icon');
+assertEq(windowIconOrFallback({name: 'ok'}).name, 'ok', 'window gicon kept');
 assert(!shouldApplyHoverSelection(true, 10, 0), 'hover during paint');
 assert(shouldApplyHoverSelection(false, 10, 0), 'hover after paint');
 assert(!shouldApplyHoverSelection(false, 10, 20), 'hover suppressed after arrows');
