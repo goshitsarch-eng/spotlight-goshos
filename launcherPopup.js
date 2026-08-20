@@ -15,6 +15,7 @@ import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
 import {getTheme} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
+import {canOpenPopup} from './popupGate.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -143,11 +144,12 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     open() {
-        // _isOpen covers the idle gap before visible becomes true
-        // without it a second shortcut press would leak a backdrop
-        if (this._isOpen || this.visible)
-            return;
-        if (Main.sessionMode.isLocked || Main.sessionMode.isGreeter)
+        if (!canOpenPopup(
+            this._isOpen,
+            this.visible,
+            Main.sessionMode.isLocked,
+            Main.sessionMode.isGreeter,
+        ))
             return;
 
         this._isOpen = true;

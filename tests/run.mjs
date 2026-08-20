@@ -1,6 +1,7 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES} from '../prefixParser.js';
-import {isUrlQuery, normalizeUrl} from '../urlMatch.js';
+import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost} from '../urlMatch.js';
+import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
@@ -72,6 +73,26 @@ assert(!isUrlQuery(''), 'empty is not a url');
 assertEq(normalizeUrl('example.com'), 'https://example.com', 'add https');
 assertEq(normalizeUrl('https://ok.test'), 'https://ok.test', 'keep scheme');
 assertEq(normalizeUrl('www.ok.test'), 'https://www.ok.test', 'www gets https');
+assert(isUrlQuery('localhost:3000'), 'localhost port');
+assert(isUrlQuery('127.0.0.1'), 'loopback');
+assert(isUrlQuery('192.168.1.1:8080'), 'lan port');
+assert(isUrlQuery('example.com:3000'), 'domain port');
+assert(!isUrlQuery('localhostx'), 'localhost prefix is not a url');
+assertEq(normalizeUrl('localhost:3000'), 'http://localhost:3000', 'local uses http');
+assertEq(normalizeUrl('10.0.0.5'), 'http://10.0.0.5', 'lan uses http');
+assertEq(normalizeUrl('example.com:3000'), 'https://example.com:3000', 'public keeps https');
+assertEq(hostOfQuery('https://a.test:80/x'), 'a.test', 'host strips scheme port path');
+assertEq(schemeForHost('localhost'), 'http', 'localhost scheme');
+assertEq(schemeForHost('example.com'), 'https', 'public scheme');
+
+assert(canOpenPopup(false, false, false, false), 'idle can open');
+assert(!canOpenPopup(true, false, false, false), 'open flag blocks');
+assert(!canOpenPopup(false, true, false, false), 'visible blocks');
+assert(!canOpenPopup(false, false, true, false), 'lock screen blocks');
+assert(!canOpenPopup(false, false, false, true), 'greeter blocks');
+assert(shouldCloseOnToggle(true, false), 'idle gap still toggles closed');
+assert(shouldCloseOnToggle(false, true), 'visible toggles closed');
+assert(!shouldCloseOnToggle(false, false), 'closed stays closed');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();

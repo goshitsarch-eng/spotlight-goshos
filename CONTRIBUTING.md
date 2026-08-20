@@ -92,6 +92,7 @@ Pure functions with no side effects:
 - **`keyAction.js`** — Key press to popup action.
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
+- **`popupGate.js`** — Whether a shortcut should open or close, including lock screen.
 
 ### Preference Pages
 
@@ -169,6 +170,7 @@ Manual testing on GNOME Shell 50 Wayland:
 9. Click outside the popup — it must close without crashing the shell (Clutter 18).
 10. Type `!no-such-command` with the command runner on and press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
+12. Type `localhost:3000` — a URL result should open `http://localhost:3000`.
 
 ## Submitting Changes
 

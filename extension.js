@@ -5,6 +5,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
+import {shouldCloseOnToggle} from './popupGate.js';
 
 // entry point - enable and disable are kept next to each other for easy review
 export default class GoshIsLauncherExtension extends Extension {
@@ -33,7 +34,7 @@ export default class GoshIsLauncherExtension extends Extension {
 
     _grabShortcut(accelerator) {
         this._keybindingManager.listenFor(accelerator, () => {
-            if (this._popup.visible || this._popup.isOpen)
+            if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
                 this._popup.close();
             else
                 this._popup.open();
