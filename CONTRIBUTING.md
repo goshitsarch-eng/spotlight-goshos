@@ -94,6 +94,7 @@ Pure functions with no side effects:
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
 - **`popupGate.js`** — Whether a shortcut should open or close, including lock screen.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel.
+- **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
 
@@ -165,12 +166,12 @@ Manual testing on GNOME Shell 50 Wayland:
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear.
 2. Type `12*8+3` and Enter — clipboard should contain `99`.
 3. Type `=2^8` — calculator prefix should show `256`.
-4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, and Albert.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, and Light.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home and End in a long result list — selection should jump to the first and last rows.
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
-9. Click outside the popup — it must close without crashing the shell (Clutter 18).
+9. Click outside the popup — it must close without crashing the shell (Clutter 18). On a second monitor the click must still close it.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 12. Type `localhost:3000` — a URL result should open `http://localhost:3000`.

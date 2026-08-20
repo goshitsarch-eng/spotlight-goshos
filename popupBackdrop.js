@@ -4,6 +4,7 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {backdropBox} from './backdropBox.js';
 
 // a transparent full-screen reactive actor that sits behind the popup in
 // the chrome layer - any click on it closes the popup, which is how we
@@ -20,9 +21,9 @@ export class PopupBackdrop {
             visible: false,
         });
 
-        const monitor = Main.layoutManager.primaryMonitor;
-        this._actor.set_size(monitor.width, monitor.height);
-        this._actor.set_position(monitor.x, monitor.y);
+        const box = backdropBox(Main.layoutManager.monitors);
+        this._actor.set_size(box.width, box.height);
+        this._actor.set_position(box.x, box.y);
 
         this._actor.connectObject('button-release-event', () => {
             onClickOutside();

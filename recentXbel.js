@@ -3,6 +3,15 @@
 
 const HREF_RE = /href="(file:[^"]+)"/g;
 
+function unescapeXml(text) {
+    return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'");
+}
+
 // xbel is xml so only file: hrefs are launcher results
 // web bookmarks in the same file are ignored
 export function parseRecentXbel(text) {
@@ -14,7 +23,7 @@ export function parseRecentXbel(text) {
     HREF_RE.lastIndex = 0;
     let match = HREF_RE.exec(text);
     while (match !== null) {
-        const uri = match[1];
+        const uri = unescapeXml(match[1]);
         match = HREF_RE.exec(text);
         if (seen.has(uri))
             continue;

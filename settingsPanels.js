@@ -21,6 +21,7 @@ export const SETTINGS_PANELS = [
     {id: 'wellbeing', title: 'Wellbeing', keywords: ['screentime', 'limit']},
     {id: 'keyboard', title: 'Keyboard', keywords: ['shortcut', 'input']},
     {id: 'mouse', title: 'Mouse & Touchpad', keywords: ['trackpad', 'pointer']},
+    {id: 'wacom', title: 'Drawing Tablet', keywords: ['stylus', 'pen', 'wacom']},
     {id: 'color', title: 'Color', keywords: ['icc', 'calibration']},
     {id: 'printers', title: 'Printers', keywords: ['cups']},
     {id: 'universal-access', title: 'Accessibility', keywords: ['a11y', 'screen reader']},

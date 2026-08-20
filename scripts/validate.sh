@@ -132,6 +132,7 @@ required = [
     'shortcutAccel.js',
     'popupGate.js',
     'popupPosition.js',
+    'backdropBox.js',
     'searchRun.js',
     'windowMatch.js',
     'scrollView.js',

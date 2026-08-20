@@ -132,6 +132,34 @@ export const THEMES = [
             iconSize: 26,
         },
     },
+    {
+        id: 'wofi',
+        title: 'Wofi',
+        description: 'Wayland dmenu-style list with a steel-blue selected row',
+        hint: 'Search',
+        look: {
+            position: 'center',
+            density: 'compact',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 22,
+        },
+    },
+    {
+        id: 'light',
+        title: 'Light',
+        description: 'Adwaita light card for a light GNOME session',
+        hint: 'Type to search',
+        look: {
+            position: 'center',
+            density: 'comfortable',
+            showNumbers: false,
+            showHeaders: true,
+            resultOrder: 'default',
+            iconSize: 28,
+        },
+    },
 ];
 
 export function getTheme(id) {

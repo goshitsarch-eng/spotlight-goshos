@@ -3,6 +3,7 @@ import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {popupOrigin} from '../popupPosition.js';
+import {backdropBox} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
@@ -124,6 +125,17 @@ assertEq(popupOrigin(tiny, 600, 80, 'center').x, 0, 'wide popup pins to work lef
 assertEq(popupOrigin(tiny, 200, 400, 'center').y, 0, 'tall popup pins to work top');
 assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center').x, 50, 'pin keeps work origin');
 
+const span = backdropBox([
+    {x: 0, y: 0, width: 1920, height: 1080},
+    {x: 1920, y: 0, width: 1280, height: 1024},
+]);
+assertEq(span.x, 0, 'backdrop left');
+assertEq(span.y, 0, 'backdrop top');
+assertEq(span.width, 3200, 'backdrop spans both widths');
+assertEq(span.height, 1080, 'backdrop uses tallest monitor');
+assertEq(backdropBox([]).width, 0, 'empty monitors');
+assertEq(backdropBox([{x: 100, y: 40, width: 800, height: 600}]).x, 100, 'single monitor x');
+
 // catalogs stay aligned
 const themeIds = getThemeIds();
 assert(themeIds.includes('omarchy'), 'omarchy theme');
@@ -134,6 +146,8 @@ assert(themeIds.includes('gnome'), 'gnome theme');
 assert(themeIds.includes('rofi'), 'rofi theme');
 assert(themeIds.includes('raycast'), 'raycast theme');
 assert(themeIds.includes('albert'), 'albert theme');
+assert(themeIds.includes('wofi'), 'wofi theme');
+assert(themeIds.includes('light'), 'light theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
 
@@ -191,6 +205,8 @@ assert(matchSettingsPanels('display', 5).some(p => p.id === 'display'), 'display
 assert(matchSettingsPanels('wellbeing', 5).some(p => p.id === 'wellbeing'), 'wellbeing');
 assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyword');
 assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
+assert(matchSettingsPanels('wacom', 5).some(p => p.id === 'wacom'), 'wacom panel');
+assert(matchSettingsPanels('stylus', 5).some(p => p.id === 'wacom'), 'stylus keyword');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
 
 // selection wrap vs page clamp
@@ -325,6 +341,26 @@ applyLookSettings({
     },
 }, getTheme('albert'));
 assertEq(stored['show-section-headers'], true, 'albert keeps headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('wofi'));
+assertEq(stored['row-density'], 'compact', 'wofi is compact');
+assertEq(stored['show-section-headers'], false, 'wofi hides headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('light'));
+assertEq(stored['popup-position'], 'center', 'light is centered');
+assertEq(stored['show-section-headers'], true, 'light keeps headers');
 assertEq(iconSizeForLook(getTheme('raycast').look, 'comfortable') >
     iconSizeForLook(getTheme('albert').look, 'comfortable'), true, 'raycast icons larger than albert');
 
@@ -367,6 +403,8 @@ assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats them
 assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
 assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');
+assert(css.includes('background-color: #285577'), 'wofi selected row');
+assert(css.includes('background-color: #f6f5f4'), 'light card');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
 
 // scrollview helpers speak both the 45 and 48 apis
@@ -418,6 +456,11 @@ assertEq(parseRecentXbel(xbel)[1], 'file:///home/user/My%20File.pdf', 'keep enco
 assertEq(basenameFromUri('file:///home/user/My%20File.pdf'), 'My File.pdf', 'unescape basename');
 assertEq(basenameFromUri('file:///tmp/a%'), 'a%', 'lone percent stays');
 assertEq(parseRecentXbel('').length, 0, 'empty xbel');
+assertEq(
+    parseRecentXbel('<bookmark href="file:///tmp/a&amp;b.txt"/>')[0],
+    'file:///tmp/a&b.txt',
+    'xbel unescapes amp',
+);
 
 assertEq(resolveKeyAction('Tab', false, false, false).delta, 1, 'tab down');
 assertEq(resolveKeyAction('Tab', true, false, false).delta, -1, 'shift tab up');

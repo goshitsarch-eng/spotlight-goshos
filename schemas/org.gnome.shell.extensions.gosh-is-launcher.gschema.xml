@@ -19,6 +19,8 @@
         <choice value="rofi"/>
         <choice value="raycast"/>
         <choice value="albert"/>
+        <choice value="wofi"/>
+        <choice value="light"/>
       </choices>
       <default>'spotlight'</default>
       <summary>Launcher look</summary>

@@ -27,6 +27,8 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Rofi** | [Rofi](https://github.com/davatorium/rofi) | Square dmenu-style list, compact rows, classic `#005577` selection. |
 | **Raycast** | [Raycast](https://www.raycast.com) | Dark rounded panel, red caret, larger icons, no section headers. |
 | **Albert** | [Albert](https://albertlauncher.github.io) | Breeze-dark card with a `#1d99f3` selected row and section headers. |
+| **Wofi** | [Wofi](https://hg.sr.ht/~scoopta/wofi) | Compact Wayland dmenu list, `#1d1f21` with `#285577` selection. |
+| **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
@@ -107,7 +109,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Light)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
@@ -130,6 +132,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `prefs.js` | Preferences window entry point |
 | `launcherPopup.js` | Popup widget — open/close, theme chrome, positioning |
 | `popupPosition.js` | Work-area origin so top looks sit below the panel |
+| `backdropBox.js` | Multi-monitor box for click-outside |
 | `searchEntry.js` | Search input with magnifying-glass icon |
 | `resultsContainer.js` | Scrollable results area |
 | `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
