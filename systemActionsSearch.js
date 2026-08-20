@@ -64,6 +64,7 @@ const SYSTEM_ACTIONS = [
         title: 'Lock Screen Rotation',
         icon: 'rotation-locked-symbolic',
         keywords: ['rotation', 'orientation', 'rotate'],
+        // gnome 50 still exports this tablets hide it when unmanaged
         can: sa => sa.canLockOrientation,
         activate: () => SystemActions.getDefault().activateLockOrientation(),
     },
