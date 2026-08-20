@@ -253,7 +253,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Super / Activities closes the launcher so `addTopChrome` cannot cover Overview. Opening with the shortcut while Overview is already visible still works.
 - Print Screen, polkit, and other system modals emit `system-modal-opened`. The launcher closes so it cannot sit over that grab.
 - On-screen keyboard long-press accent keys grab focus in `addTopChrome`. That does not close the launcher.
-- The on-screen keyboard parks `keyboardBox` at the monitor bottom and slides the keys with the child's `translation_y`. The work area follows that child so the list is not covered. While the keyboard is visible it is raised above the launcher so taps hit the keys instead of the backdrop.
+- The on-screen keyboard parks `keyboardBox` at the monitor bottom and slides the keys with the child's `translation_y`. The work area follows that child so the list is not covered. While the keyboard is visible it is raised above the launcher so taps hit the keys instead of the backdrop. Accent popovers that GNOME 50 left in `addTopChrome` from an earlier long-press are raised with the keys so a tap types instead of closing the launcher.
 - A finger swipe on the result list scrolls. A tap still activates. Mouse clicks still claim the press so Wayland cannot deliver it through the popup.
 - While the popup is open, a window that appears or closes, a workspace change, or an installed-app change repaints the current query so Pop!_OS windows-first does not keep a closed window.
 

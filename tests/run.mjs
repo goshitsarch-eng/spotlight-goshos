@@ -6,7 +6,7 @@ import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQ
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
-import {chromeAddMethod, shouldRaiseChromeAbove} from '../popupChrome.js';
+import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, isOskPopoverActor, shouldWatchOskPopover, uiGroupChildren, oskChromeToRaise, raiseOskChrome, OSK_POPOVER_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -351,6 +351,51 @@ assert(!shouldRaiseChromeAbove(uiGroup, {visible: false, get_parent: () => uiGro
 assert(!shouldRaiseChromeAbove(uiGroup, osk, osk), 'same actor is not raised');
 assert(!shouldRaiseChromeAbove(null, osk, popup), 'missing uigroup');
 assert(!shouldRaiseChromeAbove({ }, osk, popup), 'hosts without set_child_above_sibling');
+assert(actorHasStyleClass({style_class: OSK_POPOVER_STYLE}, OSK_POPOVER_STYLE), 'style_class lists the osk popover');
+assert(actorHasStyleClass({has_style_class_name: name => name === OSK_POPOVER_STYLE}, OSK_POPOVER_STYLE), 'st has_style_class_name wins');
+assert(!actorHasStyleClass({style_class: 'boxpointer'}, OSK_POPOVER_STYLE), 'other boxpointers are not osk accents');
+assert(isOskPopoverActor({style_class: `popup-menu ${OSK_POPOVER_STYLE}`}), 'reused accent popover is osk chrome');
+assert(!isOskPopoverActor({style_class: 'popup-menu-boxpointer'}), 'language menus need their own addtopchrome');
+assert(shouldWatchOskPopover({style_class: OSK_POPOVER_STYLE}, []), 'first watch keeps the popover');
+const watchedAccent = {style_class: OSK_POPOVER_STYLE};
+assert(!shouldWatchOskPopover(watchedAccent, [watchedAccent]), 'already watched popover is skipped');
+const stackedKids = [];
+const stackedGroup = {
+    set_child_above_sibling() {},
+    get_children() {
+        return stackedKids;
+    },
+};
+const kb = {visible: true, get_parent: () => stackedGroup};
+const accent = {visible: true, style_class: OSK_POPOVER_STYLE, get_parent: () => stackedGroup};
+const buried = {visible: false, style_class: OSK_POPOVER_STYLE, get_parent: () => stackedGroup};
+const other = {visible: true, style_class: 'popup-menu-boxpointer', get_parent: () => stackedGroup};
+stackedKids.push(accent, buried, other, kb, popup);
+assertEq(uiGroupChildren(stackedGroup).length, 5, 'uigroup children are listed');
+assertEq(oskChromeToRaise(stackedGroup, kb, popup).map(a => a === kb ? 'kb' : a === accent ? 'accent' : a === buried ? 'buried' : 'other').join(','), 'kb,accent,buried', 'keys then accent popovers');
+const raiseOrder = [];
+const liveGroup = {
+    set_child_above_sibling(actor, sibling) {
+        raiseOrder.push(`${actor.tag}>${sibling.tag}`);
+    },
+};
+const livePopup = {tag: 'popup', visible: true, get_parent: () => liveGroup};
+const liveKb = {tag: 'kb', visible: true, get_parent: () => liveGroup};
+const liveAccent = {tag: 'accent', visible: true, style_class: OSK_POPOVER_STYLE, get_parent: () => liveGroup};
+const liveHidden = {tag: 'hidden', visible: false, style_class: OSK_POPOVER_STYLE, get_parent: () => liveGroup};
+liveGroup.get_children = () => [liveAccent, liveHidden, liveKb, livePopup];
+assert(raiseOskChrome(liveGroup, liveKb, livePopup), 'visible osk chrome is raised');
+assertEq(raiseOrder.join(','), 'kb>popup,accent>kb', 'accents sit above the keys');
+const leftoverGroup = {
+    set_child_above_sibling(actor, sibling) {
+        this.last = `${actor.tag}>${sibling.tag}`;
+    },
+};
+const leftoverPopup = {tag: 'popup', visible: true, get_parent: () => leftoverGroup};
+const leftoverAccent = {tag: 'accent', visible: true, style_class: OSK_POPOVER_STYLE, get_parent: () => leftoverGroup};
+leftoverGroup.get_children = () => [leftoverAccent, leftoverPopup];
+assert(raiseOskChrome(leftoverGroup, null, leftoverPopup), 'reused accent is raised without keyboardbox');
+assertEq(leftoverGroup.last, 'accent>popup', 'leftover accent sits above the popup');
 assertEq(unredirectApi(true, true), 'compositor', 'gnome 48-50 use compositor unredirect');
 assertEq(unredirectApi(false, true), 'display', 'gnome 45-47 use display unredirect');
 assertEq(unredirectApi(false, false), '', 'hosts without unredirect helpers');

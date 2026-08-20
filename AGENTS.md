@@ -153,7 +153,7 @@ gosh-is-launcher@nin/
     searchLive.js             when to watch windows and apps (pure)
     liveSearchWatcher.js      refresh rows when a window or app changes
     popupPosition.js          work-area origin (pure)
-    popupChrome.js            addtopchrome versus addchrome (pure)
+    popupChrome.js            addtopchrome versus addchrome and osk accent raise (pure)
     unredirect.js             hold compositor unredirect while open (pure)
     resultPointer.js          result row press/release and touch tap versus swipe (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
@@ -264,6 +264,7 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 - Main.layoutManager.connect('system-modal-opened') in launcherPopup.js so screenshot and polkit close an open popup disconnected manually in destroy()
+- layoutManager.uiGroup.connect('child-added') in launcherPopup.js so a later accent popover is raised above the backdrop disconnected manually in close()
 
 parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers the sliding osk keys are the first child of keyboardbox and their translation-y is disconnected the same way liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers start() and stop() isolate a vanished window or display so open() cannot abort after the backdrop is in chrome
 
@@ -271,7 +272,7 @@ each of these tracks its own handler id in an instance field and disconnects it 
 
 ### popup positioning
 
-the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the parked keyboardbox hosts without addtopchrome fall back to addchrome a visible osk is raised above the popup so taps hit the keys instead of the backdrop
+the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the parked keyboardbox hosts without addtopchrome fall back to addchrome a visible osk is raised above the popup so taps hit the keys instead of the backdrop gnome 50 keeps accent popovers in addtopchrome after first use so a later launcher open sits above those actors raiseOskChrome lifts keyboardbox then keyboard-subkeys-boxpointer actors and close() disconnects their notify::visible so a reused long-press is not buried under the backdrop https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/keyboard.js
 
 an unredirected fullscreen window bypasses composition so even top chrome is invisible open() holds unredirect via Meta.Compositor.disable_unredirect on 48-50 or Meta.disable_unredirect_for_display on 45-47 close() and destroy() release that hold once disable/enable are a matched pair do not enable without a hold https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 

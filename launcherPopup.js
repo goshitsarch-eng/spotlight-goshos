@@ -26,7 +26,7 @@ import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
-import {addPopupChrome, removePopupChrome, raiseChromeAbove} from './popupChrome.js';
+import {addPopupChrome, removePopupChrome, raiseOskChrome, shouldWatchOskPopover, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -71,6 +71,9 @@ class LauncherPopup extends St.BoxLayout {
         this._monitorsId = 0;
         this._keyboardBox = null;
         this._keyboardSlide = null;
+        this._oskChildAddedId = 0;
+        this._oskUiGroup = null;
+        this._oskPopovers = [];
         this._backdrop = null;
         this._sessionId = 0;
         this._overviewId = 0;
@@ -313,7 +316,63 @@ class LauncherPopup extends St.BoxLayout {
         this._keyboardSlide = null;
     }
 
+    _listenOskPopovers() {
+        const uiGroup = Main.layoutManager.uiGroup;
+        if (!uiGroup || this._oskChildAddedId)
+            return;
+        // reused accent popovers sit under a later addtopchrome
+        try {
+            this._oskChildAddedId = uiGroup.connect('child-added', (_group, child) => {
+                this._watchOskPopover(child);
+                if (this._isOpen)
+                    this._raiseOnScreenKeyboard();
+            });
+            this._oskUiGroup = uiGroup;
+        } catch (e) {
+            this._oskChildAddedId = 0;
+            this._oskUiGroup = null;
+        }
+        try {
+            for (const child of uiGroupChildren(uiGroup))
+                this._watchOskPopover(child);
+        } catch (e) {
+            // uigroup can rebuild while the osk is opening
+        }
+    }
+
+    _watchOskPopover(actor) {
+        if (!shouldWatchOskPopover(actor, this._oskPopovers))
+            return;
+        try {
+            actor.connectObject('notify::visible', () => this._onKeyboardChanged(), this);
+            this._oskPopovers.push(actor);
+        } catch (e) {
+            // boxpointer can vanish while the osk is rebuilding
+        }
+    }
+
+    _unlistenOskPopovers() {
+        if (this._oskChildAddedId && this._oskUiGroup) {
+            try {
+                this._oskUiGroup.disconnect(this._oskChildAddedId);
+            } catch (e) {
+                // uigroup can rebuild while the osk is closing
+            }
+        }
+        this._oskChildAddedId = 0;
+        this._oskUiGroup = null;
+        for (const actor of this._oskPopovers) {
+            try {
+                actor.disconnectObject(this);
+            } catch (e) {
+                // boxpointer can vanish while the osk is rebuilding
+            }
+        }
+        this._oskPopovers = [];
+    }
+
     _unlistenKeyboard() {
+        this._unlistenOskPopovers();
         this._unlistenKeyboardSlide();
         if (!this._keyboardBox)
             return;
@@ -326,7 +385,7 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _raiseOnScreenKeyboard() {
-        raiseChromeAbove(Main.layoutManager.uiGroup, Main.layoutManager.keyboardBox, this);
+        raiseOskChrome(Main.layoutManager.uiGroup, Main.layoutManager.keyboardBox, this);
     }
 
     _onKeyboardChanged() {
@@ -612,6 +671,7 @@ class LauncherPopup extends St.BoxLayout {
         this._backdrop.show();
         this._listenMonitors();
         this._listenKeyboard();
+        this._listenOskPopovers();
         this._liveSearch.start();
 
         // always re-add popup to chrome to guarantee correct stacking order

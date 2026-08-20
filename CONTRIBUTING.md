@@ -118,7 +118,7 @@ Pure functions with no side effects:
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
 - **`searchLive.js`** — Whether window and app listeners should start or stop when the popup opens or closes.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list.
-- **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher.
+- **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher. Raise a visible on-screen keyboard and reused accent popovers above the backdrop.
 - **`unredirect.js`** — Hold compositor unredirect while the popup is open so a fullscreen window cannot hide it.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
@@ -311,6 +311,7 @@ Manual testing on GNOME Shell 50 Wayland:
 109. On a tablet, swipe the result list — it must scroll. A tap that stays inside the slop must still activate that row. A mouse click must still activate.
 110. Open the launcher, then open the on-screen keyboard — the list must lift or shrink as the keys slide up. The parked keyboardBox at the monitor bottom must not be treated as already covering the work area. A keyboard on another monitor must leave the primary popup alone.
 111. Open the launcher, then open the on-screen keyboard — tapping a key must type into the entry and must not close the launcher. The keys sit in keyboardBox which is addTopChrome at shell init; the launcher is added later and must raise that box above the backdrop while the keyboard is visible.
+112. Use the on-screen keyboard and long-press a letter so an accent popover is created, dismiss the launcher, then open it again and long-press the same letter — the accents must appear above the backdrop and tapping one must type into the entry instead of closing the launcher. GNOME 50 keeps those popovers in addTopChrome after first use.
 
 ## Submitting Changes
 
