@@ -11,6 +11,7 @@ import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAnce
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings} from '../themes.js';
+import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey} from '../accentColor.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
@@ -1583,6 +1584,29 @@ assertEq(lookApplyAction('', 'spotlight'), 'keep', 'empty theme is ignored');
     assertEq(first['applied-look'], 'spotlight', 'first enable stamps the current look');
 }
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
+assertEq(getTheme('gnome').description.includes('session accent'), true, 'gnome look mentions the session accent');
+assertEq(getTheme('light').description.includes('session accent'), true, 'light look mentions the session accent');
+assertEq(ACCENT_NICKS[0], 'blue', 'blue is the first accent nick');
+assertEq(ACCENT_NICKS[1], 'teal', 'teal follows blue');
+assertEq(accentNickFromEnum(0), 'blue', 'enum 0 is blue');
+assertEq(accentNickFromEnum(1), 'teal', 'enum 1 is teal');
+assertEq(accentNickFromEnum(7), 'purple', 'enum 7 is purple');
+assertEq(accentNickFromEnum(8), 'slate', 'enum 8 is slate');
+assertEq(accentNickFromEnum(9), 'blue', 'unknown enum falls back to blue');
+assertEq(accentNickFromEnum(-1), 'blue', 'negative enum falls back to blue');
+assertEq(accentNickFromSettings(false, 1), 'blue', 'missing key stays blue');
+assertEq(accentNickFromSettings(true, 1), 'teal', 'present key reads the enum');
+assertEq(accentHex('teal'), '#2190a4', 'teal hex');
+assertEq(accentHex('missing'), ACCENT_HEX.blue, 'unknown nick uses blue');
+assertEq(accentStyleClass('gnome', 'blue'), '', 'blue needs no class');
+assertEq(accentStyleClass('gnome', 'teal'), 'gosh-accent-teal', 'gnome teal class');
+assertEq(accentStyleClass('light', 'purple'), 'gosh-accent-purple', 'light purple class');
+assertEq(accentStyleClass('popos', 'teal'), '', 'popos keeps its own color');
+assertEq(accentStyleClass('spotlight', 'purple'), '', 'spotlight keeps its own color');
+assertEq(schemaHasAccentKey({has_key: key => key === 'accent-color'}), true, 'schema with the key');
+assertEq(schemaHasAccentKey({has_key: () => false}), false, 'schema without the key');
+assertEq(schemaHasAccentKey(null), false, 'missing schema');
+assertEq(schemaHasAccentKey({}), false, 'schema without has_key');
 let prefsDisconnected = 0;
 let prefsDestroy = null;
 const prefsSettings = {

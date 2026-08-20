@@ -189,6 +189,7 @@ gosh-is-launcher@nin/
     popupBackdrop.js          click-outside closer
     focusLossWatcher.js       close on alt-tab or return focus to the entry
     themes.js                 look catalog (pure data)
+    accentColor.js            session accent nicks for gnome and light (pure)
     prefsCombo.js             keep prefs combos in sync with gsettings (pure)
     webEngines.js             search engine catalog (pure data)
     urlMatch.js               url detection including spaced file:// and file://host/share pastes (pure)
@@ -214,7 +215,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition uiScale popupChrome backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes accentColor prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition uiScale popupChrome backdropBox searchPlan searchRun windowMatch appMatch appInfo appAction wordMatch entryPreedit homePath pathMatch resultPointer resultIcon focusLoss navRepeat) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -465,6 +466,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
 8. changed::launcher-theme must not advance lastThemeId the combo writes that key before notify::selected so lastThemeId has to stay on the previous look or picking popos from prefs never writes top windows-first chrome when the extension is disabled
 9. syncLookSettings on popup construct applies a look written while disabled applied-look tracks the last written profile first enable only stamps that key so a custom icon size is not reset
+10. gnome and light looks follow org.gnome.desktop.interface accent-color on gnome 47+ feature-detect has_key and read get_enum blue stays the stylesheet default so 45/46 need no class do not create gio.settings at module scope
 
 the applied-look key is a plain string not choices so it can be empty before the first stamp
 

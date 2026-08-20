@@ -954,6 +954,151 @@
   color: #2e3436;
 }
 
+/* gnome and light follow the session accent when it is not blue */
+.gosh-theme-gnome.gosh-accent-teal .gosh-entry,
+.gosh-theme-light.gosh-accent-teal .gosh-entry {
+  caret-color: #2190a4;
+  selection-background-color: #2190a4;
+}
+
+.gosh-theme-gnome.gosh-accent-teal .gosh-search-icon,
+.gosh-theme-light.gosh-accent-teal .gosh-search-icon {
+  color: #2190a4;
+}
+
+.gosh-theme-gnome.gosh-accent-teal .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-teal .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-teal .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-teal .gosh-result.gosh-selected {
+  background-color: #2190a4;
+}
+
+.gosh-theme-gnome.gosh-accent-green .gosh-entry,
+.gosh-theme-light.gosh-accent-green .gosh-entry {
+  caret-color: #3a944a;
+  selection-background-color: #3a944a;
+}
+
+.gosh-theme-gnome.gosh-accent-green .gosh-search-icon,
+.gosh-theme-light.gosh-accent-green .gosh-search-icon {
+  color: #3a944a;
+}
+
+.gosh-theme-gnome.gosh-accent-green .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-green .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-green .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-green .gosh-result.gosh-selected {
+  background-color: #3a944a;
+}
+
+.gosh-theme-gnome.gosh-accent-yellow .gosh-entry,
+.gosh-theme-light.gosh-accent-yellow .gosh-entry {
+  caret-color: #c88800;
+  selection-background-color: #c88800;
+}
+
+.gosh-theme-gnome.gosh-accent-yellow .gosh-search-icon,
+.gosh-theme-light.gosh-accent-yellow .gosh-search-icon {
+  color: #c88800;
+}
+
+.gosh-theme-gnome.gosh-accent-yellow .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-yellow .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-yellow .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-yellow .gosh-result.gosh-selected {
+  background-color: #c88800;
+}
+
+.gosh-theme-gnome.gosh-accent-orange .gosh-entry,
+.gosh-theme-light.gosh-accent-orange .gosh-entry {
+  caret-color: #ed5b00;
+  selection-background-color: #ed5b00;
+}
+
+.gosh-theme-gnome.gosh-accent-orange .gosh-search-icon,
+.gosh-theme-light.gosh-accent-orange .gosh-search-icon {
+  color: #ed5b00;
+}
+
+.gosh-theme-gnome.gosh-accent-orange .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-orange .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-orange .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-orange .gosh-result.gosh-selected {
+  background-color: #ed5b00;
+}
+
+.gosh-theme-gnome.gosh-accent-red .gosh-entry,
+.gosh-theme-light.gosh-accent-red .gosh-entry {
+  caret-color: #e62d42;
+  selection-background-color: #e62d42;
+}
+
+.gosh-theme-gnome.gosh-accent-red .gosh-search-icon,
+.gosh-theme-light.gosh-accent-red .gosh-search-icon {
+  color: #e62d42;
+}
+
+.gosh-theme-gnome.gosh-accent-red .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-red .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-red .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-red .gosh-result.gosh-selected {
+  background-color: #e62d42;
+}
+
+.gosh-theme-gnome.gosh-accent-pink .gosh-entry,
+.gosh-theme-light.gosh-accent-pink .gosh-entry {
+  caret-color: #d56199;
+  selection-background-color: #d56199;
+}
+
+.gosh-theme-gnome.gosh-accent-pink .gosh-search-icon,
+.gosh-theme-light.gosh-accent-pink .gosh-search-icon {
+  color: #d56199;
+}
+
+.gosh-theme-gnome.gosh-accent-pink .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-pink .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-pink .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-pink .gosh-result.gosh-selected {
+  background-color: #d56199;
+}
+
+.gosh-theme-gnome.gosh-accent-purple .gosh-entry,
+.gosh-theme-light.gosh-accent-purple .gosh-entry {
+  caret-color: #9141ac;
+  selection-background-color: #9141ac;
+}
+
+.gosh-theme-gnome.gosh-accent-purple .gosh-search-icon,
+.gosh-theme-light.gosh-accent-purple .gosh-search-icon {
+  color: #9141ac;
+}
+
+.gosh-theme-gnome.gosh-accent-purple .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-purple .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-purple .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-purple .gosh-result.gosh-selected {
+  background-color: #9141ac;
+}
+
+.gosh-theme-gnome.gosh-accent-slate .gosh-entry,
+.gosh-theme-light.gosh-accent-slate .gosh-entry {
+  caret-color: #6f8396;
+  selection-background-color: #6f8396;
+}
+
+.gosh-theme-gnome.gosh-accent-slate .gosh-search-icon,
+.gosh-theme-light.gosh-accent-slate .gosh-search-icon {
+  color: #6f8396;
+}
+
+.gosh-theme-gnome.gosh-accent-slate .gosh-result:hover,
+.gosh-theme-gnome.gosh-accent-slate .gosh-result:focus,
+.gosh-theme-gnome.gosh-accent-slate .gosh-result.gosh-selected,
+.gosh-theme-light.gosh-accent-slate .gosh-result.gosh-selected {
+  background-color: #6f8396;
+}
+
 /* powertoys look - fluent dark runner card */
 .gosh-theme-powertoys {
   background-color: #2c2c2c;

@@ -23,7 +23,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Pop!_OS** | [COSMIC Launcher](https://system76.com/support/pop-basics/) | Single card, cooler gray, roomy rows, top-anchored, windows first, Alt+1–9 hints. |
 | **Ulauncher** | [Ulauncher](https://ulauncher.io) | Warm dark panel, larger type, orange accent. |
 | **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
-| **GNOME** | GNOME overview / Adwaita | Native-feeling card with the GNOME blue accent. |
+| **GNOME** | GNOME overview / Adwaita | Native-feeling card that follows the session accent (GNOME 47+). |
 | **Rofi** | [Rofi](https://github.com/davatorium/rofi) | Square dmenu-style list, compact rows, classic `#005577` selection. |
 | **Raycast** | [Raycast](https://www.raycast.com) | Dark rounded panel, red caret, larger icons, no section headers. |
 | **Albert** | [Albert](https://albertlauncher.github.io) | Breeze-dark card with a `#1d99f3` selected row and section headers. |
@@ -31,7 +31,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Fuzzel** | [Fuzzel](https://codeberg.org/dnkl/fuzzel) | Default Solarized light frame (`#fdf6e3`, `#eee8d5` selection, 10px radius). |
 | **Anyrun** | [Anyrun](https://github.com/anyrun-org/anyrun) | Catppuccin mocha panel (`#1e1e2e`, `#89b4fa` accent), no section headers. |
 | **Tofi** | [Tofi](https://github.com/philj56/tofi) | Stark black dmenu bar, white selected row, top-anchored, compact. |
-| **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
+| **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the session accent on the selected row. |
 | **PowerToys** | [PowerToys Run](https://learn.microsoft.com/windows/powertoys/run) | Fluent dark card, `#2c2c2c`, `#0078d4` selected row, no section headers. |
 | **Synapse** | [Synapse](https://launchpad.net/synapse-project) | Large-icon dark panel, Ubuntu-orange caret, 48px icons. |
 | **Onagre** | [Onagre](https://github.com/oknozor/onagre) | Centered stone-dark panel, amber selected row with dark text. |
@@ -237,6 +237,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes. A tap on a result row activates it the same way a click does.
 - Provider and web-engine preference changes repaint an open popup without a reopen and keep the selected row.
 - Changing `launcher-theme` at runtime applies that look's chrome (position, density, headers, number hints, search icon, result icons, descriptions, icon size, result order), not only the CSS class. A look write while the extension is disabled is applied on the next enable via `applied-look`. First enable only stamps that key so a custom icon size is not reset.
+- The GNOME and Light looks follow `org.gnome.desktop.interface accent-color` on GNOME 47+. Blue stays the stylesheet default so GNOME 45/46 need no extra class. Spotlight, Pop!_OS, and the other looks keep their own colors.
 - Typed paths and slash-path `!` commands stay non-activatable until the exists check finishes.
 - A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute. Preferences then show that working shortcut. Fallbacks such as Ctrl+Space are only tried when nothing is grabbed yet.
 - The shortcut grab uses `Meta.KeyBindingFlags.IGNORE_AUTOREPEAT` so a held key cannot cancel a pending open or flip reopen-after-close.

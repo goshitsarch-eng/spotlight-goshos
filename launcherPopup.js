@@ -7,6 +7,7 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
+import Gio from 'gi://Gio';
 
 import {buildSearchEntry} from './searchEntry.js';
 import {buildResultsContainer} from './resultsContainer.js';
@@ -30,6 +31,7 @@ import {themeScaleFromContext, stagePx} from './uiScale.js';
 import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
+import {accentNickFromSettings, accentStyleClass, schemaHasAccentKey} from './accentColor.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added with addtopchrome so it floats above always-on-top windows
@@ -86,6 +88,7 @@ class LauncherPopup extends St.BoxLayout {
         this._parental = null;
         this._unredirectHeld = false;
         this._scaleContext = null;
+        this._interfaceSettings = null;
         this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
         this._liveSearch = new LiveSearchWatcher(() => this._repaintIfOpen());
@@ -95,6 +98,7 @@ class LauncherPopup extends St.BoxLayout {
         this._listenTimeLimits();
         this._listenParental();
         this._listenScale();
+        this._listenAccent();
         // constructor width is stage pixels css 600 would be half-size on hidpi
         this.set_width(this._fittedWidth());
 
@@ -188,14 +192,47 @@ class LauncherPopup extends St.BoxLayout {
 
         const classes = this.get_style_class_name().split(' ');
         for (const name of classes) {
-            if (name.startsWith('gosh-theme-') || name.startsWith('gosh-density-'))
+            if (name.startsWith('gosh-theme-') || name.startsWith('gosh-density-') || name.startsWith('gosh-accent-'))
                 this.remove_style_class_name(name);
         }
 
         this.add_style_class_name(`gosh-theme-${theme.id}`);
         this.add_style_class_name(`gosh-density-${this._settings.get_string('row-density')}`);
+        const accent = this._accentClass(theme.id);
+        if (accent)
+            this.add_style_class_name(accent);
         if (this._searchIcon)
             this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
+    }
+
+    _accentClass(themeId) {
+        const iface = this._interfaceSettings;
+        const hasKey = schemaHasAccentKey(iface && iface.settings_schema);
+        const value = hasKey ? iface.get_enum('accent-color') : 0;
+        return accentStyleClass(themeId, accentNickFromSettings(hasKey, value));
+    }
+
+    // accent-color is an enum from gnome 47 missing on 45/46
+    _listenAccent() {
+        this._interfaceSettings = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
+        if (!schemaHasAccentKey(this._interfaceSettings.settings_schema))
+            return;
+        this._interfaceSettings.connectObject(
+            'changed::accent-color',
+            () => this._onChromeChanged(),
+            this,
+        );
+    }
+
+    _unlistenAccent() {
+        if (!this._interfaceSettings)
+            return;
+        try {
+            this._interfaceSettings.disconnectObject(this);
+        } catch {
+            // interface settings can vanish at session teardown
+        }
+        this._interfaceSettings = null;
     }
 
     // dconf writes must apply popos chrome not only the css class
@@ -947,6 +984,7 @@ class LauncherPopup extends St.BoxLayout {
             () => this._unlistenTimeLimits(),
             () => this._unlistenParental(),
             () => this._unlistenScale(),
+            () => this._unlistenAccent(),
             () => this._liveSearch.stop(),
             () => this.close(),
             () => this._setUnredirectHeld(false),
