@@ -273,7 +273,8 @@ assert(!canOpenPopup(false, false, false, false, true), 'screen-time limit block
 assertEq(nextOpenErrorAction(true, false), 'close', 'throw after _isOpen must teardown');
 assertEq(nextOpenErrorAction(false, true), 'close', 'throw after show must teardown');
 assertEq(nextOpenErrorAction(false, false), 'keep', 'throw before open flag stays idle');
-assertEq(closeTeardownOrder().slice(0, 3).join(','), 'mark-closed,hide,release-unredirect', 'hide before host teardown');
+assertEq(closeTeardownOrder().slice(0, 4).join(','), 'mark-closed,hide,hide-backdrop,release-unredirect', 'chrome gone before unredirect');
+assertEq(closeTeardownOrder().indexOf('hide-backdrop') < closeTeardownOrder().indexOf('release-unredirect'), true, 'backdrop must unmap before composition resumes');
 assertEq(closeTeardownOrder().indexOf('hide') < closeTeardownOrder().indexOf('disconnect-host'), true, 'visible must drop before stage disconnect');
 assertEq(destroyTeardownOrder().indexOf('unlisten-hosts') < destroyTeardownOrder().indexOf('close'), true, 'unlistens run first but must not skip close');
 {

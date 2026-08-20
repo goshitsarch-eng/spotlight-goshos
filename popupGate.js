@@ -26,10 +26,11 @@ export function nextOpenErrorAction(isOpen, visible) {
     return 'keep';
 }
 
-// hide before host disconnects so a throw cannot leave visible true
-// canOpenPopup treats a leftover visible actor as already open
+// hide popup and backdrop before unredirect so a fullscreen surface
+// cannot scanout while mapped chrome is still in the chrome layer
+// https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 export function closeTeardownOrder() {
-    return ['mark-closed', 'hide', 'release-unredirect', 'disconnect-host', 'destroy-children', 'clear-focus'];
+    return ['mark-closed', 'hide', 'hide-backdrop', 'release-unredirect', 'disconnect-host', 'destroy-children', 'clear-focus'];
 }
 
 export function destroyTeardownOrder() {

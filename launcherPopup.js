@@ -913,9 +913,16 @@ class LauncherPopup extends St.BoxLayout {
         // hide before host teardown so a throw cannot leave visible true
         // canOpenPopup treats a leftover visible actor as already open
         this.hide();
-        this._setUnredirectHeld(false);
 
         runIsolatedTeardown([
+            () => {
+                if (!this._backdrop)
+                    return;
+                const backdrop = this._backdrop;
+                this._backdrop = null;
+                backdrop.destroy();
+            },
+            () => this._setUnredirectHeld(false),
             () => {
                 if (!this._stageKeyId)
                     return;
@@ -935,13 +942,6 @@ class LauncherPopup extends St.BoxLayout {
                 invalidateBookmarks();
             },
             () => this._renderer.destroy(),
-            () => {
-                if (!this._backdrop)
-                    return;
-                const backdrop = this._backdrop;
-                this._backdrop = null;
-                backdrop.destroy();
-            },
             () => {
                 // grab_key_focus leaves the hidden entry focused so later typing
                 // would vanish unless we give the stage back only when we still own it

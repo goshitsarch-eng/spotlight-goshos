@@ -329,6 +329,7 @@ Manual testing on GNOME Shell 50 Wayland:
 126. Enable on GNOME 45/46, or on a host whose desktop interface schema is missing — the extension must still load. GNOME and Light stay Adwaita blue. A missing `Gio.Settings` schema_id must not leave session/overview listeners connected on an unassigned popup.
 127. Before the first enable, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size with the default Spotlight look still survives that first enable.
 128. Close via Escape, click-outside, or the shortcut — GNOME 50 must not abort. Clutter 18 unrealizes on `removeChrome`; a still-mapped backdrop trips `clutter_actor_real_unrealize`. The backdrop must hide before it is removed from chrome.
+129. Open the launcher over a fullscreen game or video, then close it — the fullscreen surface must resume scanout only after the popup and backdrop are gone. Releasing unredirect while the backdrop is still mapped lets that surface paint through leftover chrome.
 
 ## Submitting Changes
 
