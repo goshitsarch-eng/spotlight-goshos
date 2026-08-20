@@ -23,11 +23,12 @@ import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsStat
 import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
-import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
+import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
+import {addPopupChrome, removePopupChrome} from './popupChrome.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
-// added to gnome's chrome layer so it floats above all windows
+// added with addtopchrome so it floats above always-on-top windows
 //
 // to capture clicks outside the popup we do not use Main.pushModal because a
 // modal grab swallows pointer events before they reach the stage instead we
@@ -65,6 +66,7 @@ class LauncherPopup extends St.BoxLayout {
         this._refocusIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
+        this._keyboardBox = null;
         this._backdrop = null;
         this._sessionId = 0;
         this._timeLimitsId = 0;
@@ -240,6 +242,46 @@ class LauncherPopup extends St.BoxLayout {
         this._monitorsId = 0;
     }
 
+    _listenKeyboard() {
+        if (this._keyboardBox)
+            return;
+        const box = Main.layoutManager.keyboardBox;
+        if (!box)
+            return;
+        this._keyboardBox = box;
+        box.connectObject(
+            'notify::visible', () => this._onKeyboardChanged(),
+            'notify::allocation', () => this._onKeyboardChanged(),
+            'notify::translation-y', () => this._onKeyboardChanged(),
+            this,
+        );
+    }
+
+    _unlistenKeyboard() {
+        if (!this._keyboardBox)
+            return;
+        this._keyboardBox.disconnectObject(this);
+        this._keyboardBox = null;
+    }
+
+    _onKeyboardChanged() {
+        if (this._isOpen)
+            this._scheduleLayout();
+    }
+
+    _usableWorkArea() {
+        const monitor = Main.layoutManager.primaryMonitor;
+        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
+        return workAreaAvoidingKeyboard(
+            workArea,
+            keyboardOverlapFromBox(
+                Main.layoutManager.keyboardBox,
+                Main.layoutManager.keyboardIndex,
+                monitor.index,
+            ),
+        );
+    }
+
     _listenSession() {
         if (this._sessionId)
             return;
@@ -358,7 +400,7 @@ class LauncherPopup extends St.BoxLayout {
         const monitor = Main.layoutManager.primaryMonitor;
         if (!monitor)
             return;
-        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
+        const workArea = this._usableWorkArea();
         const popupWidth = this._fittedWidth();
         this.set_width(popupWidth);
         const placed = placePopup(
@@ -427,12 +469,13 @@ class LauncherPopup extends St.BoxLayout {
         this._backdrop = new PopupBackdrop(() => this.closeSoon());
         this._backdrop.show();
         this._listenMonitors();
+        this._listenKeyboard();
 
         // always re-add popup to chrome to guarantee correct stacking order
         // if popup was left in chrome from a previous close remove it first
         if (this.get_parent())
-            Main.layoutManager.removeChrome(this);
-        Main.layoutManager.addChrome(this);
+            removePopupChrome(Main.layoutManager, this);
+        addPopupChrome(Main.layoutManager, this);
 
         // queue a layout pass then position before showing
         // ensures get_preferred_height returns correct values
@@ -530,6 +573,7 @@ class LauncherPopup extends St.BoxLayout {
         }
         this._focusWatcher.stop();
         this._unlistenMonitors();
+        this._unlistenKeyboard();
         this._clearPopupIdles();
         // bump load ids before destroy so in-flight gio cannot repaint
         invalidateRecentFiles();
@@ -578,9 +622,10 @@ class LauncherPopup extends St.BoxLayout {
         this._unlistenTimeLimits();
         this._unlistenParental();
         this.close();
+        this._unlistenKeyboard();
         this._settings.disconnectObject(this);
         if (this.get_parent())
-            Main.layoutManager.removeChrome(this);
+            removePopupChrome(Main.layoutManager, this);
         this._settings = null;
         super.destroy();
     }

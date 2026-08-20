@@ -163,6 +163,7 @@ required = [
     'prefsCombo.js',
     'popupGate.js',
     'popupPosition.js',
+    'popupChrome.js',
     'backdropBox.js',
     'searchRun.js',
     'windowMatch.js',

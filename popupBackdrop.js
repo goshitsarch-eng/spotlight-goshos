@@ -5,6 +5,7 @@ import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {backdropBox, backdropPointerAction} from './backdropBox.js';
+import {addPopupChrome, removePopupChrome} from './popupChrome.js';
 
 // a transparent full-screen reactive actor that sits behind the popup in
 // the chrome layer - any click on it closes the popup, which is how we
@@ -61,7 +62,7 @@ export class PopupBackdrop {
     }
 
     show() {
-        Main.layoutManager.addChrome(this._actor);
+        addPopupChrome(Main.layoutManager, this._actor);
         this._actor.show();
     }
 
@@ -74,7 +75,7 @@ export class PopupBackdrop {
     destroy() {
         this._actor.disconnectObject(this._actor);
         if (this._actor.get_parent())
-            Main.layoutManager.removeChrome(this._actor);
+            removePopupChrome(Main.layoutManager, this._actor);
         this._actor.destroy();
     }
 }

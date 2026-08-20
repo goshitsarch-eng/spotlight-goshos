@@ -4,7 +4,8 @@ import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, a
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction} from '../popupGate.js';
-import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT} from '../popupPosition.js';
+import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
+import {chromeAddMethod} from '../popupChrome.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
 import {comboSelectedIndex} from '../prefsCombo.js';
@@ -312,6 +313,16 @@ assertEq(placedTall.y, popupOrigin(work, 600, 80, 'center').y, 'tall work keeps 
 assertEq(placedTall.resultsMax, 400, 'tall work keeps requested results height');
 const packed = {x: 0, y: 0, width: 400, height: 80};
 assertEq(placePopup(packed, 200, 80, 'center', 400).resultsMax, 0, 'entry-sized work still hides overflow');
+assertEq(chromeAddMethod(true), 'addTopChrome', 'gnome 45-50 expose addtopchrome');
+assertEq(chromeAddMethod(false), 'addChrome', 'hosts without addtopchrome stay on addchrome');
+const kbHidden = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: 0}, 0, 0);
+assertEq(workAreaAvoidingKeyboard(work, kbHidden), work, 'parked keyboard under the monitor is ignored');
+const kbOpen = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: -300}, 0, 0);
+assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbOpen).height, 780, 'open keyboard shrinks the work area');
+const kbOther = keyboardOverlapFromBox({visible: true, y: 1080, height: 300, translation_y: -300}, 1, 0);
+assertEq(workAreaAvoidingKeyboard({x: 0, y: 0, width: 1920, height: 1080}, kbOther).height, 1080, 'keyboard on another monitor is ignored');
+assertEq(keyboardOverlapFromBox(null, 0, 0).visible, false, 'missing keyboard box');
+assertEq(workAreaAvoidingKeyboard(work, {visible: false, y: 800, height: 300, translationY: -300, monitorIndex: 0, workMonitorIndex: 0}), work, 'hidden keyboard is ignored');
 
 const span = backdropBox([
     {x: 0, y: 0, width: 1920, height: 1080},

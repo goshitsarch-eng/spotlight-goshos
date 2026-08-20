@@ -48,6 +48,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 ### UI Components
 
 - **`launcherPopup.js`** — The popup widget. Handles open/close lifecycle, theme chrome, positioning, and input.
+- **`popupBackdrop.js`** — Click-outside actor. Added with `addTopChrome` so it sits above always-on-top windows.
 - **`searchEntry.js`** — Search input box with magnifying-glass icon.
 - **`resultsContainer.js`** — Scrollable results container.
 - **`scrollView.js`** — GNOME 45–50 `St.ScrollView` attach, policy, and adjustment.
@@ -114,7 +115,8 @@ Pure functions with no side effects:
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers, and the prefs label after a failed grab writes the working bind back.
 - **`prefsCombo.js`** — Keep Appearance and Web Search combo rows in sync when gsettings writes a look or engine.
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
-- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display would hide the list.
+- **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list.
+- **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching and the workspace-switch result budget.
@@ -294,6 +296,7 @@ Manual testing on GNOME Shell 50 Wayland:
 97. Hold Down through a long result list — each key repeat must move the highlight. A second Down after an event whose Clutter time is 0 must still move. Arrow to a later row the instant results appear — the list must not jump to an empty offset.
 98. Hold Ctrl+Space (or your shortcut) — the popup must open once, not vanish because key-repeat cancelled the pending open. Hold the shortcut on an open popup — it must close once, not flicker open again.
 99. Click a pending Checking path row — the shell must stay up (Clutter 18 must not abort from a focus grab during button-release). Then type a letter — it must still reach the entry.
+100. Open the launcher over an always-on-top window or a fullscreen video — the popup must appear above that window, and a click on it must close the launcher instead of activating the window. Open the on-screen keyboard while the popup is open — the list must lift or shrink so the keyboard does not cover the entry.
 
 ## Submitting Changes
 

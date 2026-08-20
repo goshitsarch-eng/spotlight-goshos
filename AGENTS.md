@@ -39,7 +39,7 @@ do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blu
 
 ### minimal chrome
 
-the popup has no title bar no close button clicking outside or pressing escape closes it the popup floats above all windows via the chrome layer it uses a backdrop actor plus grab_key_focus not Main.pushModal
+the popup has no title bar no close button clicking outside or pressing escape closes it the popup floats above all windows including always-on-top ones via addtopchrome it uses a backdrop actor plus grab_key_focus not Main.pushModal
 
 ### compact not full screen
 
@@ -151,6 +151,7 @@ gosh-is-launcher@nin/
     shortcutAccel.js          mutter accelerator string (pure)
     popupGate.js              open versus toggle-close (pure)
     popupPosition.js          work-area origin (pure)
+    popupChrome.js            addtopchrome versus addchrome (pure)
     resultPointer.js          result row press/release (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
     focusLoss.js              close vs refocus the entry (pure)
@@ -259,13 +260,15 @@ a few connections use plain connect with manual disconnect instead of connectObj
 - Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 
-parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy()
+parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers
 
 each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode or Main.timeLimitsManager follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 
 ### popup positioning
 
-the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear
+the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the on-screen keyboard hosts without addtopchrome fall back to addchrome
+
+the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear the on-screen keyboard is not a strut so workAreaAvoidingKeyboard subtracts its visible translation from that work area and keyboardbox notify::visible allocation and translation-y schedule a layout while the popup is open
 
 center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the work area height so popos and krunner looks sit high without covering the panel
 
@@ -279,7 +282,7 @@ if the monitor geometry changes while the popup is open listen for layoutmanager
 
 the popup does not use Main.pushModal a modal grab swallows pointer events before they reach the stage which makes click-outside detection impossible instead the popup uses two mechanisms working together
 
-first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers every monitor and listens for button-press button-release and touch-event press must return EVENT_STOP or wayland delivers it to the window below and the matching release activates that window after closeSoon() hides the launcher release and touch-end call closeSoon() after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
+first a transparent full-screen reactive St.Widget called the backdrop is added with addtopchrome before the popup itself the backdrop covers every monitor and listens for button-press button-release and touch-event press must return EVENT_STOP or wayland delivers it to the window below and the matching release activates that window after closeSoon() hides the launcher release and touch-end call closeSoon() after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the same stack so clicks on the popup itself are received normally
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes if focus stays inside but is not the search entry a click on a result row or scrollbar the watcher returns it to the entry so later letters do not vanish start() is deferred via an idle source to avoid firing during the initial grab_key_focus call in open() the return grab is also idle_add via refocusEntrySoon because grab_key_focus inside notify::key-focus or button-release aborts clutter 18 result rows and chrome use can_focus false for the same reason
 

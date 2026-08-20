@@ -55,6 +55,38 @@ export function placePopup(workArea, popupWidth, emptyHeight, position, requeste
     };
 }
 
+// keyboardbox sits on the monitor bottom edge and slides up with translation-y
+// the work area does not exclude it because it is not a strut
+export function keyboardOverlapFromBox(box, keyboardMonitorIndex, workMonitorIndex) {
+    if (!box)
+        return {visible: false, y: 0, height: 0, translationY: 0, monitorIndex: -1, workMonitorIndex};
+    return {
+        visible: Boolean(box.visible),
+        y: box.y,
+        height: box.height,
+        translationY: box.translation_y,
+        monitorIndex: keyboardMonitorIndex,
+        workMonitorIndex,
+    };
+}
+
+export function workAreaAvoidingKeyboard(workArea, keyboard) {
+    if (!keyboard || !keyboard.visible || keyboard.height <= 0)
+        return workArea;
+    if (keyboard.monitorIndex >= 0 && keyboard.workMonitorIndex >= 0 &&
+        keyboard.monitorIndex !== keyboard.workMonitorIndex)
+        return workArea;
+    const top = keyboard.y + keyboard.translationY;
+    const workBottom = workArea.y + workArea.height;
+    if (top >= workBottom)
+        return workArea;
+    if (top + keyboard.height <= workArea.y)
+        return workArea;
+    if (top <= workArea.y)
+        return {x: workArea.x, y: workArea.y, width: workArea.width, height: 0};
+    return {x: workArea.x, y: workArea.y, width: workArea.width, height: top - workArea.y};
+}
+
 export function popupOrigin(workArea, popupWidth, popupHeight, position) {
     let x = Math.floor(workArea.x + (workArea.width - popupWidth) / 2);
     let y;
