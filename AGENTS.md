@@ -252,6 +252,10 @@ prefix modes when enabled jump to a single provider
 - `.` recent files only when followed by a space or nothing so .bashrc stays a normal query
 - `!` command
 
+command is prefix-only so the features switch is insensitive when prefix modes are off turning prefixes back on must keep the previous command-runner value
+
+omarchy and anyrun reserve a transparent leading edge on every result row so painting the accent color on the selected row does not shift the title
+
 ### signal management
 
 all signal connections on gobjects use connectObject and disconnectObject not connect and disconnect this is a gnome shell 42+ api that auto-disconnects all signals connected with a given owner object see https://gjs.guide/extensions/upgrading/gnome-shell-42.html

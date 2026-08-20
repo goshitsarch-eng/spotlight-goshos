@@ -1022,6 +1022,8 @@ assertEq(settingsResultMeta({id: 'wifi', title: 'Wi-Fi', icon: 'network-wireless
 assertEq(pathRowMeta('~/docs', '/home/u/docs', 'directory', '/home/u').id, '/home/u/docs', 'path row id');
 assertEq(settingsResultMeta({title: 'Wi-Fi', icon: 'network-wireless-symbolic'}, ['gnome-control-center', 'wifi']).activatable, true, 'settings launch is activatable');
 assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('actionsRow.sensitive'), 'actions switch follows apps');
+assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('commandRow.sensitive'), 'command runner follows prefix modes');
+assert(readFileSync('prefs/featuresPage.js', 'utf8').includes('Prefix modes must stay enabled'), 'command runner says it needs prefixes');
 
 // selection wrap vs page clamp
 assertEq(nextSelectedIndex(0, -1, 5), 4, 'arrow wrap up');
@@ -1724,8 +1726,9 @@ assert(
 assert(css.includes('background-color: #000000'), 'tofi black bar');
 assert(css.includes('background-color: #fdf6e3'), 'fuzzel solarized card');
 assert(css.includes('background-color: #1e1e2e'), 'anyrun mocha card');
-assert(css.includes('border-left: 3px solid #89b4fa'), 'anyrun selected edge');
-assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
+assert(css.includes('border-left: 3px solid transparent'), 'selected edge reserves space');
+assert(css.includes('border-left-color: #89b4fa'), 'anyrun selected edge');
+assert(css.includes('border-left-color: #7aa2f7'), 'omarchy selected edge');
 assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');
 assert(css.includes('background-color: #285577'), 'wofi selected row');

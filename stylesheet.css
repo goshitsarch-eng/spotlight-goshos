@@ -169,6 +169,7 @@
 .gosh-theme-omarchy .gosh-result {
   color: #a9b1d6;
   border-radius: 6px;
+  border-left: 3px solid transparent;
 }
 
 .gosh-theme-omarchy .gosh-result:hover,
@@ -178,9 +179,9 @@
   color: #c0caf5;
 }
 
-/* selected row uses a blue leading edge on this look */
+/* reserve the leading edge so selection does not shift the title */
 .gosh-theme-omarchy .gosh-result.gosh-selected {
-  border-left: 3px solid #7aa2f7;
+  border-left-color: #7aa2f7;
 }
 
 .gosh-theme-omarchy .gosh-result-description,
@@ -777,6 +778,7 @@
   color: #cdd6f4;
   border-radius: 10px;
   padding: 8px 12px;
+  border-left: 3px solid transparent;
 }
 
 .gosh-theme-anyrun .gosh-result:hover,
@@ -786,8 +788,9 @@
   color: #ffffff;
 }
 
+/* reserve the leading edge so selection does not shift the title */
 .gosh-theme-anyrun .gosh-result.gosh-selected {
-  border-left: 3px solid #89b4fa;
+  border-left-color: #89b4fa;
 }
 
 .gosh-theme-anyrun .gosh-result-description,
