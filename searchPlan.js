@@ -25,6 +25,8 @@ const STRIP_VERB_MODES = {
 const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you|tell\s+me)\s+/i;
 const LAUNCH_VERB = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus|convert|calculate|compute|what(?:['’]s|s|\s+is)|how\s+much\s+is)\s+(.+)$/i;
 const LEADING_ARTICLE = /^(?:my|the|an?|me)\s+(.+)$/i;
+const CATEGORY_PREFIX = /^(windows?|settings?|files?|recent(?:\s+files?)?|apps?|applications?)\s+(.+)$/i;
+const TRAILING_FOLDER = /^(.+)\s+(folders?|directories|directory)$/i;
 
 function stripPolitePrefixes(query) {
     let text = query;
@@ -55,6 +57,24 @@ function stripLeadingArticles(query) {
     return text;
 }
 
+function stripOnePrefix(query, pattern) {
+    const match = pattern.exec(query);
+    if (!match)
+        return query;
+
+    const rest = match[2].trim();
+    return rest.length > 0 ? rest : query;
+}
+
+function stripTrailingFolder(query) {
+    const match = TRAILING_FOLDER.exec(query);
+    if (!match)
+        return query;
+
+    const rest = match[1].trim();
+    return rest.length > 0 ? rest : query;
+}
+
 // open firefox and can you open firefox are how people talk to a launcher
 export function stripLeadingVerb(query) {
     let text = stripPolitePrefixes(query.trim());
@@ -65,7 +85,10 @@ export function stripLeadingVerb(query) {
             text = rest;
     }
 
-    return stripLeadingArticles(text);
+    text = stripLeadingArticles(text);
+    // find windows firefox and open the pictures folder keep the noun
+    text = stripOnePrefix(text, CATEGORY_PREFIX);
+    return stripTrailingFolder(text);
 }
 
 export function flagsFromSettings(settings) {

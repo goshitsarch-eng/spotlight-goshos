@@ -208,7 +208,7 @@ popos look uses windows-first result order so open windows sit above apps the wa
 
 typing close firefox or quit firefox lists matching windows as close actions kill firefox force-quits them
 
-searchPlan.stripLeadingVerb rewrites spoken queries before providers run it loops please can you could you would you will you tell me then strips one launch verb (open launch run start show find search look switch go focus convert calculate compute what is how much is) then loops leading articles (my the a an me) so can you open firefox open my documents show me the time and what is 2+2 still match prefix modes keep the typed words so @ open cats stays a web query for open cats
+searchPlan.stripLeadingVerb rewrites spoken queries before providers run it loops please can you could you would you will you tell me then strips one launch verb (open launch run start show find search look switch go focus convert calculate compute what is how much is) then loops leading articles (my the a an me) then strips one category word (windows settings files recent app) and a trailing folder/directory noun so find windows firefox open the pictures folder and search settings wifi still match do not loop verbs or category words search for open source must stay open source prefix modes keep the typed words so @ open cats stays a web query for open cats except the same verb/category strip still runs for $ # and . so $ windows firefox is firefox
 
 prefix modes when enabled jump to a single provider
 

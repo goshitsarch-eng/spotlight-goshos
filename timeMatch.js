@@ -7,13 +7,15 @@ export function timeQueryKind(query) {
         q === 'what time' || q === 'what time is it' || q === 'current time' ||
         q === 'whats the time' || q === 'what is the time' ||
         q === 'what time is it now' || q === 'whats the time now' ||
-        q === 'what is the time now')
+        q === 'what is the time now' || q === 'what time it is' ||
+        q === 'what the time is')
         return 'time';
     if (q === 'date' || q === 'today' || q === 'calendar' ||
         q === 'what date' || q === 'what date is it' || q === 'current date' ||
         q === 'whats the date' || q === 'what is the date' ||
         q === 'todays date' || q === 'date today' || q === 'todays' ||
-        q === 'what day is it' || q === 'what day is it today' || q === 'whats the day')
+        q === 'what day is it' || q === 'what day is it today' || q === 'whats the day' ||
+        q === 'what day it is' || q === 'what the date is')
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';

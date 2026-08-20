@@ -10,6 +10,12 @@ const CONSTS = {
     e: Math.E,
 };
 
+const NUMBER_WORDS = {
+    zero: '0', one: '1', two: '2', three: '3', four: '4',
+    five: '5', six: '6', seven: '7', eight: '8', nine: '9',
+    ten: '10', eleven: '11', twelve: '12',
+};
+
 const FUNCS = {
     sqrt: Math.sqrt,
     cbrt: Math.cbrt,
@@ -54,7 +60,9 @@ export function normalizeMath(input) {
         .replace(/\bdivided\s+by\b/gi, '/')
         .replace(/\bover\b/gi, '/')
         .replace(/\bto the power of\b/gi, '^')
+        .replace(/\bto the\s+(\d+)(?:st|nd|rd|th)?(?:\s+power)?\b/gi, '^$1')
         .replace(/\bnegative\b/gi, '-')
+        .replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/gi, word => NUMBER_WORDS[word.toLowerCase()])
         .replace(/√\s*\(/g, 'sqrt(')
         .replace(/√\s*(\d+(?:\.\d+)?)/g, 'sqrt($1)')
         .replace(/(\d)\s+[xX]\s+(\d)/g, '$1*$2')

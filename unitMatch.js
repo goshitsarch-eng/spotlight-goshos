@@ -153,7 +153,7 @@ const UNITS = {
 const NUMBER = '(-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)(?:[eE][+\\-]?\\d+)?)';
 const UNIT = '([a-z][a-z0-9]*)';
 const QUERY_RE = new RegExp(`^${NUMBER}\\s*${UNIT}\\s+(?:to|in|into|as)\\s+${UNIT}$`, 'i');
-const HOW_MANY_RE = new RegExp(`^how\\s+many\\s+${UNIT}\\s+(?:are\\s+in|is|are|in)\\s+${NUMBER}\\s*${UNIT}$`, 'i');
+const HOW_MANY_RE = new RegExp(`^how\\s+many\\s+${UNIT}\\s+(?:are\\s+there\\s+in|are\\s+in|is|are|in)\\s+${NUMBER}\\s*${UNIT}$`, 'i');
 
 export function resolveUnit(name) {
     const id = ALIASES[name.toLowerCase()];

@@ -7,7 +7,7 @@ function stripCloseTitle(title) {
     if (article && article[1].trim())
         text = article[1].trim();
 
-    const withoutNoun = text.replace(/\s+(windows?|apps?)$/i, '').trim();
+    const withoutNoun = text.replace(/\s+(windows?|applications?|apps?)$/i, '').trim();
     return withoutNoun.length > 0 ? withoutNoun : text;
 }
 

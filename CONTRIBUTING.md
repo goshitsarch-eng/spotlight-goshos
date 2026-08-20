@@ -120,7 +120,7 @@ Pure functions with no side effects:
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 - **`homePath.js`** — Expand `~`, `./`, and home-relative slash commands such as `scripts/deploy`.
-- **`userPath.js`** — Extra directories the GNOME Shell PATH often omits (`~/.local/bin`).
+- **`userPath.js`** — Extra directories the GNOME Shell PATH often omits (`~/.local/bin`, Flatpak exports, `~/.cargo/bin`, `~/go/bin`, `~/bin`).
 - **`pathMatch.js`** — Path result title, icon, and missing-path copy.
 - **`resultPointer.js`** — Result-row press must stay on the same row.
 
@@ -260,6 +260,7 @@ Manual testing on GNOME Shell 50 Wayland:
 69. Type `show me the time` or `tell me the time` — a Clock row should appear. Type `today's date` or `what day is it` — a Date row should appear.
 70. Type `how many miles are 10 km` — a Units row should appear. Type `rebeccapurple` — a Color row should copy `#663399`. On a machine whose only terminal is WezTerm or Tilix, `~/` plus a folder should still offer Open in Terminal.
 71. Type `2 to the power of 8` or `negative 3 plus 5` — calculator rows should appear. With the command runner on, a tool installed only as a Flatpak export or in `~/go/bin` should be found.
+72. Type `find windows firefox` or `search settings wifi` — the app or Wi-Fi panel should appear. Type `open the pictures folder` — Pictures should appear. Type `two plus two` or `2 to the 8th` — calculator rows should appear. Type `tell me what time it is` — a Clock row should appear. Type `how many miles are there in 10 km` — a Units row should appear. Type `close the` plus an open window title plus `application` — a Close row should appear.
 
 ## Submitting Changes
 
