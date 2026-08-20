@@ -27,6 +27,7 @@ const ALIASES = {
     qt: 'qt', quart: 'qt', quarts: 'qt',
     pt: 'pt', pint: 'pt', pints: 'pt',
     cup: 'cup', cups: 'cup',
+    b: 'b', byte: 'b', bytes: 'b',
     kb: 'kb', kilobyte: 'kb', kilobytes: 'kb',
     mb: 'mb', megabyte: 'mb', megabytes: 'mb',
     gb: 'gb', gigabyte: 'gb', gigabytes: 'gb',
@@ -57,6 +58,7 @@ const UNITS = {
     pt: {dim: 'volume', toBase: 0.473176473},
     qt: {dim: 'volume', toBase: 0.946352946},
     gal: {dim: 'volume', toBase: 3.785411784},
+    b: {dim: 'data', toBase: 1},
     kb: {dim: 'data', toBase: 1000},
     mb: {dim: 'data', toBase: 1e6},
     gb: {dim: 'data', toBase: 1e9},
@@ -80,9 +82,16 @@ export function resolveUnit(name) {
 }
 
 export function normalizeUnitQuery(query) {
-    return query
+    let text = query
         .replace(/°/g, ' ')
         .replace(/\s*degrees?\s*/gi, ' ');
+    // pasted values often use thousands commas the way the calculator does
+    let next = text.replace(/(\d),(\d)/g, '$1$2');
+    while (next !== text) {
+        text = next;
+        next = text.replace(/(\d),(\d)/g, '$1$2');
+    }
+    return text;
 }
 
 export function parseUnitQuery(query) {

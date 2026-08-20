@@ -148,13 +148,13 @@
     <key name="enable-calculator" type="b">
       <default>true</default>
       <summary>Enable calculator</summary>
-      <description>Evaluate arithmetic expressions.</description>
+      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, round, and 5!.</description>
     </key>
 
     <key name="enable-unit-convert" type="b">
       <default>true</default>
       <summary>Enable unit conversion</summary>
-      <description>Convert length, mass, temperature, volume, and data sizes such as 10 km to mi.</description>
+      <description>Convert length, mass, temperature, volume, and data sizes such as 10 km to mi or 1,000 km to mi.</description>
     </key>
 
     <key name="enable-color-hex" type="b">

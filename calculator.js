@@ -15,10 +15,17 @@ const FUNCS = {
     cbrt: Math.cbrt,
     abs: Math.abs,
     log: Math.log10,
+    log2: Math.log2,
     ln: Math.log,
     sin: n => Math.sin(n * Math.PI / 180),
     cos: n => Math.cos(n * Math.PI / 180),
     tan: n => Math.tan(n * Math.PI / 180),
+    asin: n => Math.asin(n) * 180 / Math.PI,
+    acos: n => Math.acos(n) * 180 / Math.PI,
+    atan: n => Math.atan(n) * 180 / Math.PI,
+    round: Math.round,
+    floor: Math.floor,
+    ceil: Math.ceil,
 };
 
 export function normalizeMath(input) {
@@ -56,7 +63,7 @@ function looksLikeMath(text, allowBare) {
 }
 
 function isIdent(tok) {
-    return tok !== undefined && /^[a-zA-Z]+$/.test(tok);
+    return tok !== undefined && /^[a-zA-Z][a-zA-Z0-9]*$/.test(tok);
 }
 
 export function evaluateArithmetic(input, allowBare) {
@@ -67,7 +74,7 @@ export function evaluateArithmetic(input, allowBare) {
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z]+|[+\-*/%()^!])/g;
+    const tokenRegex = /\s*(0x[0-9a-fA-F]+|0b[01]+|[0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[a-zA-Z][a-zA-Z0-9]*|[+\-*/%()^!])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
