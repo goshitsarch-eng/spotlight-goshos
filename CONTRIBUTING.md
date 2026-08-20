@@ -58,6 +58,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 - **`sectionTitles.js`** — Maps result type strings to human-readable section titles.
 - **`noResults.js`** — Empty-state widget displayed when a search yields no matches.
 - **`focusLossWatcher.js`** — Closes on alt-tab. Returns focus to the search entry if a row or scrollbar steals it.
+- **`liveSearchWatcher.js`** — Repaints while open when a window appears or closes, the workspace changes, or an app is installed.
 
 ### Search Providers
 
@@ -115,6 +116,7 @@ Pure functions with no side effects:
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers, and the prefs label after a failed grab writes the working bind back.
 - **`prefsCombo.js`** — Keep Appearance and Web Search combo rows in sync when gsettings writes a look or engine.
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
+- **`searchLive.js`** — Whether window and app listeners should start or stop when the popup opens or closes.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list.
 - **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher.
 - **`unredirect.js`** — Hold compositor unredirect while the popup is open so a fullscreen window cannot hide it.
@@ -303,6 +305,7 @@ Manual testing on GNOME Shell 50 Wayland:
 103. Search for an app or open window whose `get_icon()` throws — the row must still appear with a fallback icon, and the rest of the list must stay visible. Hovering later rows must still move the highlight.
 104. On a tablet, open the on-screen keyboard then long-press a letter for accented characters — the launcher must stay open. Escape must still close it. Alt-tab must still close.
 105. Open the launcher, then press Super — the launcher must close so Overview is usable. Open Overview first, then the shortcut — the launcher must still appear over Overview.
+106. Open the launcher on Pop!_OS (windows first) with several windows, then close one of those windows without typing — the closed window must leave the list. Install or remove an app while the popup is open — the app list must update without retyping.
 
 ## Submitting Changes
 

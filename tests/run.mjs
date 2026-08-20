@@ -4,6 +4,7 @@ import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, a
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview} from '../popupGate.js';
+import {nextLiveSearchAction} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {chromeAddMethod} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
@@ -292,6 +293,10 @@ assert(!shouldCancelOpenOnOverview(false), 'idle overview leaves a closed popup'
 assert(shouldCloseOnOverview(true, false), 'overview closes an open popup');
 assert(shouldCloseOnOverview(false, true), 'overview closes a visible popup');
 assert(!shouldCloseOnOverview(false, false), 'overview does not open the popup');
+assertEq(nextLiveSearchAction(false, true), 'start', 'open starts live search');
+assertEq(nextLiveSearchAction(true, false), 'stop', 'close stops live search');
+assertEq(nextLiveSearchAction(true, true), 'keep', 'already listening');
+assertEq(nextLiveSearchAction(false, false), 'keep', 'stays idle');
 
 const work = {x: 100, y: 40, width: 1800, height: 1000};
 assertEq(popupOrigin(work, 600, 80, 'center').x, 700, 'center x in work area');

@@ -162,6 +162,8 @@ required = [
     'shortcutAccel.js',
     'prefsCombo.js',
     'popupGate.js',
+    'searchLive.js',
+    'liveSearchWatcher.js',
     'popupPosition.js',
     'popupChrome.js',
     'unredirect.js',

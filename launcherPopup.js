@@ -15,6 +15,7 @@ import {ResultsRenderer} from './resultsRenderer.js';
 import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
+import {LiveSearchWatcher} from './liveSearchWatcher.js';
 import {getTheme, applyLookSettings} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
@@ -78,6 +79,7 @@ class LauncherPopup extends St.BoxLayout {
         this._unredirectHeld = false;
         this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
+        this._liveSearch = new LiveSearchWatcher(() => this._repaintIfOpen());
         this._listenSession();
         this._listenOverview();
         this._listenTimeLimits();
@@ -524,6 +526,7 @@ class LauncherPopup extends St.BoxLayout {
         this._backdrop.show();
         this._listenMonitors();
         this._listenKeyboard();
+        this._liveSearch.start();
 
         // always re-add popup to chrome to guarantee correct stacking order
         // if popup was left in chrome from a previous close remove it first
@@ -627,6 +630,7 @@ class LauncherPopup extends St.BoxLayout {
             this._stageKeyId = 0;
         }
         this._focusWatcher.stop();
+        this._liveSearch.stop();
         this._unlistenMonitors();
         this._unlistenKeyboard();
         this._clearPopupIdles();
@@ -677,6 +681,7 @@ class LauncherPopup extends St.BoxLayout {
         this._unlistenOverview();
         this._unlistenTimeLimits();
         this._unlistenParental();
+        this._liveSearch.stop();
         this.close();
         this._setUnredirectHeld(false);
         this._unlistenKeyboard();

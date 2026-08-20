@@ -150,6 +150,8 @@ gosh-is-launcher@nin/
     commandReady.js           whether a command argv can be spawned (pure)
     shortcutAccel.js          mutter accelerator string (pure)
     popupGate.js              open versus toggle-close (pure)
+    searchLive.js             when to watch windows and apps (pure)
+    liveSearchWatcher.js      refresh rows when a window or app changes
     popupPosition.js          work-area origin (pure)
     popupChrome.js            addtopchrome versus addchrome (pure)
     unredirect.js             hold compositor unredirect while open (pure)
@@ -255,13 +257,14 @@ in disable() or destroy() we call disconnectObject(this) which removes every sig
 a few connections use plain connect with manual disconnect instead of connectObject
 
 - global.display.connect('accelerator-activated') in keybinding.js disconnected manually in disable()
+- global.display.connect('window-created') in liveSearchWatcher.js disconnected manually in stop()
 - global.stage.connect('notify::key-focus') in focusLossWatcher.js for focus-loss detection disconnected manually in stop()
 - global.stage.connect('captured-event') in launcherPopup.js for stage-level key capture disconnected manually in close()
 - Main.sessionMode.connect('updated') in launcherPopup.js so lock and greeter close an open popup disconnected manually in destroy()
 - Main.timeLimitsManager.connect('notify::state') in launcherPopup.js on gnome 50 so a reached screen-time limit closes the popup disconnected manually in destroy()
 - Main.layoutManager.connect('monitors-changed') in launcherPopup.js disconnected manually in close()
 
-parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers
+parentalControlsManager is a gobject so app-filter-changed uses connectObject and is disconnected in destroy() keyboardBox uses connectObject the same way and is disconnected in close() and destroy() so a later open does not stack handlers liveSearchWatcher uses connectObject on each tracked window plus AppSystem and workspace_manager and disconnects those in stop() so a later open does not stack handlers
 
 each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage or Main.sessionMode or Main.timeLimitsManager follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 

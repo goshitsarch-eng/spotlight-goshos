@@ -9,7 +9,7 @@ import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, 
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId, takeWindowResults} from './windowMatch.js';
 import {appIconOrFallback, windowIconOrFallback} from './resultIcon.js';
 
-function _metaWindows() {
+export function listMetaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
     if (typeof global.display.list_all_windows === 'function')
         return global.display.list_all_windows();
@@ -82,7 +82,7 @@ export function searchWindows(query, maxResults) {
         return takeWindowResults(switchRow, windowRows, maxResults);
 
     const tabRanks = _tabRanks();
-    const windows = sortWindowsMostRecent(_metaWindows(), win => {
+    const windows = sortWindowsMostRecent(listMetaWindows(), win => {
         try {
             if (tabRanks.has(win))
                 return tabRanks.get(win);
