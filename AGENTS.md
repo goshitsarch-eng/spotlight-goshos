@@ -131,6 +131,7 @@ gosh-is-launcher@nin/
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     pathSearch.js             ~/ ./ and absolute path opener
+    pathMatch.js              path result row (pure)
     homePath.js               expand ~ and ./ against home (pure)
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
@@ -163,7 +164,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch wordMatch entryPreedit homePath pathMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -224,7 +225,7 @@ first a transparent full-screen reactive St.Widget called the backdrop is added 
 
 second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
 
-keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result alt+1-9 activates a numbered row when that setting is on
+keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result alt+1-9 activates a numbered row when that setting is on home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
 
 open() uses an _isOpen flag not just visible because the first frames after a shortcut press still have visible=false while the position idle runs a second press in that gap must close not leak another backdrop
 

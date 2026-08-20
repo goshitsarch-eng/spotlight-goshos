@@ -7,9 +7,10 @@ import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
-import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles} from './searchPlan.js';
+import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles, shouldRefreshPath} from './searchPlan.js';
 import {getTheme, iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
+import {ensurePath} from './pathSearch.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -81,17 +82,19 @@ export class ResultsRenderer {
         }
         this._paint(runSearch(query, this._settings), query.trim());
         const plan = planSearch(query, flagsFromSettings(this._settings));
-        if (!shouldRefreshRecentFiles(this._settings.get_boolean('enable-recent-files'), plan))
-            return;
         const gen = this._generation;
-        ensureRecentFiles(() => {
+        const refresh = () => {
             if (gen !== this._generation)
                 return;
             const latest = this._lastQuery;
             if (!isActiveSearchQuery(latest))
                 return;
             this._paint(runSearch(latest, this._settings), latest.trim());
-        });
+        };
+        if (shouldRefreshRecentFiles(this._settings.get_boolean('enable-recent-files'), plan))
+            ensureRecentFiles(refresh);
+        if (shouldRefreshPath(this._settings.get_boolean('enable-path-open'), plan))
+            ensurePath(plan.query, refresh);
     }
 
     _paint(results, query) {

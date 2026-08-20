@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {parseQuery} from './prefixParser.js';
+import {isPathQuery} from './homePath.js';
 
 const PREFIX_TO_FLAG = {
     calculator: 'calculator',
@@ -46,6 +47,12 @@ export function shouldRefreshRecentFiles(enableRecent, plan) {
     if (plan.mode === 'files')
         return true;
     return plan.mode === 'all' && plan.providers.includes('files');
+}
+
+export function shouldRefreshPath(enablePath, plan) {
+    if (!enablePath)
+        return false;
+    return plan.providers.includes('path') && isPathQuery(plan.query);
 }
 
 export function planSearch(text, flags) {

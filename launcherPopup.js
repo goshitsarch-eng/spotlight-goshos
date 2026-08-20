@@ -15,6 +15,7 @@ import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
 import {getTheme} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
+import {invalidatePathLookup} from './pathSearch.js';
 import {canOpenPopup} from './popupGate.js';
 import {popupOrigin, popupWidthForWorkArea} from './popupPosition.js';
 
@@ -278,6 +279,7 @@ class LauncherPopup extends St.BoxLayout {
         });
 
         invalidateRecentFiles();
+        invalidatePathLookup();
         this._entry.set_text('');
         this._renderer.reset();
     }

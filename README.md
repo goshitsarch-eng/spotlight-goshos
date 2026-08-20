@@ -78,7 +78,7 @@ Open the popup with `Ctrl + Space` and begin typing. Navigation is keyboard-driv
 | Lock the screen | Type `lock`, then `Enter` |
 | Open Wi-Fi settings | Type `wifi`, then `Enter` |
 | Search the web | Type a query with no local matches, or `@ query` |
-| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`, `Home` / `End` |
+| Traverse results | `↑` / `↓`, `Tab`, `Page Up` / `Page Down`. `Home` / `End` jump to the first or last row only when the caret is already at that edge of the query. |
 | Activate result 1–9 | `Alt+1` … `Alt+9` when number hints are enabled |
 | Dismiss | `Esc`, `Ctrl + Space`, or click / tap outside the popup. The press is claimed so the window underneath does not activate. |
 
@@ -183,7 +183,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
 - `!` commands run from the user home directory. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home.
-- Typed `~/` `./` and absolute paths open in the default handler.
+- Typed `~/` `./` and absolute paths open in the default handler. Existence is checked asynchronously so a hung network mount cannot stall the compositor.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
 - Click-outside claims the pointer press (and touch begin) so Wayland cannot deliver that click to the window below after the popup closes.
 - Provider and web-engine preference changes repaint an open popup without a reopen.

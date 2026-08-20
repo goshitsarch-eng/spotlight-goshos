@@ -141,6 +141,7 @@ required = [
     'entryPreedit.js',
     'homePath.js',
     'pathSearch.js',
+    'pathMatch.js',
 ]
 missing = [n for n in required if n not in names]
 if missing:

@@ -102,6 +102,7 @@ Pure functions with no side effects:
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
 - **`homePath.js`** — Expand `~` and `./` against the user home.
+- **`pathMatch.js`** — Path result title, icon, and missing-path copy.
 
 ### Preference Pages
 
@@ -174,7 +175,7 @@ Manual testing on GNOME Shell 50 Wayland:
 4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Anyrun, Tofi, and Light. Change a look while the popup is open — rows should restyle.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
-7. Press Home and End in a long result list — selection should jump to the first and last rows. Keypad arrows with Num Lock off should move the selection too.
+7. Press Home in the middle of a query — the caret should move to the start of the text, not the first result. Press Home again at the start — selection should jump to the first row. End at the end of the query should jump to the last row. Keypad arrows with Num Lock off should move the selection too.
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18) and without activating the window underneath. On a second monitor the click must still close it. A tap on a touchscreen should dismiss the same way.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.

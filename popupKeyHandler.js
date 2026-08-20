@@ -3,7 +3,7 @@
 
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
-import {resolveKeyAction, isNavAction} from './keyAction.js';
+import {resolveKeyAction, resolveHomeEndAction, isNavAction} from './keyAction.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 
 const KEY_NAMES = {
@@ -81,7 +81,11 @@ export class PopupKeyHandler {
             return Clutter.EVENT_PROPAGATE;
 
         const state = event.get_state();
-        const action = resolveKeyAction(
+        const action = resolveHomeEndAction(
+            name,
+            clutterText.get_cursor_position(),
+            clutterText.get_text().length,
+        ) || resolveKeyAction(
             name,
             Boolean(state & Clutter.ModifierType.SHIFT_MASK),
             Boolean(state & Clutter.ModifierType.MOD1_MASK),

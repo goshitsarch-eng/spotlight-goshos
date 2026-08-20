@@ -21,13 +21,33 @@ export function resolveKeyAction(key, shift, alt, showNumbers) {
         return {type: 'move', delta: 5};
     if (key === 'Page_Up')
         return {type: 'move', delta: -5};
-    if (key === 'Home')
-        return {type: 'move', delta: -999};
-    if (key === 'End')
-        return {type: 'move', delta: 999};
     if (key === 'Return' || key === 'KP_Enter')
         return {type: 'activate'};
     return {type: 'propagate'};
+}
+
+// clutter.text uses -1 for the caret at the end
+export function cursorAtStart(cursor) {
+    return cursor === 0;
+}
+
+export function cursorAtEnd(cursor, textLength) {
+    return textLength === 0 || cursor < 0 || cursor >= textLength;
+}
+
+// home/end edit the query unless the caret is already at that edge
+export function resolveHomeEndAction(key, cursor, textLength) {
+    if (key === 'Home') {
+        if (cursorAtStart(cursor))
+            return {type: 'move', delta: -999};
+        return {type: 'propagate'};
+    }
+    if (key === 'End') {
+        if (cursorAtEnd(cursor, textLength))
+            return {type: 'move', delta: 999};
+        return {type: 'propagate'};
+    }
+    return null;
 }
 
 export function isNavAction(type) {
