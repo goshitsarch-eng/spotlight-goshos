@@ -23,7 +23,11 @@ export function timeQueryKind(query) {
         q === 'whats the date' || q === 'what is the date' ||
         q === 'todays date' || q === 'date today' || q === 'todays' ||
         q === 'what day is it' || q === 'what day is it today' || q === 'whats the day' ||
-        q === 'what day it is' || q === 'what the date is')
+        q === 'what day it is' || q === 'what the date is' ||
+        // stripLeadingVerb leaves day from what's the day
+        q === 'day' || q === 'current day' || q === 'day today' ||
+        q === 'weekday' || q === 'current weekday' ||
+        q === 'day of week' || q === 'day of the week')
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';

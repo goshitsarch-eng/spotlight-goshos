@@ -34,7 +34,7 @@ import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbCol
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from '../workspaceQuery.js';
 import {readdirSync, readFileSync} from 'node:fs';
@@ -840,6 +840,11 @@ assertEq(timeQueryKind(planSearch("what's the time right now", allOn).query), 't
 assertEq(planSearch('what is the answer to 2+2', allOn).query, '2+2', 'answer to math');
 assertEq(evaluateArithmetic(planSearch('what is the answer to 2+2', allOn).query), 4, 'answer to evaluates');
 assertEq(timeQueryKind(planSearch('what time is it right now', allOn).query), 'time', 'what time is it right now');
+assertEq(stripLeadingVerb("what's the day"), 'day', 'whats the day strips to day');
+assertEq(timeQueryKind(planSearch("what's the day", allOn).query), 'date', 'whats the day after strip');
+assertEq(timeQueryKind(planSearch('tell me the day', allOn).query), 'date', 'tell me the day after strip');
+assertEq(timeQueryKind(planSearch("what's the current day", allOn).query), 'date', 'current day after strip');
+assertEq(timeQueryKind(planSearch('tell me the day please', allOn).query), 'date', 'day please normalizes');
 assertEq(normalizeTimeQuery('time right now'), 'time', 'normalize time right now');
 assertEq(normalizeTimeQuery('now'), 'now', 'bare now stays now');
 assert(matchPlaces(planSearch('open the pictures folder', allOn).query).some(p => p.id === 'pictures'), 'pictures folder is a place');
@@ -1465,6 +1470,13 @@ assertEq(timeQueryKind('date today'), 'date', 'date today');
 assertEq(timeQueryKind('what day is it'), 'date', 'what day is it');
 assertEq(timeQueryKind('what day is it today'), 'date', 'what day is it today');
 assertEq(timeQueryKind('current date'), 'date', 'current date query');
+assertEq(timeQueryKind('day'), 'date', 'bare day is date');
+assertEq(timeQueryKind('current day'), 'date', 'current day is date');
+assertEq(timeQueryKind('day today'), 'date', 'day today is date');
+assertEq(timeQueryKind('weekday'), 'date', 'weekday is date');
+assertEq(timeQueryKind('day of the week'), 'date', 'day of the week is date');
+assertEq(timeQueryKind('days'), null, 'days is not date');
+assertEq(timeQueryKind('daylight'), null, 'daylight is not date');
 assertEq(timeQueryKind('timeout'), null, 'timeout is not time');
 assertEq(timeQueryKind('tomorrow'), 'tomorrow', 'tomorrow query');
 assertEq(timeQueryKind('yesterday'), 'yesterday', 'yesterday query');
@@ -1548,6 +1560,10 @@ assertEq(paintSelectionIndex({type: 'window', title: 'Firefox', description: 'Wo
 ]), 1, 'window id keeps the same window');
 assertEq(windowResultId(42, 'Firefox', 'Navigator', 'Workspace 1'), 42, 'mutter window id');
 assertEq(windowResultId('', 'Firefox', 'Navigator', 'Workspace 1'), 'Firefox\0Navigator\0Workspace 1', 'fallback window id');
+assertEq(takeWindowResults({id: 'workspace:2'}, [{id: 'w1'}, {id: 'w2'}], 1).map(r => r.id).join(','), 'workspace:2', 'switch row uses the only slot');
+assertEq(takeWindowResults({id: 'workspace:2'}, [{id: 'w1'}, {id: 'w2'}], 2).map(r => r.id).join(','), 'workspace:2,w1', 'switch row plus one window');
+assertEq(takeWindowResults(null, [{id: 'w1'}, {id: 'w2'}], 1).map(r => r.id).join(','), 'w1', 'one window when no switch row');
+assertEq(takeWindowResults({id: 'workspace:2'}, [{id: 'w1'}], 0).length, 0, 'zero max results');
 assertEq(firstSelectableIndex([
     {type: 'path', title: '~/docs', activatable: false},
     {type: 'path', title: 'Open in Terminal'},

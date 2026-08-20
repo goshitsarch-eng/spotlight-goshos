@@ -6,7 +6,7 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from './workspaceQuery.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue, windowResultId, takeWindowResults} from './windowMatch.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -66,12 +66,12 @@ export function searchWindows(query, maxResults) {
     const closeQuery = parseWindowCloseQuery(query);
     const switchQuery = closeQuery ? null : parseWorkspaceSwitchQuery(query);
     const q = (closeQuery ? closeQuery.title : query).toLowerCase();
-    const results = [];
-    if (switchQuery) {
-        const row = _switchWorkspaceResult(switchQuery);
-        if (row)
-            results.push(row);
-    }
+    const switchRow = switchQuery ? _switchWorkspaceResult(switchQuery) : null;
+    const windowRows = [];
+    const budget = Math.max(0, maxResults - (switchRow ? 1 : 0));
+    if (budget === 0)
+        return takeWindowResults(switchRow, windowRows, maxResults);
+
     const tabRanks = _tabRanks();
     const windows = sortWindowsMostRecent(_metaWindows(), win => {
         if (tabRanks.has(win))
@@ -110,8 +110,11 @@ export function searchWindows(query, maxResults) {
         if (!windowMatches(title, wmClass, q, description))
             continue;
 
+        if (windowRows.length >= budget)
+            break;
+
         const windowId = typeof win.get_id === 'function' ? win.get_id() : '';
-        results.push({
+        windowRows.push({
             type: closeQuery ? 'window-close' : 'window',
             title: closeQuery ? windowCloseTitle(closeQuery.intent, title) : title,
             description,
@@ -131,10 +134,7 @@ export function searchWindows(query, maxResults) {
                     win.delete(global.get_current_time());
             },
         });
-
-        if (results.length >= maxResults)
-            break;
     }
 
-    return results;
+    return takeWindowResults(switchRow, windowRows, maxResults);
 }

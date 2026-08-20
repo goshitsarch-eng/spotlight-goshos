@@ -4,6 +4,21 @@
 import {textMatchesQuery, textMatchesAllWords} from './wordMatch.js';
 import {replaceNumberWords} from './numberWords.js';
 
+// workspace 2 already occupies a slot so max-results 1 must not also keep a window
+export function takeWindowResults(switchRow, windowRows, maxResults) {
+    const results = [];
+    if (maxResults <= 0)
+        return results;
+    if (switchRow)
+        results.push(switchRow);
+    for (const row of windowRows) {
+        if (results.length >= maxResults)
+            break;
+        results.push(row);
+    }
+    return results;
+}
+
 export function windowResultId(windowId, title, wmClass, description) {
     if (windowId !== undefined && windowId !== null && windowId !== '')
         return windowId;
