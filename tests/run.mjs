@@ -3,7 +3,7 @@ import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUn
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
-import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction} from '../popupGate.js';
+import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview} from '../popupGate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {chromeAddMethod} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
@@ -287,6 +287,11 @@ assert(shouldCloseOnSession(true, false), 'lock closes an open popup');
 assert(shouldCloseOnSession(false, true), 'greeter closes an open popup');
 assert(!shouldCloseOnSession(false, false), 'unlocked session keeps the popup');
 assert(shouldCloseOnSession(false, false, true), 'screen-time limit closes an open popup');
+assert(shouldCancelOpenOnOverview(true), 'overview cancels a pending open');
+assert(!shouldCancelOpenOnOverview(false), 'idle overview leaves a closed popup');
+assert(shouldCloseOnOverview(true, false), 'overview closes an open popup');
+assert(shouldCloseOnOverview(false, true), 'overview closes a visible popup');
+assert(!shouldCloseOnOverview(false, false), 'overview does not open the popup');
 
 const work = {x: 100, y: 40, width: 1800, height: 1000};
 assertEq(popupOrigin(work, 600, 80, 'center').x, 700, 'center x in work area');

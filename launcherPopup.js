@@ -20,7 +20,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview} from './popupGate.js';
 import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
@@ -71,6 +71,7 @@ class LauncherPopup extends St.BoxLayout {
         this._keyboardBox = null;
         this._backdrop = null;
         this._sessionId = 0;
+        this._overviewId = 0;
         this._timeLimitsId = 0;
         this._parentalGiveUpId = 0;
         this._parental = null;
@@ -78,6 +79,7 @@ class LauncherPopup extends St.BoxLayout {
         this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
         this._listenSession();
+        this._listenOverview();
         this._listenTimeLimits();
         this._listenParental();
 
@@ -331,6 +333,27 @@ class LauncherPopup extends St.BoxLayout {
             return;
         Main.sessionMode.disconnect(this._sessionId);
         this._sessionId = 0;
+    }
+
+    // addtopchrome paints above the overview so super must close us
+    _listenOverview() {
+        if (this._overviewId)
+            return;
+        if (!Main.overview)
+            return;
+        this._overviewId = Main.overview.connect('showing', () => {
+            if (shouldCancelOpenOnOverview(Boolean(this._openIdleId)))
+                this.cancelPendingOpen();
+            if (shouldCloseOnOverview(this._isOpen, this.visible))
+                this.closeSoon();
+        });
+    }
+
+    _unlistenOverview() {
+        if (!this._overviewId)
+            return;
+        Main.overview.disconnect(this._overviewId);
+        this._overviewId = 0;
     }
 
     _limitsReached() {
@@ -651,6 +674,7 @@ class LauncherPopup extends St.BoxLayout {
         this._reopenAfterClose = false;
         this._clearPopupIdles();
         this._unlistenSession();
+        this._unlistenOverview();
         this._unlistenTimeLimits();
         this._unlistenParental();
         this.close();

@@ -36,6 +36,15 @@ export function nextReopenAfterClose(closePending, reopenAfterClose) {
     return !reopenAfterClose;
 }
 
+// addtopchrome sits above the overview so super must tear us down
+export function shouldCancelOpenOnOverview(openPending) {
+    return Boolean(openPending);
+}
+
+export function shouldCloseOnOverview(isOpen, visible) {
+    return isOpen || visible;
+}
+
 // clutter 18 aborts if addchrome runs inside the accelerator callback
 export function nextToggleAction(isOpen, visible, openPending, closePending) {
     if (closePending)

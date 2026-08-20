@@ -302,6 +302,7 @@ Manual testing on GNOME Shell 50 Wayland:
 102. Click the search icon or empty padding of the open popup — Escape must still close it and the next letter must reach the entry. Alt-tab must still close and leave the first keystroke with the window you switched to.
 103. Search for an app or open window whose `get_icon()` throws — the row must still appear with a fallback icon, and the rest of the list must stay visible. Hovering later rows must still move the highlight.
 104. On a tablet, open the on-screen keyboard then long-press a letter for accented characters — the launcher must stay open. Escape must still close it. Alt-tab must still close.
+105. Open the launcher, then press Super — the launcher must close so Overview is usable. Open Overview first, then the shortcut — the launcher must still appear over Overview.
 
 ## Submitting Changes
 
