@@ -88,6 +88,8 @@ Pure functions with no side effects:
 - **`wordMatch.js`** — GNOME-style word-prefix matching.
 - **`settingsPanels.js`** — Settings panel catalog.
 - **`selectionMath.js`** — Arrow wrap and page-key clamp.
+- **`recentXbel.js`** — Parse `recently-used.xbel`.
+- **`keyAction.js`** — Key press to popup action.
 
 ### Preference Pages
 

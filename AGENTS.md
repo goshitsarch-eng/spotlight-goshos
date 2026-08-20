@@ -105,6 +105,8 @@ gosh-is-launcher@nin/
     webSearch.js              web search fallback
     windowSearch.js           open window provider
     recentFilesSearch.js      recent files provider
+    recentXbel.js             parse recently-used.xbel (pure)
+    keyAction.js              key press to popup action (pure)
     urlSearch.js              url open provider
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
@@ -136,7 +138,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 

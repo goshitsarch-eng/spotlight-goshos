@@ -18,6 +18,8 @@ search providers:
           - actionMatch.js
           - wordMatch.js
           - settingsPanels.js
+          - recentXbel.js
+          - keyAction.js
 
 popup ui:
   - changed-files:

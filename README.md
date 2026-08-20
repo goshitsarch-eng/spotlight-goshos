@@ -37,7 +37,7 @@ Results are aggregated in the following order. Each category is rendered under i
 4. **Windows** — Switch to an open window by title or window class.
 5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
 6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`.
-7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`.
+7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor.
 8. **Web Search** — Last-resort fallback in the default browser.
 
 Before you type, the popup can show open windows and frequently used apps. Turn that off in Features if you want a blank entry.

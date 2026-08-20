@@ -3,36 +3,40 @@
 
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
+import {resolveKeyAction, isNavAction} from './keyAction.js';
 
-const DIGIT_KEYS = {
-    [Clutter.KEY_1]: 1,
-    [Clutter.KEY_2]: 2,
-    [Clutter.KEY_3]: 3,
-    [Clutter.KEY_4]: 4,
-    [Clutter.KEY_5]: 5,
-    [Clutter.KEY_6]: 6,
-    [Clutter.KEY_7]: 7,
-    [Clutter.KEY_8]: 8,
-    [Clutter.KEY_9]: 9,
-    [Clutter.KEY_KP_1]: 1,
-    [Clutter.KEY_KP_2]: 2,
-    [Clutter.KEY_KP_3]: 3,
-    [Clutter.KEY_KP_4]: 4,
-    [Clutter.KEY_KP_5]: 5,
-    [Clutter.KEY_KP_6]: 6,
-    [Clutter.KEY_KP_7]: 7,
-    [Clutter.KEY_KP_8]: 8,
-    [Clutter.KEY_KP_9]: 9,
+const KEY_NAMES = {
+    [Clutter.KEY_Escape]: 'Escape',
+    [Clutter.KEY_Down]: 'Down',
+    [Clutter.KEY_Up]: 'Up',
+    [Clutter.KEY_Tab]: 'Tab',
+    [Clutter.KEY_ISO_Left_Tab]: 'ISO_Left_Tab',
+    [Clutter.KEY_Page_Down]: 'Page_Down',
+    [Clutter.KEY_Page_Up]: 'Page_Up',
+    [Clutter.KEY_Return]: 'Return',
+    [Clutter.KEY_KP_Enter]: 'KP_Enter',
+    [Clutter.KEY_1]: '1',
+    [Clutter.KEY_2]: '2',
+    [Clutter.KEY_3]: '3',
+    [Clutter.KEY_4]: '4',
+    [Clutter.KEY_5]: '5',
+    [Clutter.KEY_6]: '6',
+    [Clutter.KEY_7]: '7',
+    [Clutter.KEY_8]: '8',
+    [Clutter.KEY_9]: '9',
+    [Clutter.KEY_KP_1]: '1',
+    [Clutter.KEY_KP_2]: '2',
+    [Clutter.KEY_KP_3]: '3',
+    [Clutter.KEY_KP_4]: '4',
+    [Clutter.KEY_KP_5]: '5',
+    [Clutter.KEY_KP_6]: '6',
+    [Clutter.KEY_KP_7]: '7',
+    [Clutter.KEY_KP_8]: '8',
+    [Clutter.KEY_KP_9]: '9',
 };
 
 // captures key events at the stage level during the capture phase, before
-// st entry can consume them - this was the fix for keyboard not working at
-// all, see AGENTS.md for the full history of why this exists
-//
-// deduplicates rapid-fire navigation keys (see the isNavKey block below)
-// but never deduplicates character keys, so typing is never affected. this
-// class only decides what a keypress means - it never touches selection or
-// results state directly, it calls back into the popup for all of that
+// st entry can consume them
 export class PopupKeyHandler {
     constructor(popup, selection, settings) {
         this._popup = popup;
@@ -44,14 +48,9 @@ export class PopupKeyHandler {
     }
 
     handleEvent(event) {
-        // captured-event receives all event types we only act on key press
-        // events ignoring key release to prevent double-processing
         if (event.type() !== Clutter.EventType.KEY_PRESS)
             return Clutter.EVENT_PROPAGATE;
 
-        const key = event.get_key_symbol();
-
-        // safety guards since we capture at stage level
         if (!this._popup.visible)
             return Clutter.EVENT_PROPAGATE;
 
@@ -59,25 +58,23 @@ export class PopupKeyHandler {
         if (!focus || !this._popup.contains(focus))
             return Clutter.EVENT_PROPAGATE;
 
-        const state = event.get_state();
-        if (this._settings.get_boolean('show-result-numbers') &&
-            (state & Clutter.ModifierType.MOD1_MASK)) {
-            const digit = DIGIT_KEYS[key];
-            if (digit)
-                return this._activateIndex(digit - 1);
-        }
+        const key = event.get_key_symbol();
+        const name = KEY_NAMES[key];
+        if (!name)
+            return Clutter.EVENT_PROPAGATE;
 
-        // only deduplicate navigation keys not character keys
-        // some systems fire two key_press events for a single physical tap
-        // before the key_release this causes arrow navigation to jump by 2
-        // we track the last nav key and time and ignore repeats within 50ms
-        // character keys are never deduplicated so fast typing works normally
-        const isNavKey = key === Clutter.KEY_Up || key === Clutter.KEY_Down ||
-                         key === Clutter.KEY_Page_Up || key === Clutter.KEY_Page_Down ||
-                         key === Clutter.KEY_Tab || key === Clutter.KEY_ISO_Left_Tab ||
-                         key === Clutter.KEY_Return || key === Clutter.KEY_KP_Enter ||
-                         key === Clutter.KEY_Escape;
-        if (isNavKey) {
+        const state = event.get_state();
+        const action = resolveKeyAction(
+            name,
+            Boolean(state & Clutter.ModifierType.SHIFT_MASK),
+            Boolean(state & Clutter.ModifierType.MOD1_MASK),
+            this._settings.get_boolean('show-result-numbers'),
+        );
+
+        if (action.type === 'propagate')
+            return Clutter.EVENT_PROPAGATE;
+
+        if (isNavAction(action.type)) {
             const time = event.get_time();
             if (key === this._lastNavKey && time - this._lastNavKeyTime < 50)
                 return Clutter.EVENT_STOP;
@@ -85,50 +82,27 @@ export class PopupKeyHandler {
             this._lastNavKeyTime = time;
         }
 
-        switch (key) {
-        case Clutter.KEY_Escape:
+        if (action.type === 'close') {
             this._popup.close();
             return Clutter.EVENT_STOP;
-        case Clutter.KEY_Down:
-            this._selection.moveSelection(1, this._suppressHover.bind(this));
+        }
+        if (action.type === 'move') {
+            this._selection.moveSelection(action.delta, this._suppressHover.bind(this));
             return Clutter.EVENT_STOP;
-        case Clutter.KEY_Tab:
-            // some compositors send Tab+shift instead of ISO_Left_Tab
-            if (state & Clutter.ModifierType.SHIFT_MASK)
-                this._selection.moveSelection(-1, this._suppressHover.bind(this));
-            else
-                this._selection.moveSelection(1, this._suppressHover.bind(this));
-            return Clutter.EVENT_STOP;
-        case Clutter.KEY_Up:
-        case Clutter.KEY_ISO_Left_Tab:
-            this._selection.moveSelection(-1, this._suppressHover.bind(this));
-            return Clutter.EVENT_STOP;
-        case Clutter.KEY_Page_Down:
-            this._selection.moveSelection(5, this._suppressHover.bind(this));
-            return Clutter.EVENT_STOP;
-        case Clutter.KEY_Page_Up:
-            this._selection.moveSelection(-5, this._suppressHover.bind(this));
-            return Clutter.EVENT_STOP;
-        case Clutter.KEY_Return:
-        case Clutter.KEY_KP_Enter:
+        }
+        if (action.type === 'activate-index')
+            return this._activateIndex(action.index);
+        if (action.type === 'activate') {
             this._activateSelected();
             return Clutter.EVENT_STOP;
-        default:
-            return Clutter.EVENT_PROPAGATE;
         }
+        return Clutter.EVENT_PROPAGATE;
     }
 
-    // suppress hover selection briefly after keyboard navigation
-    // prevents scroll-induced enter-events from overwriting the selection
-    // passed into SelectionManager.moveSelection as a callback since only
-    // this class knows the suppression window, and only resultRow's hover
-    // handler (via the popup's onHover callback) needs to check it
     _suppressHover() {
         this._keyboardNavSuppressUntil = GLib.get_monotonic_time() + 150000;
     }
 
-    // exposed so the popup's onHover callback can check it before applying
-    // a hover-triggered selection change
     get suppressedUntil() {
         return this._keyboardNavSuppressUntil;
     }

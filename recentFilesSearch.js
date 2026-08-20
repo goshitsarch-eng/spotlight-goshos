@@ -3,48 +3,101 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import {parseRecentXbel, basenameFromUri} from './recentXbel.js';
 
-const HREF_RE = /href="(file:[^"]+)"/g;
+// cache is filled on an async read so search never calls load_contents
+// on the compositor thread https://gjs.guide/extensions/review-guidelines/review-guidelines.html
+let _uris = null;
+let _loading = false;
+let _onReady = null;
+let _loadId = 0;
 
-function _readRecentXbel() {
-    const path = GLib.build_filenamev([GLib.get_user_data_dir(), 'recently-used.xbel']);
-    const file = Gio.File.new_for_path(path);
-    if (!file.query_exists(null))
-        return '';
-
-    const [, contents] = file.load_contents(null);
-    return new TextDecoder().decode(contents);
+export function invalidateRecentFiles() {
+    _uris = null;
+    _loading = false;
+    _onReady = null;
+    _loadId += 1;
 }
 
-function _basename(uri) {
-    const decoded = GLib.uri_unescape_string(uri, null) || uri;
-    const parts = decoded.split('/');
-    return parts[parts.length - 1] || decoded;
+export function ensureRecentFiles(onReady) {
+    if (_uris !== null)
+        return;
+    _onReady = onReady;
+    if (!_loading)
+        _startLoad();
+}
+
+function _flush() {
+    const cb = _onReady;
+    _onReady = null;
+    if (cb)
+        cb();
+}
+
+function _startLoad() {
+    const loadId = _loadId;
+    _loading = true;
+    const path = GLib.build_filenamev([GLib.get_user_data_dir(), 'recently-used.xbel']);
+    const file = Gio.File.new_for_path(path);
+    file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, existsRes) => {
+        if (loadId !== _loadId)
+            return;
+        if (!src.query_exists_finish(existsRes)) {
+            _uris = [];
+            _loading = false;
+            _flush();
+            return;
+        }
+        src.load_contents_async(null, (loaded, loadRes) => {
+            if (loadId !== _loadId)
+                return;
+            const [, contents] = loaded.load_contents_finish(loadRes);
+            const text = new TextDecoder().decode(contents);
+            _keepExisting(loadId, parseRecentXbel(text));
+        });
+    });
+}
+
+function _keepExisting(loadId, uris) {
+    if (uris.length === 0) {
+        _uris = [];
+        _loading = false;
+        _flush();
+        return;
+    }
+
+    const kept = new Array(uris.length);
+    let pending = uris.length;
+    for (let i = 0; i < uris.length; i++) {
+        const file = Gio.File.new_for_uri(uris[i]);
+        const index = i;
+        file.query_exists_async(GLib.PRIORITY_DEFAULT, null, (src, res) => {
+            if (loadId !== _loadId)
+                return;
+            if (src.query_exists_finish(res))
+                kept[index] = uris[index];
+            pending--;
+            if (pending === 0) {
+                _uris = kept.filter(uri => uri);
+                _loading = false;
+                _flush();
+            }
+        });
+    }
 }
 
 export function searchRecentFiles(query, maxResults) {
-    const q = query.toLowerCase();
-    const text = _readRecentXbel();
-    if (text.length === 0)
+    if (_uris === null)
         return [];
 
+    const q = query.toLowerCase();
     const results = [];
-    const seen = new Set();
-    HREF_RE.lastIndex = 0;
-    let match = HREF_RE.exec(text);
-    while (match !== null && results.length < maxResults) {
-        const uri = match[1];
-        match = HREF_RE.exec(text);
-        if (seen.has(uri))
-            continue;
-
-        const name = _basename(uri);
+    for (const uri of _uris) {
+        if (results.length >= maxResults)
+            break;
+        const name = basenameFromUri(uri);
         if (q.length > 0 && !name.toLowerCase().includes(q))
             continue;
-        if (!Gio.File.new_for_uri(uri).query_exists(null))
-            continue;
-
-        seen.add(uri);
         results.push({
             type: 'file',
             title: name,
@@ -55,6 +108,5 @@ export function searchRecentFiles(query, maxResults) {
             },
         });
     }
-
     return results;
 }

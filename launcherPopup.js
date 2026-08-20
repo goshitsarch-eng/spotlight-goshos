@@ -14,6 +14,7 @@ import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
 import {getTheme} from './themes.js';
+import {invalidateRecentFiles} from './recentFilesSearch.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -188,6 +189,7 @@ class LauncherPopup extends St.BoxLayout {
             return GLib.SOURCE_REMOVE;
         });
 
+        invalidateRecentFiles();
         this._entry.set_text('');
         this._renderer.reset();
     }

@@ -10,6 +10,8 @@ import {wordPrefixMatch} from '../wordMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
 import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
+import {parseRecentXbel, basenameFromUri} from '../recentXbel.js';
+import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -265,6 +267,29 @@ assertEq(legacyScroll.child, 'box', '45 add_child fallback');
 applyScrollPolicy(legacyScroll, 2, 3);
 assertEq(legacyScroll.vscrollbar_policy, 3, '45 policy props');
 assertEq(getVerticalAdjustment(legacyScroll).kind, 'bar', '45 scrollbar adj');
+
+const xbel = `
+<xbel>
+  <bookmark href="file:///tmp/notes.txt"/>
+  <bookmark href="https://example.com"/>
+  <bookmark href="file:///tmp/notes.txt"/>
+  <bookmark href="file:///home/user/My%20File.pdf"/>
+</xbel>`;
+assertEq(parseRecentXbel(xbel).length, 2, 'xbel file hrefs only and unique');
+assertEq(parseRecentXbel(xbel)[1], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
+assertEq(basenameFromUri('file:///home/user/My%20File.pdf'), 'My File.pdf', 'unescape basename');
+assertEq(basenameFromUri('file:///tmp/a%'), 'a%', 'lone percent stays');
+assertEq(parseRecentXbel('').length, 0, 'empty xbel');
+
+assertEq(resolveKeyAction('Tab', false, false, false).delta, 1, 'tab down');
+assertEq(resolveKeyAction('Tab', true, false, false).delta, -1, 'shift tab up');
+assertEq(resolveKeyAction('ISO_Left_Tab', false, false, false).delta, -1, 'iso left tab');
+assertEq(resolveKeyAction('Escape', false, false, false).type, 'close', 'escape');
+assertEq(resolveKeyAction('3', false, true, true).index, 2, 'alt 3');
+assertEq(resolveKeyAction('3', false, true, false).type, 'propagate', 'alt 3 without hints');
+assertEq(resolveKeyAction('a', false, false, false).type, 'propagate', 'letters propagate');
+assert(isNavAction('move'), 'move is nav');
+assert(!isNavAction('propagate'), 'propagate is not nav');
 
 // rename leftovers in source
 assertEq(metadata.uuid.includes('spotlight'), false, 'uuid is not spotlight');

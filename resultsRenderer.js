@@ -8,6 +8,7 @@ import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
 import {getTheme, iconSizeForLook} from './themes.js';
+import {ensureRecentFiles} from './recentFilesSearch.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -21,6 +22,8 @@ export class ResultsRenderer {
         this._onActivate = onActivate;
         this._onHover = onHover;
         this._searchIdleId = 0;
+        this._generation = 0;
+        this._lastQuery = '';
     }
 
     _clearSearchIdle() {
@@ -43,6 +46,7 @@ export class ResultsRenderer {
     }
 
     onTextChanged(text) {
+        this._lastQuery = text;
         this._clearSearchIdle();
 
         if (text.trim().length === 0) {
@@ -68,6 +72,15 @@ export class ResultsRenderer {
 
     _runSearch(text) {
         this._paint(runSearch(text, this._settings), text.trim());
+        if (!this._settings.get_boolean('enable-recent-files'))
+            return;
+        const gen = this._generation;
+        ensureRecentFiles(() => {
+            if (gen !== this._generation)
+                return;
+            const query = this._lastQuery;
+            this._paint(runSearch(query, this._settings), query.trim());
+        });
     }
 
     _paint(results, query) {
@@ -103,6 +116,7 @@ export class ResultsRenderer {
 
     reset() {
         this._clearSearchIdle();
+        this._generation += 1;
         this._selection.setResults([]);
         this._resultsBox.destroy_all_children();
         this._resultsScroll.hide();
@@ -110,5 +124,6 @@ export class ResultsRenderer {
 
     destroy() {
         this._clearSearchIdle();
+        this._generation += 1;
     }
 }
