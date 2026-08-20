@@ -3,12 +3,17 @@
 
 // a closed window or a bad xbel href can throw mid-list
 // later providers must not lose the rows already collected
-export function appendProviderResults(results, run, query, maxResults, settings, mode) {
+export function safeProviderResults(run) {
     try {
-        results.push(...run(query, maxResults, settings, mode));
+        const rows = run();
+        return Array.isArray(rows) ? rows : [];
     } catch (e) {
-        // keep the rows from providers that already succeeded
+        return [];
     }
+}
+
+export function appendProviderResults(results, run, query, maxResults, settings, mode) {
+    results.push(...safeProviderResults(() => run(query, maxResults, settings, mode)));
 }
 
 export function collectSearchResults(plan, maxResults, providers, settings) {

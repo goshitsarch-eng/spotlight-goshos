@@ -13,6 +13,8 @@ function _metaWindows() {
     if (typeof global.display.list_all_windows === 'function')
         return global.display.list_all_windows();
     const windows = [];
+    if (typeof global.get_window_actors !== 'function')
+        return windows;
     for (const actor of global.get_window_actors()) {
         if (actor.meta_window)
             windows.push(actor.meta_window);
@@ -74,66 +76,74 @@ export function searchWindows(query, maxResults) {
 
     const tabRanks = _tabRanks();
     const windows = sortWindowsMostRecent(_metaWindows(), win => {
-        if (tabRanks.has(win))
-            return tabRanks.get(win);
-        return windowRecencyValue(-1, 0, win.get_user_time());
+        try {
+            if (tabRanks.has(win))
+                return tabRanks.get(win);
+            return windowRecencyValue(-1, 0, win.get_user_time());
+        } catch (e) {
+            return 0;
+        }
     });
 
     for (const win of windows) {
         if (!win)
             continue;
 
-        const type = win.get_window_type();
-        // skip closed actors that linger in get_window_actors
-        if (!shouldListWindow(
-            win.get_workspace(),
-            win.is_skip_taskbar(),
-            type,
-            [Meta.WindowType.NORMAL, Meta.WindowType.DIALOG, Meta.WindowType.MODAL_DIALOG],
-        ))
-            continue;
+        try {
+            const type = win.get_window_type();
+            // skip closed actors that linger in get_window_actors
+            if (!shouldListWindow(
+                win.get_workspace(),
+                win.is_skip_taskbar(),
+                type,
+                [Meta.WindowType.NORMAL, Meta.WindowType.DIALOG, Meta.WindowType.MODAL_DIALOG],
+            ))
+                continue;
 
-        const sandboxed = typeof win.get_sandboxed_app_id === 'function'
-            ? win.get_sandboxed_app_id()
-            : '';
-        const wmClass = windowClassText(
-            win.get_wm_class(),
-            win.get_wm_class_instance(),
-            sandboxed,
-        );
-        const title = win.get_title() || 'Untitled';
-        const workspace = win.get_workspace();
-        const description = windowWorkspaceLabel(
-            workspace ? workspace.index() : -1,
-            win.is_on_all_workspaces(),
-        );
-        if (!windowMatches(title, wmClass, q, description))
-            continue;
+            const sandboxed = typeof win.get_sandboxed_app_id === 'function'
+                ? win.get_sandboxed_app_id()
+                : '';
+            const wmClass = windowClassText(
+                win.get_wm_class(),
+                win.get_wm_class_instance(),
+                sandboxed,
+            );
+            const title = win.get_title() || 'Untitled';
+            const workspace = win.get_workspace();
+            const description = windowWorkspaceLabel(
+                workspace ? workspace.index() : -1,
+                win.is_on_all_workspaces(),
+            );
+            if (!windowMatches(title, wmClass, q, description))
+                continue;
 
-        if (windowRows.length >= budget)
-            break;
+            if (windowRows.length >= budget)
+                break;
 
-        const windowId = typeof win.get_id === 'function' ? win.get_id() : '';
-        windowRows.push({
-            type: closeQuery ? 'window-close' : 'window',
-            title: closeQuery ? windowCloseTitle(closeQuery.intent, title) : title,
-            description,
-            id: windowResultId(windowId, title, wmClass, description),
-            icon: _windowIcon(win),
-            activate: () => {
-                if (!win.get_workspace())
-                    return;
-                if (!closeQuery) {
-                    Main.activateWindow(win);
-                    return;
-                }
-                // kill is force quit delete is the same request as the window menu
-                if (shouldForceQuitWindow(closeQuery.intent))
-                    win.kill();
-                else
-                    win.delete(global.get_current_time());
-            },
-        });
+            const windowId = typeof win.get_id === 'function' ? win.get_id() : '';
+            windowRows.push({
+                type: closeQuery ? 'window-close' : 'window',
+                title: closeQuery ? windowCloseTitle(closeQuery.intent, title) : title,
+                description,
+                id: windowResultId(windowId, title, wmClass, description),
+                icon: _windowIcon(win),
+                activate: () => {
+                    if (!win.get_workspace())
+                        return;
+                    if (!closeQuery) {
+                        Main.activateWindow(win);
+                        return;
+                    }
+                    // kill is force quit delete is the same request as the window menu
+                    if (shouldForceQuitWindow(closeQuery.intent))
+                        win.kill();
+                    else
+                        win.delete(global.get_current_time());
+                },
+            });
+        } catch (e) {
+            // mutter can drop a window between list and read
+        }
     }
 
     return takeWindowResults(switchRow, windowRows, maxResults);

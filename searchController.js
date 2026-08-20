@@ -17,7 +17,7 @@ import {searchTime} from './timeSearch.js';
 import {searchCommand} from './commandSearch.js';
 import {searchRecentFiles} from './recentFilesSearch.js';
 import {flagsFromSettings, planSearch, mergeEmptySuggestions} from './searchPlan.js';
-import {collectSearchResults} from './searchRun.js';
+import {collectSearchResults, safeProviderResults} from './searchRun.js';
 
 const PROVIDERS = {
     url: (query, _max, _settings) => searchUrl(query),
@@ -52,10 +52,10 @@ export function runEmptySuggestions(settings) {
 
     const maxResults = settings.get_int('max-results');
     const windows = settings.get_boolean('enable-window-search')
-        ? searchWindows('', maxResults)
+        ? safeProviderResults(() => searchWindows('', maxResults))
         : [];
     const apps = settings.get_boolean('enable-app-search')
-        ? searchFrequentApps(maxResults)
+        ? safeProviderResults(() => searchFrequentApps(maxResults))
         : [];
     return mergeEmptySuggestions(settings.get_string('result-order'), windows, apps, maxResults);
 }

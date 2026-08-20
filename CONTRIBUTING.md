@@ -288,6 +288,7 @@ Manual testing on GNOME Shell 50 Wayland:
 91. Paste `sftp://nas/My Documents` or `smb://nas/Public Share` — a location row should appear and Enter must open it. A recent-file or bookmark with the same spaced URI must open too.
 92. Paste `file://nas/Public Share` or `file://localhost/home/…/My Documents` — a location row should appear and Enter must open it. A recent-file href with the same spaced network `file://` must be encoded before the exists check so it is not dropped.
 93. Add a recent-file or bookmark whose URI contains a latin-1 percent sequence such as `caf%E9` — the launcher must still list apps and other results. Enter on that row must not crash the shell.
+94. Open the launcher with several frequent apps and a window that closes as the popup appears — frequent apps must still show. Close one of several matching windows while typing its title — the other windows must stay listed.
 
 ## Submitting Changes
 

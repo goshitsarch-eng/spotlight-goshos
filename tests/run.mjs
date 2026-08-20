@@ -36,7 +36,7 @@ import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
 import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusLossAction} from '../focusLoss.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
-import {collectSearchResults, appendProviderResults} from '../searchRun.js';
+import {collectSearchResults, appendProviderResults, safeProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from '../workspaceQuery.js';
@@ -967,6 +967,14 @@ appendProviderResults(isolated, () => {
     throw new Error('gio');
 }, 'q', 3, null, 'all');
 assertEq(isolated.length, 0, 'append swallows provider throw');
+assertEq(safeProviderResults(() => {
+    throw new Error('windows');
+}).length, 0, 'safe provider returns empty');
+assertEq(safeProviderResults(() => [{title: 'App'}])[0].title, 'App', 'safe provider keeps rows');
+assertEq(safeProviderResults(() => null).length, 0, 'safe provider rejects non-array');
+assertEq(mergeEmptySuggestions('windows-first', safeProviderResults(() => {
+    throw new Error('windows');
+}), [{title: 'App'}], 4)[0].title, 'App', 'empty state keeps apps after window throw');
 
 const calcProviders = {
     calculator: (query, _max, _settings, mode) => {
