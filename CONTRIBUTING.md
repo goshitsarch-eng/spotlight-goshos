@@ -173,6 +173,7 @@ Manual testing on GNOME Shell 50 Wayland:
 10. Type `!no-such-command` with the command runner on and press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 12. Type `localhost:3000` — a URL result should open `http://localhost:3000`.
+13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
 
 ## Submitting Changes
 

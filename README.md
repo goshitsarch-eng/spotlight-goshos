@@ -54,8 +54,8 @@ Walker-style prefixes jump to one provider. Disable them in Features if you neve
 | `=` | Calculator (`=2^8`) |
 | `@` | Web search |
 | `#` | GNOME Settings |
-| `$` | Open windows |
-| `.` | Recent files |
+| `$` | Open windows (`$ term`, not `$HOME`) |
+| `.` | Recent files (`. notes`, not `.bashrc`) |
 | `!` | Run command (off by default) |
 
 ## Usage

@@ -12,14 +12,28 @@ export const PREFIXES = {
     '!': 'command',
 };
 
+const SPACE_PREFIXES = {
+    '.': true,
+    '$': true,
+};
+
+// .bashrc and $HOME are filenames and env vars not prefix modes
+export function isPrefixToken(trimmed, prefix) {
+    if (trimmed.charAt(0) !== prefix)
+        return false;
+    if (!SPACE_PREFIXES[prefix])
+        return true;
+    return trimmed.length === 1 || trimmed.charAt(1) === ' ';
+}
+
 export function parseQuery(text) {
     const trimmed = text.trim();
     if (trimmed.length === 0)
         return {mode: 'all', query: ''};
 
-    const prefix = trimmed[0];
+    const prefix = trimmed.charAt(0);
     const mode = PREFIXES[prefix];
-    if (!mode)
+    if (!mode || !isPrefixToken(trimmed, prefix))
         return {mode: 'all', query: trimmed};
 
     return {

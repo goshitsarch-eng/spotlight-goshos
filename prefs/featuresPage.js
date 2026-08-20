@@ -37,7 +37,7 @@ export function buildFeaturesPage(settings) {
         title: 'Behavior',
     });
     addSwitch(extras, settings, 'enable-prefix-modes',
-        'Prefix modes', '= calculator, @ web, # settings, $ windows, . files, ! command');
+        'Prefix modes', '= calculator, @ web, # settings, $ windows, . files, ! command. Use a space after . and $ so .bashrc and $HOME stay normal searches');
     addSwitch(extras, settings, 'show-empty-suggestions',
         'Empty-state suggestions', 'Show windows and frequent apps before you type');
 

@@ -1,5 +1,5 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
-import {parseQuery, PREFIXES} from '../prefixParser.js';
+import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
@@ -60,6 +60,17 @@ assertEq(parseQuery('. notes').mode, 'files', 'files prefix');
 assertEq(parseQuery('! ls -la').mode, 'command', 'command prefix');
 assertEq(parseQuery('   ').query, '', 'empty trim');
 assert(Object.keys(PREFIXES).length === 6, 'expected six prefixes');
+assertEq(parseQuery('.bashrc').mode, 'all', 'dotfile is not files prefix');
+assertEq(parseQuery('.bashrc').query, '.bashrc', 'dotfile keeps the name');
+assertEq(parseQuery('./run').mode, 'all', 'relative path is not files prefix');
+assertEq(parseQuery('. notes').mode, 'files', 'dot space is files prefix');
+assertEq(parseQuery('.').mode, 'files', 'dot alone is files prefix');
+assertEq(parseQuery('$HOME').mode, 'all', 'env var is not windows prefix');
+assertEq(parseQuery('$ term').mode, 'windows', 'dollar space is windows prefix');
+assertEq(parseQuery('$').mode, 'windows', 'dollar alone is windows prefix');
+assertEq(parseQuery('=2+2').mode, 'calculator', 'equals still sticks without space');
+assert(isPrefixToken('. notes', '.'), 'dot space token');
+assert(!isPrefixToken('.bashrc', '.'), 'dotfile is not a token');
 
 // urls
 assert(isUrlQuery('file:///tmp/notes.txt'), 'file url');
