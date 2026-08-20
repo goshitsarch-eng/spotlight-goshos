@@ -122,11 +122,12 @@
   padding-bottom: 4px;
 }
 
-.gosh-density-compact .gosh-result {
+/* two classes so compact still wins over theme-specific row padding */
+.gosh-container.gosh-density-compact .gosh-result {
   padding: 5px 10px;
 }
 
-.gosh-density-compact .gosh-entry {
+.gosh-container.gosh-density-compact .gosh-entry {
   padding: 10px 16px 10px 0;
   font-size: 16px;
 }
@@ -188,6 +189,11 @@
   color: #c0caf5;
 }
 
+/* walker marks the current row with a tokyo-night blue leading edge */
+.gosh-theme-omarchy .gosh-result.gosh-selected {
+  border-left: 3px solid #7aa2f7;
+}
+
 .gosh-theme-omarchy .gosh-result-description,
 .gosh-theme-omarchy .gosh-result-index {
   color: #565f89;
@@ -247,6 +253,8 @@
 
 .gosh-theme-popos .gosh-result-index {
   color: #6ba4f8;
+  font-size: 13px;
+  min-width: 18px;
 }
 
 .gosh-theme-popos .gosh-section-header {

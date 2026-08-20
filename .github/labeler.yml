@@ -11,10 +11,13 @@ search providers:
           - urlSearch.js
           - commandSearch.js
           - searchController.js
+          - searchPlan.js
           - calculator.js
           - prefixParser.js
           - urlMatch.js
           - actionMatch.js
+          - wordMatch.js
+          - settingsPanels.js
 
 popup ui:
   - changed-files:
@@ -28,6 +31,13 @@ popup ui:
           - noResults.js
           - stylesheet.css
           - themes.js
+          - scrollView.js
+          - selectionManager.js
+          - selectionMath.js
+          - resultsRenderer.js
+          - popupKeyHandler.js
+          - popupBackdrop.js
+          - focusLossWatcher.js
 
 preferences:
   - changed-files:

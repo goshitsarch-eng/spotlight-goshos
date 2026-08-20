@@ -17,6 +17,7 @@ export const THEMES = [
             showNumbers: false,
             showHeaders: true,
             resultOrder: 'default',
+            iconSize: 28,
         },
     },
     {
@@ -30,6 +31,7 @@ export const THEMES = [
             showNumbers: false,
             showHeaders: true,
             resultOrder: 'default',
+            iconSize: 24,
         },
     },
     {
@@ -43,6 +45,7 @@ export const THEMES = [
             showNumbers: true,
             showHeaders: true,
             resultOrder: 'windows-first',
+            iconSize: 36,
         },
     },
     {
@@ -56,6 +59,7 @@ export const THEMES = [
             showNumbers: false,
             showHeaders: false,
             resultOrder: 'default',
+            iconSize: 40,
         },
     },
     {
@@ -69,6 +73,7 @@ export const THEMES = [
             showNumbers: false,
             showHeaders: false,
             resultOrder: 'default',
+            iconSize: 20,
         },
     },
     {
@@ -82,6 +87,7 @@ export const THEMES = [
             showNumbers: false,
             showHeaders: true,
             resultOrder: 'default',
+            iconSize: 28,
         },
     },
 ];
@@ -105,4 +111,12 @@ export function applyLookSettings(settings, theme) {
     settings.set_boolean('show-result-numbers', look.showNumbers);
     settings.set_boolean('show-section-headers', look.showHeaders);
     settings.set_string('result-order', look.resultOrder);
+}
+
+// compact density shrinks the look's own icon size so popos stays larger
+// than krunner even when both are set to compact
+export function iconSizeForLook(look, density) {
+    if (density === 'compact')
+        return Math.round(look.iconSize * 0.8);
+    return look.iconSize;
 }

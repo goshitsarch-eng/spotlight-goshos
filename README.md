@@ -25,7 +25,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
 | **GNOME** | GNOME overview / Adwaita | Native-feeling card with the GNOME blue accent. |
 
-Picking a look applies its colors and the matching chrome (position, density, headers, number hints, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used.
+Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
 
 ## Search Priority
 

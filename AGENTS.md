@@ -340,10 +340,11 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 
 ## adding a new look
 
-1. add an entry to THEMES in themes.js
+1. add an entry to THEMES in themes.js including a look profile with iconSize
 2. add a choice to the launcher-theme key in the schema
 3. add `.gosh-theme-<id>` rules in stylesheet.css
 4. keep the look as css on the existing widgets do not fork the popup class
+5. do not set row padding on the theme that beats `.gosh-container.gosh-density-compact` the compact setting must still work
 
 ## adding a new ui component
 

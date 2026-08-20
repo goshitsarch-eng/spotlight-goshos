@@ -4,13 +4,8 @@
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 
-function _iconSize(density) {
-    return density === 'compact' ? 22 : 28;
-}
-
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
-    const density = options.density;
     const showNumbers = options.showNumbers;
     const hbox = new St.BoxLayout({
         style_class: 'gosh-result',
@@ -23,7 +18,7 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
     const iconParams = {
         fallback_icon_name: 'application-x-executable',
         style_class: 'gosh-result-icon',
-        icon_size: _iconSize(density),
+        icon_size: options.iconSize,
     };
 
     if (result.app)

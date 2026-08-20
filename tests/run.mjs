@@ -1,7 +1,7 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl} from '../urlMatch.js';
-import {THEMES, getTheme, getThemeIds, applyLookSettings} from '../themes.js';
+import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
@@ -58,10 +58,14 @@ assert(Object.keys(PREFIXES).length === 6, 'expected six prefixes');
 assert(isUrlQuery('https://example.com'), 'https url');
 assert(isUrlQuery('www.example.com'), 'www url');
 assert(isUrlQuery('example.com'), 'bare domain');
+assert(isUrlQuery('http://example.com/path?q=1'), 'http with path');
+assert(isUrlQuery('example.com/foo'), 'domain with path');
 assert(!isUrlQuery('chrome'), 'plain word is not a url');
 assert(!isUrlQuery('hello world'), 'spaces are not a url');
+assert(!isUrlQuery(''), 'empty is not a url');
 assertEq(normalizeUrl('example.com'), 'https://example.com', 'add https');
 assertEq(normalizeUrl('https://ok.test'), 'https://ok.test', 'keep scheme');
+assertEq(normalizeUrl('www.ok.test'), 'https://www.ok.test', 'www gets https');
 
 // catalogs stay aligned
 const themeIds = getThemeIds();
@@ -107,11 +111,17 @@ assertEq(evaluateArithmetic('8 % 0'), null, 'mod zero');
 assertEq(evaluateArithmetic('((2+3)*4)'), 20, 'nested parens');
 assertEq(evaluateArithmetic('2 ^ 0'), 1, 'power zero');
 assertEq(evaluateArithmetic('0.5 * 2'), 1, 'decimal');
+assertEq(evaluateArithmetic('2 + - 3'), -1, 'plus unary minus with spaces');
+assertEq(evaluateArithmetic('-(2+3)'), -5, 'unary minus on group');
+assertEq(evaluateArithmetic('2^3*2'), 16, 'power before multiply');
+assertEq(formatNumber(1.2300000000001), '1.23', 'trim float noise');
 
 // word prefix
 assert(wordPrefixMatch('google chrome', 'chro'), 'chro matches chrome word');
 assert(!wordPrefixMatch('google chrome', 'ogle'), 'mid-word is not prefix');
 assert(wordPrefixMatch('gnome-builder', 'bui'), 'hyphen boundary');
+assert(wordPrefixMatch('foo bar', 'bar'), 'last word');
+assert(wordPrefixMatch('notes.txt', 'txt'), 'dot boundary');
 assert(!wordPrefixMatch('chrome', 'chro'), 'first word is startsWith not wordPrefix');
 
 // settings matching
@@ -181,7 +191,12 @@ assertEq(stored['row-density'], 'compact', 'krunner is compact');
 assertEq(stored['popup-position'], 'top', 'krunner sits at top');
 
 for (const theme of THEMES)
-    assert(theme.look && theme.look.position && theme.look.resultOrder, `look profile ${theme.id}`);
+    assert(theme.look && theme.look.position && theme.look.resultOrder && theme.look.iconSize, `look profile ${theme.id}`);
+
+assert(iconSizeForLook(getTheme('popos').look, 'comfortable') > iconSizeForLook(getTheme('krunner').look, 'comfortable'), 'popos icons larger than krunner');
+assert(iconSizeForLook(getTheme('popos').look, 'compact') > iconSizeForLook(getTheme('krunner').look, 'compact'), 'compact still keeps look icon scale');
+assertEq(iconSizeForLook({iconSize: 40}, 'compact'), 32, 'compact is 80 percent');
+assertEq(iconSizeForLook({iconSize: 28}, 'comfortable'), 28, 'comfortable keeps size');
 
 // every get_* key in js exists in the schema
 const settingKeys = new Set();
@@ -210,6 +225,8 @@ for (const id of themeIds)
     assert(css.includes(`.gosh-theme-${id}`), `css theme ${id}`);
 assert(css.includes('.gosh-container'), 'base container class');
 assert(css.includes('.gosh-selected'), 'selected class');
+assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
+assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
 
 // scrollview helpers speak both the 45 and 48 apis

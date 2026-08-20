@@ -7,6 +7,7 @@ import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
+import {getTheme, iconSizeForLook} from './themes.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -30,8 +31,11 @@ export class ResultsRenderer {
     }
 
     _rowOptions() {
+        const density = this._settings.get_string('row-density');
+        const theme = getTheme(this._settings.get_string('launcher-theme'));
         return {
-            density: this._settings.get_string('row-density'),
+            density,
+            iconSize: iconSizeForLook(theme.look, density),
             showIcons: this._settings.get_boolean('show-result-icons'),
             showDescriptions: this._settings.get_boolean('show-descriptions'),
             showNumbers: this._settings.get_boolean('show-result-numbers'),
