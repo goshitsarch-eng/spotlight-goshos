@@ -141,7 +141,7 @@ gosh-is-launcher@nin/
     resultPointer.js          result row press/release (pure)
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers (pure)
-    windowMatch.js            window title and class match (pure)
+    windowMatch.js            window title class match and wayland recency (pure)
     windowClose.js            close kill and quit window queries (pure)
     workspaceQuery.js         switch to workspace n (pure)
     appMatch.js               app name generic-name keyword tiers (pure)

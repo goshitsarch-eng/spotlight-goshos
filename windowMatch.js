@@ -62,3 +62,10 @@ export function windowClassText(wmClass, wmInstance, sandboxedId) {
 export function sortWindowsMostRecent(windows, getUserTime) {
     return windows.slice().sort((a, b) => getUserTime(b) - getUserTime(a));
 }
+
+// tabIndex 0 is the alt-tab front window user_time is 0 on some wayland setups
+export function windowRecencyValue(tabIndex, tabCount, userTime) {
+    if (Number.isInteger(tabIndex) && tabIndex >= 0 && tabCount > tabIndex)
+        return (tabCount - tabIndex) * 1e12 + userTime;
+    return userTime;
+}

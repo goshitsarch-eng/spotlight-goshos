@@ -6,7 +6,7 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from './windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from './workspaceQuery.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, windowRecencyValue} from './windowMatch.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -18,6 +18,18 @@ function _metaWindows() {
             windows.push(actor.meta_window);
     }
     return windows;
+}
+
+function _tabRanks() {
+    const ranks = new Map();
+    if (typeof global.display.get_tab_list !== 'function' || !Meta.TabList)
+        return ranks;
+    const list = global.display.get_tab_list(Meta.TabList.NORMAL, null);
+    if (!list)
+        return ranks;
+    for (let i = 0; i < list.length; i++)
+        ranks.set(list[i], windowRecencyValue(i, list.length, 0));
+    return ranks;
 }
 
 function _windowIcon(win) {
@@ -59,7 +71,12 @@ export function searchWindows(query, maxResults) {
         if (row)
             results.push(row);
     }
-    const windows = sortWindowsMostRecent(_metaWindows(), win => win.get_user_time());
+    const tabRanks = _tabRanks();
+    const windows = sortWindowsMostRecent(_metaWindows(), win => {
+        if (tabRanks.has(win))
+            return tabRanks.get(win);
+        return windowRecencyValue(-1, 0, win.get_user_time());
+    });
 
     for (const win of windows) {
         if (!win)

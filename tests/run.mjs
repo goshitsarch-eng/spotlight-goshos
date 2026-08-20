@@ -33,7 +33,7 @@ import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbCol
 import {paintSelectionIndex} from '../paintSelection.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName, shortcutAttempts} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange} from '../workspaceQuery.js';
 import {readdirSync, readFileSync} from 'node:fs';
@@ -568,6 +568,9 @@ const recency = sortWindowsMostRecent(
 );
 assertEq(recency[0].id, 'new', 'most recent window first');
 assertEq(recency[2].id, 'old', 'oldest window last');
+assert(windowRecencyValue(0, 3, 0) > windowRecencyValue(1, 3, 0), 'alt-tab front ranks first');
+assert(windowRecencyValue(0, 3, 0) > windowRecencyValue(-1, 0, 999), 'tab list beats user time');
+assertEq(windowRecencyValue(-1, 3, 50), 50, 'missing tab uses user time');
 assertEq(windowWorkspaceLabel(0), 'Workspace 1', 'first workspace is 1-based');
 assertEq(windowWorkspaceLabel(2), 'Workspace 3', 'later workspace');
 assertEq(windowWorkspaceLabel(-1), 'Switch to window', 'unknown workspace');
