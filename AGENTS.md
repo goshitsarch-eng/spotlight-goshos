@@ -75,7 +75,7 @@ gnome 50 settings dropped the appearance panel id style and wallpaper live on ba
 
 SystemActions.getName and getIconName are the same labels and icons overview search shows including Unlock Screen Rotation when the tablet lock is on use those live values so a translated session still matches gnome search power-off is Power Off not Shut Down
 
-clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon()
+clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon() a second press while that idle is pending arms reopen after close instead of eating the key
 
 ### no x11 support
 

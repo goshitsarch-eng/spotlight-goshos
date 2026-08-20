@@ -3,7 +3,7 @@ import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUn
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
-import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED} from '../popupGate.js';
+import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose} from '../popupGate.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT} from '../popupPosition.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -247,6 +247,9 @@ assertEq(timeLimitsState({state: TIME_LIMITS_REACHED}), TIME_LIMITS_REACHED, 'ma
 assert(shouldCloseOnToggle(true, false), 'idle gap still toggles closed');
 assert(shouldCloseOnToggle(false, true), 'visible toggles closed');
 assert(!shouldCloseOnToggle(false, false), 'closed stays closed');
+assertEq(nextReopenAfterClose(false, false), false, 'no pending close');
+assertEq(nextReopenAfterClose(true, false), true, 'second press reopens');
+assertEq(nextReopenAfterClose(true, true), false, 'third press stays closed');
 assert(shouldCloseOnSession(true, false), 'lock closes an open popup');
 assert(shouldCloseOnSession(false, true), 'greeter closes an open popup');
 assert(!shouldCloseOnSession(false, false), 'unlocked session keeps the popup');

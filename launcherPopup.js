@@ -19,7 +19,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose} from './popupGate.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -64,6 +64,7 @@ class LauncherPopup extends St.BoxLayout {
         this._timeLimitsId = 0;
         this._parentalGiveUpId = 0;
         this._parental = null;
+        this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
         this._listenSession();
         this._listenTimeLimits();
@@ -409,9 +410,22 @@ class LauncherPopup extends St.BoxLayout {
             return;
         this._closeIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             this._closeIdleId = 0;
+            const reopen = this._reopenAfterClose;
+            this._reopenAfterClose = false;
             this.close();
+            if (reopen)
+                this.open();
             return GLib.SOURCE_REMOVE;
         });
+    }
+
+    // clutter 18 still needs the deferred teardown so flip the reopen
+    // flag instead of calling open while the widget is mid-close
+    armReopenAfterClose() {
+        if (!this._closeIdleId)
+            return false;
+        this._reopenAfterClose = nextReopenAfterClose(true, this._reopenAfterClose);
+        return true;
     }
 
     activateResult(result) {
@@ -462,6 +476,7 @@ class LauncherPopup extends St.BoxLayout {
     // closes the popup which removes the backdrop and focus handler then
     // removes us from the chrome layer and chains up to the parent destroy
     destroy() {
+        this._reopenAfterClose = false;
         this._clearIdle('_positionIdleId');
         this._clearIdle('_closeIdleId');
         this._unlistenSession();

@@ -28,3 +28,10 @@ export function shouldCloseOnSession(locked, greeter, limitsReached) {
 export function shouldCloseOnToggle(isOpen, visible) {
     return isOpen || visible;
 }
+
+// a second press while closeSoon is pending means reopen after teardown
+export function nextReopenAfterClose(closePending, reopenAfterClose) {
+    if (!closePending)
+        return false;
+    return !reopenAfterClose;
+}

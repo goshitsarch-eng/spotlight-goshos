@@ -10,8 +10,8 @@ import {runSearch, runEmptySuggestions} from './searchController.js';
 import {isActiveSearchQuery, planSearch, flagsFromSettings, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks} from './searchPlan.js';
 import {iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
-import {ensurePath} from './pathSearch.js';
-import {ensureCommand} from './commandSearch.js';
+import {ensurePath, invalidatePathLookup} from './pathSearch.js';
+import {ensureCommand, invalidateCommandLookup} from './commandSearch.js';
 import {ensureBookmarks} from './bookmarksSearch.js';
 import {paintSelectionIndex, resultSelectionKey} from './paintSelection.js';
 
@@ -84,6 +84,8 @@ export class ResultsRenderer {
     }
 
     _showEmptyState(keepSelection) {
+        invalidatePathLookup();
+        invalidateCommandLookup();
         this._generation += 1;
         const suggestions = runEmptySuggestions(this._settings);
         if (suggestions.length === 0) {
@@ -102,6 +104,10 @@ export class ResultsRenderer {
         }
         this._paint(runSearch(query, this._settings), query.trim(), keepSelection);
         const plan = planSearch(query, flagsFromSettings(this._settings));
+        if (!shouldRefreshPath(this._settings.get_boolean('enable-path-open'), plan))
+            invalidatePathLookup();
+        if (!shouldRefreshCommand(this._settings.get_boolean('enable-command-run'), plan))
+            invalidateCommandLookup();
         const gen = this._generation;
         const refresh = () => {
             if (gen !== this._generation)

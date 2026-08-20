@@ -59,7 +59,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 
 ### Search Providers
 
-Each search type lives in its own file and exports a function that accepts a query string and returns an array of result objects. Every result object must contain `type`, `title`, `icon`, and `activate` properties.
+Each search type lives in its own file and exports a function that accepts a query string and returns an array of result objects. Every result object must contain `type`, `title`, `icon`, `id`, and `activate` properties. The `id` keeps the selected row across an async repaint.
 
 - **`appSearch.js`** — GNOME-style application search via `Shell.AppSystem`.
 - **`appAction.js`** — New window and desktop-file action labels.
@@ -74,7 +74,7 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`timeMatch.js`** — Time and date query matching.
 - **`colorSearch.js`** — Hex / rgb / hsl / hwb / named color copy.
 - **`colorMatch.js`** — Hex, rgb, hsl, hwb, and CSS name normalization.
-- **`systemActionsSearch.js`** — System actions via `Shell.SystemActions`.
+- **`systemActionsSearch.js`** — System actions via `misc/systemActions.js` (`SystemActions.getDefault()`).
 - **`settingsSearch.js`** — GNOME Settings panel navigation.
 - **`webSearch.js`** — Web search fallback.
 - **`windowSearch.js`** — Open window switcher, including modal dialogs.
@@ -167,7 +167,7 @@ Everything created in `enable()` is destroyed in `disable()`. `disable()` invali
 
 1. Create a new file at the root level, for example `mySearch.js`.
 2. Export a function that accepts a query string and returns an array of result objects.
-3. Each result object must contain `type`, `title`, `icon`, and `activate` properties.
+3. Each result object must contain `type`, `title`, `icon`, `id`, and `activate` properties.
 4. Import the new provider in `searchController.js`.
 5. Add it to `runSearch()` in the correct priority order.
 6. Add the type string to `sectionTitles.js` if a custom section header is desired.
@@ -198,7 +198,7 @@ Manual testing on GNOME Shell 50 Wayland:
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home in the middle of a query — the caret should move to the start of the text, not the first result. Press Home again at the start — selection should jump to the first row. End at the end of the query should jump to the last row. Keypad arrows with Num Lock off should move the selection too.
-8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
+8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop. Press the shortcut a third time immediately — it must reopen after that close, not stay shut.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18) and without activating the window underneath. On a second monitor the click must still close it. A tap on a touchscreen should dismiss the same way.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must stay open and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
@@ -267,6 +267,7 @@ Manual testing on GNOME Shell 50 Wayland:
 74. Type `open wifi settings` or `open display preferences` — the matching Settings panel should appear. Type `open pictures dir` — Pictures should appear. Type `workspace two` or `workspace twenty` — a Switch to Workspace row should appear if that workspace exists. Type `twenty plus two`, `one hundred + 1`, or `one hundred and twenty` — calculator rows should appear. Type `twenty km to mi` or `a hundred km to mi` — a Units row should appear. On GNOME 50, when a screen-time limit is reached the launcher must refuse to open and an already-open popup must close. Press the toggle shortcut while the popup is open — it must close without crashing the shell.
 75. On a tablet that manages orientation, lock rotation then type `unlock` — the row should say Unlock Screen Rotation. Unlock it and type `rotation` — the row should say Lock Screen Rotation. The icon should follow the locked/unlocked state. Type `record` — Take a Screenshot should appear with the same icon Overview search uses.
 76. Type `open up firefox` or `fire up firefox` — the app should appear. Type `open source` — it must stay a search for those words, not `source`. Type `how many km in a mile` or `a cup to ml` — a Units row should appear. Type `two million + 1` — a calculator row should appear. Type `rgb 100% 0% 0%` — a Color row should copy `#ff0000`. Type `workspace 2` — the Switch to Workspace row must stay selected across a prefs repaint.
+77. Type an existing `~/` path, then `firefox`, then the same path after deleting that folder — the row must say Path not found, not reuse the earlier Open path row. With the command runner on, the same leave-and-return must recheck `! ./script`.
 
 ## Submitting Changes
 
