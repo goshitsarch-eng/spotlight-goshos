@@ -102,10 +102,14 @@ gosh-is-launcher@nin/
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes
+    searchPlan.js             provider plan from flags (pure)
     themes.js                 look catalog (pure data)
     webEngines.js             search engine catalog (pure data)
     urlMatch.js               url detection (pure)
     actionMatch.js            system action matching (pure)
+    wordMatch.js              gnome-style word prefix (pure)
+    settingsPanels.js         settings catalog (pure)
+    selectionMath.js          wrap and clamp selection (pure)
     keybinding.js             keybinding manager
     calculator.js             arithmetic parser
     stylesheet.css            all launcher looks

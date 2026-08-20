@@ -88,10 +88,6 @@ class LauncherPopup extends St.BoxLayout {
         this._settings.connectObject(
             'changed::launcher-theme', () => this._applyChrome(),
             'changed::popup-width', () => this.set_width(this._settings.get_int('popup-width')),
-            'changed::popup-position', () => {
-                if (this.visible)
-                    this._reposition();
-            },
             'changed::show-search-icon', () => {
                 this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
             },
@@ -148,6 +144,8 @@ class LauncherPopup extends St.BoxLayout {
         // _isOpen covers the idle gap before visible becomes true
         // without it a second shortcut press would leak a backdrop
         if (this._isOpen || this.visible)
+            return;
+        if (Main.sessionMode.isLocked || Main.sessionMode.isGreeter)
             return;
 
         this._isOpen = true;

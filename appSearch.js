@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
+import {wordPrefixMatch} from './wordMatch.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -47,7 +48,7 @@ export function searchApps(query, maxResults) {
 
         if (nameLower.startsWith(q)) {
             tier = 0;
-        } else if (_wordPrefixMatch(nameLower, q)) {
+        } else if (wordPrefixMatch(nameLower, q)) {
             tier = 1;
         } else if (nameLower.includes(q)) {
             tier = 2;
@@ -129,21 +130,3 @@ export function searchFrequentApps(maxResults) {
     }));
 }
 
-// checks if query matches the start of any word in the name
-// word boundaries are space hyphen underscore dot and start of string
-// this is what makes "chro" match "Google Chrome" via the second word
-function _wordPrefixMatch(nameLower, queryLower) {
-    const len = queryLower.length;
-    if (len === 0)
-        return false;
-
-    for (let i = 0; i < nameLower.length - len; i++) {
-        const c = nameLower[i];
-        if (c === ' ' || c === '-' || c === '_' || c === '.') {
-            if (nameLower.substring(i + 1, i + 1 + len) === queryLower)
-                return true;
-        }
-    }
-
-    return false;
-}

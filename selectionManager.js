@@ -1,6 +1,8 @@
 // gosh is launcher - tracks which result row is selected and keeps it visible
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import {nextSelectedIndex} from './selectionMath.js';
+
 // owns the results array and selected index so launcherPopup.js does not
 // need to touch selection state directly - it calls setResults() after a
 // search and moveSelection()/applySelection() in response to input
@@ -54,11 +56,10 @@ export class SelectionManager {
     moveSelection(delta, suppressHoverUntil) {
         if (this._results.length === 0)
             return;
-        let newIndex = this._selectedIndex + delta;
+        const newIndex = nextSelectedIndex(
+            this._selectedIndex, delta, this._results.length);
         if (newIndex < 0)
-            newIndex = this._results.length - 1;
-        if (newIndex >= this._results.length)
-            newIndex = 0;
+            return;
         // suppress hover selection briefly after keyboard navigation
         // prevents scroll-induced enter-events from overwriting the selection
         // the caller owns the actual suppression window, this just applies it

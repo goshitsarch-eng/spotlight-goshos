@@ -33,7 +33,9 @@ export class KeybindingManager {
         }
 
         const name = Meta.external_binding_name_for_action(action);
-        Main.wm.allowKeybinding(name, Shell.ActionMode.ALL);
+        // lock screen and greeter must not launch apps
+        Main.wm.allowKeybinding(
+            name, Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW);
         this._grabbers[action] = {name, accelerator, callback};
         return true;
     }

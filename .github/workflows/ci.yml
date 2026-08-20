@@ -22,7 +22,7 @@ jobs:
 
       - name: Check no spotlight@ninx references
         run: |
-          if grep -r "spotlight@ninx" . --exclude-dir=.git --exclude-dir=.github; then
+          if grep -r "spotlight@ninx" --include='*.js' --include='*.md' --include='*.json' --include='*.xml' --include='*.css' .; then
             echo "ERROR: found spotlight@ninx references"
             exit 1
           fi

@@ -81,8 +81,12 @@ Pure functions with no side effects:
 
 - **`calculator.js`** — Recursive-descent arithmetic parser.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
+- **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
 - **`actionMatch.js`** — System-action keyword matching.
+- **`wordMatch.js`** — GNOME-style word-prefix matching.
+- **`settingsPanels.js`** — Settings panel catalog.
+- **`selectionMath.js`** — Arrow wrap and page-key clamp.
 
 ### Preference Pages
 

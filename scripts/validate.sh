@@ -12,6 +12,23 @@ for f in *.js prefs/*.js tests/*.mjs; do
   node --check "$f"
 done
 
+if command -v gjs >/dev/null; then
+  echo "gjs module parse"
+  python3 - <<'PY'
+import json, pathlib, subprocess, sys
+files = list(pathlib.Path('.').glob('*.js')) + list(pathlib.Path('prefs').glob('*.js'))
+for path in files:
+    source = path.read_text()
+    script = f"Reflect.parse({json.dumps(source)}, {{target: 'module'}})"
+    result = subprocess.run(['gjs', '-c', script], capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f'GJS PARSE ERROR {path}')
+        print(result.stderr or result.stdout)
+        sys.exit(1)
+print(f'gjs parsed {len(files)} modules')
+PY
+fi
+
 echo "schema"
 glib-compile-schemas schemas/
 
