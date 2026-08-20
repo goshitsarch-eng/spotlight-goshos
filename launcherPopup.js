@@ -19,7 +19,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction} from './popupGate.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -56,6 +56,7 @@ class LauncherPopup extends St.BoxLayout {
         this._settings = extension._settings;
         this._isOpen = false;
         this._positionIdleId = 0;
+        this._openIdleId = 0;
         this._closeIdleId = 0;
         this._stageKeyId = 0;
         this._monitorsId = 0;
@@ -342,6 +343,41 @@ class LauncherPopup extends St.BoxLayout {
         this._resultsScroll.style = `max-height: ${placed.resultsMax}px;`;
     }
 
+    // accelerator-activated still runs inside clutter 18 key dispatch
+    toggleFromShortcut() {
+        const action = nextToggleAction(
+            this._isOpen,
+            this.visible,
+            Boolean(this._openIdleId),
+            Boolean(this._closeIdleId),
+        );
+        if (action === 'toggle-reopen')
+            this.armReopenAfterClose();
+        else if (action === 'cancel-open')
+            this.cancelPendingOpen();
+        else if (action === 'close')
+            this.closeSoon();
+        else
+            this.openSoon();
+    }
+
+    openSoon() {
+        if (this._openIdleId || this._isOpen || this.visible)
+            return;
+        this._openIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._openIdleId = 0;
+            this.open();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    cancelPendingOpen() {
+        if (!this._openIdleId)
+            return false;
+        this._clearIdle('_openIdleId');
+        return true;
+    }
+
     open() {
         if (!Main.layoutManager.primaryMonitor)
             return;
@@ -436,6 +472,7 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     close() {
+        this._clearIdle('_openIdleId');
         if (!this._isOpen && !this.visible)
             return;
 
@@ -448,6 +485,7 @@ class LauncherPopup extends St.BoxLayout {
         this._focusWatcher.stop();
         this._unlistenMonitors();
         this._clearIdle('_positionIdleId');
+        this._clearIdle('_openIdleId');
         this._clearIdle('_closeIdleId');
         this._renderer.destroy();
 
@@ -478,6 +516,7 @@ class LauncherPopup extends St.BoxLayout {
     destroy() {
         this._reopenAfterClose = false;
         this._clearIdle('_positionIdleId');
+        this._clearIdle('_openIdleId');
         this._clearIdle('_closeIdleId');
         this._unlistenSession();
         this._unlistenTimeLimits();

@@ -5,7 +5,6 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
-import {shouldCloseOnToggle} from './popupGate.js';
 import {shortcutRetryList, shortcutToPersist} from './shortcutAccel.js';
 import {resetParentalGiveUp} from './appReady.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
@@ -37,12 +36,7 @@ export default class GoshIsLauncherExtension extends Extension {
     }
 
     _togglePopup() {
-        if (this._popup.armReopenAfterClose())
-            return;
-        if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
-            this._popup.closeSoon();
-        else
-            this._popup.open();
+        this._popup.toggleFromShortcut();
     }
 
     _bindToggle(accelerator) {

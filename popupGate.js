@@ -35,3 +35,14 @@ export function nextReopenAfterClose(closePending, reopenAfterClose) {
         return false;
     return !reopenAfterClose;
 }
+
+// clutter 18 aborts if addchrome runs inside the accelerator callback
+export function nextToggleAction(isOpen, visible, openPending, closePending) {
+    if (closePending)
+        return 'toggle-reopen';
+    if (openPending)
+        return 'cancel-open';
+    if (isOpen || visible)
+        return 'close';
+    return 'open';
+}

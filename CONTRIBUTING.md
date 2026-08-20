@@ -109,7 +109,7 @@ Pure functions with no side effects:
 - **`keyAction.js`** — Key press to popup action.
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
-- **`popupGate.js`** — Whether a shortcut should open or close, and whether lock or greeter must close an open popup.
+- **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display would hide the list.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
@@ -198,7 +198,7 @@ Manual testing on GNOME Shell 50 Wayland:
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home in the middle of a query — the caret should move to the start of the text, not the first result. Press Home again at the start — selection should jump to the first row. End at the end of the query should jump to the last row. Keypad arrows with Num Lock off should move the selection too.
-8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop. Press the shortcut a third time immediately — it must reopen after that close, not stay shut.
+8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop. Press the shortcut a third time immediately — it must reopen after that close, not stay shut. Press the shortcut twice before the popup is created — the second press must cancel the pending open so Clutter 18 does not add chrome during the key grab.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18) and without activating the window underneath. On a second monitor the click must still close it. A tap on a touchscreen should dismiss the same way.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must stay open and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.

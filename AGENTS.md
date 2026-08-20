@@ -271,7 +271,7 @@ keyboard input is captured by calling grab_key_focus() on the search entry which
 
 close() must release that grab when the hidden entry still has stage focus call global.stage.set_key_focus(null) only if get_key_focus() is still inside the popup so alt-tab close does not steal the window the user just focused
 
-open() uses an _isOpen flag not just visible because the first frames after a shortcut press still have visible=false while the position idle runs a second press in that gap must close not leak another backdrop
+the toggle shortcut must not call open() from accelerator-activated clutter 18 aborts if addchrome runs inside that dispatch so toggleFromShortcut schedules openSoon and a second press before that idle cancels the pending open open() uses an _isOpen flag not just visible because the first frames after that idle still have visible=false while the position idle runs a second press in that later gap must close not leak another backdrop clearing the search entry must also paint the empty state on idle destroying result rows inside text-changed during a key press is the same abort
 
 ### object lifecycle
 

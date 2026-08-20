@@ -60,15 +60,13 @@ export class ResultsRenderer {
     onTextChanged(text) {
         this._lastQuery = text;
         this._clearSearchIdle();
-
-        if (text.trim().length === 0) {
-            this._showEmptyState(false);
-            return;
-        }
-
+        // empty paint used to run inside the key handler clutter 18 aborts
         this._searchIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._searchIdleId = 0;
-            this._runSearch(false);
+            if (this._lastQuery.trim().length === 0)
+                this._showEmptyState(false);
+            else
+                this._runSearch(false);
             return GLib.SOURCE_REMOVE;
         });
     }

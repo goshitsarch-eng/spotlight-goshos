@@ -208,7 +208,7 @@
     <key name="enable-time-date" type="b">
       <default>true</default>
       <summary>Enable time and date</summary>
-      <description>Show the local time or date when the query is time, what time is it, show me the time, tell me the time, date, today, today's date, tomorrow, or yesterday.</description>
+      <description>Show the local time or date when the query is time, what time is it, what's the day, tell me the day, date, today, today's date, tomorrow, or yesterday.</description>
     </key>
 
     <key name="enable-path-open" type="b">
