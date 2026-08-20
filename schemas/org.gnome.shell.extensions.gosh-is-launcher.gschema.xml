@@ -148,13 +148,13 @@
     <key name="enable-calculator" type="b">
       <default>true</default>
       <summary>Enable calculator</summary>
-      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, round, and 5!.</description>
+      <description>Evaluate arithmetic including 50%, sqrt, asin, log2, round, 5!, 2π, and 5².</description>
     </key>
 
     <key name="enable-unit-convert" type="b">
       <default>true</default>
       <summary>Enable unit conversion</summary>
-      <description>Convert length, mass, temperature, volume, data, duration, area, speed, and pressure such as 10 km to mi, 100 kph to mph, or 32 psi to bar.</description>
+      <description>Convert length, mass, temperature, volume, data, duration, area, speed, pressure, energy, power, and angle such as 10 km to mi, 200 kcal to kj, 1 hp to kw, or 180 deg to rad.</description>
     </key>
 
     <key name="enable-color-hex" type="b">
@@ -208,7 +208,7 @@
     <key name="enable-time-date" type="b">
       <default>true</default>
       <summary>Enable time and date</summary>
-      <description>Show the local time or date when the query is time, what time is it, date, now, today, tomorrow, or yesterday.</description>
+      <description>Show the local time or date when the query is time, what time is it, what time is it now, date, now, today, tomorrow, or yesterday.</description>
     </key>
 
     <key name="enable-path-open" type="b">

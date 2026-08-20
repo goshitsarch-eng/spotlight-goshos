@@ -1,4 +1,4 @@
-// gosh is launcher - length mass temp volume data duration area speed and pressure conversions
+// gosh is launcher - length mass temp volume data duration area speed pressure energy power and angle conversions
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 const ALIASES = {
@@ -56,6 +56,19 @@ const ALIASES = {
     atm: 'atm', atmosphere: 'atm', atmospheres: 'atm',
     psi: 'psi',
     mmhg: 'mmhg', torr: 'mmhg',
+    j: 'j', joule: 'j', joules: 'j',
+    kj: 'kj', kilojoule: 'kj', kilojoules: 'kj',
+    cal: 'cal',
+    kcal: 'kcal', kilocalorie: 'kcal', kilocalories: 'kcal', calorie: 'kcal', calories: 'kcal',
+    wh: 'wh', watthour: 'wh', watthours: 'wh',
+    kwh: 'kwh', kilowatthour: 'kwh', kilowatthours: 'kwh',
+    btu: 'btu',
+    w: 'w', watt: 'w', watts: 'w',
+    kw: 'kw', kilowatt: 'kw', kilowatts: 'kw',
+    hp: 'hp', horsepower: 'hp',
+    deg: 'deg', degree: 'deg', degrees: 'deg',
+    rad: 'rad', radian: 'rad', radians: 'rad',
+    gon: 'gon', grad: 'gon', grads: 'gon', gradians: 'gon',
 };
 
 const UNITS = {
@@ -116,6 +129,19 @@ const UNITS = {
     atm: {dim: 'pressure', toBase: 101325},
     psi: {dim: 'pressure', toBase: 6894.757293168361},
     mmhg: {dim: 'pressure', toBase: 133.32236842105263},
+    j: {dim: 'energy', toBase: 1},
+    kj: {dim: 'energy', toBase: 1000},
+    cal: {dim: 'energy', toBase: 4.184},
+    kcal: {dim: 'energy', toBase: 4184},
+    wh: {dim: 'energy', toBase: 3600},
+    kwh: {dim: 'energy', toBase: 3.6e6},
+    btu: {dim: 'energy', toBase: 1055.05585262},
+    w: {dim: 'power', toBase: 1},
+    kw: {dim: 'power', toBase: 1000},
+    hp: {dim: 'power', toBase: 745.6998715822702},
+    deg: {dim: 'angle', toBase: 1},
+    rad: {dim: 'angle', toBase: 180 / Math.PI},
+    gon: {dim: 'angle', toBase: 0.9},
 };
 
 const QUERY_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+\-]?\d+)?)\s*([a-z][a-z0-9]*)\s+(?:to|in)\s+([a-z][a-z0-9]*)$/i;
@@ -129,13 +155,15 @@ export function resolveUnit(name) {
 
 export function normalizeUnitQuery(query) {
     let text = query
-        .replace(/°/g, ' ')
+        // 180° to rad is an angle 32°f keeps the temperature letter
+        .replace(/(\d)\s*°\s*(to|in)\b/gi, '$1 deg $2')
         .replace(/²/g, '2')
         .replace(/³/g, '3')
         .replace(/km\s*\/\s*h(?:r)?/gi, 'kph')
         .replace(/mi\s*\/\s*h/gi, 'mph')
         .replace(/(^|[^a-z])m\s*\/\s*s\b/gi, '$1mps')
-        .replace(/\s*degrees?\s*/gi, ' ');
+        .replace(/\s*degrees?\s+(f|c|k|fahrenheit|celsius|kelvin|centigrade)\b/gi, ' $1')
+        .replace(/°/g, ' ');
     // pasted values often use thousands commas the way the calculator does
     let next = text.replace(/(\d),(\d)/g, '$1$2');
     while (next !== text) {

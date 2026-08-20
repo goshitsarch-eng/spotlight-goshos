@@ -64,7 +64,7 @@ Each search type lives in its own file and exports a function that accepts a que
 - **`appSearch.js`** — GNOME-style application search via `Shell.AppSystem`.
 - **`appAction.js`** — New window and desktop-file action labels.
 - **`calculatorSearch.js`** — Arithmetic evaluation and clipboard copy.
-- **`unitSearch.js`** — Length, mass, temperature, volume, and data conversion.
+- **`unitSearch.js`** — Length, mass, temperature, volume, data, energy, power, and angle conversion.
 - **`unitMatch.js`** — Unit aliases and conversion math.
 - **`placesSearch.js`** — XDG user folders.
 - **`placeMatch.js`** — Folder titles and keywords.
@@ -248,6 +248,7 @@ Manual testing on GNOME Shell 50 Wayland:
 57. Type `force quit` plus an open window title — the row should say Kill … and Enter should force-quit. A GTK bookmark line that is `~/Documents` should open that folder. A `javascript:` bookmark must not appear.
 58. On a machine whose only terminal is Kitty, Ghostty, Alacritty, or Foot, `~/` plus a folder should still offer Open in Terminal after the exists check. `xdg-terminal-exec` must still win when it is installed.
 59. Type `32 psi to bar` — a pressure row should appear. Type `1 atm to kpa` — the title should be about `101 kpa`. With the Pop!_OS look and number hints on, a long list should keep 1-9 visible beside the scrollbar.
+60. Type `200 kcal to kj` or `200 calories to kj` — the title should be `836.8 kj`. Type `1 kwh to kj` — the title should be `3600 kj`. Type `1 hp to kw` — a power row should appear. Type `180 deg to rad` or `180° to rad` — an angle row should appear. Type `2π` or `5²` or `sin(90°)` — calculator rows should appear. Type `what time is it now` — a Clock row should appear.
 
 ## Submitting Changes
 

@@ -5,7 +5,9 @@ export function timeQueryKind(query) {
     const q = query.trim().toLowerCase().replace(/['’]/g, '');
     if (q === 'time' || q === 'now' || q === 'clock' ||
         q === 'what time' || q === 'what time is it' || q === 'current time' ||
-        q === 'whats the time' || q === 'what is the time')
+        q === 'whats the time' || q === 'what is the time' ||
+        q === 'what time is it now' || q === 'whats the time now' ||
+        q === 'what is the time now')
         return 'time';
     if (q === 'date' || q === 'today' || q === 'calendar' ||
         q === 'what date' || q === 'what date is it' || q === 'current date' ||

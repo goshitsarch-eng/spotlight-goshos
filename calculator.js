@@ -36,6 +36,11 @@ const FUNCS = {
 export function normalizeMath(input) {
     let text = input
         .replace(/[\r\n]+/g, '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/[πΠ𝜋]/g, 'pi')
+        .replace(/²/g, '^2')
+        .replace(/³/g, '^3')
+        .replace(/°/g, '')
         .replace(/×/g, '*')
         .replace(/÷/g, '/')
         .replace(/[−–—]/g, '-')
