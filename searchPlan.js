@@ -22,7 +22,7 @@ const STRIP_VERB_MODES = {
     files: true,
 };
 
-const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you)\s+/i;
+const POLITE_PREFIX = /^(please|can\s+you|could\s+you|would\s+you|will\s+you|tell\s+me)\s+/i;
 const LAUNCH_VERB = /^(open|launch|run|start|show|find|search(?:\s+for)?|look\s+(?:up|for)|switch\s+to|go\s+to|focus|convert|calculate|compute|what(?:['’]s|s|\s+is)|how\s+much\s+is)\s+(.+)$/i;
 const LEADING_ARTICLE = /^(?:my|the|an?|me)\s+(.+)$/i;
 
@@ -36,13 +36,23 @@ function stripPolitePrefixes(query) {
     return text;
 }
 
-function stripLeadingArticle(query) {
+function stripOneArticle(query) {
     const match = LEADING_ARTICLE.exec(query);
     if (!match)
         return query;
 
     const rest = match[1].trim();
     return rest.length > 0 ? rest : query;
+}
+
+function stripLeadingArticles(query) {
+    let text = query;
+    let next = stripOneArticle(text);
+    while (next !== text) {
+        text = next;
+        next = stripOneArticle(text);
+    }
+    return text;
 }
 
 // open firefox and can you open firefox are how people talk to a launcher
@@ -55,7 +65,7 @@ export function stripLeadingVerb(query) {
             text = rest;
     }
 
-    return stripLeadingArticle(text);
+    return stripLeadingArticles(text);
 }
 
 export function flagsFromSettings(settings) {

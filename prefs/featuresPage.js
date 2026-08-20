@@ -43,7 +43,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-bookmarks',
         'Bookmarks', 'Folders saved in the GTK 3 and GTK 4 bookmark files');
     addSwitch(providers, settings, 'enable-time-date',
-        'Time and date', 'Type time, now, what time is it, what time is it now, date, today, tomorrow, or yesterday to copy the local clock');
+        'Time and date', 'Type time, now, what time is it, show me the time, tell me the time, date, today, today\'s date, tomorrow, or yesterday to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',
         'Command runner', 'Run a PATH or file command with the ! prefix, including ~/.local/bin and home-relative names such as scripts/deploy. This is not a shell so pipes and redirection stay literal arguments');
 

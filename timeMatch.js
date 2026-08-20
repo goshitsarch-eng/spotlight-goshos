@@ -11,7 +11,8 @@ export function timeQueryKind(query) {
         return 'time';
     if (q === 'date' || q === 'today' || q === 'calendar' ||
         q === 'what date' || q === 'what date is it' || q === 'current date' ||
-        q === 'whats the date' || q === 'what is the date')
+        q === 'whats the date' || q === 'what is the date' ||
+        q === 'todays date' || q === 'date today' || q === 'todays')
         return 'date';
     if (q === 'tomorrow')
         return 'tomorrow';
