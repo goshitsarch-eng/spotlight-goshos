@@ -241,6 +241,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - A shortcut that fails to grab keeps the previous working grab instead of leaving the launcher mute. Preferences then show that working shortcut. Fallbacks such as Ctrl+Space are only tried when nothing is grabbed yet.
 - The shortcut grab uses `Meta.KeyBindingFlags.IGNORE_AUTOREPEAT` so a held key cannot cancel a pending open or flip reopen-after-close.
 - Disable and shortcut swaps release a grab with `allowKeybinding(NONE)` then `ungrab_accelerator`. GNOME 50 `removeKeybinding` is the gsettings path and does not clear the allow map for `grab_accelerator` names; a throw there would also skip ungrab and leave the old key live.
+- `disable()` still tears down whatever `enable()` finished. GNOME calls disable after a failed enable; a missing popup or keybinding manager must not skip the other. The accelerator-activated handler disconnect is isolated so a vanishing display at logout cannot skip popup destroy.
 - Async recent-file, path, bookmark, and command refreshes keep the selected row instead of jumping to the first result. Those Gio finish callbacks schedule one idle paint so Clutter 18 does not abort if they land during a key press.
 - Hover selection is ignored while result rows are being rebuilt. `destroy_all_children()` emits enter on the next row, and restyling that dying actor aborts Clutter 18.
 - Calculator and web prefix queries do not refresh `recently-used.xbel`.

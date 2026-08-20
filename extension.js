@@ -64,10 +64,14 @@ export default class GoshIsLauncherExtension extends Extension {
     }
 
     disable() {
-        this._settings.disconnectObject(this);
+        // gnome still calls disable when enable throws midway
+        if (this._settings)
+            this._settings.disconnectObject(this);
 
-        this._keybindingManager.disable();
-        this._keybindingManager = null;
+        if (this._keybindingManager) {
+            this._keybindingManager.disable();
+            this._keybindingManager = null;
+        }
 
         // bump load ids before destroy so in-flight gio cannot repaint
         invalidateRecentFiles();
@@ -75,8 +79,10 @@ export default class GoshIsLauncherExtension extends Extension {
         invalidateCommandLookup();
         invalidateBookmarks();
 
-        this._popup.destroy();
-        this._popup = null;
+        if (this._popup) {
+            this._popup.destroy();
+            this._popup = null;
+        }
 
         resetParentalGiveUp();
         this._settings = null;

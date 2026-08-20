@@ -21,7 +21,11 @@ export class KeybindingManager {
     disable() {
         this.unlisten();
         if (this._eventId) {
-            global.display.disconnect(this._eventId);
+            try {
+                global.display.disconnect(this._eventId);
+            } catch {
+                // display can vanish at session teardown
+            }
             this._eventId = 0;
         }
     }
