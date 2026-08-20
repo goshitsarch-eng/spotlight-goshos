@@ -53,6 +53,16 @@
       <description>Maximum results displayed per category.</description>
     </key>
 
+    <key name="result-order" type="s">
+      <choices>
+        <choice value="default"/>
+        <choice value="windows-first"/>
+      </choices>
+      <default>'default'</default>
+      <summary>Result order</summary>
+      <description>default keeps apps before windows. windows-first matches the Pop!_OS launcher.</description>
+    </key>
+
     <key name="row-density" type="s">
       <choices>
         <choice value="comfortable"/>

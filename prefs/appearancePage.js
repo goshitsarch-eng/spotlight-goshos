@@ -4,7 +4,7 @@
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-import {THEMES, getTheme} from '../themes.js';
+import {THEMES, getTheme, applyLookSettings} from '../themes.js';
 
 const POSITIONS = [
     {id: 'center', label: 'Center'},
@@ -14,6 +14,11 @@ const POSITIONS = [
 const DENSITIES = [
     {id: 'comfortable', label: 'Comfortable'},
     {id: 'compact', label: 'Compact'},
+];
+
+const ORDERS = [
+    {id: 'default', label: 'Apps first'},
+    {id: 'windows-first', label: 'Windows first'},
 ];
 
 function bindCombo(row, settings, key, items) {
@@ -29,10 +34,16 @@ function bindCombo(row, settings, key, items) {
     });
 }
 
+function selectId(row, items, id) {
+    const index = items.findIndex(item => item.id === id);
+    if (index >= 0)
+        row.selected = index;
+}
+
 export function buildAppearancePage(settings) {
     const lookGroup = new Adw.PreferencesGroup({
         title: 'Look',
-        description: 'Pick a launcher style. Omarchy follows Walker on Omarchy Linux. Pop!_OS follows the COSMIC launcher.',
+        description: 'A look sets colors, position, density, headers, and number hints. You can still change those after.',
     });
 
     const themeModel = new Gtk.StringList();
@@ -54,20 +65,6 @@ export function buildAppearancePage(settings) {
         model: positionModel,
     });
 
-    bindCombo(themeRow, settings, 'launcher-theme', THEMES);
-    bindCombo(positionRow, settings, 'popup-position', POSITIONS);
-    themeRow.connect('notify::selected', () => {
-        const theme = THEMES[themeRow.selected];
-        if (!theme)
-            return;
-        themeRow.subtitle = theme.description;
-        const posIndex = POSITIONS.findIndex(p => p.id === theme.defaultPosition);
-        if (posIndex >= 0)
-            positionRow.selected = posIndex;
-    });
-    lookGroup.add(themeRow);
-    lookGroup.add(positionRow);
-
     const densityModel = new Gtk.StringList();
     for (const density of DENSITIES)
         densityModel.append(density.label);
@@ -75,8 +72,24 @@ export function buildAppearancePage(settings) {
         title: 'Row density',
         model: densityModel,
     });
+
+    const orderModel = new Gtk.StringList();
+    for (const order of ORDERS)
+        orderModel.append(order.label);
+    const orderRow = new Adw.ComboRow({
+        title: 'Result order',
+        subtitle: 'Windows first matches the Pop!_OS launcher',
+        model: orderModel,
+    });
+
+    bindCombo(themeRow, settings, 'launcher-theme', THEMES);
+    bindCombo(positionRow, settings, 'popup-position', POSITIONS);
     bindCombo(densityRow, settings, 'row-density', DENSITIES);
+    bindCombo(orderRow, settings, 'result-order', ORDERS);
+    lookGroup.add(themeRow);
+    lookGroup.add(positionRow);
     lookGroup.add(densityRow);
+    lookGroup.add(orderRow);
 
     const sizeGroup = new Adw.PreferencesGroup({
         title: 'Size',
@@ -159,6 +172,19 @@ export function buildAppearancePage(settings) {
     });
     settings.bind('show-result-numbers', numbersRow, 'active', Gio.SettingsBindFlags.DEFAULT);
     chromeGroup.add(numbersRow);
+
+    themeRow.connect('notify::selected', () => {
+        const theme = THEMES[themeRow.selected];
+        if (!theme)
+            return;
+        themeRow.subtitle = theme.description;
+        applyLookSettings(settings, theme);
+        selectId(positionRow, POSITIONS, theme.look.position);
+        selectId(densityRow, DENSITIES, theme.look.density);
+        selectId(orderRow, ORDERS, theme.look.resultOrder);
+        headersRow.active = theme.look.showHeaders;
+        numbersRow.active = theme.look.showNumbers;
+    });
 
     return [lookGroup, sizeGroup, chromeGroup];
 }

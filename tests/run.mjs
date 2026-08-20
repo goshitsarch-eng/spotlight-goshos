@@ -1,7 +1,7 @@
 import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl} from '../urlMatch.js';
-import {THEMES, getTheme, getThemeIds} from '../themes.js';
+import {THEMES, getTheme, getThemeIds, applyLookSettings} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
@@ -150,6 +150,37 @@ const appsOnly = {
 };
 assertEq(planSearch('x', appsOnly).providers.join(','), 'apps', 'apps only');
 assert(!planSearch('x', appsOnly).webFallback, 'web off');
+const windowsFirst = Object.assign({}, allOn, {resultOrder: 'windows-first'});
+assertEq(planSearch('term', windowsFirst).providers.indexOf('windows') <
+    planSearch('term', windowsFirst).providers.indexOf('apps'), true, 'windows before apps');
+assertEq(planSearch('term', allOn).providers.indexOf('apps') <
+    planSearch('term', allOn).providers.indexOf('windows'), true, 'apps before windows');
+
+const stored = {};
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('popos'));
+assertEq(stored['popup-position'], 'top', 'popos sits at top');
+assertEq(stored['show-result-numbers'], true, 'popos has number hints');
+assertEq(stored['result-order'], 'windows-first', 'popos windows first');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
+}, getTheme('krunner'));
+assertEq(stored['row-density'], 'compact', 'krunner is compact');
+assertEq(stored['popup-position'], 'top', 'krunner sits at top');
+
+for (const theme of THEMES)
+    assert(theme.look && theme.look.position && theme.look.resultOrder, `look profile ${theme.id}`);
 
 // every get_* key in js exists in the schema
 const settingKeys = new Set();

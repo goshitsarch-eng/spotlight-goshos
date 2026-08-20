@@ -20,12 +20,12 @@ The popup can look like several real launchers. Pick a look in preferences:
 |---|---|---|
 | **Spotlight** | macOS Spotlight | Default. Separate pill and results card, `#1c1c1e` dark, very rounded. |
 | **Omarchy** | [Walker on Omarchy Linux](https://github.com/basecamp/omarchy) | Single Tokyo Night panel (`#1a1b26`, `#7aa2f7` accent). |
-| **Pop!_OS** | [COSMIC Launcher](https://system76.com/support/pop-basics/) | Single card, cooler gray, roomy rows, sits near the top. |
+| **Pop!_OS** | [COSMIC Launcher](https://system76.com/support/pop-basics/) | Single card, cooler gray, roomy rows, top-anchored, windows first, Alt+1–9 hints. |
 | **Ulauncher** | [Ulauncher](https://ulauncher.io) | Warm dark panel, larger type, orange accent. |
 | **KRunner** | KDE Plasma KRunner | Compact Breeze bar with a thin blue edge, top-anchored. |
 | **GNOME** | GNOME overview / Adwaita | Native-feeling card with the GNOME blue accent. |
 
-Looks are CSS themes on one popup. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used.
+Picking a look applies its colors and the matching chrome (position, density, headers, number hints, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used.
 
 ## Search Priority
 
@@ -107,6 +107,7 @@ Configurable options:
 - Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME)
 - Position (center or top)
 - Row density
+- Result order (apps first, or windows first like Pop!_OS)
 - Popup width (400–1200 px, default 600)
 - Results max height (160–800 px, default 400)
 - Maximum results per category (1–20, default 6)

@@ -141,6 +141,8 @@ results are combined in this order urls first then apps then calculator then win
 
 the priority is set in searchController.js do not change it without reason
 
+popos look uses windows-first result order so open windows sit above apps the way the cosmic launcher does other looks keep apps first
+
 prefix modes when enabled jump to a single provider
 
 - `=` calculator

@@ -41,6 +41,8 @@ export function searchRecentFiles(query, maxResults) {
         const name = _basename(uri);
         if (q.length > 0 && !name.toLowerCase().includes(q))
             continue;
+        if (!Gio.File.new_for_uri(uri).query_exists(null))
+            continue;
 
         seen.add(uri);
         results.push({

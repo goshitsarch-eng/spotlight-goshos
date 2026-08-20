@@ -12,7 +12,8 @@ const PREFIX_TO_FLAG = {
     command: 'command',
 };
 
-const ALL_ORDER = ['url', 'apps', 'calculator', 'windows', 'system', 'settings', 'files'];
+const DEFAULT_ORDER = ['url', 'apps', 'calculator', 'windows', 'system', 'settings', 'files'];
+const WINDOWS_FIRST_ORDER = ['url', 'windows', 'apps', 'calculator', 'system', 'settings', 'files'];
 
 export function flagsFromSettings(settings) {
     return {
@@ -26,6 +27,7 @@ export function flagsFromSettings(settings) {
         files: settings.get_boolean('enable-recent-files'),
         command: settings.get_boolean('enable-command-run'),
         web: settings.get_boolean('show-web-search'),
+        resultOrder: settings.get_string('result-order'),
     };
 }
 
@@ -44,7 +46,10 @@ export function planSearch(text, flags) {
         };
     }
 
-    const providers = ALL_ORDER.filter(name => flags[name]);
+    const order = flags.resultOrder === 'windows-first'
+        ? WINDOWS_FIRST_ORDER
+        : DEFAULT_ORDER;
+    const providers = order.filter(name => flags[name]);
     return {
         mode: 'all',
         query: parsed.query,
