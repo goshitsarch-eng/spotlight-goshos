@@ -317,9 +317,9 @@ Manual testing on GNOME Shell 50 Wayland:
 114. If opening fails after the unredirect hold or chrome add (for example the primary monitor vanishes mid-open), the next shortcut press must open the launcher. It must not stay stuck treating the popup as already open, and it must not leave a leftover unredirect hold.
 115. On a 200% scale session, a 600px width must look like 600 CSS pixels (not half-width). Results max height 400 must stay inside the work area — St scales stylesheet `px` but `set_width` is stage pixels. Changing scale while the popup is open must refit.
 116. With an IME, type until the candidate popup appears — the lookup must stay above the launcher after GNOME 50 raises it above `keyboardBox`. Enter, arrows, and number keys must still stay with IBus. Clicking a candidate must not close the launcher.
-118. Keep typing or page the IME lookup after it is already visible — later pages must stay above the launcher. GNOME 50 restacks the already-visible popup above `keyboardBox` on every `update-lookup-table`.
 117. Open preferences, change the look or shortcut, close the window, open preferences again — combos and the shortcut label must still sync once, not stack leftover `Gio.Settings` handlers from the last window.
 118. Keep typing or page the IME lookup after it is already visible — later pages must stay above the launcher. GNOME 50 restacks the already-visible popup above `keyboardBox` on every `update-lookup-table`.
+119. Switch to Rofi or Tofi — the search icon, result icons, and descriptions must hide. Switch to Pop!_OS — those stay on, windows come first, and number hints appear. A custom search-icon toggle after that must survive until the look changes again.
 
 ## Submitting Changes
 

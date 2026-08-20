@@ -54,7 +54,6 @@ class LauncherPopup extends St.BoxLayout {
             reactive: true,
             can_focus: popupChromeShouldFocus(),
             visible: false,
-            width: extension._settings.get_int('popup-width'),
         });
         // orientation set after init for gnome 45/46 compatibility
         // the Clutter.Orientation enum property was added in gnome 47
@@ -94,6 +93,8 @@ class LauncherPopup extends St.BoxLayout {
         this._listenTimeLimits();
         this._listenParental();
         this._listenScale();
+        // constructor width is stage pixels css 600 would be half-size on hidpi
+        this.set_width(this._fittedWidth());
 
         const {entryBox, entry, searchIcon} = buildSearchEntry(this._settings);
         this._entryBox = entryBox;

@@ -448,7 +448,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 
 ## adding a new look
 
-1. add an entry to THEMES in themes.js including a look profile with iconSize
+1. add an entry to THEMES in themes.js including a look profile with iconSize showSearchIcon showResultIcons and showDescriptions
 2. add a choice to the launcher-theme key in the schema
 3. add `.gosh-theme-<id>` rules in stylesheet.css
 4. keep the look as css on the existing widgets do not fork the popup class

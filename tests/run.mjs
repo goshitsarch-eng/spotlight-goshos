@@ -1330,6 +1330,9 @@ applyLookSettings({
 assertEq(stored['popup-position'], 'top', 'popos sits at top');
 assertEq(stored['show-result-numbers'], true, 'popos has number hints');
 assertEq(stored['result-order'], 'windows-first', 'popos windows first');
+assertEq(stored['show-search-icon'], true, 'popos keeps the search icon');
+assertEq(stored['show-result-icons'], true, 'popos keeps result icons');
+assertEq(stored['show-descriptions'], true, 'popos keeps descriptions');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
@@ -1356,6 +1359,9 @@ applyLookSettings({
 }, getTheme('rofi'));
 assertEq(stored['row-density'], 'compact', 'rofi is compact');
 assertEq(stored['show-section-headers'], false, 'rofi hides headers');
+assertEq(stored['show-search-icon'], false, 'rofi hides the search icon');
+assertEq(stored['show-result-icons'], false, 'rofi hides result icons');
+assertEq(stored['show-descriptions'], false, 'rofi hides descriptions');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
@@ -1434,6 +1440,8 @@ applyLookSettings({
 assertEq(stored['row-density'], 'compact', 'tofi is compact');
 assertEq(stored['popup-position'], 'top', 'tofi sits at top');
 assertEq(stored['show-section-headers'], false, 'tofi hides headers');
+assertEq(stored['show-search-icon'], false, 'tofi hides the search icon');
+assertEq(stored['show-result-icons'], false, 'tofi hides result icons');
 applyLookSettings({
     set_string(key, value) {
         stored[key] = value;
@@ -1477,8 +1485,13 @@ assertEq(iconSizeForLook(getTheme('synapse').look, 'comfortable') >
 assertEq(iconSizeForLook(getTheme('raycast').look, 'comfortable') >
     iconSizeForLook(getTheme('albert').look, 'comfortable'), true, 'raycast icons larger than albert');
 
-for (const theme of THEMES)
-    assert(theme.look && theme.look.position && theme.look.resultOrder && theme.look.iconSize, `look profile ${theme.id}`);
+for (const theme of THEMES) {
+    const look = theme.look;
+    assert(look && look.position && look.resultOrder && look.iconSize, `look profile ${theme.id}`);
+    assert(typeof look.showSearchIcon === 'boolean', `look ${theme.id} sets search icon`);
+    assert(typeof look.showResultIcons === 'boolean', `look ${theme.id} sets result icons`);
+    assert(typeof look.showDescriptions === 'boolean', `look ${theme.id} sets descriptions`);
+}
 
 assert(iconSizeForLook(getTheme('popos').look, 'comfortable') > iconSizeForLook(getTheme('krunner').look, 'comfortable'), 'popos icons larger than krunner');
 assert(iconSizeForLook(getTheme('popos').look, 'compact') > iconSizeForLook(getTheme('krunner').look, 'compact'), 'compact still keeps look icon scale');
