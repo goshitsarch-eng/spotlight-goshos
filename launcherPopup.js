@@ -27,7 +27,7 @@ import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
 import {themeScale, stagePx} from './uiScale.js';
-import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, uiGroupChildren} from './popupChrome.js';
+import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
@@ -348,7 +348,11 @@ class LauncherPopup extends St.BoxLayout {
         if (!shouldWatchInputChrome(actor, this._oskPopovers))
             return;
         try {
-            actor.connectObject('notify::visible', () => this._onKeyboardChanged(), this);
+            actor.connectObject(
+                'notify::visible', () => this._onKeyboardChanged(),
+                'notify::allocation', () => this._onInputChromeAllocation(actor),
+                this,
+            );
             this._oskPopovers.push(actor);
         } catch (e) {
             // boxpointer can vanish while the osk is rebuilding
@@ -411,6 +415,13 @@ class LauncherPopup extends St.BoxLayout {
             return;
         this._raiseOnScreenKeyboard();
         this._scheduleLayout();
+    }
+
+    // already-visible lookups restack above keyboardbox on every page
+    _onInputChromeAllocation(actor) {
+        if (!shouldRaiseOnInputChromeAllocation(this._isOpen, Boolean(actor && actor.visible)))
+            return;
+        this._raiseOnScreenKeyboardSoon();
     }
 
     _unredirectApi() {

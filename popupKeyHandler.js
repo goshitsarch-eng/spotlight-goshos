@@ -95,8 +95,11 @@ export class PopupKeyHandler {
         let preedit = '';
         if (typeof clutterText.get_preedit_string === 'function')
             preedit = readPreedit(clutterText.get_preedit_string());
-        if (shouldPropagateForIme(preedit, imeCandidateVisible(Main.layoutManager.uiGroup)))
+        if (shouldPropagateForIme(preedit, imeCandidateVisible(Main.layoutManager.uiGroup))) {
+            // capture runs before ibus restacks the lookup above keyboardbox
+            this._popup._raiseOnScreenKeyboardSoon();
             return Clutter.EVENT_PROPAGATE;
+        }
 
         const key = event.get_key_symbol();
         const state = event.get_state();

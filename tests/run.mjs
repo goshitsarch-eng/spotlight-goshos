@@ -7,7 +7,7 @@ import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsRe
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {themeScale, stagePx, cssPx} from '../uiScale.js';
-import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
+import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
@@ -448,6 +448,9 @@ assertEq(imeRaise.join(','), 'kb>popup,accent>kb,ime>accent', 'candidates sit ab
 assert(shouldScheduleInputChromeRaise(false, true), 'open popup schedules a raise after the sibling move');
 assert(!shouldScheduleInputChromeRaise(true, true), 'a pending raise idle is not stacked');
 assert(!shouldScheduleInputChromeRaise(false, false), 'closed popup does not raise on idle');
+assert(shouldRaiseOnInputChromeAllocation(true, true), 'an already-visible lookup restack still raises');
+assert(!shouldRaiseOnInputChromeAllocation(true, false), 'hidden input chrome allocation is ignored');
+assert(!shouldRaiseOnInputChromeAllocation(false, true), 'closed popup ignores lookup allocation');
 const imeLabel = {style_class: 'candidate-label', get_parent: () => imeCandidate};
 assert(actorOrAncestorHasStyleClass(imeLabel, IME_CANDIDATE_STYLE), 'candidate label walks to the boxpointer');
 assertEq(unredirectApi(true, true), 'compositor', 'gnome 48-50 use compositor unredirect');
