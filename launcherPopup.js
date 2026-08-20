@@ -31,7 +31,7 @@ import {themeScaleFromContext, stagePx, nextScaleListenAction} from './uiScale.j
 import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
-import {accentNickFromSettings, accentStyleClass, schemaHasAccentKey} from './accentColor.js';
+import {accentNickFromSettings, accentStyleClass, schemaHasAccentKey, desktopInterfaceSchema, nextAccentListenAction} from './accentColor.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added with addtopchrome so it floats above always-on-top windows
@@ -212,11 +212,13 @@ class LauncherPopup extends St.BoxLayout {
         return accentStyleClass(themeId, accentNickFromSettings(hasKey, value));
     }
 
-    // accent-color is an enum from gnome 47 missing on 45/46
+    // constructing gio.settings by schema_id throws if the schema is gone
+    // after session listeners are already up and enable never assigns the popup
     _listenAccent() {
-        this._interfaceSettings = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
-        if (!schemaHasAccentKey(this._interfaceSettings.settings_schema))
+        const schema = desktopInterfaceSchema(Gio.SettingsSchemaSource.get_default());
+        if (nextAccentListenAction(schema) !== 'listen')
             return;
+        this._interfaceSettings = new Gio.Settings({settings_schema: schema});
         this._interfaceSettings.connectObject(
             'changed::accent-color',
             () => this._onChromeChanged(),

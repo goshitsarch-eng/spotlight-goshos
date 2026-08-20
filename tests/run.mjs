@@ -11,7 +11,7 @@ import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAnce
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
 import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings} from '../themes.js';
-import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey} from '../accentColor.js';
+import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey, desktopInterfaceSchema, nextAccentListenAction} from '../accentColor.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
@@ -1612,6 +1612,16 @@ assertEq(schemaHasAccentKey({has_key: key => key === 'accent-color'}), true, 'sc
 assertEq(schemaHasAccentKey({has_key: () => false}), false, 'schema without the key');
 assertEq(schemaHasAccentKey(null), false, 'missing schema');
 assertEq(schemaHasAccentKey({}), false, 'schema without has_key');
+assertEq(desktopInterfaceSchema(null), null, 'missing schema source');
+assertEq(desktopInterfaceSchema({}), null, 'source without lookup');
+assertEq(desktopInterfaceSchema({
+    lookup(id, recursive) {
+        return id === 'org.gnome.desktop.interface' && recursive ? {id} : null;
+    },
+}).id, 'org.gnome.desktop.interface', 'looks up the desktop schema');
+assertEq(nextAccentListenAction(null), 'skip', 'missing desktop schema skips accent');
+assertEq(nextAccentListenAction({has_key: () => false}), 'skip', '45 schema skips accent');
+assertEq(nextAccentListenAction({has_key: key => key === 'accent-color'}), 'listen', '47 schema listens');
 let prefsDisconnected = 0;
 let prefsDestroy = null;
 const prefsSettings = {

@@ -466,7 +466,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
 8. changed::launcher-theme must not advance lastThemeId the combo writes that key before notify::selected so lastThemeId has to stay on the previous look or picking popos from prefs never writes top windows-first chrome when the extension is disabled
 9. syncLookSettings on popup construct applies a look written while disabled applied-look tracks the last written profile first enable only stamps that key so a custom icon size is not reset
-10. gnome and light looks follow org.gnome.desktop.interface accent-color on gnome 47+ feature-detect has_key and read get_enum blue stays the stylesheet default so 45/46 need no class do not create gio.settings at module scope
+10. gnome and light looks follow org.gnome.desktop.interface accent-color on gnome 47+ look up the schema and feature-detect has_key before constructing gio.settings a missing schema_id throw after session listeners are up leaks those hosts and enable never assigns the popup blue stays the stylesheet default so 45/46 construct nothing do not create gio.settings at module scope
 
 the applied-look key is a plain string not choices so it can be empty before the first stamp
 

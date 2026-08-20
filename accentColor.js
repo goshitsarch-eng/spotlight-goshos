@@ -57,3 +57,16 @@ export function schemaHasAccentKey(schema) {
         return false;
     return schema.has_key('accent-color');
 }
+
+// get_default can be null and 45/46 have the schema without the key
+export function desktopInterfaceSchema(source) {
+    if (!source || typeof source.lookup !== 'function')
+        return null;
+    return source.lookup('org.gnome.desktop.interface', true);
+}
+
+export function nextAccentListenAction(schema) {
+    if (!schemaHasAccentKey(schema))
+        return 'skip';
+    return 'listen';
+}
