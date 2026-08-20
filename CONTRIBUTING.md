@@ -263,6 +263,7 @@ Manual testing on GNOME Shell 50 Wayland:
 72. Type `find windows firefox` or `search settings wifi` — the app or Wi-Fi panel should appear. Type `open the pictures folder` — Pictures should appear. Type `two plus two` or `2 to the 8th` — calculator rows should appear. Type `tell me what time it is` — a Clock row should appear. Type `how many miles are there in 10 km` — a Units row should appear. Type `close the` plus an open window title plus `application` — a Close row should appear.
 73. Type `chrome browser` or `firefox browser` — the matching browser should appear. Type `ten km to mi` or `how many miles in ten km` — a Units row should appear. Type `2 to the eighth` — a calculator row should appear. Type `lock now` — Lock Screen should appear.
 74. Type `open wifi settings` or `open display preferences` — the matching Settings panel should appear. Type `open pictures dir` — Pictures should appear. Type `workspace two` — a Switch to Workspace 2 row should appear if that workspace exists. On GNOME 50, when a screen-time limit is reached the launcher must refuse to open and an already-open popup must close. Press the toggle shortcut while the popup is open — it must close without crashing the shell.
+75. On a tablet that manages orientation, lock rotation then type `unlock` — the row should say Unlock Screen Rotation. Unlock it and type `rotation` — the row should say Lock Screen Rotation. The icon should follow the locked/unlocked state.
 
 ## Submitting Changes
 

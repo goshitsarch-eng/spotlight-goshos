@@ -29,7 +29,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-window-search',
         'Open windows', 'Switch by title, class, workspace 2, workspace two, switch to firefox, or find windows firefox. Type close firefox, close the firefox window, close the firefox application, can you close firefox, kill firefox, force quit firefox, or force close firefox');
     addSwitch(providers, settings, 'enable-system-actions',
-        'System actions', 'Lock, suspend, restart, shut down, log out, switch user, rotation lock, screenshot. lock the screen, lock now, turn off, and sign out match');
+        'System actions', 'Lock, suspend, restart, shut down, log out, switch user, lock or unlock rotation, screenshot. lock the screen, lock now, unlock, turn off, and sign out match');
     addSwitch(providers, settings, 'enable-settings-search',
         'GNOME Settings', 'Jump to Settings panels including Privacy & Security. open wifi settings and open display preferences still find the panel');
     addSwitch(providers, settings, 'enable-recent-files',

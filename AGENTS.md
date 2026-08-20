@@ -71,7 +71,9 @@ parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing l
 
 Main.timeLimitsManager exists only on 50 check for it before connecting when its state is LIMIT_REACHED (2) refuse to open and closeSoon an already-open popup so a screen-time shield cannot be bypassed by launching apps
 
-gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel datetime users about and region are system subpages gnome-control-center still remaps the old ids so keep launching those names for gnome 45
+gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel datetime users about and region are system subpages gnome-control-center still remaps the old ids so keep launching those names for gnome 45 wifi applications background and wellbeing are still launchable panel ids
+
+SystemActions.getName('lock-orientation') is Unlock Screen Rotation when the tablet lock is on use that live label and orientationLockIcon so the row matches what gnome search shows
 
 clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon()
 

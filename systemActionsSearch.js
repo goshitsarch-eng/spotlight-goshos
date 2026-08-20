@@ -4,7 +4,7 @@
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 import * as Screenshot from 'resource:///org/gnome/shell/ui/screenshot.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {actionMatchesQuery} from './actionMatch.js';
+import {actionMatchesQuery, actionTitle, actionIcon} from './actionMatch.js';
 
 // system actions using gnome shell's built-in systemactions module
 // this is the recommended way per ego review guidelines
@@ -63,7 +63,18 @@ const SYSTEM_ACTIONS = [
         id: 'lock-orientation',
         title: 'Lock Screen Rotation',
         icon: 'rotation-locked-symbolic',
-        keywords: ['rotation', 'orientation', 'rotate'],
+        keywords: ['rotation', 'orientation', 'rotate', 'unlock', 'unlock orientation', 'unlock rotation'],
+        // gnome 50 flips the label when rotation is already locked
+        titleFor: sa => {
+            if (sa && typeof sa.getName === 'function')
+                return sa.getName('lock-orientation');
+            return '';
+        },
+        iconFor: sa => {
+            if (sa && sa.orientationLockIcon)
+                return sa.orientationLockIcon;
+            return '';
+        },
         // gnome 50 still exports this tablets hide it when unmanaged
         can: sa => sa.canLockOrientation,
         activate: () => SystemActions.getDefault().activateLockOrientation(),
@@ -101,14 +112,16 @@ export function searchSystemActions(query, maxResults) {
     for (const action of SYSTEM_ACTIONS) {
         if (!action.can(sa))
             continue;
-        if (!actionMatchesQuery(action, query))
+        const title = actionTitle(action, sa);
+        const icon = actionIcon(action, sa);
+        if (!actionMatchesQuery({title, keywords: action.keywords}, query))
             continue;
 
         results.push({
             type: 'system-action',
-            title: action.title,
+            title,
             description: 'System',
-            icon: action.icon,
+            icon,
             activate: () => action.activate(),
         });
 

@@ -9,7 +9,7 @@ import {backdropBox, backdropPointerAction} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
-import {actionMatchesQuery, normalizeActionQuery} from '../actionMatch.js';
+import {actionMatchesQuery, normalizeActionQuery, actionTitle, actionIcon} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, shouldRefreshBookmarks, mergeEmptySuggestions, stripLeadingVerb} from '../searchPlan.js';
 import {wordPrefixMatch, textMatchesQuery, SUBSTRING_MIN} from '../wordMatch.js';
 import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
@@ -337,6 +337,20 @@ assert(actionMatchesQuery({title: 'Lock Screen', keywords: ['lock']}, 'lock now'
 assert(actionMatchesQuery({title: 'Shut Down', keywords: ['shutdown', 'turn off']}, 'shut down the computer'), 'spoken shutdown');
 assert(actionMatchesQuery({title: 'Shut Down', keywords: ['turn off']}, 'turn off'), 'turn off');
 assert(actionMatchesQuery({title: 'Log Out', keywords: ['sign out']}, 'sign out'), 'sign out');
+assert(actionMatchesQuery({title: 'Unlock Screen Rotation', keywords: ['unlock']}, 'unlock'), 'unlock rotation');
+assertEq(actionTitle({title: 'Lock Screen Rotation'}, null), 'Lock Screen Rotation', 'static rotation title');
+assertEq(actionTitle({
+    title: 'Lock Screen Rotation',
+    titleFor: () => 'Unlock Screen Rotation',
+}, {}), 'Unlock Screen Rotation', 'live rotation title');
+assertEq(actionTitle({
+    title: 'Lock Screen Rotation',
+    titleFor: () => '',
+}, {}), 'Lock Screen Rotation', 'empty live title falls back');
+assertEq(actionIcon({
+    icon: 'rotation-locked-symbolic',
+    iconFor: () => 'rotation-allowed-symbolic',
+}, {}), 'rotation-allowed-symbolic', 'live rotation icon');
 
 const metadata = JSON.parse(readFileSync('metadata.json', 'utf8'));
 assertEq(metadata.uuid, 'gosh-is-launcher@nin', 'uuid renamed');
