@@ -426,6 +426,7 @@ walk each look in preferences confirm providers can be disabled and confirm esca
 5. keep `.gosh-container.gosh-density-compact` rules last in stylesheet.css so they beat theme-specific row padding
 6. launcherPopup applies the look profile when launcher-theme changes so dconf writes get the same chrome as the prefs combo
 7. the prefs combo must not apply on init see shouldApplyLook so a custom icon size survives reopening appearance
+8. changed::launcher-theme must not advance lastThemeId the combo writes that key before notify::selected so lastThemeId has to stay on the previous look or picking popos from prefs never writes top windows-first chrome when the extension is disabled
 
 ## adding a new ui component
 

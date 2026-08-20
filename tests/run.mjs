@@ -1171,6 +1171,9 @@ assertEq(stored['icon-size'], 30, 'onagre look writes icon size');
 assert(shouldApplyLook('spotlight', 'onagre'), 'changing look applies chrome');
 assert(!shouldApplyLook('onagre', 'onagre'), 'same look does not reset chrome');
 assert(!shouldApplyLook('onagre', ''), 'empty look is ignored');
+// bindSettingsCombo writes launcher-theme before notify::selected
+// lastThemeId must still be the previous look or prefs never writes chrome
+assert(shouldApplyLook('spotlight', 'popos'), 'prefs applyLook still sees the previous look after the combo write');
 assertEq(comboSelectedIndex(THEMES, 'popos'), THEMES.findIndex(t => t.id === 'popos'), 'look combo index');
 assertEq(comboSelectedIndex(THEMES, 'missing'), -1, 'unknown look stays put');
 assertEq(comboSelectedIndex(SEARCH_ENGINES, 'kagi'), SEARCH_ENGINES.findIndex(e => e.id === 'kagi'), 'engine combo index');

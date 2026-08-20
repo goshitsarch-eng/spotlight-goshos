@@ -269,6 +269,7 @@ Manual testing on GNOME Shell 50 Wayland:
 75. On a tablet that manages orientation, lock rotation then type `unlock` — the row should say Unlock Screen Rotation. Unlock it and type `rotation` — the row should say Lock Screen Rotation. The icon should follow the locked/unlocked state. Type `record` — Take a Screenshot should appear with the same icon Overview search uses.
 76. Type `open up firefox` or `fire up firefox` — the app should appear. Type `open source` — it must stay a search for those words, not `source`. Type `how many km in a mile` or `a cup to ml` — a Units row should appear. Type `two million + 1` — a calculator row should appear. Type `rgb 100% 0% 0%` — a Color row should copy `#ff0000`. Type `workspace 2` — the Switch to Workspace row must stay selected across a prefs repaint.
 77. Type an existing `~/` path, then `firefox`, then the same path after deleting that folder — the row must say Path not found, not reuse the earlier Open path row. With the command runner on, the same leave-and-return must recheck `! ./script`.
+78. Disable the extension, open Appearance, switch to Pop!_OS, then enable the extension — the popup must sit at the top with number hints and windows first. Reopen Appearance without changing the look — a custom icon size must still survive.
 
 ## Submitting Changes
 

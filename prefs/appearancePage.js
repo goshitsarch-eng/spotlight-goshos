@@ -66,8 +66,10 @@ export function buildAppearancePage(settings) {
 
     let lastThemeId = settings.get_string('launcher-theme');
     settings.connect('changed::launcher-theme', () => {
-        lastThemeId = settings.get_string('launcher-theme');
-        themeRow.subtitle = getTheme(lastThemeId).description;
+        // the combo writes this key before notify::selected lastThemeId
+        // must stay on the previous look or chrome is never applied when
+        // the shell popup is not running
+        themeRow.subtitle = getTheme(settings.get_string('launcher-theme')).description;
     });
     bindSettingsCombo(themeRow, settings, 'launcher-theme', THEMES);
     bindSettingsCombo(positionRow, settings, 'popup-position', POSITIONS);
