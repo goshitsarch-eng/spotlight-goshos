@@ -26,6 +26,28 @@ export function nextOpenErrorAction(isOpen, visible) {
     return 'keep';
 }
 
+// hide before host disconnects so a throw cannot leave visible true
+// canOpenPopup treats a leftover visible actor as already open
+export function closeTeardownOrder() {
+    return ['mark-closed', 'hide', 'release-unredirect', 'disconnect-host', 'destroy-children', 'clear-focus'];
+}
+
+export function destroyTeardownOrder() {
+    return ['clear-idles', 'unlisten-hosts', 'close', 'release-unredirect', 'remove-chrome'];
+}
+
+export function runIsolatedTeardown(steps) {
+    let finished = 0;
+    for (const step of steps) {
+        try {
+            step();
+            finished += 1;
+        } catch {
+        }
+    }
+    return finished;
+}
+
 // an already-open popup must die when the session locks
 export function shouldCloseOnSession(locked, greeter, limitsReached) {
     return locked || greeter || Boolean(limitsReached);

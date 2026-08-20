@@ -21,7 +21,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
-import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from './popupGate.js';
+import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction, runIsolatedTeardown} from './popupGate.js';
 import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
@@ -256,7 +256,11 @@ class LauncherPopup extends St.BoxLayout {
     _unlistenMonitors() {
         if (!this._monitorsId)
             return;
-        Main.layoutManager.disconnect(this._monitorsId);
+        try {
+            Main.layoutManager.disconnect(this._monitorsId);
+        } catch {
+            // layoutmanager can vanish at session teardown
+        }
         this._monitorsId = 0;
     }
 
@@ -488,7 +492,11 @@ class LauncherPopup extends St.BoxLayout {
     _unlistenSession() {
         if (!this._sessionId)
             return;
-        Main.sessionMode.disconnect(this._sessionId);
+        try {
+            Main.sessionMode.disconnect(this._sessionId);
+        } catch {
+            // sessionmode can vanish at session teardown
+        }
         this._sessionId = 0;
     }
 
@@ -509,7 +517,11 @@ class LauncherPopup extends St.BoxLayout {
     _unlistenOverview() {
         if (!this._overviewId)
             return;
-        Main.overview.disconnect(this._overviewId);
+        try {
+            Main.overview.disconnect(this._overviewId);
+        } catch {
+            // overview can vanish at session teardown
+        }
         this._overviewId = 0;
     }
 
@@ -529,7 +541,11 @@ class LauncherPopup extends St.BoxLayout {
     _unlistenSystemModal() {
         if (!this._systemModalId)
             return;
-        Main.layoutManager.disconnect(this._systemModalId);
+        try {
+            Main.layoutManager.disconnect(this._systemModalId);
+        } catch {
+            // layoutmanager can vanish at session teardown
+        }
         this._systemModalId = 0;
     }
 
@@ -558,8 +574,13 @@ class LauncherPopup extends St.BoxLayout {
         if (!this._timeLimitsId)
             return;
         const manager = Main.timeLimitsManager;
-        if (manager)
-            manager.disconnect(this._timeLimitsId);
+        if (manager) {
+            try {
+                manager.disconnect(this._timeLimitsId);
+            } catch {
+                // wellbeing manager can vanish at session teardown
+            }
+        }
         this._timeLimitsId = 0;
     }
 
@@ -584,7 +605,11 @@ class LauncherPopup extends St.BoxLayout {
         this._clearIdle('_parentalGiveUpId');
         if (!this._parental)
             return;
-        this._parental.disconnectObject(this);
+        try {
+            this._parental.disconnectObject(this);
+        } catch {
+            // malcontent can vanish at session teardown
+        }
         this._parental = null;
     }
 
@@ -608,7 +633,11 @@ class LauncherPopup extends St.BoxLayout {
     _unlistenScale() {
         if (!this._scaleContext)
             return;
-        this._scaleContext.disconnectObject(this);
+        try {
+            this._scaleContext.disconnectObject(this);
+        } catch {
+            // themecontext can vanish at session teardown
+        }
         this._scaleContext = null;
     }
 
@@ -838,36 +867,48 @@ class LauncherPopup extends St.BoxLayout {
             return;
 
         this._isOpen = false;
+        // hide before host teardown so a throw cannot leave visible true
+        // canOpenPopup treats a leftover visible actor as already open
+        this.hide();
         this._setUnredirectHeld(false);
 
-        if (this._stageKeyId) {
-            global.stage.disconnect(this._stageKeyId);
-            this._stageKeyId = 0;
-        }
-        this._focusWatcher.stop();
-        this._liveSearch.stop();
-        this._unlistenMonitors();
-        this._unlistenKeyboard();
-        this._clearPopupIdles();
-        // bump load ids before destroy so in-flight gio cannot repaint
-        invalidateRecentFiles();
-        invalidatePathLookup();
-        invalidateCommandLookup();
-        invalidateBookmarks();
-        this._renderer.destroy();
-
-        if (this._backdrop) {
-            this._backdrop.destroy();
-            this._backdrop = null;
-        }
-
-        this.hide();
-        // grab_key_focus leaves the hidden entry focused so later typing
-        // would vanish unless we give the stage back only when we still own it
-        // alt-tab already moved focus so leave that window alone
-        const focus = global.stage.get_key_focus();
-        if (focus && this.contains(focus))
-            global.stage.set_key_focus(null);
+        runIsolatedTeardown([
+            () => {
+                if (!this._stageKeyId)
+                    return;
+                global.stage.disconnect(this._stageKeyId);
+                this._stageKeyId = 0;
+            },
+            () => this._focusWatcher.stop(),
+            () => this._liveSearch.stop(),
+            () => this._unlistenMonitors(),
+            () => this._unlistenKeyboard(),
+            () => this._clearPopupIdles(),
+            () => {
+                // bump load ids before destroy so in-flight gio cannot repaint
+                invalidateRecentFiles();
+                invalidatePathLookup();
+                invalidateCommandLookup();
+                invalidateBookmarks();
+            },
+            () => this._renderer.destroy(),
+            () => {
+                if (!this._backdrop)
+                    return;
+                const backdrop = this._backdrop;
+                this._backdrop = null;
+                backdrop.destroy();
+            },
+            () => {
+                // grab_key_focus leaves the hidden entry focused so later typing
+                // would vanish unless we give the stage back only when we still own it
+                // alt-tab already moved focus so leave that window alone
+                const focus = global.stage.get_key_focus();
+                if (focus && this.contains(focus))
+                    global.stage.set_key_focus(null);
+            },
+        ]);
+        this._stageKeyId = 0;
     }
 
     _clearIdle(field) {
@@ -893,19 +934,28 @@ class LauncherPopup extends St.BoxLayout {
     destroy() {
         this._reopenAfterClose = false;
         this._clearPopupIdles();
-        this._unlistenSession();
-        this._unlistenOverview();
-        this._unlistenSystemModal();
-        this._unlistenTimeLimits();
-        this._unlistenParental();
-        this._unlistenScale();
-        this._liveSearch.stop();
-        this.close();
-        this._setUnredirectHeld(false);
-        this._unlistenKeyboard();
-        this._settings.disconnectObject(this);
-        if (this.get_parent())
-            removePopupChrome(Main.layoutManager, this);
+        // sessionmode overview and layoutmanager can vanish at logout
+        // close and chrome remove must still run so the shortcut can open again
+        runIsolatedTeardown([
+            () => this._unlistenSession(),
+            () => this._unlistenOverview(),
+            () => this._unlistenSystemModal(),
+            () => this._unlistenTimeLimits(),
+            () => this._unlistenParental(),
+            () => this._unlistenScale(),
+            () => this._liveSearch.stop(),
+            () => this.close(),
+            () => this._setUnredirectHeld(false),
+            () => this._unlistenKeyboard(),
+            () => {
+                if (this._settings)
+                    this._settings.disconnectObject(this);
+            },
+            () => {
+                if (this.get_parent())
+                    removePopupChrome(Main.layoutManager, this);
+            },
+        ]);
         this._settings = null;
         super.destroy();
     }

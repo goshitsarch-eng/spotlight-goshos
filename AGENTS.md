@@ -307,7 +307,7 @@ the toggle shortcut must not call open() from accelerator-activated clutter 18 a
 
 every object created in enable() is destroyed in disable() every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
 
-the popup widget overrides destroy() to clear the open close position repaint layout refocus and raise idles then call close() which invalidates path command recent and bookmark caches destroys the renderer (search scroll and gio refresh idles) removes the backdrop disconnects the focus handler and removes those popup idles again then it removes itself from the chrome layer and chains up to the parent destroy
+the popup widget overrides destroy() to clear the open close position repaint layout refocus and raise idles then unlisten session overview system-modal time-limits parental and scale isolate each host disconnect sessionmode can vanish at logout so a throw must not skip close() close() hides first so a later throw cannot leave visible true (canOpenPopup treats that leftover as already open) then it invalidates path command recent and bookmark caches destroys the renderer (search scroll and gio refresh idles) removes the backdrop disconnects the focus handler and removes those popup idles again then it removes itself from the chrome layer and chains up to the parent destroy
 
 if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
 

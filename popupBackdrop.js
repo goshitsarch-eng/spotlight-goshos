@@ -73,9 +73,21 @@ export class PopupBackdrop {
     }
 
     destroy() {
-        this._actor.disconnectObject(this._actor);
-        if (this._actor.get_parent())
-            removePopupChrome(Main.layoutManager, this._actor);
-        this._actor.destroy();
+        try {
+            this._actor.disconnectObject(this._actor);
+        } catch {
+            // actor can vanish at session teardown
+        }
+        try {
+            if (this._actor.get_parent())
+                removePopupChrome(Main.layoutManager, this._actor);
+        } catch {
+            // uigroup can vanish at session teardown
+        }
+        try {
+            this._actor.destroy();
+        } catch {
+            // actor can already be destroyed
+        }
     }
 }

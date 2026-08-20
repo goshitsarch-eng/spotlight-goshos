@@ -3,7 +3,7 @@ import {parseUnitQuery, convertUnits, convertQuery, formatUnitValue, normalizeUn
 import {isNewWindowAction, newWindowTitle, desktopActionTitle, takeAppActions, actionResultLimit} from '../appAction.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, isFileUrlQuery, isRemoteLocationQuery, normalizeUrl, hostOfQuery, schemeForHost, isPlausibleWebHost, isDottedIpv4, urlRowDescription, urlRowIcon, isUnsafeLaunchUri} from '../urlMatch.js';
-import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction} from '../popupGate.js';
+import {canOpenPopup, shouldCloseOnToggle, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, TIME_LIMITS_REACHED, nextReopenAfterClose, nextToggleAction, shouldCancelOpenOnOverview, shouldCloseOnOverview, shouldCancelOpenOnShellUi, shouldCloseOnShellUi, nextOpenErrorAction, closeTeardownOrder, destroyTeardownOrder, runIsolatedTeardown} from '../popupGate.js';
 import {nextLiveSearchAction, shouldTrackLiveWindow, windowsForLiveTrack} from '../searchLive.js';
 import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOriginForResults, placePopup, MIN_RESULTS_HEIGHT, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from '../popupPosition.js';
 import {themeScale, themeScaleFromContext, stagePx, cssPx} from '../uiScale.js';
@@ -272,6 +272,22 @@ assert(!canOpenPopup(false, false, false, false, true), 'screen-time limit block
 assertEq(nextOpenErrorAction(true, false), 'close', 'throw after _isOpen must teardown');
 assertEq(nextOpenErrorAction(false, true), 'close', 'throw after show must teardown');
 assertEq(nextOpenErrorAction(false, false), 'keep', 'throw before open flag stays idle');
+assertEq(closeTeardownOrder().slice(0, 3).join(','), 'mark-closed,hide,release-unredirect', 'hide before host teardown');
+assertEq(closeTeardownOrder().indexOf('hide') < closeTeardownOrder().indexOf('disconnect-host'), true, 'visible must drop before stage disconnect');
+assertEq(destroyTeardownOrder().indexOf('unlisten-hosts') < destroyTeardownOrder().indexOf('close'), true, 'unlistens run first but must not skip close');
+{
+    const calls = [];
+    const finished = runIsolatedTeardown([
+        () => {
+            calls.push('session');
+            throw new Error('session');
+        },
+        () => calls.push('close'),
+        () => calls.push('chrome'),
+    ]);
+    assertEq(calls.join(','), 'session,close,chrome', 'unlisten throw still closes and removes chrome');
+    assertEq(finished, 2, 'failed unlisten is not a completed step');
+}
 assert(sessionLimitsReached(TIME_LIMITS_REACHED), 'gnome 50 limit reached');
 assert(!sessionLimitsReached(0), 'disabled time limits');
 assertEq(timeLimitsState(null), 0, 'missing manager is disabled');
