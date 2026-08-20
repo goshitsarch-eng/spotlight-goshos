@@ -1,4 +1,4 @@
-import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment} from '../scrollView.js';
+import {attachScrollChild, applyScrollPolicy, getVerticalAdjustment, setOverlayScrollbars} from '../scrollView.js';
 
 const modern = {
     set_child(c) {
@@ -48,6 +48,16 @@ const emptyModern = {
 };
 if (getVerticalAdjustment(emptyModern) !== null)
     throw new Error('null vadjustment must not throw');
+
+const overlay = {
+    set_overlay_scrollbars(enabled) {
+        this.overlay = enabled;
+    },
+};
+setOverlayScrollbars(overlay, false);
+if (overlay.overlay !== false)
+    throw new Error('overlay scrollbars must be set');
+setOverlayScrollbars({}, false);
 
 print('gjs scrollView helpers ok');
 

@@ -154,7 +154,7 @@
     <key name="enable-unit-convert" type="b">
       <default>true</default>
       <summary>Enable unit conversion</summary>
-      <description>Convert length, mass, temperature, volume, data, duration, area, and speed such as 10 km to mi, 2 hours to min, 100 kph to mph, or 1 acre to m2.</description>
+      <description>Convert length, mass, temperature, volume, data, duration, area, speed, and pressure such as 10 km to mi, 100 kph to mph, or 32 psi to bar.</description>
     </key>
 
     <key name="enable-color-hex" type="b">

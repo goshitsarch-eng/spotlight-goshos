@@ -1,4 +1,4 @@
-// gosh is launcher - length mass temp volume data duration area and speed conversions
+// gosh is launcher - length mass temp volume data duration area speed and pressure conversions
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 const ALIASES = {
@@ -50,6 +50,12 @@ const ALIASES = {
     acre: 'acre', acres: 'acre',
     ft2: 'ft2', sqft: 'ft2',
     mi2: 'mi2', sqmi: 'mi2',
+    pa: 'pa', pascal: 'pa', pascals: 'pa',
+    kpa: 'kpa',
+    bar: 'bar', bars: 'bar',
+    atm: 'atm', atmosphere: 'atm', atmospheres: 'atm',
+    psi: 'psi',
+    mmhg: 'mmhg', torr: 'mmhg',
 };
 
 const UNITS = {
@@ -104,6 +110,12 @@ const UNITS = {
     m3: {dim: 'volume', toBase: 1000},
     cm3: {dim: 'volume', toBase: 0.001},
     ft3: {dim: 'volume', toBase: 28.316846592},
+    pa: {dim: 'pressure', toBase: 1},
+    kpa: {dim: 'pressure', toBase: 1000},
+    bar: {dim: 'pressure', toBase: 1e5},
+    atm: {dim: 'pressure', toBase: 101325},
+    psi: {dim: 'pressure', toBase: 6894.757293168361},
+    mmhg: {dim: 'pressure', toBase: 133.32236842105263},
 };
 
 const QUERY_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+\-]?\d+)?)\s*([a-z][a-z0-9]*)\s+(?:to|in)\s+([a-z][a-z0-9]*)$/i;

@@ -247,6 +247,7 @@ Manual testing on GNOME Shell 50 Wayland:
 56. Type `2pi^2` — the result should be about 19.74, not 39.48. Type `2^3pi` — the result should be about 25.13. Type `~/` plus a path and press Enter while it says Checking path — the popup must stay open. A missing path or `!badcmd` must also stay open.
 57. Type `force quit` plus an open window title — the row should say Kill … and Enter should force-quit. A GTK bookmark line that is `~/Documents` should open that folder. A `javascript:` bookmark must not appear.
 58. On a machine whose only terminal is Kitty, Ghostty, Alacritty, or Foot, `~/` plus a folder should still offer Open in Terminal after the exists check. `xdg-terminal-exec` must still win when it is installed.
+59. Type `32 psi to bar` — a pressure row should appear. Type `1 atm to kpa` — the title should be about `101 kpa`. With the Pop!_OS look and number hints on, a long list should keep 1-9 visible beside the scrollbar.
 
 ## Submitting Changes
 

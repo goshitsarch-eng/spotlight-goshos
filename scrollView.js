@@ -26,6 +26,13 @@ export function applyScrollPolicy(scrollView, hPolicy, vPolicy) {
     }
 }
 
+export function setOverlayScrollbars(scrollView, enabled) {
+    // overlay bars sit on the row and hide 1-9 hints
+    // the method exists on 45 through 50
+    if (typeof scrollView.set_overlay_scrollbars === 'function')
+        scrollView.set_overlay_scrollbars(enabled);
+}
+
 export function getVerticalAdjustment(scrollView) {
     // 48 removed get_vscroll_bar and exposes the adjustment directly
     // both paths can be null before the first allocate
