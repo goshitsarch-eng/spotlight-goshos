@@ -3,11 +3,12 @@
 
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} from './keyAction.js';
 import {activatableResult, indexedActivatableResult} from './resultActivate.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 import {shouldIgnoreNavRepeat} from './navRepeat.js';
-import {shouldCaptureKeys} from './focusLoss.js';
+import {shouldCaptureKeys, focusIsOnScreenKeyboard} from './focusLoss.js';
 
 const KEY_NAMES = {
     [Clutter.KEY_Escape]: 'Escape',
@@ -84,6 +85,7 @@ export class PopupKeyHandler {
             Boolean(focus),
             focus === global.stage,
             Boolean(focus && this._popup.contains(focus)),
+            focusIsOnScreenKeyboard(focus, Main.layoutManager.keyboardBox),
         ))
             return Clutter.EVENT_PROPAGATE;
 
