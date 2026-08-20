@@ -9,7 +9,7 @@ import {popupOrigin, popupWidthForWorkArea, resultsMaxHeightForWorkArea, liftOri
 import {themeScale, themeScaleFromContext, stagePx, cssPx, nextScaleListenAction} from '../uiScale.js';
 import {chromeAddMethod, shouldRaiseChromeAbove, actorHasStyleClass, actorOrAncestorHasStyleClass, isOskPopoverActor, isImeCandidateActor, isInputChromeActor, shouldWatchOskPopover, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren, oskChromeToRaise, inputChromeToRaise, raiseOskChrome, raiseInputChrome, imeCandidateVisible, OSK_POPOVER_STYLE, IME_CANDIDATE_STYLE} from '../popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from '../unredirect.js';
-import {backdropBox, backdropPointerAction} from '../backdropBox.js';
+import {backdropBox, backdropPointerAction, backdropTeardownOrder} from '../backdropBox.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook, shouldApplyLook, lookApplyAction, syncLookSettings} from '../themes.js';
 import {ACCENT_NICKS, ACCENT_HEX, accentNickFromEnum, accentNickFromSettings, accentHex, accentStyleClass, schemaHasAccentKey, desktopInterfaceSchema, nextAccentListenAction} from '../accentColor.js';
 import {comboSelectedIndex, bindSettingsChanged} from '../prefsCombo.js';
@@ -516,6 +516,8 @@ assertEq(backdropPointerAction('touch-update'), 'stop', 'touch move swallowed');
 assertEq(backdropPointerAction('touch-cancel'), 'stop', 'touch cancel swallowed');
 assertEq(backdropPointerAction('touch-end'), 'close', 'touch end closes');
 assertEq(backdropPointerAction('scroll'), 'propagate', 'scroll ignored');
+assertEq(backdropTeardownOrder().join(','), 'disconnect,hide,remove-chrome,destroy', 'backdrop teardown order');
+assertEq(backdropTeardownOrder().indexOf('hide') < backdropTeardownOrder().indexOf('remove-chrome'), true, 'hide before chrome detach');
 assertEq(resultIconSource({app: {get_icon: () => null}}).icon_name, 'application-x-executable', 'null app icon falls back');
 assertEq(Boolean(resultIconSource({app: {get_icon: () => ({name: 'ok'})}}).gicon), true, 'app gicon used');
 assertEq(resultIconSource({icon: 'folder-symbolic'}).icon_name, 'folder-symbolic', 'string icon');

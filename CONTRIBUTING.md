@@ -328,6 +328,7 @@ Manual testing on GNOME Shell 50 Wayland:
 125. Enable the extension before a theme scale exists, then open the launcher after `ThemeContext` is ready — a 600px width must use the live scale, not stay 1×. Change scale while that popup is open — it must refit even though enable never saw a context.
 126. Enable on GNOME 45/46, or on a host whose desktop interface schema is missing — the extension must still load. GNOME and Light stay Adwaita blue. A missing `Gio.Settings` schema_id must not leave session/overview listeners connected on an unassigned popup.
 127. Before the first enable, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size with the default Spotlight look still survives that first enable.
+128. Close via Escape, click-outside, or the shortcut — GNOME 50 must not abort. Clutter 18 unrealizes on `removeChrome`; a still-mapped backdrop trips `clutter_actor_real_unrealize`. The backdrop must hide before it is removed from chrome.
 
 ## Submitting Changes
 

@@ -79,7 +79,7 @@ gnome 50 settings dropped the appearance panel id style and wallpaper live on ba
 
 SystemActions.getName and getIconName are the same labels and icons overview search shows including Unlock Screen Rotation when the tablet lock is on use those live values so a translated session still matches gnome search power-off is Power Off not Shut Down
 
-clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon() a second press while that idle is pending arms reopen after close instead of eating the key
+clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes the toggle shortcut also uses closeSoon() a second press while that idle is pending arms reopen after close instead of eating the key clutter 18 also aborts if chrome detaches a still-mapped actor (clutter_actor_real_unrealize) hide the backdrop before removechrome the popup is already hidden by close()
 
 do not debounce arrows with event.get_time() that getter is milliseconds or clutter_current_time (0) and wayland often reports 0 so a second down looks like the same instant and never moves again use glib.get_monotonic_time() via navRepeat.js
 
@@ -159,7 +159,7 @@ gosh-is-launcher@nin/
     resultPointer.js          result row press/release and touch tap versus swipe (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
     focusLoss.js              close vs refocus the entry (pure)
-    backdropBox.js            multi-monitor click-outside box (pure)
+    backdropBox.js            multi-monitor click-outside box and hide-before-detach order (pure)
     searchRun.js              run a plan against providers and isolate a throw including empty-state (pure)
     windowMatch.js            window title class match and wayland recency (pure)
     windowClose.js            close kill and quit window queries (pure)
@@ -308,7 +308,7 @@ the toggle shortcut must not call open() from accelerator-activated clutter 18 a
 
 every object created in enable() is destroyed in disable() every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
 
-the popup widget overrides destroy() to clear the open close position repaint layout refocus and raise idles then unlisten session overview system-modal time-limits parental and scale isolate each host disconnect sessionmode can vanish at logout so a throw must not skip close() close() hides first so a later throw cannot leave visible true (canOpenPopup treats that leftover as already open) then it invalidates path command recent and bookmark caches destroys the renderer (search scroll and gio refresh idles) removes the backdrop disconnects the focus handler and removes those popup idles again then it removes itself from the chrome layer and chains up to the parent destroy
+the popup widget overrides destroy() to clear the open close position repaint layout refocus and raise idles then unlisten session overview system-modal time-limits parental and scale isolate each host disconnect sessionmode can vanish at logout so a throw must not skip close() close() hides first so a later throw cannot leave visible true (canOpenPopup treats that leftover as already open) then it invalidates path command recent and bookmark caches destroys the renderer (search scroll and gio refresh idles) removes the backdrop disconnects the focus handler and removes those popup idles again then it removes itself from the chrome layer and chains up to the parent destroy backdrop destroy hides the actor before removechrome so clutter 18 cannot unrealize a mapped chrome child
 
 if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
 

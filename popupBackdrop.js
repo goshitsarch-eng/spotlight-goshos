@@ -79,6 +79,11 @@ export class PopupBackdrop {
             // actor can vanish at session teardown
         }
         try {
+            this._actor.hide();
+        } catch {
+            // hide unmaps so removechrome cannot abort clutter 18
+        }
+        try {
             if (this._actor.get_parent())
                 removePopupChrome(Main.layoutManager, this._actor);
         } catch {

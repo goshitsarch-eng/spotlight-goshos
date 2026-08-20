@@ -27,6 +27,11 @@ export function backdropBox(monitors) {
     return {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
 }
 
+// clutter 18 aborts if a mapped actor is detached
+export function backdropTeardownOrder() {
+    return ['disconnect', 'hide', 'remove-chrome', 'destroy'];
+}
+
 // swallow the press so click-outside does not activate a window below
 export function backdropPointerAction(type) {
     if (type === 'button-press' || type === 'touch-begin' ||
