@@ -9,7 +9,11 @@ export function normalizeMath(input) {
     let text = input
         .replace(/×/g, '*')
         .replace(/÷/g, '/')
-        .replace(/[−–—]/g, '-');
+        .replace(/[−–—]/g, '-')
+        .replace(/[⋅·]/g, '*')
+        .replace(/\*\*/g, '^')
+        .replace(/(\d)\s+[xX]\s+(\d)/g, '$1*$2')
+        .replace(/([1-9]\d*(?:\.\d+)?)[xX](\d)/g, '$1*$2');
     let next = text.replace(/(\d),(\d)/g, '$1$2');
     while (next !== text) {
         text = next;
@@ -26,7 +30,7 @@ export function evaluateArithmetic(input, allowBare) {
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?|[+\-*/%()^])/g;
+    const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?(?:[eE][+\-]?[0-9]+)?|[+\-*/%()^])/g;
     let match;
     while ((match = tokenRegex.exec(text)) !== null)
         tokens.push(match[1]);
@@ -110,7 +114,7 @@ export function evaluateArithmetic(input, allowBare) {
             consume();
             return v;
         }
-        if (/^[0-9.]+$/.test(tok)) {
+        if (/^[0-9.]+(?:[eE][+\-]?[0-9]+)?$/.test(tok)) {
             consume();
             return parseFloat(tok);
         }

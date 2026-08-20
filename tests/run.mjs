@@ -19,7 +19,7 @@ import {resolveKeyAction, isNavAction} from '../keyAction.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady} from '../commandReady.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -111,6 +111,10 @@ assert(isUrlQuery('http://[fe80::1]/'), 'ipv6 scheme');
 assertEq(hostOfQuery('[::1]:8080'), '::1', 'ipv6 host');
 assertEq(normalizeUrl('[::1]:3000'), 'http://[::1]:3000', 'ipv6 uses http');
 assertEq(schemeForHost('::1'), 'http', 'ipv6 scheme http');
+assert(isUrlQuery('::1'), 'bare ipv6 loopback');
+assertEq(hostOfQuery('::1'), '::1', 'bare ipv6 host');
+assertEq(normalizeUrl('::1'), 'http://[::1]', 'bare ipv6 gets brackets');
+assertEq(normalizeUrl('::1/status'), 'http://[::1]/status', 'bare ipv6 keeps path');
 assert(!isUrlQuery('node.js'), 'js file is not a url');
 assert(!isUrlQuery('readme.md'), 'markdown is not a url');
 assert(!isUrlQuery('package.json'), 'json is not a url');
@@ -165,6 +169,7 @@ assert(themeIds.includes('rofi'), 'rofi theme');
 assert(themeIds.includes('raycast'), 'raycast theme');
 assert(themeIds.includes('albert'), 'albert theme');
 assert(themeIds.includes('wofi'), 'wofi theme');
+assert(themeIds.includes('fuzzel'), 'fuzzel theme');
 assert(themeIds.includes('light'), 'light theme');
 assert(themeIds.includes('spotlight'), 'spotlight theme');
 assertEq(getTheme('missing').id, 'spotlight', 'unknown theme falls back');
@@ -215,6 +220,13 @@ assertEq(evaluateArithmetic('1,000+2'), 1002, 'thousands comma evaluates');
 assertEq(evaluateArithmetic('5−1'), 4, 'unicode minus evaluates');
 assertEq(evaluateArithmetic('-(2+3)'), -5, 'unary minus on group');
 assertEq(evaluateArithmetic('2^3*2'), 16, 'power before multiply');
+assertEq(evaluateArithmetic('2**8'), 256, 'python power');
+assertEq(evaluateArithmetic('2 x 3'), 6, 'spaced x multiply');
+assertEq(evaluateArithmetic('2x3'), 6, 'tight x multiply');
+assertEq(evaluateArithmetic('0x10'), null, 'hex prefix is not multiply');
+assertEq(evaluateArithmetic('1e3+2'), 1002, 'scientific notation');
+assertEq(evaluateArithmetic('1e-3*1000'), 1, 'scientific negative exponent');
+assertEq(evaluateArithmetic('2·3'), 6, 'middle-dot multiply');
 assertEq(formatNumber(1.2300000000001), '1.23', 'trim float noise');
 
 // word prefix
@@ -237,6 +249,9 @@ assert(!wordPrefixMatch('chrome', 'chro'), 'first word is startsWith not wordPre
 assert(matchSettingsPanels('wifi', 5).some(p => p.id === 'wifi'), 'wifi panel');
 assert(matchSettingsPanels('wi-fi', 5).some(p => p.id === 'wifi'), 'wi-fi hyphen');
 assert(matchSettingsPanels('display', 5).some(p => p.id === 'display'), 'displays');
+assert(matchSettingsPanels('appearance', 5).some(p => p.id === 'background'), 'appearance is background on gnome 50');
+assert(matchSettingsPanels('wallpaper', 5).some(p => p.id === 'background'), 'wallpaper is background');
+assert(matchSettingsPanels('dark', 5).some(p => p.id === 'background'), 'dark style is background');
 assert(matchSettingsPanels('wellbeing', 5).some(p => p.id === 'wellbeing'), 'wellbeing');
 assert(matchSettingsPanels('wireless', 5).some(p => p.id === 'wifi'), 'wifi keyword');
 assert(matchSettingsPanels('a11y', 5).some(p => p.id === 'universal-access'), 'a11y keyword');
@@ -246,6 +261,9 @@ assert(matchSettingsPanels('user-accounts', 5).some(p => p.id === 'users'), 'use
 assert(matchSettingsPanels('info-overview', 5).some(p => p.id === 'about'), 'info-overview alias');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
 assertEq(settingsArgv('wifi', name => name === 'gnome-control-center')[1], 'wifi', 'prefer control center');
+assertEq(settingsArgv('appearance', name => name === 'gnome-control-center')[1], 'background', 'appearance id remaps');
+assertEq(settingsArgv('wifi', name => name === 'gio')[0], 'gio', 'gio launches panel desktop');
+assertEq(settingsArgv('wifi', name => name === 'gio')[2], 'gnome-wifi-panel.desktop', 'panel desktop id');
 assertEq(settingsArgv('wifi', name => name === 'gapplication')[0], 'gapplication', 'fallback launch settings');
 assertEq(settingsArgv('wifi', () => null), null, 'no settings binary');
 
@@ -324,6 +342,10 @@ const calcProviders = {
 assertEq(collectSearchResults(planSearch('=42', allOn), 1, calcProviders, null)[0].title, '42', 'prefix bare number');
 assertEq(collectSearchResults(planSearch('42', allOn), 1, calcProviders, null).length, 0, 'bare number stays a search');
 
+assert(shouldListWindow({}, false, 'normal', ['normal', 'dialog']), 'workspace listed');
+assert(!shouldListWindow(null, false, 'normal', ['normal']), 'closed window skipped');
+assert(!shouldListWindow({}, true, 'normal', ['normal']), 'skip taskbar skipped');
+assert(!shouldListWindow({}, false, 'dock', ['normal', 'dialog']), 'dock skipped');
 assert(windowMatches('Firefox', 'Navigator', 'fire'), 'title match');
 assert(windowMatches('Notes', 'org.gnome.TextEditor', 'texted'), 'class match');
 assert(windowMatches('Any', 'x', ''), 'empty query matches windows');
@@ -398,6 +420,16 @@ applyLookSettings({
     set_boolean(key, value) {
         stored[key] = value;
     },
+}, getTheme('fuzzel'));
+assertEq(stored['row-density'], 'compact', 'fuzzel is compact');
+assertEq(stored['show-section-headers'], false, 'fuzzel hides headers');
+applyLookSettings({
+    set_string(key, value) {
+        stored[key] = value;
+    },
+    set_boolean(key, value) {
+        stored[key] = value;
+    },
 }, getTheme('light'));
 assertEq(stored['popup-position'], 'center', 'light is centered');
 assertEq(stored['show-section-headers'], true, 'light keeps headers');
@@ -442,9 +474,10 @@ assert(css.includes('.gosh-selected'), 'selected class');
 assert(css.includes('.gosh-container.gosh-density-compact'), 'compact beats theme padding');
 assert(
     css.lastIndexOf('.gosh-container.gosh-density-compact .gosh-result') >
-        css.lastIndexOf('.gosh-theme-wofi .gosh-result {'),
+        css.lastIndexOf('.gosh-theme-fuzzel .gosh-result {'),
     'compact rules come after theme padding',
 );
+assert(css.includes('background-color: #fdf6e3'), 'fuzzel solarized card');
 assert(css.includes('border-left: 3px solid #7aa2f7'), 'omarchy walker selected edge');
 assert(css.includes('caret-color: #ff6363'), 'raycast red caret');
 assert(css.includes('background-color: #1d99f3'), 'albert selected row');

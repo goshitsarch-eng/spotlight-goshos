@@ -10,6 +10,7 @@ const DOMAIN_RE = new RegExp(
 const LOCAL_RE = /^(localhost|127\.0\.0\.1)(:\d{1,5})?([/?#]\S*)?$/i;
 const IPV4_RE = /^(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?([/?#]\S*)?$/;
 const IPV6_RE = /^\[([0-9a-f:.]+)\](:\d{1,5})?([/?#]\S*)?$/i;
+const BARE_LOOPBACK_V6 = /^::1([/?#]\S*)?$/;
 const PRIVATE_SUFFIX_RE = /\.(local|lan|home|internal|home\.arpa)$/i;
 
 // last labels that are almost always files not sites
@@ -57,7 +58,8 @@ export function isUrlQuery(query) {
         return false;
     if (SCHEME_RE.test(trimmed) ||
         LOCAL_RE.test(trimmed) ||
-        IPV6_RE.test(trimmed))
+        IPV6_RE.test(trimmed) ||
+        BARE_LOOPBACK_V6.test(trimmed))
         return true;
     if (IPV4_RE.test(trimmed))
         return isDottedIpv4(hostOfQuery(trimmed));
@@ -66,6 +68,8 @@ export function isUrlQuery(query) {
 
 export function hostOfQuery(query) {
     const trimmed = query.trim();
+    if (BARE_LOOPBACK_V6.test(trimmed))
+        return '::1';
     const withoutScheme = trimmed.replace(/^(https?:\/\/|file:\/\/)/i, '');
     const hostPort = withoutScheme.split(/[/?#]/)[0];
     if (hostPort.charAt(0) === '[') {
@@ -95,5 +99,10 @@ export function normalizeUrl(query) {
         return trimmed;
     if (/^www\./i.test(trimmed))
         return `https://${trimmed}`;
-    return `${schemeForHost(hostOfQuery(trimmed))}://${trimmed}`;
+    const host = hostOfQuery(trimmed);
+    if (host.indexOf(':') !== -1 && trimmed.charAt(0) !== '[') {
+        const rest = trimmed.startsWith(host) ? trimmed.slice(host.length) : '';
+        return `${schemeForHost(host)}://[${host}]${rest}`;
+    }
+    return `${schemeForHost(host)}://${trimmed}`;
 }

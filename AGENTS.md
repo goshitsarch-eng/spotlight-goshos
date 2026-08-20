@@ -8,7 +8,7 @@ if you are an ai agent read the whole file do not skim
 
 gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi and light and can enable or disable every provider from preferences
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner gnome rofi raycast albert wofi fuzzel and light and can enable or disable every provider from preferences
 
 ## design philosophy
 
@@ -26,6 +26,9 @@ the other looks follow real launchers researched for this project
 - rofi is the dmenu-style list with a square frame and the classic #005577 selected row
 - raycast is a dark rounded panel with a red caret and no section headers
 - albert is a breeze-dark card with a #1d99f3 selected row
+- wofi is a compact wayland dmenu list with a steel-blue selected row
+- fuzzel is the default solarized light wayland launcher #fdf6e3 card #eee8d5 selection 10px radius
+- light is adwaita light
 
 do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
 
@@ -60,6 +63,8 @@ gnome 50 removed x11 and with it RunDialog._restart plus the global.display rest
 easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want one zip for 45-50 keep GLib.idle_add
 
 parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps
+
+gnome 50 settings dropped the appearance panel id style and wallpaper live on background keep that id so one zip still opens a real panel
 
 clutter 18 on gnome 50 aborts if the actor tree changes inside an input handler never destroy the backdrop or hide the popup from button-release-event use closeSoon() which idle_adds close() after the event finishes
 

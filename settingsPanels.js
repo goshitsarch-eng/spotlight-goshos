@@ -10,8 +10,7 @@ export const SETTINGS_PANELS = [
     {id: 'sound', title: 'Sound', keywords: ['audio', 'volume', 'speaker']},
     {id: 'power', title: 'Power', keywords: ['battery', 'sleep']},
     {id: 'multitasking', title: 'Multitasking', keywords: ['workspaces', 'overview']},
-    {id: 'appearance', title: 'Appearance', keywords: ['theme', 'dark', 'style']},
-    {id: 'background', title: 'Background', keywords: ['wallpaper']},
+    {id: 'background', title: 'Appearance', keywords: ['theme', 'dark', 'style', 'wallpaper', 'background', 'appearance']},
     {id: 'notifications', title: 'Notifications', keywords: ['do not disturb']},
     {id: 'search', title: 'Search', keywords: []},
     {id: 'applications', title: 'Applications', keywords: ['apps', 'default apps']},
@@ -55,8 +54,12 @@ export function matchSettingsPanels(query, maxResults) {
 
 // immutable images may ship settings without the gnome-control-center name
 export function settingsArgv(panelId, findInPath) {
+    // gnome 50 dropped the appearance id the style controls live on background
+    const id = panelId === 'appearance' ? 'background' : panelId;
     if (findInPath('gnome-control-center'))
-        return ['gnome-control-center', panelId];
+        return ['gnome-control-center', id];
+    if (findInPath('gio'))
+        return ['gio', 'launch', `gnome-${id}-panel.desktop`];
     if (findInPath('gapplication'))
         return ['gapplication', 'launch', 'org.gnome.Settings'];
     return null;

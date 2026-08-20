@@ -4,7 +4,7 @@
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {windowMatches, windowClassText} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow} from './windowMatch.js';
 
 function _windowIcon(win) {
     const tracker = Shell.WindowTracker.get_default();
@@ -21,13 +21,17 @@ export function searchWindows(query, maxResults) {
 
     for (const actor of actors) {
         const win = actor.meta_window;
-        if (!win || win.is_skip_taskbar())
+        if (!win)
             continue;
 
         const type = win.get_window_type();
-        if (type !== Meta.WindowType.NORMAL &&
-            type !== Meta.WindowType.DIALOG &&
-            type !== Meta.WindowType.MODAL_DIALOG)
+        // skip closed actors that linger in get_window_actors
+        if (!shouldListWindow(
+            win.get_workspace(),
+            win.is_skip_taskbar(),
+            type,
+            [Meta.WindowType.NORMAL, Meta.WindowType.DIALOG, Meta.WindowType.MODAL_DIALOG],
+        ))
             continue;
 
         const sandboxed = typeof win.get_sandboxed_app_id === 'function'

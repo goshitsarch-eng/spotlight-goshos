@@ -33,12 +33,16 @@ export default class GoshIsLauncherExtension extends Extension {
     }
 
     _grabShortcut(accelerator) {
-        this._keybindingManager.listenFor(accelerator, () => {
+        const onToggle = () => {
             if (shouldCloseOnToggle(this._popup.isOpen, this._popup.visible))
                 this._popup.close();
             else
                 this._popup.open();
-        });
+        };
+        if (this._keybindingManager.listenFor(accelerator, onToggle))
+            return;
+        if (accelerator !== '<Control>space')
+            this._keybindingManager.listenFor('<Control>space', onToggle);
     }
 
     disable() {

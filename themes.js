@@ -147,6 +147,20 @@ export const THEMES = [
         },
     },
     {
+        id: 'fuzzel',
+        title: 'Fuzzel',
+        description: 'Solarized light Wayland launcher with a 10px rounded frame',
+        hint: 'Type to search',
+        look: {
+            position: 'center',
+            density: 'compact',
+            showNumbers: false,
+            showHeaders: false,
+            resultOrder: 'default',
+            iconSize: 24,
+        },
+    },
+    {
         id: 'light',
         title: 'Light',
         description: 'Adwaita light card for a light GNOME session',

@@ -166,9 +166,9 @@ That compiles the schema, parses every JavaScript file, runs `tests/run.mjs`, an
 Manual testing on GNOME Shell 50 Wayland:
 
 1. Open with `Ctrl+Space`, type `set`, confirm Settings and apps appear. Type `browser` if Firefox or another browser is installed — it should appear from GenericName or Keywords.
-2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3` or `1,000+2` — both should evaluate.
+2. Type `12*8+3` and Enter — clipboard should contain `99`. Type `2×3`, `2**3`, `2 x 3`, `1e3+2`, or `1,000+2` — all should evaluate.
 3. Type `=2^8` — calculator prefix should show `256`.
-4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, and Light.
+4. Switch look to Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, and Light.
 5. Disable calculator in Features and confirm `12*8+3` no longer evaluates.
 6. Press Escape, click outside, and press the shortcut again — all three must close the popup.
 7. Press Home and End in a long result list — selection should jump to the first and last rows. Keypad arrows with Num Lock off should move the selection too.
@@ -176,9 +176,10 @@ Manual testing on GNOME Shell 50 Wayland:
 9. Click outside the popup — it must close without crashing the shell (Clutter 18). On a second monitor the click must still close it.
 10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
-12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
+12. Type `localhost:3000` — a URL result should open `http://localhost:3000`. Type `::1` — it should open `http://[::1]`. Type `node.js` — it must stay an app search, not a URL. Type `nas.local` — it should open `http://nas.local`.
 13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
 14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it.
+15. Type `appearance` or `wallpaper` — Settings should open the background panel. GNOME 50 has no appearance id.
 
 ## Submitting Changes
 

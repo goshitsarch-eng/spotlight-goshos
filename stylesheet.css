@@ -623,6 +623,72 @@
   padding: 4px 8px 2px 8px;
 }
 
+/* fuzzel look - solarized light rounded frame */
+.gosh-theme-fuzzel {
+  background-color: #fdf6e3;
+  border-radius: 10px;
+  border: 1px solid #002b36;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 43, 54, 0.22);
+}
+
+.gosh-theme-fuzzel .gosh-entry-box,
+.gosh-theme-fuzzel .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-fuzzel .gosh-entry {
+  color: #657b83;
+  caret-color: #cb4b16;
+  selection-background-color: #eee8d5;
+  font-size: 15px;
+  padding: 8px 10px 8px 0;
+}
+
+.gosh-theme-fuzzel .gosh-entry StLabel.hint-text {
+  color: #93a1a1;
+}
+
+.gosh-theme-fuzzel .gosh-search-icon {
+  color: #cb4b16;
+  padding: 0 8px 0 6px;
+}
+
+.gosh-theme-fuzzel .gosh-result {
+  color: #657b83;
+  border-radius: 0;
+  padding: 5px 8px;
+}
+
+.gosh-theme-fuzzel .gosh-result:hover,
+.gosh-theme-fuzzel .gosh-result:focus,
+.gosh-theme-fuzzel .gosh-result.gosh-selected {
+  background-color: #eee8d5;
+  color: #586e75;
+}
+
+.gosh-theme-fuzzel .gosh-result-description,
+.gosh-theme-fuzzel .gosh-result-index {
+  color: #93a1a1;
+}
+
+.gosh-theme-fuzzel .gosh-section-header {
+  color: #93a1a1;
+  padding: 4px 8px 2px 8px;
+}
+
+.gosh-theme-fuzzel .gosh-no-results {
+  color: #93a1a1;
+}
+
+.gosh-theme-fuzzel .gosh-no-results-title {
+  color: #586e75;
+}
+
 /* light look - adwaita light card */
 .gosh-theme-light {
   background-color: #f6f5f4;

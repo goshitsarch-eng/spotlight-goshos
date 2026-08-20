@@ -28,6 +28,7 @@ The popup can look like several real launchers. Pick a look in preferences:
 | **Raycast** | [Raycast](https://www.raycast.com) | Dark rounded panel, red caret, larger icons, no section headers. |
 | **Albert** | [Albert](https://albertlauncher.github.io) | Breeze-dark card with a `#1d99f3` selected row and section headers. |
 | **Wofi** | [Wofi](https://hg.sr.ht/~scoopta/wofi) | Compact Wayland dmenu list, `#1d1f21` with `#285577` selection. |
+| **Fuzzel** | [Fuzzel](https://codeberg.org/dnkl/fuzzel) | Default Solarized light frame (`#fdf6e3`, `#eee8d5` selection, 10px radius). |
 | **Light** | GNOME Adwaita light | Light card for a light session: `#f6f5f4` with the GNOME blue selected row. |
 
 Picking a look applies its colors and the matching chrome (position, density, headers, number hints, icon size, and whether open windows list first). You can still override those after. There is no blur effect. COSMIC's frosted glass is a compositor feature; GNOME Shell blur is expensive and is not used. Compact density still shrinks rows on every look; it does not flatten Pop!_OS icons down to KRunner size.
@@ -41,7 +42,7 @@ Results are aggregated in the following order. Each category is rendered under i
 3. **Calculator** — A recursive-descent parser evaluates the input live. Pressing `Enter` copies the result to the clipboard. Supports `+`, `-`, `*`, `/`, `%`, `^`, parentheses, unary negation, unicode `×` `÷` `−`, and thousands commas (`1,000+2`). A bare number such as `42` is not math unless you prefix it (`=42`).
 4. **Windows** — Switch to an open window by title or window class, including modal dialogs.
 5. **System Actions** — Lock, suspend, restart, shut down, log out, switch user, and take a screenshot, only when GNOME says the action is available.
-6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the Settings app if that binary is missing.
+6. **GNOME Settings** — Direct navigation to Settings panels via `gnome-control-center`, or the panel desktop file / Settings app if that binary is missing. Appearance and wallpaper both open the `background` panel, which is the id GNOME 50 still ships.
 7. **Recent files** — Entries from `~/.local/share/recently-used.xbel`, loaded asynchronously so search does not block the compositor. Icons follow the file extension.
 8. **Web Search** — Last-resort fallback in the default browser.
 
@@ -109,7 +110,7 @@ gnome-extensions prefs gosh-is-launcher@nin
 Configurable options:
 
 - Toggle keyboard shortcut
-- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Light)
+- Launcher look (Spotlight, Omarchy, Pop!_OS, Ulauncher, KRunner, GNOME, Rofi, Raycast, Albert, Wofi, Fuzzel, Light)
 - Position (center or top)
 - Row density
 - Result order (apps first, or windows first like Pop!_OS)
