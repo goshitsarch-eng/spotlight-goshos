@@ -19,6 +19,15 @@ export function themeScaleFromContext(ctx) {
     return themeScale(ctx.scale_factor);
 }
 
+// enable can run before the stage theme exists attach on the next fit
+export function nextScaleListenAction(hasListener, context) {
+    if (hasListener)
+        return 'keep';
+    if (!context)
+        return 'wait';
+    return 'listen';
+}
+
 export function stagePx(logical, scale) {
     return Math.round(logical * themeScale(scale));
 }

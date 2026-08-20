@@ -27,7 +27,7 @@ import {popupChromeShouldFocus, shouldRunRefocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
-import {themeScaleFromContext, stagePx} from './uiScale.js';
+import {themeScaleFromContext, stagePx, nextScaleListenAction} from './uiScale.js';
 import {addPopupChrome, removePopupChrome, raiseInputChrome, shouldWatchInputChrome, shouldScheduleInputChromeRaise, shouldRaiseOnInputChromeAllocation, uiGroupChildren} from './popupChrome.js';
 import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
@@ -655,14 +655,14 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     _uiScale() {
+        if (!this._scaleContext)
+            this._listenScale();
         return themeScaleFromContext(St.ThemeContext.get_for_stage(global.stage));
     }
 
     _listenScale() {
-        if (this._scaleContext)
-            return;
         const ctx = St.ThemeContext.get_for_stage(global.stage);
-        if (!ctx)
+        if (nextScaleListenAction(Boolean(this._scaleContext), ctx) !== 'listen')
             return;
         ctx.connectObject('notify::scale-factor', () => {
             if (this._isOpen)

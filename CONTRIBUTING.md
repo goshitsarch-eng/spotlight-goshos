@@ -325,6 +325,7 @@ Manual testing on GNOME Shell 50 Wayland:
 122. Close or disable while the session is tearing down — the next enable must not leave a leftover popup or unredirect hold, and the shortcut must open again. `hide()` must run before host disconnects so a throw cannot leave the actor visible (`canOpenPopup` treats visible as already open).
 123. Disable the extension, `gsettings set org.gnome.shell.extensions.gosh-is-launcher launcher-theme rofi`, then enable — the search icon, result icons, and descriptions must hide. A custom icon size after picking Spotlight in preferences must still survive disable and enable.
 124. On GNOME 47+, set a teal or purple accent, then switch to the GNOME or Light look — the caret and selected row must follow that accent. Spotlight and Pop!_OS must keep their own colors. On GNOME 45/46 the GNOME look stays Adwaita blue.
+125. Enable the extension before a theme scale exists, then open the launcher after `ThemeContext` is ready — a 600px width must use the live scale, not stay 1×. Change scale while that popup is open — it must refit even though enable never saw a context.
 
 ## Submitting Changes
 
