@@ -239,6 +239,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Duration, area, energy, power, and angle conversions (`2 hours to min`, `1 acre to m2`, `200 kcal to kj`, `1 hp to kw`, `180 deg to rad`). Minutes are `min` so `m` stays meters.
 - GTK bookmark lines that are bare filesystem paths or `~/…` become `file://` URIs. Existing `file://` and `sftp://` lines with spaces are re-encoded before launch, including network `file://host/share`. `javascript:` bookmarks are ignored.
 - Gio finishes after close are dropped so a late exists check cannot repaint a hidden popup. Clicking a result row or the scrollbar returns focus to the search entry so later letters still type. Alt-tab still closes.
+- A provider that throws (a window that closed mid-search, or a recent-file URI with latin-1 percent bytes) leaves the other categories on screen.
 
 This environment cannot run a live GNOME Shell 50 Wayland session. After install, walk each look, disable a provider, and confirm Escape, click-outside, and the toggle shortcut all close the popup.
 

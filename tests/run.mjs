@@ -25,7 +25,7 @@ import {shouldOfferApp, hasParentalGiveUp, markParentalGiveUp, resetParentalGive
 import {activateResultSafe, resultCanActivate, activatableResult, indexedActivatableResult} from '../resultActivate.js';
 import {firstCommandArg, commandUsesPathLookup, commandIsReady, commandFileIsReady, commandRowMeta} from '../commandReady.js';
 import {extraPathDirs, findUserProgram, joinPathDirs} from '../userPath.js';
-import {isPathQuery, expandHomePath, expandHomeArgv, resolveSpawnPath, resolveCommandArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath, canonicalizeFileUri, canonicalizeRemoteUri, canonicalizeLaunchUri} from '../homePath.js';
+import {isPathQuery, expandHomePath, expandHomeArgv, resolveSpawnPath, resolveCommandArgv, normalizeAbsolute, fileUriFromAbsolute, collapseHomePath, canonicalizeFileUri, canonicalizeRemoteUri, canonicalizeLaunchUri, decodeUriComponentSafe} from '../homePath.js';
 import {pathRowMeta} from '../pathMatch.js';
 import {terminalSpec, terminalCommand, terminalRowMeta} from '../terminalLaunch.js';
 import {placeMatches, matchPlaces, PLACE_CATALOG, takeUniquePlaces} from '../placeMatch.js';
@@ -36,7 +36,7 @@ import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
 import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusLossAction} from '../focusLoss.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
-import {collectSearchResults} from '../searchRun.js';
+import {collectSearchResults, appendProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
 import {parseWorkspaceSwitchQuery, workspaceSwitchTitle, workspaceIndexInRange, workspaceResultId} from '../workspaceQuery.js';
@@ -955,6 +955,18 @@ assertEq(collectSearchResults(planned, 4, providers, null)[0].n, 4, 'max passed 
 assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: true}, 3, providers, null)[0].title, 'web:z', 'web fallback');
 assertEq(collectSearchResults({providers: ['apps'], query: 'z', webFallback: false}, 3, providers, null).length, 0, 'web off');
 assertEq(collectSearchResults({providers: ['missing'], query: 'x', webFallback: false}, 3, providers, null).length, 0, 'skip unknown provider');
+const mixedProviders = {
+    apps: () => [{title: 'Kept'}],
+    windows: () => {
+        throw new Error('window vanished');
+    },
+};
+assertEq(collectSearchResults({providers: ['apps', 'windows'], query: 'x', webFallback: false}, 3, mixedProviders, null)[0].title, 'Kept', 'throwing provider keeps prior rows');
+const isolated = [];
+appendProviderResults(isolated, () => {
+    throw new Error('gio');
+}, 'q', 3, null, 'all');
+assertEq(isolated.length, 0, 'append swallows provider throw');
 
 const calcProviders = {
     calculator: (query, _max, _settings, mode) => {
@@ -1343,6 +1355,13 @@ assertEq(remoteHostFromUri('file:///tmp/a'), '', 'file uri has no host');
 assertEq(parseRecentXbel(xbel)[2], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
 assertEq(basenameFromUri('file:///home/user/My%20File.pdf'), 'My File.pdf', 'unescape basename');
 assertEq(basenameFromUri('file:///tmp/a%'), 'a%', 'lone percent stays');
+assertEq(basenameFromUri('file:///tmp/caf%E9.txt'), 'caf%E9.txt', 'latin1 basename does not throw');
+assertEq(decodeUriComponentSafe('My%20File'), 'My File', 'safe decode space');
+assertEq(decodeUriComponentSafe('caf%E9'), 'caf%E9', 'safe decode latin1');
+assertEq(pathFromFileUri('file:///home/u/caf%E9'), '', 'latin1 file path is not a utf8 path');
+assert(isFileUrlQuery('file:///home/u/caf%E9'), 'latin1 file uri is still a location');
+assertEq(canonicalizeFileUri('file:///home/u/caf%E9'), 'file:///home/u/caf%E9', 'latin1 file uri stays');
+assertEq(canonicalizeRemoteUri('sftp://nas/caf%E9'), 'sftp://nas/caf%E9', 'latin1 remote uri stays');
 assertEq(pathFromFileUri('file:///home/user/My%20File.pdf'), '/home/user/My File.pdf', 'file uri path');
 assertEq(parentPathFromFileUri('file:///home/user/My%20File.pdf'), '/home/user', 'file uri parent');
 assertEq(parentPathFromFileUri('file:///tmp/a'), '/tmp', 'rootish parent');

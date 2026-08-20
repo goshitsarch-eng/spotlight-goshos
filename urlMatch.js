@@ -71,6 +71,9 @@ export function isFileUrlQuery(query) {
         return false;
     if (pathFromFileUri(query))
         return true;
+    // local file:/// with latin-1 percent bytes still opens
+    if (/^file:\/\/\/\S*$/i.test(query))
+        return true;
     // file://host/share may contain spaces after the host
     return /^file:\/\/[^/\s?#]+(\/.*)?$/i.test(query);
 }

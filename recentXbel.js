@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {textMatchesQuery, pathMatchesQuery} from './wordMatch.js';
-import {pathFromFileUri} from './homePath.js';
+import {pathFromFileUri, decodeUriComponentSafe} from './homePath.js';
 
 export {pathFromFileUri};
 
@@ -113,7 +113,5 @@ export function recentFileMatches(name, folder, query) {
 export function basenameFromUri(uri) {
     const parts = uri.split('/');
     const raw = parts[parts.length - 1] || uri;
-    // turn lone % into %25 so decodeURIComponent cannot throw
-    const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
-    return decodeURIComponent(safe);
+    return decodeUriComponentSafe(raw);
 }

@@ -98,6 +98,19 @@ export function fileUriFromAbsolute(path) {
     return `file://${path.split('/').map(part => encodeURIComponent(part)).join('/')}`;
 }
 
+// xbel and gtk bookmarks can carry latin-1 percent bytes decodeURIComponent
+// throws on those and one bad href must not take down the whole search
+export function decodeUriComponentSafe(text) {
+    if (!text)
+        return '';
+    const safe = text.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+    try {
+        return decodeURIComponent(safe);
+    } catch (e) {
+        return safe;
+    }
+}
+
 export function pathFromFileUri(uri) {
     const href = uri.split('#')[0].split('?')[0];
     if (!href.toLowerCase().startsWith('file://'))
@@ -109,15 +122,22 @@ export function pathFromFileUri(uri) {
         raw = raw.slice('localhost'.length);
     if (!raw.startsWith('/'))
         return '';
-    const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
-    return decodeURIComponent(safe);
+    try {
+        return decodeURIComponent(raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25'));
+    } catch (e) {
+        return '';
+    }
 }
 
 function encodeUriPathPart(part) {
     if (!part)
         return '';
     const safe = part.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
-    return encodeURIComponent(decodeURIComponent(safe));
+    try {
+        return encodeURIComponent(decodeURIComponent(safe));
+    } catch (e) {
+        return safe;
+    }
 }
 
 function encodeAuthorityUri(uri, pattern) {

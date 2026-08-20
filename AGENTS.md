@@ -145,7 +145,7 @@ gosh-is-launcher@nin/
     resultPointer.js          result row press/release (pure)
     focusLoss.js              close vs refocus the entry (pure)
     backdropBox.js            multi-monitor click-outside box (pure)
-    searchRun.js              run a plan against providers (pure)
+    searchRun.js              run a plan against providers and isolate a throw (pure)
     windowMatch.js            window title class match and wayland recency (pure)
     windowClose.js            close kill and quit window queries (pure)
     workspaceQuery.js         switch to workspace n (pure)
