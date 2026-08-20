@@ -11,11 +11,13 @@ export function shouldListWindow(hasWorkspace, skipTaskbar, type, listedTypes) {
     return false;
 }
 
-export function windowMatches(title, wmClass, query) {
+export function windowMatches(title, wmClass, query, workspaceLabel) {
     if (query.length === 0)
         return true;
     const q = query.toLowerCase();
-    return title.toLowerCase().includes(q) || wmClass.toLowerCase().includes(q);
+    if (title.toLowerCase().includes(q) || wmClass.toLowerCase().includes(q))
+        return true;
+    return Boolean(workspaceLabel) && workspaceLabel.toLowerCase().includes(q);
 }
 
 // mutter workspace.index is 0-based launchers show Workspace 1

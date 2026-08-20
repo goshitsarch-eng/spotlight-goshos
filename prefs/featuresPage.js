@@ -21,11 +21,11 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-calculator',
         'Calculator', 'Evaluate math and copy the result with Enter');
     addSwitch(providers, settings, 'enable-window-search',
-        'Open windows', 'Switch to a running window');
+        'Open windows', 'Switch by title, class, or workspace');
     addSwitch(providers, settings, 'enable-system-actions',
         'System actions', 'Lock, suspend, restart, shut down, log out, switch user, screenshot');
     addSwitch(providers, settings, 'enable-settings-search',
-        'GNOME Settings', 'Jump to Settings panels');
+        'GNOME Settings', 'Jump to Settings panels including Privacy & Security');
     addSwitch(providers, settings, 'enable-recent-files',
         'Recent files', 'Open recently used files');
     addSwitch(providers, settings, 'enable-url-open',

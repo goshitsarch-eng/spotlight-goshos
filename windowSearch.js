@@ -53,20 +53,20 @@ export function searchWindows(query, maxResults) {
             win.get_wm_class_instance(),
             sandboxed,
         );
-        if (!windowMatches(win.get_title() || '', wmClass, q))
+        const title = win.get_title() || 'Untitled';
+        const workspace = win.get_workspace();
+        const description = windowWorkspaceLabel(
+            workspace ? workspace.index() : -1,
+            win.is_on_all_workspaces(),
+        );
+        if (!windowMatches(title, wmClass, q, description))
             continue;
 
-        const title = win.get_title() || 'Untitled';
-        const icon = _windowIcon(win);
-        const workspace = win.get_workspace();
         results.push({
             type: 'window',
             title,
-            description: windowWorkspaceLabel(
-                workspace ? workspace.index() : -1,
-                win.is_on_all_workspaces(),
-            ),
-            icon,
+            description,
+            icon: _windowIcon(win),
             activate: () => {
                 if (!win.get_workspace())
                     return;

@@ -74,6 +74,36 @@ export function recentExistsShouldSettle(pending, elapsedMs, budgetMs) {
     return pending <= 0 || elapsedMs >= budgetMs;
 }
 
+export function pathFromFileUri(uri) {
+    const href = uri.split('#')[0].split('?')[0];
+    if (!href.startsWith('file://'))
+        return '';
+    const raw = href.slice('file://'.length);
+    if (!raw.startsWith('/'))
+        return '';
+    const safe = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '%25');
+    return decodeURIComponent(safe);
+}
+
+export function parentPathFromFileUri(uri) {
+    const path = pathFromFileUri(uri);
+    if (!path)
+        return '';
+    const slash = path.lastIndexOf('/');
+    if (slash < 0)
+        return '';
+    if (slash === 0)
+        return '/';
+    return path.slice(0, slash);
+}
+
+export function recentFileMatches(name, folder, query) {
+    if (query.length === 0)
+        return true;
+    const q = query.toLowerCase();
+    return name.toLowerCase().includes(q) || folder.toLowerCase().includes(q);
+}
+
 export function basenameFromUri(uri) {
     const parts = uri.split('/');
     const raw = parts[parts.length - 1] || uri;

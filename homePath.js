@@ -63,6 +63,16 @@ export function expandHomeArgv(argv, home) {
     return argv.map(arg => expandHomePath(arg, home));
 }
 
+export function collapseHomePath(path, home) {
+    if (!path)
+        return '';
+    if (home && path === home)
+        return '~';
+    if (home && path.startsWith(`${home}/`))
+        return `~${path.slice(home.length)}`;
+    return path;
+}
+
 export function fileUriFromAbsolute(path) {
     return `file://${path.split('/').map(part => encodeURIComponent(part)).join('/')}`;
 }

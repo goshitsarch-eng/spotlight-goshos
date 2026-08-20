@@ -4,9 +4,10 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {
-    parseRecentXbel, basenameFromUri, iconForBasename,
-    RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
+    parseRecentXbel, basenameFromUri, iconForBasename, parentPathFromFileUri,
+    recentFileMatches, RECENT_EXISTS_BUDGET_MS, recentExistsShouldSettle,
 } from './recentXbel.js';
+import {collapseHomePath} from './homePath.js';
 import {openUri} from './gioLaunch.js';
 
 // cache is filled on an async read so search never calls load_contents
@@ -148,17 +149,20 @@ export function searchRecentFiles(query, maxResults) {
         return [];
 
     const q = query.toLowerCase();
+    const home = GLib.get_home_dir() || '';
     const results = [];
     for (const uri of _uris) {
         if (results.length >= maxResults)
             break;
         const name = basenameFromUri(uri);
-        if (q.length > 0 && !name.toLowerCase().includes(q))
+        const parent = parentPathFromFileUri(uri);
+        const folder = parent ? collapseHomePath(parent, home) : 'Recent file';
+        if (!recentFileMatches(name, folder, q))
             continue;
         results.push({
             type: 'file',
             title: name,
-            description: 'Recent file',
+            description: folder,
             icon: iconForBasename(name),
             activate: () => {
                 openUri(uri);
