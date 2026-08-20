@@ -101,7 +101,7 @@ Pure functions with no side effects:
 - **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
 - **`paintSelection.js`** — Keep the selected row across an async repaint.
 - **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint. A closed popup must not accept one.
-- **`focusLoss.js`** — Close on alt-tab, or return focus to the search entry after a row click.
+- **`focusLoss.js`** — Close on alt-tab, or return focus to the search entry after a row click or when GNOME 48+ reports null focus.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
 - **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
@@ -299,6 +299,7 @@ Manual testing on GNOME Shell 50 Wayland:
 99. Click a pending Checking path row — the shell must stay up (Clutter 18 must not abort from a focus grab during button-release). Then type a letter — it must still reach the entry.
 100. Open the launcher over an always-on-top window or a fullscreen video — the popup must appear above that window, and a click on it must close the launcher instead of activating the window. Open the on-screen keyboard while the popup is open — the list must lift or shrink so the keyboard does not cover the entry.
 101. Open the launcher over a fullscreen game or video that uses unredirect / direct scanout — the popup must appear (not stay invisible behind the fullscreen surface). Close it — fullscreen presentation must resume without a leftover unredirect hold.
+102. Click the search icon or empty padding of the open popup — Escape must still close it and the next letter must reach the entry. Alt-tab must still close and leave the first keystroke with the window you switched to.
 
 ## Submitting Changes
 

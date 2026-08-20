@@ -6,7 +6,7 @@ import {focusIsSearchEntry, focusLossAction} from './focusLoss.js';
 
 // watches notify::key-focus on global.stage - if focus moves to an actor
 // outside the popup, for example via alt-tab, the popup closes
-// a click on a row or scrollbar that still steals focus is returned
+// a click on a row or scrollbar or a gnome 48 null focus is returned
 // to the entry so later letters do not vanish
 //
 // setup is deferred via an idle source to avoid firing during the initial

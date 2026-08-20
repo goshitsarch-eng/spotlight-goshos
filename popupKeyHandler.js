@@ -7,6 +7,7 @@ import {resolveKeyAction, resolveHomeEndAction, resolveCtrlNav, isNavAction} fro
 import {activatableResult, indexedActivatableResult} from './resultActivate.js';
 import {readPreedit, shouldPropagateForPreedit} from './entryPreedit.js';
 import {shouldIgnoreNavRepeat} from './navRepeat.js';
+import {shouldCaptureKeys} from './focusLoss.js';
 
 const KEY_NAMES = {
     [Clutter.KEY_Escape]: 'Escape',
@@ -78,7 +79,12 @@ export class PopupKeyHandler {
             return Clutter.EVENT_PROPAGATE;
 
         const focus = global.stage.get_key_focus();
-        if (!focus || !this._popup.contains(focus))
+        if (!shouldCaptureKeys(
+            true,
+            Boolean(focus),
+            focus === global.stage,
+            Boolean(focus && this._popup.contains(focus)),
+        ))
             return Clutter.EVENT_PROPAGATE;
 
         const clutterText = this._popup._entry.clutter_text;
