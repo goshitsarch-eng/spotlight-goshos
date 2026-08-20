@@ -2,11 +2,12 @@ import {evaluateArithmetic, formatNumber} from '../calculator.js';
 import {parseQuery, PREFIXES, isPrefixToken} from '../prefixParser.js';
 import {isUrlQuery, normalizeUrl, hostOfQuery, schemeForHost} from '../urlMatch.js';
 import {canOpenPopup, shouldCloseOnToggle} from '../popupGate.js';
+import {popupOrigin} from '../popupPosition.js';
 import {THEMES, getTheme, getThemeIds, applyLookSettings, iconSizeForLook} from '../themes.js';
 import {SEARCH_ENGINES, getEngine} from '../webEngines.js';
 import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
-import {planSearch, flagsFromSettings} from '../searchPlan.js';
+import {planSearch, flagsFromSettings, isActiveSearchQuery} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
 import {matchSettingsPanels, SETTINGS_PANELS} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
@@ -112,6 +113,15 @@ assert(shouldCloseOnToggle(true, false), 'idle gap still toggles closed');
 assert(shouldCloseOnToggle(false, true), 'visible toggles closed');
 assert(!shouldCloseOnToggle(false, false), 'closed stays closed');
 
+const work = {x: 100, y: 40, width: 1800, height: 1000};
+assertEq(popupOrigin(work, 600, 80, 'center').x, 700, 'center x in work area');
+assertEq(popupOrigin(work, 600, 80, 'center').y, 500, 'center y in work area');
+assertEq(popupOrigin(work, 600, 80, 'top').y, 160, 'top is 12 percent into work area');
+const tiny = {x: 0, y: 0, width: 400, height: 300};
+assertEq(popupOrigin(tiny, 600, 80, 'center').x, 0, 'wide popup pins to work left');
+assertEq(popupOrigin(tiny, 200, 400, 'center').y, 0, 'tall popup pins to work top');
+assertEq(popupOrigin({x: 50, y: 20, width: 400, height: 300}, 600, 80, 'center').x, 50, 'pin keeps work origin');
+
 // catalogs stay aligned
 const themeIds = getThemeIds();
 assert(themeIds.includes('omarchy'), 'omarchy theme');
@@ -200,6 +210,12 @@ assertEq(planSearch('@cats', allOn).providers.join(','), 'web', 'plan web prefix
 assertEq(planSearch('chrome', allOn).mode, 'all', 'plan all');
 assert(planSearch('chrome', allOn).webFallback, 'web fallback armed');
 assert(planSearch('chrome', allOn).providers.includes('apps'), 'apps in all');
+assert(isActiveSearchQuery(' chrome '), 'typed query is active');
+assert(!isActiveSearchQuery('   '), 'whitespace is not a typed query');
+assertEq(planSearch('', allOn).providers.length, 0, 'empty all-mode runs nothing');
+assertEq(planSearch('   ', allOn).webFallback, false, 'empty all-mode has no web');
+assertEq(planSearch('$', allOn).providers.join(','), 'windows', 'empty windows prefix still lists windows');
+assertEq(planSearch('#', allOn).providers.join(','), 'settings', 'empty settings prefix still lists panels');
 const noCalc = Object.assign({}, allOn, {calculator: false});
 assertEq(planSearch('=2+2', noCalc).providers.length, 0, 'disabled calc prefix');
 const noPrefix = Object.assign({}, allOn, {prefixModes: false});

@@ -93,6 +93,7 @@ Pure functions with no side effects:
 - **`commandReady.js`** — Whether a parsed command argv can be spawned.
 - **`shortcutAccel.js`** — Build a mutter accelerator string from a key and modifiers.
 - **`popupGate.js`** — Whether a shortcut should open or close, including lock screen.
+- **`popupPosition.js`** — Work-area origin so the popup stays off the panel.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching.
 
@@ -170,10 +171,11 @@ Manual testing on GNOME Shell 50 Wayland:
 7. Press Home and End in a long result list — selection should jump to the first and last rows.
 8. Open the popup and immediately press the shortcut again before results appear — it must close, not stack a second backdrop.
 9. Click outside the popup — it must close without crashing the shell (Clutter 18).
-10. Type `!no-such-command` with the command runner on and press Enter — the popup must close and the shell must stay up.
+10. Type `!no-such-command` with the command runner on — the row should say Command not found. Press Enter — the popup must close and the shell must stay up.
 11. Type `screenshot` and press Enter with Overview closed — the screenshot UI must open.
 12. Type `localhost:3000` — a URL result should open `http://localhost:3000`.
 13. Type `.bashrc` — it must stay a normal search, not jump to recent files. Type `. notes` to force files.
+14. Switch to Pop!_OS or KRunner — the popup must sit below the GNOME top bar, not under it.
 
 ## Submitting Changes
 

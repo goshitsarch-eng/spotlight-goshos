@@ -131,6 +131,7 @@ required = [
     'commandReady.js',
     'shortcutAccel.js',
     'popupGate.js',
+    'popupPosition.js',
     'searchRun.js',
     'windowMatch.js',
     'scrollView.js',

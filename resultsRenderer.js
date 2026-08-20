@@ -7,6 +7,7 @@ import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
 import {runSearch, runEmptySuggestions} from './searchController.js';
+import {isActiveSearchQuery} from './searchPlan.js';
 import {getTheme, iconSizeForLook} from './themes.js';
 import {ensureRecentFiles} from './recentFilesSearch.js';
 
@@ -56,12 +57,13 @@ export class ResultsRenderer {
 
         this._searchIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._searchIdleId = 0;
-            this._runSearch(text);
+            this._runSearch();
             return GLib.SOURCE_REMOVE;
         });
     }
 
     _showEmptyState() {
+        this._generation += 1;
         const suggestions = runEmptySuggestions(this._settings);
         if (suggestions.length === 0) {
             this.reset();
@@ -70,16 +72,24 @@ export class ResultsRenderer {
         this._paint(suggestions, '');
     }
 
-    _runSearch(text) {
-        this._paint(runSearch(text, this._settings), text.trim());
+    _runSearch() {
+        this._generation += 1;
+        const query = this._lastQuery;
+        if (!isActiveSearchQuery(query)) {
+            this._showEmptyState();
+            return;
+        }
+        this._paint(runSearch(query, this._settings), query.trim());
         if (!this._settings.get_boolean('enable-recent-files'))
             return;
         const gen = this._generation;
         ensureRecentFiles(() => {
             if (gen !== this._generation)
                 return;
-            const query = this._lastQuery;
-            this._paint(runSearch(query, this._settings), query.trim());
+            const latest = this._lastQuery;
+            if (!isActiveSearchQuery(latest))
+                return;
+            this._paint(runSearch(latest, this._settings), latest.trim());
         });
     }
 

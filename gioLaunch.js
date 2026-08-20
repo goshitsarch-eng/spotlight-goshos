@@ -17,7 +17,11 @@ export function spawnArgv(argv) {
     const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE);
     // wait_async holds the subprocess until exit so gc cannot SIGTERM it
     proc.wait_async(null, (p, res) => {
-        p.wait_finish(res);
+        try {
+            p.wait_finish(res);
+        } catch (e) {
+            // finish must run so the async result is consumed
+        }
     });
 }
 
@@ -25,6 +29,10 @@ export function openUri(uri) {
     // timestamp 0 workspace -1 is the same launch context shell.apps use
     const context = global.create_app_launch_context(0, -1);
     Gio.AppInfo.launch_default_for_uri_async(uri, context, null, (_src, res) => {
-        Gio.AppInfo.launch_default_for_uri_finish(res);
+        try {
+            Gio.AppInfo.launch_default_for_uri_finish(res);
+        } catch (e) {
+            // finish must run so the async result is consumed
+        }
     });
 }

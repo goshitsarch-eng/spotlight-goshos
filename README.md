@@ -129,11 +129,13 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `extension.js` | Entry point — constructs the popup and registers the keybinding |
 | `prefs.js` | Preferences window entry point |
 | `launcherPopup.js` | Popup widget — open/close, theme chrome, positioning |
+| `popupPosition.js` | Work-area origin so top looks sit below the panel |
 | `searchEntry.js` | Search input with magnifying-glass icon |
 | `resultsContainer.js` | Scrollable results area |
 | `scrollView.js` | GNOME 45–50 `St.ScrollView` attach, policy, and adjustment |
 | `resultRow.js` | Single result row with icon, title, and optional number hint |
 | `searchController.js` | Orchestrates providers and prefix modes |
+| `searchPlan.js` | Feature flags and empty all-mode guard |
 | `appSearch.js` | Application search via `Shell.AppSystem` |
 | `windowSearch.js` | Open window switcher |
 | `calculator.js` | Recursive-descent arithmetic parser |
@@ -146,7 +148,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 - **Looks are settings.** One popup, many CSS themes. No forked widget trees.
 - **Dark, not black** on the Spotlight look. Background `#1c1c1e` with text `#f5f5f7`.
 - **No blur, no overlay, no border** on the Spotlight look. Other looks may add a thin theme border.
-- **Fixed anchor.** The popup is positioned once at open time and grows downward from that anchor.
+- **Fixed anchor.** The popup is positioned once at open time in the primary work area (below the panel) and grows downward from that anchor.
 - **Instant.** No fade-in, no slide animation.
 - **GNOME 50 safe.** No X11-only APIs, no `RunDialog._restart`, no `holdKeyboard` / `releaseKeyboard`.
 

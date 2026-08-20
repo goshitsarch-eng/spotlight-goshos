@@ -16,6 +16,7 @@ import {FocusLossWatcher} from './focusLossWatcher.js';
 import {getTheme} from './themes.js';
 import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {canOpenPopup} from './popupGate.js';
+import {popupOrigin} from './popupPosition.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -131,16 +132,16 @@ class LauncherPopup extends St.BoxLayout {
     // this prevents the popup from shifting upward when results grow
     _reposition() {
         const monitor = Main.layoutManager.primaryMonitor;
+        const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
         const popupWidth = this._settings.get_int('popup-width');
         const [, naturalHeight] = this.get_preferred_height(popupWidth);
-        const x = Math.floor(monitor.x + (monitor.width - popupWidth) / 2);
-        const position = this._settings.get_string('popup-position');
-        let y;
-        if (position === 'top')
-            y = Math.floor(monitor.y + monitor.height * 0.12);
-        else
-            y = Math.floor(monitor.y + (monitor.height - naturalHeight) / 2);
-        this.set_position(x, y);
+        const origin = popupOrigin(
+            workArea,
+            popupWidth,
+            naturalHeight,
+            this._settings.get_string('popup-position'),
+        );
+        this.set_position(origin.x, origin.y);
     }
 
     open() {

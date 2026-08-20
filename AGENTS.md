@@ -115,6 +115,7 @@ gosh-is-launcher@nin/
     commandReady.js           whether a command argv can be spawned (pure)
     shortcutAccel.js          mutter accelerator string (pure)
     popupGate.js              open versus toggle-close (pure)
+    popupPosition.js          work-area origin (pure)
     searchRun.js              run a plan against providers (pure)
     windowMatch.js            window title and class match (pure)
     gioLaunch.js              async spawn and uri open
@@ -149,7 +150,7 @@ gosh-is-launcher@nin/
         aboutPage.js
 ```
 
-pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate searchRun windowMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition searchPlan searchRun windowMatch wordMatch) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -194,9 +195,9 @@ each of these tracks its own handler id in an instance field and disconnects it 
 
 ### popup positioning
 
-the popup is positioned once in open() via _reposition() based on the empty-state height just the search entry with no results the popup then grows downward from this fixed position as results appear
+the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear
 
-center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the monitor height so popos and krunner looks sit high on the display
+center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the work area height so popos and krunner looks sit high without covering the panel
 
 do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side
 

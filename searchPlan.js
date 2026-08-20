@@ -31,10 +31,26 @@ export function flagsFromSettings(settings) {
     };
 }
 
+// empty all-mode must not run providers
+// window and settings matchers treat "" as a hit so a stale paint
+// after the user clears the entry would dump every window and panel
+export function isActiveSearchQuery(query) {
+    return query.trim().length > 0;
+}
+
 export function planSearch(text, flags) {
     const parsed = flags.prefixModes
         ? parseQuery(text)
         : {mode: 'all', query: text.trim()};
+
+    if (parsed.mode === 'all' && !isActiveSearchQuery(parsed.query)) {
+        return {
+            mode: 'all',
+            query: '',
+            providers: [],
+            webFallback: false,
+        };
+    }
 
     if (parsed.mode !== 'all') {
         const flag = PREFIX_TO_FLAG[parsed.mode];
