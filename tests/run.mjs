@@ -38,7 +38,7 @@ import {normalizeHexColor, normalizeRgbColor, normalizeHslColor, normalizeHwbCol
 import {paintSelectionIndex, firstSelectableIndex, resultSelectionKey} from '../paintSelection.js';
 import {shouldScheduleAsyncPaint, shouldRunAsyncPaint} from '../asyncPaint.js';
 import {resultRowShouldFocus, popupChromeShouldFocus, focusIsSearchEntry, focusLossAction} from '../focusLoss.js';
-import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist} from '../shortcutAccel.js';
+import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, shortcutDisplayLabel, shortcutLabelAfterChange, isModifierKeyName, shortcutAttempts, shortcutRetryList, shortcutToPersist, acceleratorGrabFlags} from '../shortcutAccel.js';
 import {collectSearchResults, appendProviderResults, safeProviderResults} from '../searchRun.js';
 import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel, workspaceLabelMatches, windowRecencyValue, windowResultId, takeWindowResults} from '../windowMatch.js';
 import {parseWindowCloseQuery, windowCloseTitle, shouldForceQuitWindow} from '../windowClose.js';
@@ -1833,6 +1833,9 @@ assertEq(shortcutRetryList('<Super>space', '<Alt>space').join(','), '', 'working
 assertEq(shortcutRetryList('<Super>space', '').join(','), '<Control>space,<Alt>space', 'first bind may fall back');
 assertEq(shortcutToPersist('<Super>space', '<Control>space'), '<Control>space', 'persist the grab that won');
 assertEq(shortcutToPersist('<Control>space', '<Control>space'), null, 'same shortcut needs no write');
+assertEq(acceleratorGrabFlags({IGNORE_AUTOREPEAT: 16}), 16, 'ignore hold-repeat');
+assertEq(acceleratorGrabFlags({}), 0, 'missing ignore flag');
+assertEq(acceleratorGrabFlags(null), 0, 'no keybinding flags');
 assertEq(shortcutDisplayLabel([]), 'Not set (will default to Ctrl+Space)', 'empty shortcut label');
 assertEq(shortcutDisplayLabel(['<Alt>space']), 'Alt+space', 'shortcut display');
 assertEq(shortcutLabelAfterChange(['<Control>space'], true), null, 'capture keeps the prompt');

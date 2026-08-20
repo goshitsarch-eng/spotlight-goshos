@@ -4,6 +4,7 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
+import {acceleratorGrabFlags} from './shortcutAccel.js';
 
 // grabs keys via mutter instead of gsettings
 // more reliable than addkeybinding which can fail if schema isn't ready at enable time
@@ -39,7 +40,11 @@ export class KeybindingManager {
             }
         }
 
-        const action = global.display.grab_accelerator(accelerator, 0);
+        // flags 0 delivers hold-repeat which cancel-open treats as a second press
+        const action = global.display.grab_accelerator(
+            accelerator,
+            acceleratorGrabFlags(Meta.KeyBindingFlags),
+        );
         if (action === Meta.KeyBindingAction.NONE) {
             console.warn(`gosh is launcher: failed to grab shortcut ${accelerator}`);
             return false;

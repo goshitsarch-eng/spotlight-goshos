@@ -117,3 +117,13 @@ export function shortcutToPersist(requested, working) {
         return null;
     return working;
 }
+
+// hold-repeat would cancel a pending open or flip reopen-after-close
+export function acceleratorGrabFlags(flags) {
+    if (!flags)
+        return 0;
+    const ignore = flags.IGNORE_AUTOREPEAT;
+    if (typeof ignore === 'number' && ignore > 0)
+        return ignore;
+    return 0;
+}

@@ -353,7 +353,7 @@ the default shortcut is `Ctrl+Space` stored in gsettings as `['<Control>space']`
 
 `Super+Space` is grabbed by gnome shell for input source switching on some setups and grab_accelerator fails silently when this happens use `Ctrl+Space` instead users can change it in preferences
 
-the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding() because addKeybinding can fail if the schema is not ready at enable time grab_accelerator is more reliable
+the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding() because addkeybinding can fail if the schema is not ready at enable time grab_accelerator is more reliable pass Meta.KeyBindingFlags.IGNORE_AUTOREPEAT so a held shortcut cannot fire accelerator-activated again and cancel the pending open or flip reopen-after-close feature-detect the flag so a host without it still grabs with 0
 
 the popup can be closed in three ways pressing the toggle shortcut again pressing `Escape` or clicking outside the popup bounds
 
