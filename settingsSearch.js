@@ -12,7 +12,7 @@ export function searchSettings(query, maxResults) {
         type: 'settings',
         title: panel.title,
         description: 'GNOME Settings',
-        icon: 'preferences-system-symbolic',
+        icon: panel.icon || 'preferences-system-symbolic',
         activate: () => {
             const argv = settingsArgv(panel.id, name => GLib.find_program_in_path(name));
             if (argv)

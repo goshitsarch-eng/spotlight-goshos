@@ -5,6 +5,12 @@ import {wordPrefixMatch} from './wordMatch.js';
 
 // strip a known trailing variant so firefox and firefox esr collapse
 // do not split on every hyphen or gnome-builder becomes gnome
+export function appRowDescription(windowCount) {
+    if (windowCount > 0)
+        return 'Switch to application';
+    return 'Application';
+}
+
 export function appBaseName(name) {
     return name.toLowerCase()
         .replace(/[\s-]+(esr|beta|nightly|dev|canary|stable|preview)$/, '')

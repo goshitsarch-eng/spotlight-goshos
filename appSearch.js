@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
 import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
-import {appMatchTier, takeUniqueByBaseName} from './appMatch.js';
+import {appMatchTier, takeUniqueByBaseName, appRowDescription} from './appMatch.js';
 
 function _parentalControls() {
     return ParentalControlsManager.getDefault();
@@ -43,7 +43,15 @@ export function searchApps(query, maxResults) {
         if (tier < 0)
             continue;
 
-        scored.push({app, appId: id, title: name, tier});
+        const shellApp = appSystem.lookup_app(id);
+        scored.push({
+            app,
+            appId: id,
+            title: name,
+            tier,
+            shellApp,
+            windowCount: shellApp ? shellApp.get_n_windows() : 0,
+        });
     }
 
     // appusage.compare is called once per sort pair so fetch the singleton
@@ -55,17 +63,17 @@ export function searchApps(query, maxResults) {
         return appUsage.compare(a.appId, b.appId);
     });
 
-    return takeUniqueByBaseName(scored, item => item.title, maxResults).map(({app, title}) => ({
+    return takeUniqueByBaseName(scored, item => item.title, maxResults).map(item => ({
         type: 'app',
-        title,
-        app,
-        icon: app.get_icon(),
+        title: item.title,
+        app: item.app,
+        description: appRowDescription(item.windowCount),
+        icon: item.app.get_icon(),
         activate: () => {
-            const shellApp = appSystem.lookup_app(app.get_id());
-            if (shellApp)
-                shellApp.activate();
+            if (item.shellApp)
+                item.shellApp.activate();
             else
-                app.launch([], global.create_app_launch_context(0, -1));
+                item.app.launch([], global.create_app_launch_context(0, -1));
         },
     }));
 }
@@ -88,18 +96,21 @@ export function searchFrequentApps(maxResults) {
 
     usable.sort((a, b) => appUsage.compare(a.get_id(), b.get_id()));
 
-    return takeUniqueByBaseName(usable, app => app.get_name() || app.get_id(), maxResults).map(app => ({
-        type: 'app',
-        title: app.get_name() || app.get_id(),
-        app,
-        icon: app.get_icon(),
-        activate: () => {
-            const shellApp = appSystem.lookup_app(app.get_id());
-            if (shellApp)
-                shellApp.activate();
-            else
-                app.launch([], global.create_app_launch_context(0, -1));
-        },
-    }));
+    return takeUniqueByBaseName(usable, app => app.get_name() || app.get_id(), maxResults).map(app => {
+        const shellApp = appSystem.lookup_app(app.get_id());
+        return {
+            type: 'app',
+            title: app.get_name() || app.get_id(),
+            app,
+            description: appRowDescription(shellApp ? shellApp.get_n_windows() : 0),
+            icon: app.get_icon(),
+            activate: () => {
+                if (shellApp)
+                    shellApp.activate();
+                else
+                    app.launch([], global.create_app_launch_context(0, -1));
+            },
+        };
+    });
 }
 

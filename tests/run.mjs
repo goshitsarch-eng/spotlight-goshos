@@ -10,7 +10,7 @@ import {getSectionTitle, getSectionTypes} from '../sectionTitles.js';
 import {actionMatchesQuery} from '../actionMatch.js';
 import {planSearch, flagsFromSettings, isActiveSearchQuery, shouldRefreshRecentFiles, shouldRefreshPath, shouldRefreshCommand, mergeEmptySuggestions} from '../searchPlan.js';
 import {wordPrefixMatch} from '../wordMatch.js';
-import {appMatchTier, appBaseName, takeUniqueByBaseName} from '../appMatch.js';
+import {appMatchTier, appBaseName, takeUniqueByBaseName, appRowDescription} from '../appMatch.js';
 import {rowPointerAction, PRIMARY_BUTTON} from '../resultPointer.js';
 import {matchSettingsPanels, SETTINGS_PANELS, settingsArgv} from '../settingsPanels.js';
 import {nextSelectedIndex} from '../selectionMath.js';
@@ -23,7 +23,7 @@ import {isPathQuery, expandHomePath, expandHomeArgv, normalizeAbsolute, fileUriF
 import {pathRowMeta} from '../pathMatch.js';
 import {buildAccelerator, modifiersFromMask, normalizeAccelKey, formatAccelerator, formatShortcutList, isModifierKeyName} from '../shortcutAccel.js';
 import {collectSearchResults} from '../searchRun.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent} from '../windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from '../windowMatch.js';
 import {readdirSync, readFileSync} from 'node:fs';
 
 let failed = 0;
@@ -260,6 +260,8 @@ assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['Internet', 'Browser'],
 assertEq(appMatchTier('Firefox', '', 'firefox.desktop', ['browser'], ''), -1, 'empty query no app');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'chrome'), -1, 'app miss');
 assertEq(appMatchTier('Notes', '', 'notes.desktop', [], 'write', 'Write notes and lists'), 6, 'desktop comment');
+assertEq(appRowDescription(0), 'Application', 'closed app copy');
+assertEq(appRowDescription(2), 'Switch to application', 'running app copy');
 assertEq(appBaseName('Firefox ESR'), 'firefox', 'esr suffix');
 assertEq(appBaseName('GNOME-Builder'), 'gnome-builder', 'hyphenated name stays');
 assertEq(appBaseName('Chromium'), 'chromium', 'plain name');
@@ -296,6 +298,16 @@ assert(matchSettingsPanels('wacom', 5).some(p => p.id === 'wacom'), 'wacom panel
 assert(matchSettingsPanels('stylus', 5).some(p => p.id === 'wacom'), 'stylus keyword');
 assert(matchSettingsPanels('user-accounts', 5).some(p => p.id === 'users'), 'user-accounts alias');
 assert(matchSettingsPanels('info-overview', 5).some(p => p.id === 'about'), 'info-overview alias');
+assert(matchSettingsPanels('camera', 5).some(p => p.id === 'privacy'), 'camera is privacy');
+assert(matchSettingsPanels('location', 5).some(p => p.id === 'privacy'), 'location is privacy');
+assert(matchSettingsPanels('microphone', 5).some(p => p.id === 'privacy'), 'microphone is privacy');
+assert(matchSettingsPanels('thunderbolt', 5).some(p => p.id === 'privacy'), 'thunderbolt is privacy');
+assert(matchSettingsPanels('firmware', 5).some(p => p.id === 'privacy'), 'firmware is privacy');
+assert(matchSettingsPanels('security', 5).some(p => p.id === 'privacy'), 'security is privacy title');
+assert(matchSettingsPanels('winver', 5).some(p => p.id === 'about'), 'winver is about on gnome 50');
+assert(matchSettingsPanels('dnd', 5).some(p => p.id === 'notifications'), 'dnd is notifications');
+assertEq(SETTINGS_PANELS.find(p => p.id === 'privacy').title, 'Privacy & Security', 'gnome 50 privacy title');
+assert(SETTINGS_PANELS.every(p => p.icon), 'every settings panel has an icon');
 assert(SETTINGS_PANELS.length >= 20, 'enough settings panels');
 assertEq(settingsArgv('wifi', name => name === 'gnome-control-center')[1], 'wifi', 'prefer control center');
 assertEq(settingsArgv('appearance', name => name === 'gnome-control-center')[1], 'background', 'appearance id remaps');
@@ -413,6 +425,10 @@ const recency = sortWindowsMostRecent(
 );
 assertEq(recency[0].id, 'new', 'most recent window first');
 assertEq(recency[2].id, 'old', 'oldest window last');
+assertEq(windowWorkspaceLabel(0), 'Workspace 1', 'first workspace is 1-based');
+assertEq(windowWorkspaceLabel(2), 'Workspace 3', 'later workspace');
+assertEq(windowWorkspaceLabel(-1), 'Switch to window', 'unknown workspace');
+assertEq(windowWorkspaceLabel(1, true), 'On all workspaces', 'sticky window');
 
 const stored = {};
 applyLookSettings({
@@ -570,6 +586,13 @@ assert(css.includes('background-color: #1d99f3'), 'albert selected row');
 assert(css.includes('background-color: #285577'), 'wofi selected row');
 assert(css.includes('background-color: #f6f5f4'), 'light card');
 assert(!css.includes('.spotlight-'), 'no leftover spotlight classes');
+for (const id of ['omarchy', 'popos', 'ulauncher', 'gnome', 'raycast', 'fuzzel', 'anyrun']) {
+    assert(
+        css.includes(`.gosh-theme-${id} .gosh-result.gosh-selected .gosh-result-description`),
+        `selected description ${id}`,
+    );
+}
+assert(css.includes('.gosh-theme-fuzzel .gosh-result.gosh-selected .gosh-result-description'), 'fuzzel selected stays dark');
 
 // scrollview helpers speak both the 45 and 48 apis
 const modernScroll = {

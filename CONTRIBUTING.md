@@ -194,6 +194,9 @@ Manual testing on GNOME Shell 50 Wayland:
 22. Open several windows, focus one, then open the launcher with Pop!_OS (windows first) — that window should be first in the empty-state list. Switch result order to apps first — frequent apps should lead.
 23. Type `~/` then a folder that exists — it should open that path. Type `/no-such-gosh-path` — the row should say Path not found.
 24. With the command runner on, `! ./` plus a script in your home directory should run, and `! ~/bin/true` should resolve if that file exists.
+25. Type `camera`, `location`, or `microphone` — Privacy & Security should appear. Those are GNOME 50 privacy subpages, not separate panel ids.
+26. Open windows on two workspaces — window rows should say Workspace 1 / Workspace 2. A sticky window should say On all workspaces.
+27. Select a result on Fuzzel — the description must stay dark on the light selected row. On Omarchy, Raycast, and Anyrun the selected description must stay readable on the tinted row.
 
 ## Submitting Changes
 

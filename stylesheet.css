@@ -188,6 +188,11 @@
   color: #565f89;
 }
 
+.gosh-theme-omarchy .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-omarchy .gosh-result:hover .gosh-result-description {
+  color: #a9b1d6;
+}
+
 .gosh-theme-omarchy .gosh-no-results-title {
   color: #c0caf5;
 }
@@ -246,6 +251,11 @@
   min-width: 18px;
 }
 
+.gosh-theme-popos .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-popos .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .gosh-theme-popos .gosh-section-header {
   color: #9a9aa0;
 }
@@ -290,6 +300,11 @@
 .gosh-theme-ulauncher .gosh-result.gosh-selected {
   background-color: rgba(255, 140, 66, 0.22);
   color: #ffffff;
+}
+
+.gosh-theme-ulauncher .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-ulauncher .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .gosh-theme-ulauncher .gosh-section-header {
@@ -390,6 +405,11 @@
 .gosh-theme-gnome .gosh-result.gosh-selected {
   background-color: #3584e4;
   color: #ffffff;
+}
+
+.gosh-theme-gnome .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-gnome .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .gosh-theme-gnome .gosh-section-header {
@@ -504,6 +524,11 @@
 .gosh-theme-raycast .gosh-result-description,
 .gosh-theme-raycast .gosh-result-index {
   color: #8e8e93;
+}
+
+.gosh-theme-raycast .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-raycast .gosh-result:hover .gosh-result-description {
+  color: #c2c6d2;
 }
 
 .gosh-theme-raycast .gosh-no-results-title {
@@ -676,6 +701,11 @@
   color: #93a1a1;
 }
 
+.gosh-theme-fuzzel .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-fuzzel .gosh-result:hover .gosh-result-description {
+  color: #586e75;
+}
+
 .gosh-theme-fuzzel .gosh-section-header {
   color: #93a1a1;
   padding: 4px 8px 2px 8px;
@@ -743,6 +773,11 @@
 .gosh-theme-anyrun .gosh-result-description,
 .gosh-theme-anyrun .gosh-result-index {
   color: #6c7086;
+}
+
+.gosh-theme-anyrun .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-anyrun .gosh-result:hover .gosh-result-description {
+  color: #a6adc8;
 }
 
 .gosh-theme-anyrun .gosh-section-header {

@@ -4,7 +4,7 @@
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent} from './windowMatch.js';
+import {windowMatches, windowClassText, shouldListWindow, sortWindowsMostRecent, windowWorkspaceLabel} from './windowMatch.js';
 
 function _metaWindows() {
     // list_all_windows is the display list actors can lag behind closed windows
@@ -58,10 +58,14 @@ export function searchWindows(query, maxResults) {
 
         const title = win.get_title() || 'Untitled';
         const icon = _windowIcon(win);
+        const workspace = win.get_workspace();
         results.push({
             type: 'window',
             title,
-            description: 'Switch to window',
+            description: windowWorkspaceLabel(
+                workspace ? workspace.index() : -1,
+                win.is_on_all_workspaces(),
+            ),
             icon,
             activate: () => {
                 if (!win.get_workspace())

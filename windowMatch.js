@@ -18,6 +18,15 @@ export function windowMatches(title, wmClass, query) {
     return title.toLowerCase().includes(q) || wmClass.toLowerCase().includes(q);
 }
 
+// mutter workspace.index is 0-based launchers show Workspace 1
+export function windowWorkspaceLabel(index, onAllWorkspaces) {
+    if (onAllWorkspaces)
+        return 'On all workspaces';
+    if (!Number.isInteger(index) || index < 0)
+        return 'Switch to window';
+    return `Workspace ${index + 1}`;
+}
+
 export function windowClassText(wmClass, wmInstance, sandboxedId) {
     const parts = [];
     if (wmClass)
