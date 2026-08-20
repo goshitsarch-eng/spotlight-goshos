@@ -70,7 +70,7 @@ Walker-style prefixes jump to one provider. Disable them in Features if you neve
 | `#` | GNOME Settings (`# wifi`, not `#ff0000`) |
 | `$` | Open windows (`$ term`, not `$HOME`) |
 | `.` | Recent files (`. notes`, not `.bashrc`) |
-| `!` | Run command (off by default). This is argv, not a shell — pipes stay literal. |
+| `!` | Run command (off by default). This is argv, not a shell — pipes stay literal. `~/.local/bin` is searched. Home-relative names such as `scripts/deploy` resolve against `$HOME`. |
 
 ## Usage
 
@@ -170,7 +170,8 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `terminalLaunch.js` | Open a folder in a terminal |
 | `resultActivate.js` | Activate a result without taking down the shell |
 | `pathSearch.js` | Open `~/` `./` and absolute paths |
-| `homePath.js` | Expand home-relative command and path names |
+| `homePath.js` | Expand home-relative command and path names, including `scripts/deploy` |
+| `userPath.js` | Extra directories the GNOME Shell PATH often omits |
 | `calculator.js` | Recursive-descent arithmetic parser |
 | `unitMatch.js` | Length, mass, temperature, volume, and data conversions |
 | `placeMatch.js` | XDG user folder catalog |
@@ -202,7 +203,8 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 
 - Skip removed X11 restart APIs (`RunDialog._restart`, `holdKeyboard` / `releaseKeyboard`).
 - Keep `GLib.idle_add` instead of the 50-only `idle_add_once`.
-- Honor parental-control app filtering. Repaint when `app-filter-changed` fires. If malcontent never finishes, show unfiltered desktop apps after five seconds rather than an empty launcher.
+- Honor parental-control app filtering. Repaint when `app-filter-changed` fires. If malcontent never finishes, show unfiltered desktop apps after five seconds rather than an empty launcher. Disable resets that give-up flag.
+- Hide the Wellbeing settings row when `gnome-wellbeing-panel.desktop` is missing (GNOME 45–47).
 - Close an open popup when the session locks or the greeter starts.
 - Speak both `St.ScrollView` APIs: GNOME 45 uses `get_vscroll_bar()`, GNOME 48+ uses `set_child()` and `get_vadjustment()`. All of that lives in `scrollView.js`.
 - Set box-layout orientation with `set_vertical(true)` after `_init()` so GNOME 45/46 still load.
@@ -211,7 +213,7 @@ The extension lists `45` through `50` in `shell-version` and ships as one zip. T
 - Prefer `Meta.Display.list_all_windows()` for window search when it exists so closed actors are not listed. Recency uses `get_tab_list` so Wayland sessions still list the focused window first.
 - Stage-level key capture yields while an IME has a preedit so Enter commits the compose instead of launching a result.
 - Recent-file exists checks settle after 800ms so a hung network path cannot stall the provider.
-- `!` commands run from the user home directory as argv, not `/bin/sh -c`. gnome-shell's own cwd is often `/`. `~/` and `./` in the command are expanded against that home. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
+- `!` commands run from the user home directory as argv, not `/bin/sh -c`. gnome-shell's own cwd is often `/`. `~/`, `./`, and other slash paths such as `scripts/deploy` resolve against that home before the exists check. Bare names also look in `~/.local/bin`, `~/.cargo/bin`, and `~/bin`. Slash paths are checked asynchronously so a hung network binary cannot stall the compositor.
 - Typed `~/` `./` and absolute paths open in the default handler. Existence is checked asynchronously so a hung network mount cannot stall the compositor.
 - A `monitors-changed` signal refits the backdrop and popup so an open launcher does not stay on a disconnected display.
 - Results max height shrinks when the remaining work area is shorter than the setting so top looks cannot grow off the bottom. A short work area lifts the origin so the list is not `max-height: 0`.

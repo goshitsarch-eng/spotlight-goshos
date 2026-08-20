@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {isPathQuery, expandHomePath, fileUriFromAbsolute} from './homePath.js';
 import {pathRowMeta} from './pathMatch.js';
-import {openUri, spawnArgv} from './gioLaunch.js';
+import {openUri, spawnArgv, findInUserPath} from './gioLaunch.js';
 import {terminalCommand, terminalRowMeta} from './terminalLaunch.js';
 
 let _query = '';
@@ -33,7 +33,7 @@ export function pathRow(trimmed, resolved, kind, home) {
 }
 
 function _findInPath(name) {
-    return GLib.find_program_in_path(name);
+    return findInUserPath(name);
 }
 
 export function pathRows(trimmed, resolved, kind, home, findInPath) {

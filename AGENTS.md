@@ -146,13 +146,14 @@ gosh-is-launcher@nin/
     workspaceQuery.js         switch to workspace n (pure)
     appMatch.js               app name generic-name keyword tiers (pure)
     appReady.js               parental-controls listing (pure)
+    userPath.js               extra dirs the shell PATH often omits (pure)
     resultActivate.js         activate without crashing the shell (pure)
     terminalLaunch.js         open a folder in a terminal (pure)
     gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     pathSearch.js             ~/ ./ and absolute path opener
     pathMatch.js              path result row (pure)
-    homePath.js               expand ~ and ./ against home (pure)
+    homePath.js               expand ~ ./ and home-relative slash commands (pure)
     commandSearch.js          command runner
     searchController.js       orchestrates all providers
     prefixParser.js           = @ # $ . ! prefixes

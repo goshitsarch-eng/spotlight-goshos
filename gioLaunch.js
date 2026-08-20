@@ -4,14 +4,29 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {firstCommandArg, commandUsesPathLookup} from './commandReady.js';
-import {expandHomeArgv} from './homePath.js';
+import {resolveCommandArgv} from './homePath.js';
+import {extraPathDirs, findUserProgram, joinPathDirs} from './userPath.js';
+
+export function findInUserPath(name) {
+    const home = GLib.get_home_dir() || '';
+    return findUserProgram(
+        name,
+        n => GLib.find_program_in_path(n),
+        p => GLib.file_test(p, GLib.FileTest.IS_EXECUTABLE),
+        extraPathDirs(home),
+    );
+}
 
 export function spawnArgv(argv, cwd) {
     const home = GLib.get_home_dir() || '';
-    const resolved = expandHomeArgv(argv, home);
+    const resolved = resolveCommandArgv(argv, home);
     const exe = firstCommandArg(resolved);
-    if (commandUsesPathLookup(exe) && !GLib.find_program_in_path(exe))
-        return;
+    if (commandUsesPathLookup(exe)) {
+        const found = findInUserPath(exe);
+        if (!found)
+            return;
+        resolved[0] = found;
+    }
 
     const launcher = new Gio.SubprocessLauncher({
         flags: Gio.SubprocessFlags.NONE,
@@ -21,6 +36,9 @@ export function spawnArgv(argv, cwd) {
     const workdir = cwd || home;
     if (workdir)
         launcher.set_cwd(workdir);
+    const path = joinPathDirs(extraPathDirs(home), GLib.getenv('PATH') || '');
+    if (path)
+        launcher.setenv('PATH', path, true);
     let proc;
     // spawnv raises gerror if the binary vanished after the ready check
     try {

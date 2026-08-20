@@ -4,8 +4,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {firstCommandArg, commandIsReady, commandUsesPathLookup, commandRowMeta} from './commandReady.js';
-import {expandHomeArgv} from './homePath.js';
-import {spawnArgv} from './gioLaunch.js';
+import {resolveCommandArgv} from './homePath.js';
+import {spawnArgv, findInUserPath} from './gioLaunch.js';
 
 let _query = '';
 let _row = null;
@@ -35,7 +35,7 @@ function _parseResolved(query) {
     const [ok, argv] = GLib.shell_parse_argv(query);
     if (!ok || argv.length === 0)
         return null;
-    return expandHomeArgv(argv, GLib.get_home_dir() || '');
+    return resolveCommandArgv(argv, GLib.get_home_dir() || '');
 }
 
 // only offered when the user used the ! prefix so ordinary searches
@@ -49,7 +49,7 @@ export function searchCommand(query) {
     if (commandUsesPathLookup(exe)) {
         const ready = commandIsReady(
             exe,
-            name => GLib.find_program_in_path(name),
+            name => findInUserPath(name),
             () => false,
         );
         return [_rowFor(query, resolved, ready)];

@@ -4,7 +4,7 @@
 import GLib from 'gi://GLib';
 import {matchPlaces, takeUniquePlaces} from './placeMatch.js';
 import {collapseHomePath, fileUriFromAbsolute} from './homePath.js';
-import {openUri, spawnArgv} from './gioLaunch.js';
+import {openUri, spawnArgv, findInUserPath} from './gioLaunch.js';
 import {terminalCommand, terminalRowMeta} from './terminalLaunch.js';
 
 function _placePath(id) {
@@ -43,7 +43,7 @@ export function searchPlaces(query, maxResults) {
     }));
     if (matches.length === 0 || rows.length >= maxResults)
         return rows;
-    const command = terminalCommand(name => GLib.find_program_in_path(name), matches[0].path);
+    const command = terminalCommand(name => findInUserPath(name), matches[0].path);
     if (!command)
         return rows;
     const term = terminalRowMeta(matches[0].path, home, 'place');

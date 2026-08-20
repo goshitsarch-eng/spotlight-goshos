@@ -80,8 +80,16 @@ export function formatShortcutList(shortcutArray) {
 }
 
 export function shortcutAttempts(requested, fallback = '<Control>space') {
-    const accel = requested || fallback;
-    if (accel === fallback)
-        return [accel];
-    return [accel, fallback];
+    const extras = [fallback, '<Super>space', '<Alt>space'];
+    const out = [];
+    const seen = {};
+    for (const accel of [requested].concat(extras)) {
+        if (!accel || seen[accel])
+            continue;
+        seen[accel] = true;
+        out.push(accel);
+    }
+    if (out.length === 0)
+        return [fallback];
+    return out;
 }

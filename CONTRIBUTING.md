@@ -119,7 +119,8 @@ Pure functions with no side effects:
 - **`terminalLaunch.js`** — Pick a terminal command for a directory.
 - **`entryPreedit.js`** — Whether stage capture must yield to an IME compose.
 - **`appMatch.js`** — App name, GenericName, and keyword match tiers.
-- **`homePath.js`** — Expand `~` and `./` against the user home.
+- **`homePath.js`** — Expand `~`, `./`, and home-relative slash commands such as `scripts/deploy`.
+- **`userPath.js`** — Extra directories the GNOME Shell PATH often omits (`~/.local/bin`).
 - **`pathMatch.js`** — Path result title, icon, and missing-path copy.
 - **`resultPointer.js`** — Result-row press must stay on the same row.
 
@@ -239,6 +240,7 @@ Manual testing on GNOME Shell 50 Wayland:
 49. Open a file on an `sftp` or `smb` share, then search for its name — it should appear under Recent files with the host as the description. An `https` bookmark in `recently-used.xbel` must not appear. Type `screenshot` with Overview closed — the screenshot UI must still open.
 50. Focus a terminal, then another app, then open the launcher with Pop!_OS (windows first) and an empty query — the app you just focused should be first among windows, even on Wayland.
 51. Open the launcher, then lock the screen — the popup must be gone after unlock. Type `e+1` or `=e` — Euler’s number should evaluate. Type `e` alone — it must stay an app search. Type `what time is it` — a Clock row should appear. On a short display with a top look, results must stay visible (not a zero-height list).
+52. With the command runner on, `!` plus a script under your home such as `scripts/true` (no `./`) should run after the exists check. A tool installed only in `~/.local/bin` should be found. On GNOME 45–47, `wellbeing` must not appear under Settings. Disable and re-enable the extension — blocked apps must stay hidden until parental controls finish again.
 
 ## Submitting Changes
 

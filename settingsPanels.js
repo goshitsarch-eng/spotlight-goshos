@@ -34,13 +34,26 @@ export const SETTINGS_PANELS = [
     {id: 'system', title: 'System', icon: 'preferences-system-symbolic', keywords: ['software update', 'software updates', 'remote desktop', 'ssh', 'secure shell', 'firmware', 'device security', 'secure boot']},
 ];
 
-export function matchSettingsPanels(query, maxResults) {
+export function settingsPanelDesktop(panelId) {
+    const id = panelId === 'appearance' ? 'background' : panelId;
+    return `gnome-${id}-panel.desktop`;
+}
+
+// wellbeing shipped in gnome 48 hide the row when the panel desktop is gone
+export function settingsPanelAvailable(panelId, hasDesktop) {
+    if (panelId !== 'wellbeing')
+        return true;
+    return Boolean(hasDesktop(settingsPanelDesktop(panelId)));
+}
+
+export function matchSettingsPanels(query, maxResults, isAvailable) {
+    const catalog = SETTINGS_PANELS.filter(p => !isAvailable || isAvailable(p.id));
     const lowerQuery = query.toLowerCase();
     const normalizedQuery = lowerQuery.replace(/[-_\s]/g, '');
     if (normalizedQuery.length === 0)
-        return SETTINGS_PANELS.slice(0, maxResults);
+        return catalog.slice(0, maxResults);
 
-    const matchingPanels = SETTINGS_PANELS.filter(p => {
+    const matchingPanels = catalog.filter(p => {
         const titleLower = p.title.toLowerCase();
         const normalizedTitle = titleLower.replace(/[-_\s]/g, '');
         const normalizedId = p.id.replace(/[-_]/g, '');

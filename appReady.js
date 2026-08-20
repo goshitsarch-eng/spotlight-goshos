@@ -13,6 +13,10 @@ export function markParentalGiveUp() {
     _parentalGaveUp = true;
 }
 
+export function resetParentalGiveUp() {
+    _parentalGaveUp = false;
+}
+
 export function shouldOfferApp(desktopShouldShow, parentalInitialized, parentalAllows, parentalGaveUp) {
     if (!desktopShouldShow)
         return false;

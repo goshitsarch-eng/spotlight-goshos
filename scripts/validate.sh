@@ -149,6 +149,7 @@ required = [
     'scrollView.js',
     'entryPreedit.js',
     'homePath.js',
+    'userPath.js',
     'pathSearch.js',
     'pathMatch.js',
     'resultPointer.js',

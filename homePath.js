@@ -63,6 +63,27 @@ export function expandHomeArgv(argv, home) {
     return argv.map(arg => expandHomePath(arg, home));
 }
 
+// scripts/foo is home-relative spawn cwd is home exists checks are not
+export function resolveSpawnPath(path, home) {
+    if (!path)
+        return '';
+    if (path.indexOf('/') === -1)
+        return path;
+    const expanded = expandHomePath(path, home);
+    if (expanded.startsWith('/'))
+        return normalizeAbsolute(expanded);
+    if (!home)
+        return path;
+    return normalizeAbsolute(`${home}/${path}`);
+}
+
+export function resolveCommandArgv(argv, home) {
+    const expanded = expandHomeArgv(argv, home);
+    if (expanded.length === 0)
+        return expanded;
+    return [resolveSpawnPath(expanded[0], home)].concat(expanded.slice(1));
+}
+
 export function collapseHomePath(path, home) {
     if (!path)
         return '';

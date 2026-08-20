@@ -7,6 +7,7 @@ import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
 import {shouldCloseOnToggle} from './popupGate.js';
 import {shortcutAttempts} from './shortcutAccel.js';
+import {resetParentalGiveUp} from './appReady.js';
 
 // entry point - enable and disable are kept next to each other for easy review
 export default class GoshIsLauncherExtension extends Extension {
@@ -55,6 +56,7 @@ export default class GoshIsLauncherExtension extends Extension {
         this._popup.destroy();
         this._popup = null;
 
+        resetParentalGiveUp();
         this._settings = null;
     }
 }

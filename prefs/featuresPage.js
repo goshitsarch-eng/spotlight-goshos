@@ -45,7 +45,7 @@ export function buildFeaturesPage(settings) {
     addSwitch(providers, settings, 'enable-time-date',
         'Time and date', 'Type time, now, what time is it, date, today, tomorrow, or yesterday to copy the local clock');
     addSwitch(providers, settings, 'enable-command-run',
-        'Command runner', 'Run a PATH or file command with the ! prefix. This is not a shell so pipes and redirection stay literal arguments');
+        'Command runner', 'Run a PATH or file command with the ! prefix, including ~/.local/bin and home-relative names such as scripts/deploy. This is not a shell so pipes and redirection stay literal arguments');
 
     const extras = new Adw.PreferencesGroup({
         title: 'Behavior',
