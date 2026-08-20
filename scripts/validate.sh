@@ -164,6 +164,7 @@ required = [
     'popupGate.js',
     'popupPosition.js',
     'popupChrome.js',
+    'unredirect.js',
     'backdropBox.js',
     'searchRun.js',
     'windowMatch.js',

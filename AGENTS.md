@@ -152,6 +152,7 @@ gosh-is-launcher@nin/
     popupGate.js              open versus toggle-close (pure)
     popupPosition.js          work-area origin (pure)
     popupChrome.js            addtopchrome versus addchrome (pure)
+    unredirect.js             hold compositor unredirect while open (pure)
     resultPointer.js          result row press/release (pure)
     resultIcon.js             skip a null app gicon so st.icon can construct (pure)
     focusLoss.js              close vs refocus the entry (pure)
@@ -267,6 +268,8 @@ each of these tracks its own handler id in an instance field and disconnects it 
 ### popup positioning
 
 the popup and backdrop use addtopchrome not addchrome addchrome stacks below top_window_group so an always-on-top window paints over the launcher and steals clicks that should hit the backdrop addtopchrome is the same input tracking but above those windows and the on-screen keyboard hosts without addtopchrome fall back to addchrome
+
+an unredirected fullscreen window bypasses composition so even top chrome is invisible open() holds unredirect via Meta.Compositor.disable_unredirect on 48-50 or Meta.disable_unredirect_for_display on 45-47 close() and destroy() release that hold once disable/enable are a matched pair do not enable without a hold https://gitlab.gnome.org/GNOME/gnome-shell/-/blob/gnome-50/js/ui/boxpointer.js
 
 the popup is positioned once in open() via _reposition() on the primary monitor work area so top looks sit below the panel the empty-state height is used then the popup grows downward from that fixed origin as results appear the on-screen keyboard is not a strut so workAreaAvoidingKeyboard subtracts its visible translation from that work area and keyboardbox notify::visible allocation and translation-y schedule a layout while the popup is open
 

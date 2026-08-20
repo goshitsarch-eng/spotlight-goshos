@@ -154,6 +154,7 @@ The shell process loads root-level JavaScript. The preferences process loads `pr
 | `launcherPopup.js` | Popup widget — open/close, theme chrome, positioning |
 | `popupPosition.js` | Work-area origin so top looks sit below the panel |
 | `popupChrome.js` | `addTopChrome` so always-on-top windows do not cover the launcher |
+| `unredirect.js` | Hold compositor unredirect while open so fullscreen windows cannot hide the popup |
 | `backdropBox.js` | Multi-monitor box for click-outside |
 | `searchEntry.js` | Search input with magnifying-glass icon |
 | `resultsContainer.js` | Scrollable results area |

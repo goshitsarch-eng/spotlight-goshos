@@ -117,6 +117,7 @@ Pure functions with no side effects:
 - **`popupGate.js`** — Whether a shortcut should open, cancel a pending open, close, or reopen, and whether lock or greeter must close an open popup.
 - **`popupPosition.js`** — Work-area origin so the popup stays off the panel, lifting when a short display or on-screen keyboard would hide the list.
 - **`popupChrome.js`** — Prefer `addTopChrome` so always-on-top windows do not cover the launcher.
+- **`unredirect.js`** — Hold compositor unredirect while the popup is open so a fullscreen window cannot hide it.
 - **`backdropBox.js`** — Union box so click-outside covers every monitor.
 - **`searchRun.js`** — Run a search plan against provider functions.
 - **`windowMatch.js`** — Window title / class matching and the workspace-switch result budget.
@@ -297,6 +298,7 @@ Manual testing on GNOME Shell 50 Wayland:
 98. Hold Ctrl+Space (or your shortcut) — the popup must open once, not vanish because key-repeat cancelled the pending open. Hold the shortcut on an open popup — it must close once, not flicker open again.
 99. Click a pending Checking path row — the shell must stay up (Clutter 18 must not abort from a focus grab during button-release). Then type a letter — it must still reach the entry.
 100. Open the launcher over an always-on-top window or a fullscreen video — the popup must appear above that window, and a click on it must close the launcher instead of activating the window. Open the on-screen keyboard while the popup is open — the list must lift or shrink so the keyboard does not cover the entry.
+101. Open the launcher over a fullscreen game or video that uses unredirect / direct scanout — the popup must appear (not stay invisible behind the fullscreen surface). Close it — fullscreen presentation must resume without a leftover unredirect hold.
 
 ## Submitting Changes
 

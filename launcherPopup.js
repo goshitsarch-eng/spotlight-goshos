@@ -6,6 +6,7 @@ import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/paren
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
 
 import {buildSearchEntry} from './searchEntry.js';
 import {buildResultsContainer} from './resultsContainer.js';
@@ -25,6 +26,7 @@ import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup, workAreaAvoidingKeyboard, keyboardOverlapFromBox} from './popupPosition.js';
 import {addPopupChrome, removePopupChrome} from './popupChrome.js';
+import {unredirectApi, nextUnredirectAction} from './unredirect.js';
 import {PARENTAL_GIVE_UP_MS, markParentalGiveUp} from './appReady.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
@@ -72,6 +74,7 @@ class LauncherPopup extends St.BoxLayout {
         this._timeLimitsId = 0;
         this._parentalGiveUpId = 0;
         this._parental = null;
+        this._unredirectHeld = false;
         this._reopenAfterClose = false;
         this._focusWatcher = new FocusLossWatcher(this);
         this._listenSession();
@@ -269,6 +272,33 @@ class LauncherPopup extends St.BoxLayout {
             this._scheduleLayout();
     }
 
+    _unredirectApi() {
+        return unredirectApi(
+            Boolean(global.compositor && typeof global.compositor.disable_unredirect === 'function'),
+            typeof Meta.disable_unredirect_for_display === 'function',
+        );
+    }
+
+    _setUnredirectHeld(wantHeld) {
+        const api = this._unredirectApi();
+        const action = nextUnredirectAction(this._unredirectHeld, wantHeld, api);
+        if (action === 'hold') {
+            if (api === 'compositor')
+                global.compositor.disable_unredirect();
+            else
+                Meta.disable_unredirect_for_display(global.display);
+            this._unredirectHeld = true;
+            return;
+        }
+        if (action !== 'release')
+            return;
+        if (api === 'compositor')
+            global.compositor.enable_unredirect();
+        else
+            Meta.enable_unredirect_for_display(global.display);
+        this._unredirectHeld = false;
+    }
+
     _usableWorkArea() {
         const monitor = Main.layoutManager.primaryMonitor;
         const workArea = Main.layoutManager.getWorkAreaForMonitor(monitor.index);
@@ -462,6 +492,7 @@ class LauncherPopup extends St.BoxLayout {
             return;
 
         this._isOpen = true;
+        this._setUnredirectHeld(true);
 
         // create and show backdrop first then popup - later addition to
         // chrome means higher in the stacking order so popup naturally
@@ -566,6 +597,7 @@ class LauncherPopup extends St.BoxLayout {
             return;
 
         this._isOpen = false;
+        this._setUnredirectHeld(false);
 
         if (this._stageKeyId) {
             global.stage.disconnect(this._stageKeyId);
@@ -622,6 +654,7 @@ class LauncherPopup extends St.BoxLayout {
         this._unlistenTimeLimits();
         this._unlistenParental();
         this.close();
+        this._setUnredirectHeld(false);
         this._unlistenKeyboard();
         this._settings.disconnectObject(this);
         if (this.get_parent())
