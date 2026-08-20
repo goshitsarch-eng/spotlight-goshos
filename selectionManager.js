@@ -1,7 +1,7 @@
-// spotlight - tracks which result row is selected and keeps it visible
+// gosh is launcher - tracks which result row is selected and keeps it visible
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// owns the results array and selected index so spotlightPopup.js does not
+// owns the results array and selected index so launcherPopup.js does not
 // need to touch selection state directly - it calls setResults() after a
 // search and moveSelection()/applySelection() in response to input
 export class SelectionManager {
@@ -36,7 +36,7 @@ export class SelectionManager {
         if (this._selectedIndex >= 0 && this._selectedIndex < this._results.length) {
             const oldRow = this._getResultRow(this._selectedIndex);
             if (oldRow)
-                oldRow.remove_style_class_name('spotlight-selected');
+                oldRow.remove_style_class_name('gosh-selected');
         }
 
         this._selectedIndex = index;
@@ -44,7 +44,7 @@ export class SelectionManager {
         if (index >= 0 && index < this._results.length) {
             const newRow = this._getResultRow(index);
             if (newRow) {
-                newRow.add_style_class_name('spotlight-selected');
+                newRow.add_style_class_name('gosh-selected');
                 if (!skipScroll)
                     this._scrollRowIntoView(newRow);
             }

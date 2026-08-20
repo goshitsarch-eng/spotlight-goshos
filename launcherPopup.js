@@ -1,4 +1,4 @@
-// spotlight - popup widget
+// gosh is launcher - popup widget
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -13,6 +13,7 @@ import {ResultsRenderer} from './resultsRenderer.js';
 import {PopupKeyHandler} from './popupKeyHandler.js';
 import {PopupBackdrop} from './popupBackdrop.js';
 import {FocusLossWatcher} from './focusLossWatcher.js';
+import {getTheme} from './themes.js';
 
 // the popup widget - a vertical box with a search entry and scrollable results
 // added to gnome's chrome layer so it floats above all windows
@@ -29,11 +30,11 @@ import {FocusLossWatcher} from './focusLossWatcher.js';
 // this class owns the lifecycle (open/close/destroy) and holds a
 // SelectionManager, a ResultsRenderer, and a PopupKeyHandler which each own
 // one slice of what used to all live in this file directly
-export const SpotlightPopup = GObject.registerClass(
-class SpotlightPopup extends St.BoxLayout {
+export const LauncherPopup = GObject.registerClass(
+class LauncherPopup extends St.BoxLayout {
     _init(extension) {
         super._init({
-            style_class: 'spotlight-container',
+            style_class: 'gosh-container',
             reactive: true,
             can_focus: true,
             visible: false,
@@ -44,14 +45,16 @@ class SpotlightPopup extends St.BoxLayout {
         this.set_vertical(true);
 
         this._settings = extension._settings;
+        this._isOpen = false;
         this._positionIdleId = 0;
-        this._backdrop = null;
         this._stageKeyId = 0;
+        this._backdrop = null;
         this._focusWatcher = new FocusLossWatcher(this);
 
-        const {entryBox, entry} = buildSearchEntry();
+        const {entryBox, entry, searchIcon} = buildSearchEntry(this._settings);
         this._entryBox = entryBox;
         this._entry = entry;
+        this._searchIcon = searchIcon;
 
         const clutterText = this._entry.clutter_text;
         clutterText.set_x_expand(true);
@@ -60,12 +63,12 @@ class SpotlightPopup extends St.BoxLayout {
             this,
         );
 
-        const {resultsScroll, resultsBox} = buildResultsContainer();
+        const {resultsScroll, resultsBox} = buildResultsContainer(this._settings);
         this._resultsScroll = resultsScroll;
         this._resultsBox = resultsBox;
 
         this._selection = new SelectionManager(resultsBox, resultsScroll);
-        this._keyHandler = new PopupKeyHandler(this, this._selection);
+        this._keyHandler = new PopupKeyHandler(this, this._selection, this._settings);
         this._renderer = new ResultsRenderer(
             resultsBox, resultsScroll, this._selection, this._settings,
             (r) => { r.activate(); this.close(); },
@@ -80,13 +83,50 @@ class SpotlightPopup extends St.BoxLayout {
 
         this.add_child(this._entryBox);
         this.add_child(this._resultsScroll);
+        this._applyChrome();
+
+        this._settings.connectObject(
+            'changed::launcher-theme', () => this._applyChrome(),
+            'changed::popup-width', () => this.set_width(this._settings.get_int('popup-width')),
+            'changed::popup-position', () => {
+                if (this.visible)
+                    this._reposition();
+            },
+            'changed::show-search-icon', () => {
+                this._searchIcon.visible = this._settings.get_boolean('show-search-icon');
+            },
+            'changed::results-max-height', () => {
+                this._resultsScroll.style =
+                    `max-height: ${this._settings.get_int('results-max-height')}px;`;
+            },
+            'changed::row-density', () => this._applyChrome(),
+            this,
+        );
 
         // popup is added to chrome in open() after the backdrop
         // this ensures it naturally sits above the backdrop without needing
         // raise() or lower() calls which are unreliable on hidden actors
     }
 
-    // position the popup at the center of the primary monitor
+    get isOpen() {
+        return this._isOpen;
+    }
+
+    _applyChrome() {
+        const theme = getTheme(this._settings.get_string('launcher-theme'));
+        this._entry.hint_text = theme.hint;
+
+        const classes = this.get_style_class_name().split(' ');
+        for (const name of classes) {
+            if (name.startsWith('gosh-theme-') || name.startsWith('gosh-density-'))
+                this.remove_style_class_name(name);
+        }
+
+        this.add_style_class_name(`gosh-theme-${theme.id}`);
+        this.add_style_class_name(`gosh-density-${this._settings.get_string('row-density')}`);
+    }
+
+    // position the popup on the primary monitor
     // called once when the popup opens based on the empty-state height
     // the popup then grows downward from this fixed position as results appear
     // this prevents the popup from shifting upward when results grow
@@ -94,15 +134,23 @@ class SpotlightPopup extends St.BoxLayout {
         const monitor = Main.layoutManager.primaryMonitor;
         const popupWidth = this._settings.get_int('popup-width');
         const [, naturalHeight] = this.get_preferred_height(popupWidth);
-        this.set_position(
-            Math.floor(monitor.x + (monitor.width - popupWidth) / 2),
-            Math.floor(monitor.y + (monitor.height - naturalHeight) / 2),
-        );
+        const x = Math.floor(monitor.x + (monitor.width - popupWidth) / 2);
+        const position = this._settings.get_string('popup-position');
+        let y;
+        if (position === 'top')
+            y = Math.floor(monitor.y + monitor.height * 0.12);
+        else
+            y = Math.floor(monitor.y + (monitor.height - naturalHeight) / 2);
+        this.set_position(x, y);
     }
 
     open() {
-        if (this.visible)
+        // _isOpen covers the idle gap before visible becomes true
+        // without it a second shortcut press would leak a backdrop
+        if (this._isOpen || this.visible)
             return;
+
+        this._isOpen = true;
 
         // create and show backdrop first then popup - later addition to
         // chrome means higher in the stacking order so popup naturally
@@ -121,10 +169,11 @@ class SpotlightPopup extends St.BoxLayout {
         // otherwise css may not be applied and height is wrong
         const popupWidth = this._settings.get_int('popup-width');
         this.set_width(popupWidth);
+        this._applyChrome();
         this.queue_relayout();
         this._positionIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._positionIdleId = 0;
-            if (!this._backdrop)
+            if (!this._isOpen)
                 return GLib.SOURCE_REMOVE;
             this._reposition();
             this.show();
@@ -136,47 +185,26 @@ class SpotlightPopup extends St.BoxLayout {
             // consume them which was the root cause of keyboard not working
             this._stageKeyId = global.stage.connect('captured-event',
                 (_, event) => this._keyHandler.handleEvent(event));
+            this._focusWatcher.start();
+            this._renderer.onTextChanged(this._entry.get_text());
             return GLib.SOURCE_REMOVE;
         });
 
         this._entry.set_text('');
         this._renderer.reset();
-
-        // defer the focus-loss handler until after the popup is shown and
-        // focus is grabbed otherwise notify::key-focus fires immediately
-        // during the open call and closes the popup right away
-        this._focusIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            this._focusIdleId = 0;
-            if (!this.visible)
-                return GLib.SOURCE_REMOVE;
-            this._keyFocusId = global.stage.connect('notify::key-focus', () => {
-                if (!this.visible)
-                    return;
-                const focus = global.stage.get_key_focus();
-                if (!focus || focus === global.stage) {
-                    this.close();
-                    return;
-                }
-                if (!this.contains(focus))
-                    this.close();
-            });
-            return GLib.SOURCE_REMOVE;
-        });
     }
 
     close() {
-        if (!this.visible)
+        if (!this._isOpen && !this.visible)
             return;
+
+        this._isOpen = false;
 
         if (this._stageKeyId) {
             global.stage.disconnect(this._stageKeyId);
             this._stageKeyId = 0;
         }
-        if (this._keyFocusId) {
-            global.stage.disconnect(this._keyFocusId);
-            this._keyFocusId = 0;
-        }
-        this._clearIdle('_focusIdleId');
+        this._focusWatcher.stop();
         this._clearIdle('_positionIdleId');
         this._renderer.destroy();
 
@@ -200,7 +228,9 @@ class SpotlightPopup extends St.BoxLayout {
     // removes us from the chrome layer and chains up to the parent destroy
     destroy() {
         this.close();
-        Main.layoutManager.removeChrome(this);
+        this._settings.disconnectObject(this);
+        if (this.get_parent())
+            Main.layoutManager.removeChrome(this);
         this._settings = null;
         super.destroy();
     }

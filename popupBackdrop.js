@@ -1,4 +1,4 @@
-// spotlight - click-outside backdrop for the popup
+// gosh is launcher - click-outside backdrop for the popup
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import St from 'gi://St';
@@ -10,7 +10,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 // detect click-outside without a modal grab swallowing pointer events
 // before they reach the stage
 //
-// owns its own add/remove-from-chrome so spotlightPopup.js just calls
+// owns its own add/remove-from-chrome so launcherPopup.js just calls
 // show()/destroy(), it never has to know how the backdrop gets on screen
 export class PopupBackdrop {
     constructor(onClickOutside) {
@@ -37,7 +37,8 @@ export class PopupBackdrop {
 
     destroy() {
         this._actor.disconnectObject(this._actor);
-        Main.layoutManager.removeChrome(this._actor);
+        if (this._actor.get_parent())
+            Main.layoutManager.removeChrome(this._actor);
         this._actor.destroy();
     }
 }

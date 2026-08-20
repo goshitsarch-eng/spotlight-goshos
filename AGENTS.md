@@ -1,4 +1,4 @@
-# agents guide for spotlight
+# agents guide for gosh is launcher
 
 this file is the single source of truth for any person ai or agent working on this extension read it fully before touching any code it covers design philosophy architecture gnome version support code style ego review constraints and the why behind every non-obvious decision
 
@@ -6,65 +6,85 @@ if you are an ai agent read the whole file do not skim
 
 ## what this extension is
 
-spotlight is a compact launcher for gnome shell inspired by macos spotlight you press a shortcut a centered popup appears you type and results show up in real time it searches apps does math controls the system jumps to gnome settings panels and falls back to web search
+gosh is launcher is a compact launcher for gnome shell it was previously named spotlight you press a shortcut a popup appears you type and results show up in real time it searches apps windows recent files and settings does math runs optional commands opens urls controls the system and falls back to web search
 
-the goal is to feel like macos spotlight not look like a gnome shell extension that means dark compact rounded no blur no overlay no border line just a floating input box with results below it
+users can switch the look between spotlight omarchy (walker) popos (cosmic) ulauncher krunner and gnome and can enable or disable every provider from preferences
 
 ## design philosophy
 
-### minimal ui no chrome
+### looks are user choice
 
-the popup has no title bar no close button no backdrop overlay clicking outside or pressing escape closes it the popup floats above all windows via the chrome layer it does not steal focus from the desktop in a destructive way it uses a modal grab to capture keyboard input while open and releases it on close
+the original spotlight look stays available as one theme it is still the default so the compact macos-inspired pill is what you get before opening preferences
 
-### dark not black
+the other looks follow real launchers researched for this project
 
-the background is `#1c1c1e` not pure black pure black looks harsh on oled and wrong on ips the text is `#f5f5f7` not pure white to reduce eye strain selection uses `rgba(255,255,255,0.12)` a subtle white overlay not the gnome blue accent this matches the macos spotlight dark appearance
+- omarchy uses walker on omarchy linux with the tokyo night palette from https://github.com/basecamp/omarchy/tree/dev/themes/tokyo-night
+- popos follows the cosmic launcher a single card cooler gray roomy rows often placed near the top
+- ulauncher is the alfred-like dark panel with a warm orange accent
+- krunner is the plasma compact bar with breeze blue and a tight radius
+- gnome follows adwaita
+
+do not add gnome shell blur to fake frosted glass cosmic 1.3 uses compositor blur we do not gnome blur is expensive and noisy on some hardware a slightly transparent color is allowed a Shell.BlurEffect is not
+
+### minimal chrome
+
+the popup has no title bar no close button clicking outside or pressing escape closes it the popup floats above all windows via the chrome layer it uses a backdrop actor plus grab_key_focus not Main.pushModal
 
 ### compact not full screen
 
-the popup is 600px wide by default centered on the primary monitor it grows downward as results appear but never exceeds 400px in results height after which it scrolls this keeps it unobtrusive
+the popup is 600px wide by default it grows downward as results appear and scrolls after the configured results max height
 
-### no blur no animations
+### no animations
 
-gnome shell's blur effect is expensive on some hardware and adds visual noise spotlight does not use it the popup appears instantly with no fade-in or slide animation this is intentional macos spotlight is fast gnome shell extensions that animate feel slow
+the popup appears instantly with no fade-in or slide animation this is intentional a launcher that animates feels slow
 
 ## gnome shell version support
 
 ### supported versions
 
-spotlight supports gnome shell 45 46 47 48 49 and 50 listed in metadata.json under shell-version
+gosh is launcher supports gnome shell 45 46 47 48 49 and 50 listed in metadata.json under shell-version
 
-the minimum is 45 because gnome shell 45 switched to es modules (import/export syntax) extensions using es modules cannot run on gnome shell 44 or earlier there is no way around this it is a hard requirement of the javascript engine
+the minimum is 45 because gnome shell 45 switched to es modules (import/export syntax) extensions using es modules cannot run on gnome shell 44 or earlier
 
 see https://gjs.guide/extensions/upgrading/gnome-shell-45.html#esm
 
+### gnome 50 notes
+
+the official port guide is https://gjs.guide/extensions/upgrading/gnome-shell-50.html
+
+gnome 50 removed x11 and with it RunDialog._restart plus the global.display restart signals keyboardManager lost releaseKeyboard and holdKeyboard do not call any of those
+
+easeAsync and GLib.idle_add_once exist only on 50 do not use them if you want one zip for 45-50 keep GLib.idle_add
+
+parentalControlsManager.shouldShowApp is used when filtering apps so wellbeing limits on 50 still hide blocked apps
+
 ### no x11 support
 
-gnome shell 50 removed x11 support entirely spotlight does not support x11 on any version if you are on x11 use gnome's overview search instead do not add x11 compatibility code x11 is deprecated and will be removed from gnome shell entirely in future releases
+gnome shell 50 removed x11 support entirely this extension does not support x11 on any version if you are on x11 use gnome's overview search instead do not add x11 compatibility code
 
 ### wayland only
 
-spotlight is tested on wayland only the keybinding uses `global.display.grab_accelerator` which works on both wayland and x11 in theory but since we do not support x11 we do not test on it
+tested on wayland only the keybinding uses global.display.grab_accelerator
 
 ### version-specific api notes
 
-the codebase calls `set_vertical(true)` after `_init()` for st box layouts not `orientation: Clutter.Orientation.VERTICAL` inside the constructor the `orientation` property is not reliably settable on gnome shell 45 and 46 a real user report (issue #5 gnome shell 46.0 on ubuntu 24.04.4) hit `Error: No property orientation on Gjs_spotlight_nin_spotlightPopup_SpotlightPopup` when the constructor tried to set it
+the codebase calls set_vertical(true) after _init() for the popup box layout not orientation: Clutter.Orientation.VERTICAL inside the constructor the orientation property is not reliably settable on gnome shell 45 and 46 a real user report (issue #5 gnome shell 46.0 on ubuntu 24.04.4) hit Error: No property orientation on Gjs_spotlight_nin_spotlightPopup_SpotlightPopup when the constructor tried to set it
 
-`vertical` and `set_vertical()` are confirmed to exist across the full 45 through 50 range so this is the correct choice do not switch back to `orientation` in the constructor without first confirming it against the actual minimum supported version not just the newest one
+vertical and set_vertical() are confirmed to exist across the full 45 through 50 range so this is the correct choice do not switch back to orientation in the constructor without first confirming it against the actual minimum supported version not just the newest one
 
 ### single package for all versions
 
-ego supports multi-versioning where you upload separate zips for different gnome versions spotlight does not do this one zip works on all supported versions if a future gnome version breaks something fix it in the same codebase do not maintain a fork
+ego supports multi-versioning where you upload separate zips for different gnome versions this extension does not do that one zip works on all supported versions
 
 ## architecture
 
 ### file layout
 
 ```
-spotlight@nin/
+gosh-is-launcher@nin/
     extension.js              entry point
     prefs.js                  preferences entry point
-    spotlightPopup.js         main popup widget
+    launcherPopup.js          main popup widget
     searchEntry.js            search input box
     resultsContainer.js       scrollable results area
     resultRow.js              single result row
@@ -76,74 +96,99 @@ spotlight@nin/
     systemActionsSearch.js    system actions provider
     settingsSearch.js         gnome settings provider
     webSearch.js              web search fallback
+    windowSearch.js           open window provider
+    recentFilesSearch.js      recent files provider
+    urlSearch.js              url open provider
+    commandSearch.js          command runner
     searchController.js       orchestrates all providers
+    prefixParser.js           = @ # $ . ! prefixes
+    themes.js                 look catalog (pure data)
+    webEngines.js             search engine catalog (pure data)
+    urlMatch.js               url detection (pure)
+    actionMatch.js            system action matching (pure)
     keybinding.js             keybinding manager
     calculator.js             arithmetic parser
-    stylesheet.css            spotlight styling
+    stylesheet.css            all launcher looks
     metadata.json             extension metadata
     schemas/                  gsettings schema
     prefs/                    preference pages
         shortcutPage.js
         appearancePage.js
+        featuresPage.js
         webSearchPage.js
         aboutPage.js
 ```
+
+pure modules (themes webEngines prefixParser urlMatch actionMatch calculator sectionTitles) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
 gnome shell extensions run in two processes
 
-- the shell process runs `extension.js` and all root-level js files it has access to `St` `Clutter` `Meta` `Shell` `GLib` `GObject` `Gio` and `Main` it must not import `Gtk` `Gdk` or `Adw` these conflict with clutter
+- the shell process runs extension.js and all root-level js files it has access to St Clutter Meta Shell GLib GObject Gio and Main it must not import Gtk Gdk or Adw these conflict with clutter
 
-- the preferences process runs `prefs.js` and `prefs/*.js` it has access to `Gtk` `Gdk` `Adw` `Gio` it must not import `St` `Clutter` `Meta` or `Shell` these conflict with gtk
+- the preferences process runs prefs.js and prefs/*.js it has access to Gtk Gdk Adw Gio it must not import St Clutter Meta or Shell these conflict with gtk
 
 never import a shell-only library in a prefs file or vice versa ego review rejects extensions that violate process isolation see https://gjs.guide/extensions/development/preferences.html
 
 ### search priority
 
-results are combined in this order apps first then calculator then system actions then settings then web last web search only appears if nothing else matched this is intentional apps are the primary feature everything else is a fallback
+results are combined in this order urls first then apps then calculator then windows then system actions then settings then recent files then web last web search only appears if nothing else matched unless the user typed the @ prefix
 
-the priority is set in `searchController.js` do not change it without reason
+the priority is set in searchController.js do not change it without reason
+
+prefix modes when enabled jump to a single provider
+
+- `=` calculator
+- `@` web
+- `#` settings
+- `$` windows
+- `.` recent files
+- `!` command
 
 ### signal management
 
-all signal connections on gobjects use `connectObject` and `disconnectObject` not `connect` and `disconnect` this is a gnome shell 42+ api that auto-disconnects all signals connected with a given owner object see https://gjs.guide/extensions/upgrading/gnome-shell-42.html
+all signal connections on gobjects use connectObject and disconnectObject not connect and disconnect this is a gnome shell 42+ api that auto-disconnects all signals connected with a given owner object see https://gjs.guide/extensions/upgrading/gnome-shell-42.html
 
-in `disable()` or `destroy()` we call `disconnectObject(this)` which removes every signal connected with `this` as the owner this prevents signal leaks if you forget to disconnect one manually
+in disable() or destroy() we call disconnectObject(this) which removes every signal connected with this as the owner this prevents signal leaks if you forget to disconnect one manually
 
-a few connections use plain `connect` with manual disconnect instead of `connectObject`
+a few connections use plain connect with manual disconnect instead of connectObject
 
-- `global.display.connect('accelerator-activated')` in `keybinding.js` disconnected manually in `disable()`
-- `global.stage.connect('notify::key-focus')` in `spotlightPopup.js` for focus-loss detection disconnected manually in `close()`
-- `global.stage.connect('captured-event')` in `spotlightPopup.js` for stage-level key capture disconnected manually in `close()`
+- global.display.connect('accelerator-activated') in keybinding.js disconnected manually in disable()
+- global.stage.connect('notify::key-focus') in focusLossWatcher.js for focus-loss detection disconnected manually in stop()
+- global.stage.connect('captured-event') in launcherPopup.js for stage-level key capture disconnected manually in close()
 
-each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on `disconnectObject(this)` if you add a new connection on `global.display` or `global.stage` follow the same pattern track the id and disconnect it manually do not assume `connectObject` covers it without checking first
+each of these tracks its own handler id in an instance field and disconnects it explicitly rather than relying on disconnectObject(this) if you add a new connection on global.display or global.stage follow the same pattern track the id and disconnect it manually do not assume connectObject covers it without checking first
 
 ### popup positioning
 
-the popup is positioned once in `open()` via `_reposition()` based on the empty-state height just the search entry with no results the popup then grows downward from this fixed position as results appear
+the popup is positioned once in open() via _reposition() based on the empty-state height just the search entry with no results the popup then grows downward from this fixed position as results appear
 
-do not reposition the popup on `notify::allocation` or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side
+center mode uses the empty-state height so the pill stays visually centered top mode uses 12% of the monitor height so popos and krunner looks sit high on the display
+
+do not reposition the popup on notify::allocation or any other size-change signal doing so causes the popup to shift upward when results grow because the centering math recalculates with the new height and moves the top edge up the user perceives this as the popup drifting from center to upper side
 
 if the monitor geometry changes while the popup is open for example the user changes resolution the popup will be repositioned on next open not live this is acceptable
 
 ### input capture and click outside to close
 
-the popup does not use `Main.pushModal` a modal grab swallows pointer events before they reach the stage which makes click-outside detection impossible instead the popup uses two mechanisms working together
+the popup does not use Main.pushModal a modal grab swallows pointer events before they reach the stage which makes click-outside detection impossible instead the popup uses two mechanisms working together
 
-first a transparent full-screen reactive `St.Widget` called the backdrop is added to the chrome layer before the popup itself the backdrop covers the entire primary monitor and listens for `button-release-event` when the user clicks anywhere outside the popup the click lands on the backdrop and the popup closes the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
+first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers the entire primary monitor and listens for button-release-event when the user clicks anywhere outside the popup the click lands on the backdrop and the popup closes the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
 
-second the popup monitors `notify::key-focus` on `global.stage` if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial `grab_key_focus` call in `open()`
+second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
 
-keyboard input is captured by calling `grab_key_focus()` on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys move the selection and enter activates the selected result
+keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result alt+1-9 activates a numbered row when that setting is on
+
+open() uses an _isOpen flag not just visible because the first frames after a shortcut press still have visible=false while the position idle runs a second press in that gap must close not leak another backdrop
 
 ### object lifecycle
 
-every object created in `enable()` is destroyed in `disable()` every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
+every object created in enable() is destroyed in disable() every widget added to the chrome layer is removed every main loop source is removed every signal is disconnected
 
-the popup widget overrides `destroy()` to call `close()` first which removes the backdrop disconnects the focus handler and removes idle sources then it removes itself from the chrome layer and chains up to the parent destroy
+the popup widget overrides destroy() to call close() first which removes the backdrop disconnects the focus handler and removes idle sources then it removes itself from the chrome layer and chains up to the parent destroy
 
-if you add a new widget or source you must add cleanup for it in `disable()` or the relevant destroy method ego review rejects extensions that leak objects
+if you add a new widget or source you must add cleanup for it in disable() or the relevant destroy method ego review rejects extensions that leak objects
 
 ### module-scope restrictions
 
@@ -153,7 +198,7 @@ the only exception is static data structures like arrays objects maps sets and r
 
 see https://gjs.guide/extensions/review-guidelines/review-guidelines.html#only-use-initialization-for-static-resources
 
-`systemActionsSearch.js` calls `SystemActions.getDefault()` lazily inside each `activate()` arrow function not at module scope this is why the `SYSTEM_ACTIONS` array contains arrow functions that call `getDefault()` at invocation time not a module-level singleton variable
+systemActionsSearch.js calls SystemActions.getDefault() lazily inside each activate() arrow function and at search time not at module scope this is why the SYSTEM_ACTIONS array contains arrow functions that call getDefault() at invocation time not a module-level singleton variable
 
 ## code style
 
@@ -171,8 +216,8 @@ see https://gjs.guide/extensions/review-guidelines/review-guidelines.html#only-u
 ### code structure
 
 - split logic into many small files each with a single responsibility
-- keep the entry point `extension.js` as small as possible it should only wire things together
-- keep `enable()` and `disable()` next to each other in the entry point for easy review
+- keep the entry point extension.js as small as possible it should only wire things together
+- keep enable() and disable() next to each other in the entry point for easy review
 - one concept per file one file per concept
 - prefer pure functions with no side effects in utility files
 - no typescript this is plain javascript no build step
@@ -197,29 +242,29 @@ see https://gjs.guide/extensions/review-guidelines/review-guidelines.html#only-u
 
 the default shortcut is `Ctrl+Space` stored in gsettings as `['<Control>space']`
 
-`Super+Space` is grabbed by gnome shell for input source switching on some setups and `grab_accelerator` fails silently when this happens use `Ctrl+Space` instead users can change it in preferences
+`Super+Space` is grabbed by gnome shell for input source switching on some setups and grab_accelerator fails silently when this happens use `Ctrl+Space` instead users can change it in preferences
 
-the keybinding uses `global.display.grab_accelerator()` not `Main.wm.addKeybinding()` because `addKeybinding` can fail if the schema is not ready at enable time `grab_accelerator` is more reliable
+the keybinding uses global.display.grab_accelerator() not Main.wm.addKeybinding() because addKeybinding can fail if the schema is not ready at enable time grab_accelerator is more reliable
 
 the popup can be closed in three ways pressing the toggle shortcut again pressing `Escape` or clicking outside the popup bounds
 
-see the `keybinding.js` file for the implementation
+see the keybinding.js file for the implementation
 
 ## clipboard access
 
-spotlight writes to the clipboard only when the user explicitly selects a calculator result by pressing enter on a math expression it does not read the clipboard ever it does not share clipboard data with any third party
+gosh is launcher writes to the clipboard only when the user explicitly selects a calculator result by pressing enter on a math expression it does not read the clipboard ever it does not share clipboard data with any third party
 
-this is declared in `metadata.json` description under the CLIPBOARD ACCESS section ego review requires this declaration for any extension that touches the clipboard
+this is declared in metadata.json description under the CLIPBOARD ACCESS section ego review requires this declaration for any extension that touches the clipboard
 
 see https://gjs.guide/extensions/review-guidelines/review-guidelines.html#clipboard-access-must-be-declared
 
 ## gsettings schema
 
-the schema id is `org.gnome.shell.extensions.spotlight` and the path is `/org/gnome/shell/extensions/spotlight/` both follow the gnome shell extension convention
+the schema id is `org.gnome.shell.extensions.gosh-is-launcher` and the path is `/org/gnome/shell/extensions/gosh-is-launcher/` both follow the gnome shell extension convention
 
-the schema file is `schemas/org.gnome.shell.extensions.spotlight.gschema.xml` the filename must match the schema id pattern
+the schema file is `schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.xml` the filename must match the schema id pattern
 
-the `web-search-engine` key uses `<choices>` not `<enum>` because the code reads and writes it as a string with `get_string()` and `set_string()` using an enum would require `get_enum()` and `set_enum()` instead
+the `web-search-engine` and `launcher-theme` keys use `<choices>` not `<enum>` because the code reads and writes them as strings with get_string() and set_string() using an enum would require get_enum() and set_enum() instead
 
 the `gschemas.compiled` binary is not shipped in the zip gnome shell 44 and later compiles schemas automatically on install shipping the compiled binary is unnecessary
 
@@ -229,9 +274,13 @@ see https://gjs.guide/extensions/development/preferences.html#gsettings
 
 ### static analysis
 
-run the ego-style static analyzer to check for module-scope issues deprecated imports process isolation violations and metadata well-formedness
+run the validator
 
-the analyzer is not shipped with the extension it lives in the development environment if you do not have it use `gjs -c` to parse each file
+```bash
+bash scripts/validate.sh
+```
+
+if you do not have the script use gjs or node to parse each file
 
 ```bash
 gjs -c "Reflect.parse(readFile('extension.js'), { target: 'module' })"
@@ -249,9 +298,15 @@ glib-compile-schemas schemas/
 
 every js file must parse as an es module if any file has a syntax error gnome shell will fail to load the extension silently
 
+### unit tests
+
+pure modules are covered by `node tests/run.mjs` calculator prefixes urls themes engines and section titles
+
 ### manual testing
 
 test on gnome shell 50 wayland first then test on at least one older version if possible the extension should work identically across all supported versions
+
+walk each look in preferences confirm providers can be disabled and confirm escape click-outside and the toggle shortcut all close the popup
 
 ## adding a new search provider
 
@@ -261,13 +316,21 @@ test on gnome shell 50 wayland first then test on at least one older version if 
 4. import your new provider in `searchController.js`
 5. add it to the `runSearch` function in the correct priority order
 6. add the type string to `sectionTitles.js` if you want a custom section header
-7. do not create any module-scope instances use lazy calls inside callbacks
+7. add an enable-* gsettings key and a switch on the features page
+8. do not create any module-scope instances use lazy calls inside callbacks
+
+## adding a new look
+
+1. add an entry to THEMES in themes.js
+2. add a choice to the launcher-theme key in the schema
+3. add `.gosh-theme-<id>` rules in stylesheet.css
+4. keep the look as css on the existing widgets do not fork the popup class
 
 ## adding a new ui component
 
 1. create a new file at the root level for example `myWidget.js`
 2. export a function that builds and returns the widget
-3. import it in `spotlightPopup.js` where needed
+3. import it in `launcherPopup.js` where needed
 4. use `connectObject` for all signal connections
 5. ensure the widget is destroyed when the popup is destroyed
 
@@ -275,7 +338,7 @@ test on gnome shell 50 wayland first then test on at least one older version if 
 
 - repository https://github.com/itsnin/spotlight
 - security issues email ninx.sh@gmail.com
-- ego page search for spotlight by nin
+- ego page search for gosh is launcher by nin
 
 ## license
 

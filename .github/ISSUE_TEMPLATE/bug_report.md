@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in Spotlight for GNOME Shell
+about: Report a bug in Gosh Is Launcher for GNOME Shell
 title: "[BUG] "
 labels: bug
 assignees: itsnin
@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 
 Steps to reproduce the behavior:
 
-1. Press `Ctrl+Space` to open Spotlight
+1. Press `Ctrl+Space` to open Gosh Is Launcher
 2. Type `...`
 3. Observe what happens
 
@@ -30,15 +30,16 @@ If applicable, add screenshots showing the issue.
 
 - **GNOME Shell version:** (e.g., 46, 47, 48, 49, 50)
 - **Linux distribution:** (e.g., Fedora 41, Ubuntu 24.04, Arch)
-- **Spotlight version:** (check `gnome-extensions info spotlight@nin` or look in preferences)
+- **Gosh Is Launcher version:** (check `gnome-extensions info gosh-is-launcher@nin` or look in preferences)
+- **Launcher look:** (Spotlight / Omarchy / Pop!_OS / Ulauncher / KRunner / GNOME)
 - **Display server:** Wayland (X11 is not supported)
 
 ## Logs
 
-Run the following command and paste any lines containing `spotlight`:
+Run the following command and paste any lines containing `gosh`:
 
 ```bash
-journalctl -b /usr/bin/gnome-shell | grep spotlight
+journalctl -b /usr/bin/gnome-shell | grep -i gosh
 ```
 
 ## Additional context

@@ -1,38 +1,31 @@
-/* spotlight - stylesheet */
-/* separate entry box and results box each with own background and rounding */
-/* no outer container background */
-/* colors: background #1c1c1e text #f5f5f7 selection rgba(255,255,255,0.12) */
+/* gosh is launcher - stylesheet */
+/* theme classes hang on the outer container and restyle children */
+/* no blur effects - gnome blur is expensive and noisy on some hardware */
 
-/* global reset for spotlight widgets - kill any inherited focus outline or */
-/* border that the parent theme might draw around actors we add to the chrome layer */
-.spotlight-container,
-.spotlight-container * {
+.gosh-container,
+.gosh-container * {
   border: none;
   outline: none;
 }
 
-/* outer container - no background no border just holds entry + results */
-.spotlight-container {
+.gosh-container {
   padding: 0;
 }
 
-/* search icon on the left side of the entry */
-.spotlight-search-icon {
+.gosh-search-icon {
   icon-size: 20px;
   padding: 0 14px 0 20px;
   color: #98989d;
 }
 
-/* entry box - has its own background and rounding */
-.spotlight-entry-box {
+.gosh-entry-box {
   background-color: rgb(28, 28, 30);
   border-radius: 32px;
   padding: 4px 4px 4px 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* the actual entry inside the entry box */
-.spotlight-entry {
+.gosh-entry {
   background-color: transparent;
   color: #f5f5f7;
   border: none;
@@ -44,17 +37,16 @@
   selection-background-color: #0a84ff;
 }
 
-.spotlight-entry:focus {
+.gosh-entry:focus {
   border: none;
   outline: none;
 }
 
-.spotlight-entry StLabel.hint-text {
+.gosh-entry StLabel.hint-text {
   color: rgba(245, 245, 247, 0.35);
 }
 
-/* results list - has its own background and rounding */
-.spotlight-results {
+.gosh-results {
   background-color: rgb(28, 28, 30);
   border-radius: 24px;
   padding: 6px;
@@ -63,8 +55,7 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* section header */
-.spotlight-section-header {
+.gosh-section-header {
   color: #98989d;
   font-size: 10px;
   font-weight: 600;
@@ -73,8 +64,7 @@
   padding: 8px 14px 2px 14px;
 }
 
-/* single result row - very rounded */
-.spotlight-result {
+.gosh-result {
   padding: 8px 12px;
   border-radius: 16px;
   color: #f5f5f7;
@@ -82,51 +72,324 @@
   spacing: 12px;
 }
 
-/* selection uses a blackish overlay not blue */
-.spotlight-result:hover,
-.spotlight-result:focus,
-.spotlight-result.spotlight-selected {
+.gosh-result:hover,
+.gosh-result:focus,
+.gosh-result.gosh-selected {
   background-color: rgba(255, 255, 255, 0.12);
   color: #ffffff;
 }
 
-.spotlight-result-icon {
+.gosh-result-icon {
   padding-right: 12px;
 }
 
-.spotlight-result-content {
-  x_expand: true;
-}
-
-.spotlight-result-title {
+.gosh-result-title {
   font-size: 14px;
   font-weight: 500;
   color: inherit;
 }
 
-.spotlight-result-description {
+.gosh-result-description {
   font-size: 11px;
   color: #98989d;
   padding-top: 1px;
 }
 
-.spotlight-result:hover .spotlight-result-description,
-.spotlight-result:focus .spotlight-result-description,
-.spotlight-result.spotlight-selected .spotlight-result-description {
+.gosh-result:hover .gosh-result-description,
+.gosh-result:focus .gosh-result-description,
+.gosh-result.gosh-selected .gosh-result-description {
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* no results empty state */
-.spotlight-no-results {
+.gosh-result-index {
+  font-size: 12px;
+  font-weight: 600;
+  color: #98989d;
+  padding-left: 10px;
+}
+
+.gosh-no-results {
   padding: 28px 24px;
   color: #98989d;
   font-size: 14px;
   text-align: center;
 }
 
-.spotlight-no-results-title {
+.gosh-no-results-title {
   font-size: 14px;
   font-weight: 500;
   color: #f5f5f7;
   padding-bottom: 4px;
+}
+
+.gosh-density-compact .gosh-result {
+  padding: 5px 10px;
+}
+
+.gosh-density-compact .gosh-entry {
+  padding: 10px 16px 10px 0;
+  font-size: 16px;
+}
+
+/* omarchy look - tokyo night single panel */
+.gosh-theme-omarchy {
+  background-color: #1a1b26;
+  border-radius: 12px;
+  border: 1px solid #3b4261;
+  padding: 8px;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.5);
+}
+
+.gosh-theme-omarchy .gosh-entry-box,
+.gosh-theme-omarchy .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-omarchy .gosh-entry {
+  color: #c0caf5;
+  caret-color: #7aa2f7;
+  selection-background-color: #7aa2f7;
+  font-size: 16px;
+  padding: 10px 12px 12px 0;
+  border-radius: 0;
+}
+
+.gosh-theme-omarchy .gosh-entry StLabel.hint-text {
+  color: #565f89;
+}
+
+.gosh-theme-omarchy .gosh-search-icon {
+  color: #7aa2f7;
+  padding: 0 10px 0 8px;
+}
+
+.gosh-theme-omarchy .gosh-section-header {
+  color: #565f89;
+}
+
+.gosh-theme-omarchy .gosh-result {
+  color: #a9b1d6;
+  border-radius: 6px;
+}
+
+.gosh-theme-omarchy .gosh-result:hover,
+.gosh-theme-omarchy .gosh-result:focus,
+.gosh-theme-omarchy .gosh-result.gosh-selected {
+  background-color: rgba(122, 162, 247, 0.18);
+  color: #c0caf5;
+}
+
+.gosh-theme-omarchy .gosh-result-description,
+.gosh-theme-omarchy .gosh-result-index {
+  color: #565f89;
+}
+
+.gosh-theme-omarchy .gosh-no-results-title {
+  color: #c0caf5;
+}
+
+/* popos look - single card cooler gray roomy rows */
+.gosh-theme-popos {
+  background-color: #242426;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.gosh-theme-popos .gosh-entry-box,
+.gosh-theme-popos .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-popos .gosh-entry {
+  color: #f2f2f2;
+  caret-color: #6ba4f8;
+  selection-background-color: #6ba4f8;
+  font-size: 18px;
+  padding: 12px 12px 14px 0;
+  border-radius: 0;
+}
+
+.gosh-theme-popos .gosh-entry StLabel.hint-text {
+  color: rgba(242, 242, 242, 0.4);
+}
+
+.gosh-theme-popos .gosh-search-icon {
+  color: #6ba4f8;
+}
+
+.gosh-theme-popos .gosh-result {
+  color: #f2f2f2;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.gosh-theme-popos .gosh-result:hover,
+.gosh-theme-popos .gosh-result:focus,
+.gosh-theme-popos .gosh-result.gosh-selected {
+  background-color: rgba(107, 164, 248, 0.22);
+  color: #ffffff;
+}
+
+.gosh-theme-popos .gosh-result-index {
+  color: #6ba4f8;
+}
+
+.gosh-theme-popos .gosh-section-header {
+  color: #9a9aa0;
+}
+
+/* ulauncher look - warmer dark panel larger type orange accent */
+.gosh-theme-ulauncher {
+  background-color: #2b2b2b;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+
+.gosh-theme-ulauncher .gosh-entry-box,
+.gosh-theme-ulauncher .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-ulauncher .gosh-entry {
+  color: #ededed;
+  caret-color: #ff8c42;
+  selection-background-color: #ff8c42;
+  font-size: 18px;
+  padding: 12px 12px 12px 0;
+}
+
+.gosh-theme-ulauncher .gosh-search-icon {
+  color: #ff8c42;
+}
+
+.gosh-theme-ulauncher .gosh-result {
+  color: #ededed;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.gosh-theme-ulauncher .gosh-result:hover,
+.gosh-theme-ulauncher .gosh-result:focus,
+.gosh-theme-ulauncher .gosh-result.gosh-selected {
+  background-color: rgba(255, 140, 66, 0.22);
+  color: #ffffff;
+}
+
+.gosh-theme-ulauncher .gosh-section-header {
+  color: #b0b0b0;
+}
+
+/* krunner look - compact bar with a thin accent edge */
+.gosh-theme-krunner {
+  background-color: #2a2e32;
+  border-radius: 4px;
+  border: 1px solid #3daee9;
+  padding: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.gosh-theme-krunner .gosh-entry-box,
+.gosh-theme-krunner .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-krunner .gosh-entry {
+  color: #fcfcfc;
+  caret-color: #3daee9;
+  selection-background-color: #3daee9;
+  font-size: 15px;
+  padding: 8px 10px 8px 0;
+  border-radius: 0;
+}
+
+.gosh-theme-krunner .gosh-search-icon {
+  color: #3daee9;
+  padding: 0 8px 0 8px;
+}
+
+.gosh-theme-krunner .gosh-result {
+  color: #fcfcfc;
+  border-radius: 2px;
+  padding: 5px 8px;
+}
+
+.gosh-theme-krunner .gosh-result:hover,
+.gosh-theme-krunner .gosh-result:focus,
+.gosh-theme-krunner .gosh-result.gosh-selected {
+  background-color: #3daee9;
+  color: #ffffff;
+}
+
+.gosh-theme-krunner .gosh-result.gosh-selected .gosh-result-description,
+.gosh-theme-krunner .gosh-result:hover .gosh-result-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.gosh-theme-krunner .gosh-section-header {
+  color: #7f8c8d;
+  padding: 4px 8px 2px 8px;
+}
+
+/* gnome look - adwaita card */
+.gosh-theme-gnome {
+  background-color: #303030;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+}
+
+.gosh-theme-gnome .gosh-entry-box,
+.gosh-theme-gnome .gosh-results {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  margin-top: 0;
+  padding: 0;
+}
+
+.gosh-theme-gnome .gosh-entry {
+  color: #eeeeec;
+  caret-color: #3584e4;
+  selection-background-color: #3584e4;
+  font-size: 16px;
+  padding: 10px 12px 10px 0;
+}
+
+.gosh-theme-gnome .gosh-search-icon {
+  color: #3584e4;
+}
+
+.gosh-theme-gnome .gosh-result {
+  color: #eeeeec;
+  border-radius: 10px;
+}
+
+.gosh-theme-gnome .gosh-result:hover,
+.gosh-theme-gnome .gosh-result:focus,
+.gosh-theme-gnome .gosh-result.gosh-selected {
+  background-color: #3584e4;
+  color: #ffffff;
+}
+
+.gosh-theme-gnome .gosh-section-header {
+  color: #c0bfbc;
 }

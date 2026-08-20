@@ -6,13 +6,20 @@ search providers:
           - systemActionsSearch.js
           - settingsSearch.js
           - webSearch.js
+          - windowSearch.js
+          - recentFilesSearch.js
+          - urlSearch.js
+          - commandSearch.js
           - searchController.js
           - calculator.js
+          - prefixParser.js
+          - urlMatch.js
+          - actionMatch.js
 
 popup ui:
   - changed-files:
       - any-glob-to-any-file:
-          - spotlightPopup.js
+          - launcherPopup.js
           - searchEntry.js
           - resultsContainer.js
           - resultRow.js
@@ -20,6 +27,7 @@ popup ui:
           - sectionTitles.js
           - noResults.js
           - stylesheet.css
+          - themes.js
 
 preferences:
   - changed-files:

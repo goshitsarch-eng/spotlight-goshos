@@ -1,4 +1,4 @@
-// spotlight - detects focus leaving the popup and closes it
+// gosh is launcher - detects focus leaving the popup and closes it
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
@@ -17,6 +17,7 @@ export class FocusLossWatcher {
     }
 
     start() {
+        this.stop();
         this._focusIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._focusIdleId = 0;
             if (!this._popup.visible)

@@ -1,22 +1,15 @@
-// spotlight - web search preferences page
+// gosh is launcher - web search preferences page
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
-
-const SEARCH_ENGINES = [
-    {id: 'google', label: 'Google'},
-    {id: 'duckduckgo', label: 'DuckDuckGo'},
-    {id: 'brave', label: 'Brave'},
-    {id: 'bing', label: 'Bing'},
-    {id: 'startpage', label: 'Startpage'},
-];
+import {SEARCH_ENGINES} from '../webEngines.js';
 
 export function buildWebSearchPage(settings) {
     const group = new Adw.PreferencesGroup({
         title: 'Web Search',
-        description: 'Web search only appears when no apps or settings match',
+        description: 'Web search appears when nothing else matches, or immediately with the @ prefix',
     });
 
     const webSearchRow = new Adw.SwitchRow({
@@ -47,5 +40,5 @@ export function buildWebSearchPage(settings) {
     });
 
     group.add(engineRow);
-    return group;
+    return [group];
 }

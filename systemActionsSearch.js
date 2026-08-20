@@ -1,7 +1,8 @@
-// spotlight - system actions search provider
+// gosh is launcher - system actions search provider
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
+import {actionMatchesQuery} from './actionMatch.js';
 
 // system actions using gnome shell's built-in systemactions module
 // this is the recommended way per ego review guidelines
@@ -13,6 +14,7 @@ const SYSTEM_ACTIONS = [
         title: 'Lock Screen',
         icon: 'changes-prevent-symbolic',
         keywords: ['lock', 'lockscreen'],
+        can: sa => sa.canLockScreen,
         activate: () => SystemActions.getDefault().activateLockScreen(),
     },
     {
@@ -20,6 +22,7 @@ const SYSTEM_ACTIONS = [
         title: 'Log Out',
         icon: 'system-log-out-symbolic',
         keywords: ['logout', 'signout', 'log out'],
+        can: sa => sa.canLogout,
         activate: () => SystemActions.getDefault().activateLogout(),
     },
     {
@@ -27,6 +30,7 @@ const SYSTEM_ACTIONS = [
         title: 'Suspend',
         icon: 'weather-clear-night-symbolic',
         keywords: ['suspend', 'sleep'],
+        can: sa => sa.canSuspend,
         activate: () => SystemActions.getDefault().activateSuspend(),
     },
     {
@@ -34,6 +38,7 @@ const SYSTEM_ACTIONS = [
         title: 'Restart',
         icon: 'system-reboot-symbolic',
         keywords: ['restart', 'reboot'],
+        can: sa => sa.canRestart,
         activate: () => SystemActions.getDefault().activateRestart(),
     },
     {
@@ -41,6 +46,7 @@ const SYSTEM_ACTIONS = [
         title: 'Shut Down',
         icon: 'system-shutdown-symbolic',
         keywords: ['shutdown', 'poweroff', 'power off'],
+        can: sa => sa.canPowerOff,
         activate: () => SystemActions.getDefault().activatePowerOff(),
     },
     {
@@ -48,26 +54,33 @@ const SYSTEM_ACTIONS = [
         title: 'Switch User',
         icon: 'system-switch-user-symbolic',
         keywords: ['switch user', 'switchuser'],
+        can: sa => sa.canSwitchUser,
         activate: () => SystemActions.getDefault().activateSwitchUser(),
     },
 ];
 
 // searches system actions by title and keywords
-export function searchSystemActions(query) {
-    const lowerQuery = query.toLowerCase();
+// availability is checked at search time so gnome 50 policy still applies
+export function searchSystemActions(query, maxResults) {
+    const sa = SystemActions.getDefault();
     const results = [];
 
     for (const action of SYSTEM_ACTIONS) {
-        if (action.title.toLowerCase().includes(lowerQuery) ||
-            action.keywords.some(kw => kw.includes(lowerQuery) || lowerQuery.includes(kw))) {
-            results.push({
-                type: 'system-action',
-                title: action.title,
-                description: 'System',
-                icon: action.icon,
-                activate: () => action.activate(),
-            });
-        }
+        if (!action.can(sa))
+            continue;
+        if (!actionMatchesQuery(action, query))
+            continue;
+
+        results.push({
+            type: 'system-action',
+            title: action.title,
+            description: 'System',
+            icon: action.icon,
+            activate: () => action.activate(),
+        });
+
+        if (results.length >= maxResults)
+            break;
     }
 
     return results;

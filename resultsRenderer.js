@@ -1,4 +1,4 @@
-// spotlight - runs a search and renders the result rows
+// gosh is launcher - runs a search and renders the result rows
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
@@ -6,7 +6,7 @@ import {buildResultRow} from './resultRow.js';
 import {buildSectionHeader} from './sectionHeader.js';
 import {buildNoResults} from './noResults.js';
 import {getSectionTitle} from './sectionTitles.js';
-import {runSearch} from './searchController.js';
+import {runSearch, runEmptySuggestions} from './searchController.js';
 
 // debounces search-as-you-type and turns results into row widgets - owns
 // the search idle source and calls into a SelectionManager for anything
@@ -29,11 +29,20 @@ export class ResultsRenderer {
         }
     }
 
+    _rowOptions() {
+        return {
+            density: this._settings.get_string('row-density'),
+            showIcons: this._settings.get_boolean('show-result-icons'),
+            showDescriptions: this._settings.get_boolean('show-descriptions'),
+            showNumbers: this._settings.get_boolean('show-result-numbers'),
+        };
+    }
+
     onTextChanged(text) {
         this._clearSearchIdle();
 
         if (text.trim().length === 0) {
-            this.reset();
+            this._showEmptyState();
             return;
         }
 
@@ -44,12 +53,25 @@ export class ResultsRenderer {
         });
     }
 
+    _showEmptyState() {
+        const suggestions = runEmptySuggestions(this._settings);
+        if (suggestions.length === 0) {
+            this.reset();
+            return;
+        }
+        this._paint(suggestions, '');
+    }
+
     _runSearch(text) {
-        this._selection.setResults(runSearch(text, this._settings));
+        this._paint(runSearch(text, this._settings), text.trim());
+    }
+
+    _paint(results, query) {
+        this._selection.setResults(results);
         this._resultsBox.destroy_all_children();
 
         if (this._selection.results.length === 0) {
-            this._resultsBox.add_child(buildNoResults(text.trim()));
+            this._resultsBox.add_child(buildNoResults(query));
         } else {
             this._renderResults();
             this._selection.applySelection(0, true);
@@ -59,15 +81,17 @@ export class ResultsRenderer {
     }
 
     _renderResults() {
+        const showHeaders = this._settings.get_boolean('show-section-headers');
+        const options = this._rowOptions();
         let lastType = null;
         let rowIndex = 0;
         for (const result of this._selection.results) {
-            if (result.type !== lastType) {
+            if (showHeaders && result.type !== lastType) {
                 lastType = result.type;
                 this._resultsBox.add_child(buildSectionHeader(getSectionTitle(result.type)));
             }
             this._resultsBox.add_child(
-                buildResultRow(result, rowIndex, this._onActivate, this._onHover)
+                buildResultRow(result, rowIndex, this._onActivate, this._onHover, options)
             );
             rowIndex++;
         }

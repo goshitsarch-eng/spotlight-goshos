@@ -1,6 +1,17 @@
-// spotlight - app search provider
+// gosh is launcher - app search provider
 // SPDX-License-Identifier: GPL-3.0-or-later
 import Shell from 'gi://Shell';
+import * as ParentalControlsManager from 'resource:///org/gnome/shell/misc/parentalControlsManager.js';
+
+function _parentalControls() {
+    return ParentalControlsManager.getDefault();
+}
+
+function _shouldShowApp(pcm, app) {
+    if (!pcm.initialized)
+        return true;
+    return pcm.shouldShowApp(app);
+}
 
 // searches installed apps using shell appsystem
 // uses gnome-style matching: prefix first then word-prefix then substring
@@ -10,11 +21,15 @@ import Shell from 'gi://Shell';
 export function searchApps(query, maxResults) {
     const appSystem = Shell.AppSystem.get_default();
     const allApps = appSystem.get_installed();
+    const pcm = _parentalControls();
     const seenNames = new Set();
     const scored = [];
     const q = query.toLowerCase();
 
     for (const app of allApps) {
+        if (!_shouldShowApp(pcm, app))
+            continue;
+
         const name = app.get_name() || '';
         const id = app.get_id() || '';
         const nameLower = name.toLowerCase();
@@ -55,18 +70,53 @@ export function searchApps(query, maxResults) {
         scored.push({app, appId: id, title: name, tier});
     }
 
+    // appusage.compare is called once per sort pair so fetch the singleton
+    // outside the comparator instead of on every comparison
+    const appUsage = Shell.AppUsage.get_default();
     scored.sort((a, b) => {
         if (a.tier !== b.tier)
             return a.tier - b.tier;
-        const appUsage = Shell.AppUsage.get_default();
         return appUsage.compare(a.appId, b.appId);
     });
 
-    return scored.slice(0, maxResults).map(({app, appId, title}) => ({
+    return scored.slice(0, maxResults).map(({app, title}) => ({
         type: 'app',
         title,
         app,
-        appId,
+        icon: app.get_icon(),
+        activate: () => {
+            const shellApp = appSystem.lookup_app(app.get_id());
+            if (shellApp)
+                shellApp.activate();
+            else
+                app.launch([], null);
+        },
+    }));
+}
+
+export function searchFrequentApps(maxResults) {
+    const appSystem = Shell.AppSystem.get_default();
+    const allApps = appSystem.get_installed();
+    const appUsage = Shell.AppUsage.get_default();
+    const pcm = _parentalControls();
+    const usable = [];
+
+    for (const app of allApps) {
+        if (!_shouldShowApp(pcm, app))
+            continue;
+        const id = app.get_id();
+        if (!id)
+            continue;
+        usable.push(app);
+    }
+
+    usable.sort((a, b) => appUsage.compare(a.get_id(), b.get_id()));
+
+    return usable.slice(0, maxResults).map(app => ({
+        type: 'app',
+        title: app.get_name() || app.get_id(),
+        app,
+        icon: app.get_icon(),
         activate: () => {
             const shellApp = appSystem.lookup_app(app.get_id());
             if (shellApp)
@@ -85,11 +135,6 @@ function _wordPrefixMatch(nameLower, queryLower) {
     if (len === 0)
         return false;
 
-    // check at start of string
-    if (nameLower.startsWith(queryLower))
-        return true;
-
-    // check after each word boundary character
     for (let i = 0; i < nameLower.length - len; i++) {
         const c = nameLower[i];
         if (c === ' ' || c === '-' || c === '_' || c === '.') {

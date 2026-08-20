@@ -1,15 +1,15 @@
-// spotlight - arithmetic evaluator
+// gosh is launcher - arithmetic evaluator
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // recursive descent parser for arithmetic expressions
 // returns null if input is not valid math so the caller knows to treat it as a search query
 // never uses eval() - it tokenizes the input then parses with standard operator precedence
 export function evaluateArithmetic(input) {
-    if (!/\d/.test(input) || !/[+\-*/%]/.test(input))
+    if (!/\d/.test(input) || !/[+\-*/%^]/.test(input))
         return null;
 
     const tokens = [];
-    const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?|[+\-*/%()])/g;
+    const tokenRegex = /\s*([0-9]+(?:\.[0-9]+)?|[+\-*/%()^])/g;
     let match;
     while ((match = tokenRegex.exec(input)) !== null)
         tokens.push(match[1]);
@@ -36,12 +36,12 @@ export function evaluateArithmetic(input) {
     }
 
     function parseTerm() {
-        let value = parseFactor();
+        let value = parsePower();
         if (value === null)
             return null;
         while (peek() === '*' || peek() === '/' || peek() === '%') {
             const op = consume();
-            const right = parseFactor();
+            const right = parsePower();
             if (right === null)
                 return null;
             if (op === '*')
@@ -57,6 +57,19 @@ export function evaluateArithmetic(input) {
             }
         }
         return value;
+    }
+
+    function parsePower() {
+        const value = parseFactor();
+        if (value === null)
+            return null;
+        if (peek() !== '^')
+            return value;
+        consume();
+        const exp = parsePower();
+        if (exp === null)
+            return null;
+        return Math.pow(value, exp);
     }
 
     function parseFactor() {
@@ -96,5 +109,12 @@ export function evaluateArithmetic(input) {
 }
 
 export function formatNumber(n) {
-    return String(n);
+    if (Object.is(n, -0))
+        return '0';
+    if (Number.isInteger(n))
+        return String(n);
+    const rounded = Number(n.toPrecision(12));
+    if (Number.isInteger(rounded))
+        return String(rounded);
+    return String(rounded);
 }

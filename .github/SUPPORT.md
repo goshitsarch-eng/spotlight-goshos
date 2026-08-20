@@ -1,14 +1,14 @@
-## getting help with spotlight
+## getting help with gosh is launcher
 
-if spotlight is not working as expected, check these first
+if gosh is launcher is not working as expected, check these first
 
 - read the readme for installation and usage instructions
 - check the issues tab for existing reports of the same problem
-- run `journalctl -b /usr/bin/gnome-shell | grep spotlight` and check for errors mentioning spotlight
+- run `journalctl -b /usr/bin/gnome-shell | grep -i gosh` and check for errors
 
 ## reporting a bug
 
-open a bug report issue using the bug report template it asks for the information needed to reproduce and fix the problem, including gnome shell version, distribution, and relevant log lines
+open a bug report issue using the bug report template it asks for the information needed to reproduce and fix the problem, including gnome shell version, distribution, launcher look, and relevant log lines
 
 ## requesting a feature
 

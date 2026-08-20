@@ -1,4 +1,4 @@
-// spotlight - calculator search provider
+// gosh is launcher - calculator search provider
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import St from 'gi://St';
@@ -8,18 +8,19 @@ import {evaluateArithmetic, formatNumber} from './calculator.js';
 export function searchCalculator(query) {
     const result = evaluateArithmetic(query);
     if (result === null)
-        return null;
+        return [];
 
-    return {
+    const formatted = formatNumber(result);
+    return [{
         type: 'calculator',
-        title: formatNumber(result),
+        title: formatted,
         description: 'Press Enter to copy to clipboard',
         icon: 'accessories-calculator-symbolic',
         activate: () => {
             // clipboard write only - triggered by explicit user action on the calculator result
             // declared in metadata.json description
             const clipboard = St.Clipboard.get_default();
-            clipboard.set_text(St.ClipboardType.CLIPBOARD, formatNumber(result));
+            clipboard.set_text(St.ClipboardType.CLIPBOARD, formatted);
         },
-    };
+    }];
 }

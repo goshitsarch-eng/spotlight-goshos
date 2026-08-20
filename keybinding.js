@@ -1,4 +1,4 @@
-// spotlight - keybinding manager
+// gosh is launcher - keybinding manager
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -19,13 +19,18 @@ export class KeybindingManager {
 
     disable() {
         this.unlisten();
-        global.display.disconnect(this._eventId);
+        if (this._eventId) {
+            global.display.disconnect(this._eventId);
+            this._eventId = 0;
+        }
     }
 
     listenFor(accelerator, callback) {
         const action = global.display.grab_accelerator(accelerator, 0);
-        if (action === Meta.KeyBindingAction.NONE)
+        if (action === Meta.KeyBindingAction.NONE) {
+            console.warn(`gosh is launcher: failed to grab shortcut ${accelerator}`);
             return false;
+        }
 
         const name = Meta.external_binding_name_for_action(action);
         Main.wm.allowKeybinding(name, Shell.ActionMode.ALL);

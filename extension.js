@@ -1,16 +1,16 @@
-// spotlight - a compact launcher for gnome shell
+// gosh is launcher - a compact launcher for gnome shell
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-import {SpotlightPopup} from './spotlightPopup.js';
+import {LauncherPopup} from './launcherPopup.js';
 import {KeybindingManager} from './keybinding.js';
 
 // entry point - enable and disable are kept next to each other for easy review
-export default class SpotlightExtension extends Extension {
+export default class GoshIsLauncherExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
-        this._popup = new SpotlightPopup(this);
+        this._popup = new LauncherPopup(this);
 
         this._keybindingManager = new KeybindingManager();
         this._keybindingManager.enable();
@@ -33,7 +33,7 @@ export default class SpotlightExtension extends Extension {
 
     _grabShortcut(accelerator) {
         this._keybindingManager.listenFor(accelerator, () => {
-            if (this._popup.visible)
+            if (this._popup.visible || this._popup.isOpen)
                 this._popup.close();
             else
                 this._popup.open();

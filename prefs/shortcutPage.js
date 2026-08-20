@@ -1,4 +1,4 @@
-// spotlight - shortcut preferences page
+// gosh is launcher - shortcut preferences page
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Gtk from 'gi://Gtk';
@@ -8,7 +8,7 @@ import Gdk from 'gi://Gdk';
 export function buildShortcutPage(settings) {
     const group = new Adw.PreferencesGroup({
         title: 'Keyboard Shortcut',
-        description: 'Set the shortcut to open Spotlight',
+        description: 'Set the shortcut to open Gosh Is Launcher',
     });
 
     const shortcutRow = new Adw.ActionRow({
@@ -37,6 +37,12 @@ export function buildShortcutPage(settings) {
         if (!capturing)
             return false;
 
+        if (keyval === Gdk.KEY_Escape) {
+            capturing = false;
+            shortcutLabel.label = formatShortcut(settings.get_strv('toggle-shortcut'));
+            return true;
+        }
+
         if (keyval === Gdk.KEY_Control_L || keyval === Gdk.KEY_Control_R ||
             keyval === Gdk.KEY_Shift_L || keyval === Gdk.KEY_Shift_R ||
             keyval === Gdk.KEY_Alt_L || keyval === Gdk.KEY_Alt_R ||
@@ -52,6 +58,8 @@ export function buildShortcutPage(settings) {
             accelerator += '<Control>';
         if (state & Gdk.ModifierType.SHIFT_MASK)
             accelerator += '<Shift>';
+        if (state & Gdk.ModifierType.ALT_MASK)
+            accelerator += '<Alt>';
         if (state & Gdk.ModifierType.META_MASK)
             accelerator += '<Meta>';
         accelerator += Gdk.keyval_name(keyval);
@@ -98,5 +106,6 @@ function formatShortcut(shortcutArray) {
         .replace(/<Super>/g, 'Super+')
         .replace(/<Control>/g, 'Ctrl+')
         .replace(/<Shift>/g, 'Shift+')
-        .replace(/<Alt>/g, 'Alt+');
+        .replace(/<Alt>/g, 'Alt+')
+        .replace(/<Meta>/g, 'Meta+');
 }
