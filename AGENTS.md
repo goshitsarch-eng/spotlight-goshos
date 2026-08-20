@@ -143,6 +143,7 @@ gosh-is-launcher@nin/
     popupGate.js              open versus toggle-close (pure)
     popupPosition.js          work-area origin (pure)
     resultPointer.js          result row press/release (pure)
+    focusLoss.js              close vs refocus the entry (pure)
     backdropBox.js            multi-monitor click-outside box (pure)
     searchRun.js              run a plan against providers (pure)
     windowMatch.js            window title class match and wayland recency (pure)
@@ -170,7 +171,7 @@ gosh-is-launcher@nin/
     popupKeyHandler.js        stage-level key capture
     entryPreedit.js           ime preedit (pure)
     popupBackdrop.js          click-outside closer
-    focusLossWatcher.js       close on alt-tab focus loss
+    focusLossWatcher.js       close on alt-tab or return focus to the entry
     themes.js                 look catalog (pure data)
     prefsCombo.js             keep prefs combos in sync with gsettings (pure)
     webEngines.js             search engine catalog (pure data)
@@ -197,7 +198,7 @@ gosh-is-launcher@nin/
         validate.sh           syntax schema tests and zip checks
 ```
 
-pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
+pure modules (themes prefsCombo webEngines prefixParser urlMatch actionMatch calculator numberWords unitMatch placeMatch bookmarkParse timeMatch colorMatch paintSelection sectionTitles recentXbel keyAction commandReady shortcutAccel popupGate popupPosition backdropBox searchPlan searchRun windowMatch appMatch appAction wordMatch entryPreedit homePath pathMatch resultPointer focusLoss) must not import gi://St Clutter Meta Shell Gtk Gdk or Adw so both processes can share them
 
 ### process isolation
 
@@ -269,7 +270,7 @@ the popup does not use Main.pushModal a modal grab swallows pointer events befor
 
 first a transparent full-screen reactive St.Widget called the backdrop is added to the chrome layer before the popup itself the backdrop covers every monitor and listens for button-press button-release and touch-event press must return EVENT_STOP or wayland delivers it to the window below and the matching release activates that window after closeSoon() hides the launcher release and touch-end call closeSoon() after the event so clutter 18 does not abort while destroying that actor the popup sits above the backdrop in the chrome stack so clicks on the popup itself are received normally
 
-second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open()
+second FocusLossWatcher monitors notify::key-focus on global.stage if keyboard focus moves to an actor outside the popup for example via alt-tab the popup closes if focus stays inside but is not the search entry a click on a result row or scrollbar the watcher returns it to the entry so later letters do not vanish this is deferred via an idle source to avoid firing during the initial grab_key_focus call in open() result rows and chrome use can_focus false for the same reason
 
 keyboard input is captured by calling grab_key_focus() on the search entry which directs all key events to the entry while it holds focus the escape key closes the popup arrow keys tab and page up/down move the selection and enter activates the selected result if that row is still pending enter runs the first ready sibling so a checking path can still open in terminal alt+1-9 activates only that numbered row when the setting is on a pending slot must not steal a later app home and end edit the query unless the caret is already at that edge in which case they jump to the first or last result
 

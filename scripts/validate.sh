@@ -177,6 +177,7 @@ required = [
     'colorMatch.js',
     'paintSelection.js',
     'asyncPaint.js',
+    'focusLoss.js',
     'labelEllipsize.js',
     'scrollView.js',
     'entryPreedit.js',

@@ -3,6 +3,7 @@
 
 import St from 'gi://St';
 import {attachScrollChild, applyScrollPolicy, setOverlayScrollbars} from './scrollView.js';
+import {popupChromeShouldFocus} from './focusLoss.js';
 
 // creates the scrollable results container
 export function buildResultsContainer(settings) {
@@ -10,6 +11,7 @@ export function buildResultsContainer(settings) {
         style_class: 'gosh-results',
         visible: false,
         x_expand: true,
+        can_focus: popupChromeShouldFocus(),
         style: `max-height: ${settings.get_int('results-max-height')}px;`,
     });
     applyScrollPolicy(resultsScroll, St.PolicyType.NEVER, St.PolicyType.AUTOMATIC);

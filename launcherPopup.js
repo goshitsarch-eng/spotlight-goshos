@@ -20,6 +20,7 @@ import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
 import {canOpenPopup, shouldCloseOnSession, sessionLimitsReached, timeLimitsState, nextReopenAfterClose, nextToggleAction} from './popupGate.js';
+import {popupChromeShouldFocus} from './focusLoss.js';
 import {activateResultSafe, resultCanActivate} from './resultActivate.js';
 import {shouldApplyHoverSelection} from './resultPointer.js';
 import {popupWidthForWorkArea, placePopup} from './popupPosition.js';
@@ -46,7 +47,7 @@ class LauncherPopup extends St.BoxLayout {
         super._init({
             style_class: 'gosh-container',
             reactive: true,
-            can_focus: true,
+            can_focus: popupChromeShouldFocus(),
             visible: false,
             width: extension._settings.get_int('popup-width'),
         });
@@ -492,8 +493,10 @@ class LauncherPopup extends St.BoxLayout {
     }
 
     activateResult(result) {
-        if (!resultCanActivate(result))
+        if (!resultCanActivate(result)) {
+            this._entry.grab_key_focus();
             return;
+        }
         this.closeSoon();
         activateResultSafe(result);
     }

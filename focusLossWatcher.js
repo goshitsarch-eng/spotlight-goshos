@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
+import {focusIsSearchEntry, focusLossAction} from './focusLoss.js';
 
 // watches notify::key-focus on global.stage - if focus moves to an actor
 // outside the popup, for example via alt-tab, the popup closes
+// a click on a row or scrollbar that still steals focus is returned
+// to the entry so later letters do not vanish
 //
 // setup is deferred via an idle source to avoid firing during the initial
 // grab_key_focus call in open(), which would otherwise close the popup
@@ -26,12 +29,16 @@ export class FocusLossWatcher {
                 if (!this._popup.visible)
                     return;
                 const focus = global.stage.get_key_focus();
-                // gnome 48 returns null instead of the stage when nothing
-                // has focus a brief null during grab or ime is not alt-tab
-                if (!focus || focus === global.stage)
-                    return;
-                if (!this._popup.contains(focus))
+                const action = focusLossAction(
+                    Boolean(focus),
+                    focus === global.stage,
+                    Boolean(focus && this._popup.contains(focus)),
+                    focusIsSearchEntry(focus, this._popup._entry),
+                );
+                if (action === 'close')
                     this._popup.closeSoon();
+                else if (action === 'refocus-entry')
+                    this._popup._entry.grab_key_focus();
             });
             return GLib.SOURCE_REMOVE;
         });

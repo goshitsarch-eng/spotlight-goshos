@@ -56,6 +56,7 @@ Pure catalogs (`themes.js`, `webEngines.js`, `prefixParser.js`, `urlMatch.js`, `
 - **`sectionHeader.js`** — Section header label for categorizing results.
 - **`sectionTitles.js`** — Maps result type strings to human-readable section titles.
 - **`noResults.js`** — Empty-state widget displayed when a search yields no matches.
+- **`focusLossWatcher.js`** — Closes on alt-tab. Returns focus to the search entry if a row or scrollbar steals it.
 
 ### Search Providers
 
@@ -99,6 +100,7 @@ Pure functions with no side effects:
 - **`numberWords.js`** — Spoken cardinals, tens, and ordinal powers.
 - **`paintSelection.js`** — Keep the selected row across an async repaint.
 - **`asyncPaint.js`** — Whether a Gio finish may schedule a result repaint. A closed popup must not accept one.
+- **`focusLoss.js`** — Close on alt-tab, or return focus to the search entry after a row click.
 - **`prefixParser.js`** — `= @ # $ . !` prefix parsing.
 - **`searchPlan.js`** — Provider plan from feature flags.
 - **`urlMatch.js`** — URL detection.
@@ -281,6 +283,7 @@ Manual testing on GNOME Shell 50 Wayland:
 86. Set Max results to 2, switch to Pop!_OS, and open the launcher with several windows and frequent apps — the empty list must show 2 rows, not windows plus apps. Switch result order to apps first with the same cap — still 2 rows.
 87. Add a GTK bookmark whose `file://` line has a space in the folder name, or open a recent file under such a folder — Enter must open it. A `javascript:` bookmark must still be ignored.
 88. Close the launcher while a `~/` path, `!` slash-path, recent-file load, or GTK bookmark read is still in flight — the shell must stay up. Reopen and type the same query — the exists check must run again, not reuse a row from the closed session.
+89. Click a pending Checking path row, then type another character — the letter must appear in the search entry. Click the scrollbar or a section header, then type — same. Alt-tab must still close the popup.
 
 ## Submitting Changes
 

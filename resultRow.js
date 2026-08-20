@@ -5,6 +5,7 @@ import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import {ellipsizeLabel} from './labelEllipsize.js';
 import {rowPointerAction, rowTouchPhase, PRIMARY_BUTTON} from './resultPointer.js';
+import {resultRowShouldFocus} from './focusLoss.js';
 
 // builds a single result row with icon title and click/hover handling
 export function buildResultRow(result, resultIndex, onActivate, onHover, options) {
@@ -13,7 +14,7 @@ export function buildResultRow(result, resultIndex, onActivate, onHover, options
         style_class: 'gosh-result',
         vertical: false,
         reactive: true,
-        can_focus: true,
+        can_focus: resultRowShouldFocus(),
         track_hover: true,
     });
 
