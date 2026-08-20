@@ -108,6 +108,7 @@ gosh-is-launcher@nin/
     recentFilesSearch.js      recent files provider
     recentXbel.js             parse recently-used.xbel (pure)
     keyAction.js              key press to popup action (pure)
+    gioLaunch.js              async spawn and uri open
     urlSearch.js              url open provider
     commandSearch.js          command runner
     searchController.js       orchestrates all providers

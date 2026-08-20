@@ -113,4 +113,29 @@ if [[ -e schemas/org.gnome.shell.extensions.spotlight.gschema.xml ]]; then
   exit 1
 fi
 
+echo "pack zip"
+bash scripts/pack.sh >/tmp/gosh-pack.out
+python3 - <<'PY'
+import zipfile
+z = zipfile.ZipFile('gosh-is-launcher@nin.zip')
+names = z.namelist()
+required = [
+    'metadata.json',
+    'extension.js',
+    'stylesheet.css',
+    'prefs/appearancePage.js',
+    'schemas/org.gnome.shell.extensions.gosh-is-launcher.gschema.xml',
+    'gioLaunch.js',
+    'scrollView.js',
+]
+missing = [n for n in required if n not in names]
+if missing:
+    raise SystemExit(f'zip missing {missing}')
+if any(n.endswith('gschemas.compiled') for n in names):
+    raise SystemExit('zip must not ship gschemas.compiled')
+if any(n.startswith('tests/') or n.startswith('.github/') for n in names):
+    raise SystemExit('zip contains development files')
+print(f'zip has {len(names)} files')
+PY
+
 echo "validate ok"

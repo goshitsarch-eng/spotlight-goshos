@@ -4,6 +4,7 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {parseRecentXbel, basenameFromUri} from './recentXbel.js';
+import {openUri} from './gioLaunch.js';
 
 // cache is filled on an async read so search never calls load_contents
 // on the compositor thread https://gjs.guide/extensions/review-guidelines/review-guidelines.html
@@ -106,7 +107,7 @@ export function searchRecentFiles(query, maxResults) {
             description: 'Recent file',
             icon: 'document-open-recent-symbolic',
             activate: () => {
-                Gio.app_info_launch_default_for_uri(uri, null);
+                openUri(uri);
             },
         });
     }

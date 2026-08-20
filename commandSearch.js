@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
+import {spawnArgv} from './gioLaunch.js';
 
 // only offered when the user used the ! prefix so ordinary searches
 // never spawn a process
@@ -19,10 +19,7 @@ export function searchCommand(query) {
             const [ok, argv] = GLib.shell_parse_argv(query);
             if (!ok || argv.length === 0)
                 return;
-            // wait_check_async keeps the subprocess referenced until it exits
-            // a dropped Gio.Subprocess can SIGTERM the child on gc
-            Gio.Subprocess.new(argv, Gio.SubprocessFlags.NONE)
-                .wait_check_async(null, () => {});
+            spawnArgv(argv);
         },
     }];
 }

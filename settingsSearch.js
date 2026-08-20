@@ -1,8 +1,8 @@
 // gosh is launcher - settings search provider
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import Gio from 'gi://Gio';
 import {matchSettingsPanels} from './settingsPanels.js';
+import {spawnArgv} from './gioLaunch.js';
 
 // searches gnome settings panels by title
 // normalizes by removing hyphens and underscores so wifi matches wi-fi
@@ -13,10 +13,7 @@ export function searchSettings(query, maxResults) {
         description: 'GNOME Settings',
         icon: 'preferences-system-symbolic',
         activate: () => {
-            Gio.Subprocess.new(
-                ['gnome-control-center', panel.id],
-                Gio.SubprocessFlags.NONE,
-            ).wait_check_async(null, () => {});
+            spawnArgv(['gnome-control-center', panel.id]);
         },
     }));
 }
