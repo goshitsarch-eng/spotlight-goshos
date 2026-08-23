@@ -58,8 +58,28 @@ export function isPlausibleWebHost(host) {
     return /^[a-z]{2,}$/.test(tld);
 }
 
+// zero-width joiners bidi controls and a nul byte survive trim and split a
+// dangerous scheme so a start-anchored test misses java\u200bscript: and
+// \u200bdata: strip them before reading the scheme so a gtk bookmark or an
+// xbel entry written by a local actor cannot smuggle a scheme past the filter
+const SCHEME_FUZZ_RE = /[\0\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g;
+// a real uri scheme is alpha then alnum + - . per rfc 3986
+const URI_SCHEME_RE = /^[a-z][a-z0-9+.-]*$/i;
+const UNSAFE_LAUNCH_SCHEMES = new Set(['javascript', 'data', 'vbscript']);
+
+function launchUriScheme(query) {
+    const cleaned = query.replace(SCHEME_FUZZ_RE, '').trim();
+    const colon = cleaned.indexOf(':');
+    if (colon <= 0)
+        return '';
+    const scheme = cleaned.slice(0, colon);
+    if (!URI_SCHEME_RE.test(scheme))
+        return '';
+    return scheme.toLowerCase();
+}
+
 export function isUnsafeLaunchUri(query) {
-    return /^(javascript|data|vbscript):/i.test(query.trim());
+    return UNSAFE_LAUNCH_SCHEMES.has(launchUriScheme(query));
 }
 
 function stripTrailingDots(text) {

@@ -7,7 +7,9 @@ import {pathFromFileUri, decodeUriComponentSafe} from './homePath.js';
 export {pathFromFileUri};
 
 // skip http https and javascript so only openable locations remain
-const HREF_RE = /href\s*=\s*["']((?:file|sftp|ftp|smb|davs?):[^"']+)["']/gi;
+// require the authority slashes so a nested file:javascript: href that a
+// prefix-only match would accept never reaches the default uri handler
+const HREF_RE = /href\s*=\s*["']((?:file|sftp|ftp|smb|davs?):\/\/[^"']+)["']/gi;
 
 function unescapeXml(text) {
     return text
