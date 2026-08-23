@@ -8,14 +8,30 @@ import {resolveCommandArgv, canonicalizeLaunchUri} from './homePath.js';
 import {extraPathDirs, findUserProgram, joinPathDirs} from './userPath.js';
 import {isUnsafeLaunchUri} from './urlMatch.js';
 
+// findUserProgram walks the shell PATH with find_program_in_path and stats
+// extra dirs with file_test both synchronous on the compositor thread
+// searchPlaces searchPath searchSettings and searchCommand probe this on
+// every keystroke and terminalSpec alone tries up to eleven binaries so a
+// single search can fire dozens of blocking calls and stutter the desktop
+// program locations do not change within a session so cache hits and misses
+const _programPathCache = new Map();
+
+export function resetProgramPathCache() {
+    _programPathCache.clear();
+}
+
 export function findInUserPath(name) {
+    if (_programPathCache.has(name))
+        return _programPathCache.get(name);
     const home = GLib.get_home_dir() || '';
-    return findUserProgram(
+    const found = findUserProgram(
         name,
         n => GLib.find_program_in_path(n),
         p => GLib.file_test(p, GLib.FileTest.IS_EXECUTABLE),
         extraPathDirs(home),
     );
+    _programPathCache.set(name, found);
+    return found;
 }
 
 export function spawnArgv(argv, cwd) {

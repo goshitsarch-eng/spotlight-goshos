@@ -11,6 +11,7 @@ import {invalidateRecentFiles} from './recentFilesSearch.js';
 import {invalidatePathLookup} from './pathSearch.js';
 import {invalidateCommandLookup} from './commandSearch.js';
 import {invalidateBookmarks} from './bookmarksSearch.js';
+import {resetProgramPathCache} from './gioLaunch.js';
 
 // entry point - enable and disable are kept next to each other for easy review
 export default class GoshIsLauncherExtension extends Extension {
@@ -78,6 +79,10 @@ export default class GoshIsLauncherExtension extends Extension {
         invalidatePathLookup();
         invalidateCommandLookup();
         invalidateBookmarks();
+
+        // drop cached program locations so a re-enable re-probes PATH in case
+        // a terminal or gnome-control-center was installed since enable
+        resetProgramPathCache();
 
         if (this._popup) {
             this._popup.destroy();
