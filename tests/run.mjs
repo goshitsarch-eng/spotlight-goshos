@@ -254,6 +254,12 @@ assert(!isUrlQuery('javascript:alert(1)'), 'javascript is not a url');
 assert(isUnsafeLaunchUri('javascript:alert(1)'), 'javascript is unsafe');
 assert(isUnsafeLaunchUri('DATA:text/html,hi'), 'data is unsafe');
 assert(!isUnsafeLaunchUri('https://example.com'), 'https is safe');
+assert(isUnsafeLaunchUri('\u200bdata:text/html,hi'), 'leading zero-width data is unsafe');
+assert(isUnsafeLaunchUri('java\u200bscript:alert(1)'), 'split javascript is unsafe');
+assert(isUnsafeLaunchUri('\0vbscript:msgbox(1)'), 'nul prefixed vbscript is unsafe');
+assert(isUnsafeLaunchUri('  javascript:alert(1)'), 'padded javascript is unsafe');
+assert(!isUnsafeLaunchUri('file:///home/u/data'), 'file uri is safe');
+assert(!isUnsafeLaunchUri('mailto:a@b.c'), 'mailto is safe');
 assertEq(normalizeUrl('javascript:alert(1)'), null, 'javascript normalize is rejected');
 assertEq(normalizeUrl('sftp://nas/share'), 'sftp://nas/share', 'keep sftp scheme');
 assertEq(urlRowDescription('sftp://nas/share'), 'Open location', 'sftp copy');
@@ -1808,6 +1814,21 @@ const xbel = `
 </xbel>`;
 assertEq(parseRecentXbel(xbel).length, 3, 'xbel keeps file and sftp skips web');
 assert(parseRecentXbel(xbel).includes('sftp://nas.local/share/notes.txt'), 'xbel sftp');
+assertEq(
+    parseRecentXbel('<bookmark href="file:javascript:alert(1)"/>').length,
+    0,
+    'xbel rejects nested file javascript scheme',
+);
+assertEq(
+    parseRecentXbel('<bookmark href="file:///tmp/ok.txt"/><bookmark href="file:data:text/html,x"/>')[0],
+    'file:///tmp/ok.txt',
+    'xbel keeps real file uri and drops nested data scheme',
+);
+assertEq(
+    parseRecentXbel('<bookmark href="file:data:text/html,x"/>').length,
+    0,
+    'xbel rejects nested file data scheme',
+);
 assertEq(remoteHostFromUri('sftp://me@nas.local/share'), 'nas.local', 'remote recent host');
 assertEq(remoteHostFromUri('file:///tmp/a'), '', 'file uri has no host');
 assertEq(parseRecentXbel(xbel)[2], 'file:///home/user/My%20File.pdf', 'keep encoded uri');
