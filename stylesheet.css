@@ -833,7 +833,9 @@
 .gosh-theme-tofi .gosh-entry {
   color: #ffffff;
   caret-color: #ffffff;
-  selection-background-color: #ffffff;
+  /* white entry text on a white selection band is invisible so drag or
+     ctrl+a selection in the search field needs a darker highlight */
+  selection-background-color: #555555;
   font-size: 14px;
   padding: 6px 8px 6px 0;
   border-radius: 0;
